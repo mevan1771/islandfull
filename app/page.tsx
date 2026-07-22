@@ -8,22 +8,22 @@ const MOCK_ACTIVITIES = [
   {
     id: '1', title: 'Secret Sunset Surf Lesson', slug: 'secret-sunset-surf-hiriketiya',
     location: 'Hiriketiya', duration: '2 hours', priceUsd: 35.00,
-    coverImage: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    coverImage: 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
   },
   {
     id: '2', title: 'Yala Leopard Safari in 4x4', slug: 'yala-leopard-safari',
     location: 'Yala', duration: 'Half Day', priceUsd: 75.00,
-    coverImage: 'https://images.unsplash.com/photo-1610444360341-356a422a10d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    coverImage: 'https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=800'
   },
   {
     id: '3', title: 'Ella Nine Arch Trek', slug: 'ella-nine-arch-trek',
     location: 'Ella', duration: '6 hours', priceUsd: 45.00,
-    coverImage: 'https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    coverImage: 'https://images.pexels.com/photos/1368382/pexels-photo-1368382.jpeg?auto=compress&cs=tinysrgb&w=800'
   },
   {
     id: '4', title: 'Sigiriya Rock Climb', slug: 'sigiriya-rock-fortress-climb',
     location: 'Sigiriya', duration: '3 hours', priceUsd: 20.00,
-    coverImage: 'https://images.unsplash.com/photo-1586520743171-460d3d3b7fa8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    coverImage: 'https://images.pexels.com/photos/2444403/pexels-photo-2444403.jpeg?auto=compress&cs=tinysrgb&w=800'
   }
 ]
 

@@ -1,4 +1,4 @@
--- Seed Data for IslandFull Phase 1
+-- Seed Data for IslandFull Phase 1 (Updated with reliable Pexels CDN images)
 
 -- Categories
 INSERT INTO categories (id, name, slug) VALUES 
@@ -21,8 +21,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '2 hours', 
     35.00, 
     10500.00, 
-    'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     6
   ),
   (
@@ -37,8 +37,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     'Half Day (Morning or Afternoon)', 
     75.00, 
     22500.00, 
-    'https://images.unsplash.com/photo-1610444360341-356a422a10d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     4
   ),
   (
@@ -53,8 +53,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '6 hours', 
     45.00, 
     13500.00, 
-    'https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/1368382/pexels-photo-1368382.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/1368388/pexels-photo-1368388.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     12
   ),
   (
@@ -69,8 +69,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '3 hours', 
     20.00, 
     6000.00, 
-    'https://images.unsplash.com/photo-1586520743171-460d3d3b7fa8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1620802051779-1fbfa703fb7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/2444403/pexels-photo-2444403.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/2444405/pexels-photo-2444405.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     15
   ),
   (
@@ -85,8 +85,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '4-5 hours', 
     60.00, 
     18000.00, 
-    'https://images.unsplash.com/photo-1601614013628-868c2d2e1b12?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1582967672800-47864f16a0ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/68767/pexels-photo-68767.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     30
   ),
   (
@@ -101,8 +101,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '3 hours', 
     25.00, 
     7500.00, 
-    'https://images.unsplash.com/photo-1606471191009-63994c53433b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1546549095-5b32e22dd175?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     8
   ),
   (
@@ -117,8 +117,8 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '3 Days', 
     150.00, 
     45000.00, 
-    'https://images.unsplash.com/photo-1414490929659-9a12b7e31907?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1518118014377-a6c9fb60d84f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     10
   ),
   (
@@ -133,7 +133,7 @@ INSERT INTO activities (id, title, slug, category_id, provider_name, location, d
     '3-4 hours', 
     65.00, 
     19500.00, 
-    'https://images.unsplash.com/photo-1580974582391-a6649c82a85f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
-    ARRAY['https://images.unsplash.com/photo-1549472304-a63e9f3b145a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'], 
+    'https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg?auto=compress&cs=tinysrgb&w=800', 
+    ARRAY['https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=800'], 
     6
   );

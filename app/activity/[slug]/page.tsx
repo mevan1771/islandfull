@@ -64,6 +64,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           src={activity.cover_image_url}
           alt={activity.title}
           fill
+          placeholder="blur"
+          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           className="object-cover"
           priority
         />
@@ -162,7 +164,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               <div className="grid grid-cols-2 gap-4">
                 {activity.gallery_urls.map((url: string, i: number) => (
                   <div key={i} className="relative aspect-video rounded-3xl overflow-hidden shadow-sm group">
-                    <Image src={url} alt="Gallery image" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <Image src={url} alt="Gallery image" fill placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                   </div>
                 ))}
               </div>
