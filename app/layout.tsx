@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
-  themeColor: "#059669",
+  themeColor: "#f43f5e",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -14,7 +14,13 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "IslandFull | Sri Lanka Tours & Activities",
-  description: "Discover and book the best local experiences, surfing, safaris, and tours in Sri Lanka.",
+  description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "IslandFull",
+  },
 };
 
 export default function RootLayout({

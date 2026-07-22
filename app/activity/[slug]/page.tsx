@@ -23,14 +23,15 @@ const MOCK_DETAILS: Record<string, any> = {
   }
 }
 
-export default async function ActivityPage({ params }: { params: { slug: string } }) {
+export default async function ActivityPage({ params }: { params: Promise<{ slug: string }> }) {
   let activity = null;
+  const { slug } = await params;
 
   try {
     const { data, error } = await supabase
       .from('activities')
       .select('*')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .single()
 
     if (data) {
@@ -41,7 +42,7 @@ export default async function ActivityPage({ params }: { params: { slug: string 
   }
 
   if (!activity) {
-    activity = MOCK_DETAILS[params.slug];
+    activity = MOCK_DETAILS[slug];
   }
 
   if (!activity) {
@@ -49,7 +50,7 @@ export default async function ActivityPage({ params }: { params: { slug: string 
   }
 
   return (
-    <div className="bg-zinc-50 min-h-screen pb-32 md:pb-12">
+    <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Mobile Back Button */}
       <div className="absolute top-4 left-4 z-20 md:hidden">
         <Link href="/" className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
@@ -58,7 +59,7 @@ export default async function ActivityPage({ params }: { params: { slug: string 
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-[40vh] md:h-[60vh] max-w-7xl mx-auto md:mt-8 md:rounded-3xl overflow-hidden">
+      <div className="relative w-full h-[45vh] md:h-[65vh] md:mt-8 max-w-[1400px] mx-auto md:rounded-3xl overflow-hidden shadow-2xl">
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -66,77 +67,102 @@ export default async function ActivityPage({ params }: { params: { slug: string 
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-        <div className="absolute bottom-0 left-0 p-6 md:p-12 text-white">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="px-3 py-1 bg-emerald-600 rounded-full text-xs font-semibold backdrop-blur-sm">
-              {activity.location}
-            </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 p-6 md:p-16 text-white w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-4 py-1.5 bg-rose-500 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-lg shadow-rose-500/30">
+                  {activity.location}
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight drop-shadow-md">
+                {activity.title}
+              </h1>
+            </div>
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-3xl leading-tight">
-            {activity.title}
-          </h1>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-        <div className="flex-1 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-12">
+        <div className="flex-1 space-y-12">
           
-          {/* Quick Info */}
-          <div className="flex flex-wrap gap-4 p-4 bg-white rounded-2xl shadow-sm border border-zinc-100">
-            <div className="flex items-center gap-2 text-zinc-700">
-              <Clock className="w-5 h-5 text-emerald-600" />
-              <span className="font-medium">{activity.duration}</span>
+          {/* Quick Info Pills */}
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Clock className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-zinc-400 uppercase">Duration</span>
+                <span className="font-semibold text-zinc-900">{activity.duration}</span>
+              </div>
             </div>
-            <div className="w-px h-6 bg-zinc-200 hidden sm:block"></div>
-            <div className="flex items-center gap-2 text-zinc-700">
-              <MapPin className="w-5 h-5 text-emerald-600" />
-              <span className="font-medium">{activity.location}</span>
+            
+            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <MapPin className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-zinc-400 uppercase">Location</span>
+                <span className="font-semibold text-zinc-900">{activity.location}</span>
+              </div>
             </div>
-            <div className="w-px h-6 bg-zinc-200 hidden sm:block"></div>
-            <div className="flex items-center gap-2 text-zinc-700">
-              <Users className="w-5 h-5 text-emerald-600" />
-              <span className="font-medium">Up to {activity.max_capacity} people</span>
+
+            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Users className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-zinc-400 uppercase">Capacity</span>
+                <span className="font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
+              </div>
             </div>
           </div>
 
           {/* Description */}
           <section>
-            <h2 className="text-2xl font-bold text-zinc-900 mb-4">About this experience</h2>
-            <p className="text-zinc-600 leading-relaxed text-lg">
+            <h2 className="text-3xl font-bold text-zinc-900 mb-6">About this experience</h2>
+            <p className="text-zinc-600 leading-relaxed text-lg font-medium">
               {activity.description}
             </p>
-            <div className="mt-4 flex items-center gap-2 text-sm text-zinc-500">
-              Provided by <span className="font-semibold text-zinc-900">{activity.provider_name}</span>
+            <div className="mt-6 flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
+              <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center">
+                <span className="font-bold text-zinc-500">{activity.provider_name.charAt(0)}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-zinc-400 uppercase">Hosted By</span>
+                <span className="font-bold text-zinc-900">{activity.provider_name}</span>
+              </div>
             </div>
           </section>
 
           {/* Inclusions */}
           {activity.inclusions && activity.inclusions.length > 0 && (
-            <section className="bg-emerald-50 rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-emerald-900 mb-6">What's included</h2>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <section className="bg-rose-50/50 rounded-3xl p-8 md:p-10 border border-rose-100">
+              <h2 className="text-2xl font-bold text-zinc-900 mb-8">What's included</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {activity.inclusions.map((item: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className="mt-1 w-5 h-5 rounded-full bg-emerald-200 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3.5 h-3.5 text-emerald-700" />
+                  <li key={i} className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-500/20">
+                      <Check className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-emerald-900/80 font-medium">{item}</span>
+                    <span className="text-zinc-800 font-semibold">{item}</span>
                   </li>
                 ))}
               </ul>
             </section>
           )}
 
-          {/* Photo Gallery (Simple Mock) */}
+          {/* Photo Gallery */}
           {activity.gallery_urls && activity.gallery_urls.length > 0 && (
             <section>
-              <h2 className="text-2xl font-bold text-zinc-900 mb-4">Gallery</h2>
+              <h2 className="text-3xl font-bold text-zinc-900 mb-6">Gallery</h2>
               <div className="grid grid-cols-2 gap-4">
                 {activity.gallery_urls.map((url: string, i: number) => (
-                  <div key={i} className="relative aspect-video rounded-2xl overflow-hidden">
-                    <Image src={url} alt="Gallery image" fill className="object-cover" />
+                  <div key={i} className="relative aspect-video rounded-3xl overflow-hidden shadow-sm group">
+                    <Image src={url} alt="Gallery image" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                   </div>
                 ))}
               </div>
@@ -145,8 +171,8 @@ export default async function ActivityPage({ params }: { params: { slug: string 
         </div>
 
         {/* Sidebar / Desktop Booking */}
-        <div className="hidden md:block w-full max-w-md">
-          <div className="sticky top-24">
+        <div className="hidden md:block w-full max-w-[420px]">
+          <div className="sticky top-28">
             <BookingDrawer
               activityId={activity.id}
               title={activity.title}
