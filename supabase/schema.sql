@@ -1,0 +1,65 @@
+-- Supabase Schema for IslandFull Phase 1
+
+-- Drop existing tables if they exist (for clean re-runs)
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS activities;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
+
+-- Users Table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  full_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT,
+  role TEXT DEFAULT 'tourist' CHECK (role IN ('tourist', 'provider', 'admin')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Categories Table
+CREATE TABLE categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Activities Table
+CREATE TABLE activities (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  provider_name TEXT NOT NULL,
+  location TEXT NOT NULL, -- city/district
+  description TEXT NOT NULL,
+  inclusions TEXT[] DEFAULT '{}',
+  duration TEXT NOT NULL, -- e.g., '2 hours', 'Half day'
+  price_usd DECIMAL(10, 2) NOT NULL,
+  price_lkr_approx DECIMAL(10, 2) NOT NULL,
+  cover_image_url TEXT NOT NULL,
+  gallery_urls TEXT[] DEFAULT '{}',
+  max_capacity INTEGER NOT NULL DEFAULT 10,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Bookings Table
+CREATE TABLE bookings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  activity_id UUID REFERENCES activities(id) ON DELETE CASCADE,
+  tourist_name TEXT NOT NULL,
+  tourist_email TEXT NOT NULL,
+  tourist_whatsapp TEXT NOT NULL,
+  travel_date DATE NOT NULL,
+  pax_count INTEGER NOT NULL CHECK (pax_count > 0),
+  total_usd DECIMAL(10, 2) NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Basic RLS Policies (For Phase 1, we can just allow read access for public data)
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to categories" ON categories FOR SELECT USING (true);
+CREATE POLICY "Allow public read access to activities" ON activities FOR SELECT USING (true);
