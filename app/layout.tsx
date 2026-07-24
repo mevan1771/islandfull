@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -34,8 +35,15 @@ export default function RootLayout({
         {/* Transparent Header */}
         <header className="absolute top-0 left-0 right-0 z-40 w-full pt-4">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="/" className="font-bold text-2xl tracking-tighter text-white">
-              IslandFull<span className="text-rose-500">.</span>
+            <a href="/" className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="IslandFull" 
+                width={140} 
+                height={40} 
+                className="h-10 w-auto object-contain drop-shadow-md"
+                priority
+              />
             </a>
             
             {/* Desktop Navigation */}

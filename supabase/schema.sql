@@ -40,6 +40,7 @@ CREATE TABLE activities (
   cover_image_url TEXT NOT NULL,
   gallery_urls TEXT[] DEFAULT '{}',
   max_capacity INTEGER NOT NULL DEFAULT 10,
+  status TEXT DEFAULT 'published' CHECK (status IN ('published', 'draft')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

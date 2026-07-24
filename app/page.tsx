@@ -1,5 +1,7 @@
-import { Search, MapPin, Calendar, Users, Map, ShieldCheck, Tag, HeartHandshake } from "lucide-react"
+import { ShieldCheck, Tag, HeartHandshake } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
+import { HomeFilters } from "@/components/home/HomeFilters"
+import { Suspense } from "react"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
 
@@ -27,12 +29,34 @@ const MOCK_ACTIVITIES = [
   }
 ]
 
-export default async function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
+  const params = await searchParams;
   let activities = MOCK_ACTIVITIES;
   
   try {
-    const { data } = await supabase.from('activities').select('*').limit(8);
-    if (data && data.length > 0) {
+    let query = supabase.from('activities').select('*, categories!inner(slug)');
+    
+    if (params.location) {
+      query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
+    }
+    
+    if (params.category) {
+      query = query.eq('categories.slug', params.category);
+    }
+
+    if (params.sort === 'price_asc') {
+      query = query.order('price_usd', { ascending: true });
+    } else if (params.sort === 'price_desc') {
+      query = query.order('price_usd', { ascending: false });
+    }
+
+    const { data, error } = await query.limit(12);
+    
+    if (error) {
+      console.error("Supabase query error:", error);
+    } else if (data && data.length > 0) {
       activities = data.map(d => ({
         id: d.id,
         title: d.title,
@@ -46,8 +70,6 @@ export default async function Home() {
   } catch (err) {
     console.log("Supabase error (using mock data):", err);
   }
-
-  const filterPills = ["All Places", "Couples", "Family", "Solo", "Adventure"];
 
   return (
     <div className="pb-24">
@@ -75,90 +97,22 @@ export default async function Home() {
             View Package
           </button>
         </div>
-
-        {/* Floating Search Widget */}
-        <div className="absolute left-0 right-0 -bottom-24 z-20 px-4">
-          <div className="max-w-5xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-2xl">
-            {/* Tabs */}
-            <div className="flex items-center gap-6 border-b border-zinc-100 pb-4 mb-6 overflow-x-auto hide-scrollbar">
-              <button className="flex items-center gap-2 text-rose-500 font-semibold border-b-2 border-rose-500 pb-4 -mb-[18px] whitespace-nowrap">
-                <Map className="w-4 h-4" /> Tours & Guides
-              </button>
-              <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
-                Flight
-              </button>
-              <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
-                Restaurant
-              </button>
-              <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
-                Hotel
-              </button>
-            </div>
-
-            {/* Inputs */}
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
-                <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-zinc-400" />
-                  <input type="text" placeholder="Ella, Sri Lanka" className="w-full outline-none text-zinc-900 font-medium" />
-                </div>
-              </div>
-              
-              <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
-                <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Check In</label>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-zinc-400" />
-                  <input type="date" className="w-full outline-none text-zinc-900 font-medium bg-transparent" />
-                </div>
-              </div>
-
-              <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
-                <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers</label>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-zinc-400" />
-                  <input type="text" placeholder="2 Couples" className="w-full outline-none text-zinc-900 font-medium" />
-                </div>
-              </div>
-
-              <button className="w-full md:w-auto h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-10 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
-                <Search className="w-5 h-5" />
-                Search
-              </button>
-            </div>
-          </div>
-        </div>
       </section>
 
-      {/* spacer for floating widget */}
-      <div className="h-40"></div>
+      {/* Dynamic Filters UI */}
+      <Suspense fallback={<div className="h-40"></div>}>
+        <HomeFilters />
+      </Suspense>
 
       {/* Activity Grid */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            {filterPills.map((pill, idx) => (
-              <button 
-                key={pill} 
-                className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors border ${
-                  idx === 0 
-                    ? 'border-rose-500 text-rose-500 bg-rose-50' 
-                    : 'border-zinc-200 text-zinc-600 hover:border-zinc-300'
-                }`}
-              >
-                {pill}
-              </button>
-            ))}
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        
+        {activities.length === 0 && (
+          <div className="text-center py-20 bg-zinc-50 rounded-3xl border border-zinc-100">
+            <h3 className="text-xl font-bold text-zinc-900 mb-2">No activities found</h3>
+            <p className="text-zinc-500">Try adjusting your search filters to see more results.</p>
           </div>
-          <div className="flex gap-2">
-            <button className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-rose-500 hover:border-rose-500 transition-colors">
-              &larr;
-            </button>
-            <button className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-rose-500 hover:border-rose-500 transition-colors">
-              &rarr;
-            </button>
-          </div>
-        </div>
+        )}
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {activities.map((act) => (

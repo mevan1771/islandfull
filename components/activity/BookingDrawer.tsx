@@ -27,19 +27,51 @@ export function BookingDrawer({
   const [date, setDate] = useState("")
   const [guests, setGuests] = useState(1)
   const [whatsapp, setWhatsapp] = useState("")
+  const [touristName, setTouristName] = useState("")
+  const [touristEmail, setTouristEmail] = useState("")
 
   const totalUsd = priceUsd * guests
   const totalLkr = priceLkrApprox * guests
 
-  const handleSimulatePayment = () => {
-    if (!date || !whatsapp) return
+  const handleStripeCheckout = async () => {
+    if (!date || !whatsapp || !touristName || !touristEmail) return
     
     setStep("processing")
     
-    // Simulate API call and PayHere redirect
-    setTimeout(() => {
-      setStep("success")
-    }, 2000)
+    try {
+      const res = await fetch('/api/stripe/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activityId,
+          title,
+          priceUsd,
+          date,
+          guests,
+          whatsapp,
+          touristName,
+          touristEmail
+        })
+      })
+      
+      const text = await res.text()
+      let data;
+      try {
+        data = JSON.parse(text)
+      } catch (e) {
+        throw new Error(text || 'Failed to parse server response')
+      }
+      
+      if (data && data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (err) {
+      console.error(err)
+      setStep("details")
+      alert(`Checkout failed: ${err.message}`)
+    }
   }
 
   const resetAndClose = () => {
@@ -106,43 +138,75 @@ export function BookingDrawer({
 
           {step === "details" && (
             <div className="space-y-8">
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
-                    <CalendarDays className="w-4 h-4 text-rose-500" />
-                    Travel Date
-                  </label>
-                  <input 
-                    type="date" 
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full h-14 px-5 rounded-2xl border border-zinc-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-zinc-900"
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                  />
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                      <CalendarDays className="w-4 h-4 text-rose-500" />
+                      Travel Date
+                    </label>
+                    <input 
+                      type="date" 
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                      <Users className="w-4 h-4 text-rose-500" />
+                      Number of Guests
+                    </label>
+                    <div className="flex items-center gap-4 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-12">
+                      <button 
+                        onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
+                        className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        disabled={guests <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-bold text-lg">{guests}</span>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
+                        className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        disabled={guests >= maxCapacity}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
-                    <Users className="w-4 h-4 text-rose-500" />
-                    Number of Guests
-                  </label>
-                  <div className="flex items-center gap-4 p-1 bg-zinc-50 rounded-2xl border border-zinc-200 w-fit">
-                    <button 
-                      onClick={() => setGuests(Math.max(1, guests - 1))}
-                      className="w-12 h-12 rounded-xl bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guests <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="w-10 text-center font-bold text-xl">{guests}</span>
-                    <button 
-                      onClick={() => setGuests(Math.min(maxCapacity, guests + 1))}
-                      className="w-12 h-12 rounded-xl bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guests >= maxCapacity}
-                    >
-                      +
-                    </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                      Full Name
+                    </label>
+                    <input 
+                      type="text" 
+                      value={touristName}
+                      onChange={(e) => setTouristName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                      Email Address
+                    </label>
+                    <input 
+                      type="email" 
+                      value={touristEmail}
+                      onChange={(e) => setTouristEmail(e.target.value)}
+                      placeholder="john@example.com"
+                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                      required
+                    />
                   </div>
                 </div>
 
@@ -156,27 +220,27 @@ export function BookingDrawer({
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="+94 77 123 4567"
-                    className="w-full h-14 px-5 rounded-2xl border border-zinc-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-zinc-900"
+                    className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
                     required
                   />
                 </div>
               </div>
 
-              <div className="bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
-                <div className="flex justify-between items-center mb-2">
+              <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
+                <div className="flex justify-between items-center mb-1">
                   <span className="text-zinc-600 font-medium">Total (USD)</span>
-                  <span className="font-black text-3xl text-zinc-900">{formatUSD(totalUsd)}</span>
+                  <span className="font-black text-2xl text-zinc-900">{formatUSD(totalUsd)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-zinc-400 font-medium text-sm">Est. Local LKR</span>
-                  <span className="font-bold text-sm text-zinc-400">{formatLKR(totalLkr)}</span>
+                  <span className="text-zinc-400 font-medium text-xs">Est. Local LKR</span>
+                  <span className="font-bold text-xs text-zinc-400">{formatLKR(totalLkr)}</span>
                 </div>
               </div>
 
               <Button 
-                onClick={handleSimulatePayment} 
-                disabled={!date || !whatsapp}
-                className="w-full h-16 text-xl shadow-xl shadow-rose-500/20 rounded-2xl"
+                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
+                disabled={!date || !whatsapp || !touristName || !touristEmail}
+                className="w-full h-14 text-lg shadow-xl shadow-rose-500/20 rounded-xl"
               >
                 Proceed to Payment
               </Button>
@@ -188,7 +252,7 @@ export function BookingDrawer({
               <div className="w-20 h-20 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin"></div>
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-zinc-900 mb-2">Secure Checkout</h3>
-                <p className="text-zinc-500 font-medium">Connecting to PayHere gateway...</p>
+                <p className="text-zinc-500 font-medium">Connecting to Stripe securely...</p>
               </div>
             </div>
           )}
