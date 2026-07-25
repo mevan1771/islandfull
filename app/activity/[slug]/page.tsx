@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { MapPin, Clock, Users, ArrowLeft, Check } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
+import { getExchangeRate } from "@/app/actions/settings"
 
 // Fallback data for the specific slugs if DB is not ready
 const MOCK_DETAILS: Record<string, any> = {
@@ -26,6 +27,9 @@ const MOCK_DETAILS: Record<string, any> = {
 export default async function ActivityPage({ params }: { params: Promise<{ slug: string }> }) {
   let activity = null;
   const { slug } = await params;
+  
+  // Fetch live or custom exchange rate
+  const exchangeRate = await getExchangeRate();
 
   try {
     const { data, error } = await supabase
@@ -59,7 +63,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-[45vh] md:h-[65vh] md:mt-8 max-w-[1400px] mx-auto md:rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative w-full h-[45vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto md:rounded-3xl overflow-hidden shadow-2xl">
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -179,8 +183,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               activityId={activity.id}
               title={activity.title}
               priceUsd={activity.price_usd}
-              priceLkrApprox={activity.price_lkr_approx}
+              priceLkrApprox={Math.round(activity.price_usd * exchangeRate)}
               maxCapacity={activity.max_capacity}
+              pricingTiers={activity.pricing_tiers}
             />
           </div>
         </div>
@@ -192,8 +197,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           activityId={activity.id}
           title={activity.title}
           priceUsd={activity.price_usd}
-          priceLkrApprox={activity.price_lkr_approx}
+          priceLkrApprox={Math.round(activity.price_usd * exchangeRate)}
           maxCapacity={activity.max_capacity}
+          pricingTiers={activity.pricing_tiers}
         />
       </div>
     </div>

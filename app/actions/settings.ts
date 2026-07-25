@@ -1,0 +1,73 @@
+"use server"
+
+import { supabaseAdmin } from "@/lib/supabase"
+import { revalidatePath } from "next/cache"
+
+// Cache the external API fetch heavily to prevent rate limits
+// Since Next.js fetch cache is persistent, this guarantees minimal external hits
+async function fetchLiveLkrRate(): Promise<number> {
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/USD", {
+      next: { revalidate: 86400 } // Cache for 24 hours
+    });
+    const data = await res.json();
+    if (data && data.rates && data.rates.LKR) {
+      return data.rates.LKR;
+    }
+    throw new Error("Invalid rate response");
+  } catch (err) {
+    console.error("Failed to fetch live LKR rate:", err);
+    return 300; // Fallback hardcoded safe rate if API goes down
+  }
+}
+
+export async function getPlatformSettings() {
+  const { data, error } = await supabaseAdmin
+    .from("platform_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (error || !data) {
+    console.warn("Failed to fetch platform_settings, returning defaults");
+    return {
+      id: 1,
+      use_live_rate: false,
+      manual_usd_lkr_rate: 300
+    };
+  }
+  
+  return data;
+}
+
+export async function getExchangeRate(): Promise<number> {
+  const settings = await getPlatformSettings();
+  
+  if (settings.use_live_rate) {
+    return await fetchLiveLkrRate();
+  }
+  
+  return settings.manual_usd_lkr_rate;
+}
+
+export async function updateSettings(use_live_rate: boolean, manual_usd_lkr_rate: number) {
+  try {
+    const { error } = await supabaseAdmin
+      .from("platform_settings")
+      .upsert({
+        id: 1,
+        use_live_rate,
+        manual_usd_lkr_rate
+      });
+
+    if (error) throw error;
+
+    // Instantly invalidate the whole app to apply the new rate immediately
+    revalidatePath('/', 'layout');
+    
+    return { success: true };
+  } catch (err: any) {
+    console.error("Settings update failed:", err);
+    return { success: false, error: err.message };
+  }
+}

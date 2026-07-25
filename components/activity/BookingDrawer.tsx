@@ -11,6 +11,7 @@ interface BookingDrawerProps {
   priceUsd: number
   priceLkrApprox: number
   maxCapacity: number
+  pricingTiers?: Record<string, number> | null
 }
 
 export function BookingDrawer({
@@ -18,7 +19,8 @@ export function BookingDrawer({
   title,
   priceUsd,
   priceLkrApprox,
-  maxCapacity
+  maxCapacity,
+  pricingTiers
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -30,8 +32,15 @@ export function BookingDrawer({
   const [touristName, setTouristName] = useState("")
   const [touristEmail, setTouristEmail] = useState("")
 
-  const totalUsd = priceUsd * guests
-  const totalLkr = priceLkrApprox * guests
+  // Calculate Totals using Tiered Pricing if available
+  let totalUsd = priceUsd * guests
+  let totalLkr = priceLkrApprox * guests
+
+  if (pricingTiers && pricingTiers[guests.toString()]) {
+    totalUsd = pricingTiers[guests.toString()]
+    const exchangeRate = priceLkrApprox / priceUsd
+    totalLkr = totalUsd * exchangeRate
+  }
 
   const handleStripeCheckout = async () => {
     if (!date || !whatsapp || !touristName || !touristEmail) return
@@ -91,8 +100,8 @@ export function BookingDrawer({
         <div className="max-w-md mx-auto flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-zinc-900">{formatUSD(priceUsd)}</span>
-              <span className="text-sm text-zinc-500 font-medium">per person</span>
+              <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+              <span className="text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>
             </div>
             {/* Mock Rating */}
             <div className="flex flex-col items-end">
