@@ -176,7 +176,31 @@ export function BookingDrawer({
             </div>
           </div>
 
-          <Button onClick={() => setIsOpen(true)} size="lg" className="w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+          {/* Desktop Only: Inline Calendar */}
+          <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
+            <DayPicker 
+              mode="single"
+              selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+              onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+              disabled={(d) => {
+                if (isBefore(d, startOfToday())) return true;
+                const dateString = format(d, 'yyyy-MM-dd');
+                return blackoutDates.includes(dateString);
+              }}
+              modifiersClassNames={{
+                selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                today: 'text-rose-500 font-bold'
+              }}
+            />
+          </div>
+
+          {/* Desktop Button: Disabled if no date */}
+          <Button onClick={() => setIsOpen(true)} disabled={!date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+            Reserve Now
+          </Button>
+
+          {/* Mobile Button: Always enabled, opens drawer */}
+          <Button onClick={() => setIsOpen(true)} size="lg" className="flex md:hidden w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
             Reserve Now
           </Button>
           <p className="text-center text-sm font-medium text-zinc-400 mt-1">
@@ -223,40 +247,45 @@ export function BookingDrawer({
                       <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
                       Travel Date
                     </label>
-                    <Popover.Root>
-                      <Popover.Trigger asChild>
-                        <button 
-                          className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
-                        >
-                          {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>}
-                          <CalendarDays className="w-4 h-4 text-zinc-400" />
-                        </button>
-                      </Popover.Trigger>
-                      <Popover.Portal>
-                        <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
-                          <DayPicker 
-                            mode="single"
-                            selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
-                            onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
-                            disabled={(d) => {
-                              if (isBefore(d, startOfToday())) return true;
-                              const dateString = format(d, 'yyyy-MM-dd');
-                              return blackoutDates.includes(dateString);
-                            }}
-                            modifiersClassNames={{
-                              selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
-                              today: 'text-rose-500 font-bold'
-                            }}
-                            styles={{
-                              caption: { color: '#18181b', fontWeight: 'bold' },
-                              head_cell: { color: '#71717a', fontWeight: 'bold', fontSize: '0.8rem' },
-                              cell: { padding: '2px' },
-                              day: { borderRadius: '0.5rem', width: '2.5rem', height: '2.5rem' }
-                            }}
-                          />
-                        </Popover.Content>
-                      </Popover.Portal>
-                    </Popover.Root>
+                    {/* Desktop View: Static Readonly Date */}
+                    <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
+                      <span className="font-medium text-sm text-zinc-900">
+                        {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected"}
+                      </span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    </div>
+
+                    {/* Mobile View: Interactive Popover Calendar */}
+                    <div className="md:hidden">
+                      <Popover.Root>
+                        <Popover.Trigger asChild>
+                          <button 
+                            className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
+                          >
+                            {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>}
+                            <CalendarDays className="w-4 h-4 text-zinc-400" />
+                          </button>
+                        </Popover.Trigger>
+                        <Popover.Portal>
+                          <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
+                            <DayPicker 
+                              mode="single"
+                              selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                              onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+                              disabled={(d) => {
+                                if (isBefore(d, startOfToday())) return true;
+                                const dateString = format(d, 'yyyy-MM-dd');
+                                return blackoutDates.includes(dateString);
+                              }}
+                              modifiersClassNames={{
+                                selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                today: 'text-rose-500 font-bold'
+                              }}
+                            />
+                          </Popover.Content>
+                        </Popover.Portal>
+                      </Popover.Root>
+                    </div>
                   </div>
 
                   {tourOptions && tourOptions.length > 0 && (
@@ -279,51 +308,48 @@ export function BookingDrawer({
                     </div>
                   )}
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      <Users className="w-3.5 h-3.5 text-rose-500" />
-                      Number of Guests
-                    </label>
-                    <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
-                      <button 
-                        onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
-                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                        disabled={guests <= 1}
-                      >
-                        -
-                      </button>
-                      <span className="w-8 text-center font-bold text-base">{guests}</span>
-                      <button 
-                        onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
-                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                        disabled={guests >= maxCapacity}
-                      >
-                        +
-                      </button>
+                  <div className="grid grid-cols-[115px_1fr] gap-3 col-span-1 md:col-span-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                        <Users className="w-3.5 h-3.5 text-rose-500" />
+                        Guests
+                      </label>
+                      <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
+                        <button 
+                          onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
+                          className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                          disabled={guests <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center font-bold text-base">{guests}</span>
+                        <button 
+                          onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
+                          className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                          disabled={guests >= maxCapacity}
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    {guests >= maxCapacity && (
-                      <p className="text-xs font-medium text-amber-600 mt-2 leading-snug max-w-[200px]">
-                        Max capacity reached
-                      </p>
-                    )}
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                        Full Name
+                      </label>
+                      <input 
+                        type="text" 
+                        value={touristName}
+                        onChange={(e) => setTouristName(e.target.value)}
+                        placeholder="John Doe"
+                        className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      Full Name
-                    </label>
-                    <input 
-                      type="text" 
-                      value={touristName}
-                      onChange={(e) => setTouristName(e.target.value)}
-                      placeholder="John Doe"
-                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                      required
-                    />
-                  </div>
-
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       Email Address
@@ -337,21 +363,21 @@ export function BookingDrawer({
                       required
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                    <Phone className="w-3.5 h-3.5 text-rose-500" />
-                    WhatsApp Number
-                  </label>
-                  <input 
-                    type="tel" 
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="+94 77 123 4567"
-                    className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                    required
-                  />
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                      <Phone className="w-3.5 h-3.5 text-rose-500" />
+                      Phone Number
+                    </label>
+                    <input 
+                      type="tel" 
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                      placeholder="+1 (555) 000-0000"
+                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                      required
+                    />
+                  </div>
                 </div>
 
                 {hasPickup && (

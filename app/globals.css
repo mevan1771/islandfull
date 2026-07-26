@@ -9,10 +9,31 @@
   :root {
     --background: #fafafa;
     --foreground: #09090b;
+    --rdp-accent-color: #f43f5e; /* Tailwind rose-500 */
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+}
+
+/* Force React Day Picker Chevrons to Rose-500 */
+.rdp {
+  --rdp-accent-color: #f43f5e !important;
+}
+.rdp-nav_button, .rdp-nav_button_previous, .rdp-nav_button_next {
+  color: #f43f5e !important;
+}
+.rdp-nav_icon {
+  fill: #f43f5e !important;
+  stroke: #f43f5e !important;
+}
+.rdp-nav button {
+  color: #f43f5e !important;
+}
+.rdp-nav svg, .rdp-button svg {
+  fill: #f43f5e !important;
+  stroke: #f43f5e !important;
+  color: #f43f5e !important;
 }
