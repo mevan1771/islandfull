@@ -91,8 +91,8 @@ export async function createTour(formData: FormData) {
       }
     }
 
-    if (!title || !category_id || !location || !description || !duration || !price_usd || !cover_image_url || !max_capacity) {
-      throw new Error("Missing required fields")
+    if (!title || !category_id || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+      throw new Error(`Missing required fields. Please check all steps.`);
     }
 
     const slug = generateSlug(title)
@@ -219,8 +219,8 @@ export async function updateTour(id: string, formData: FormData) {
       }
     }
 
-    if (!title || !category_id || !location || !description || !duration || !price_usd || !cover_image_url || !max_capacity) {
-      throw new Error("Missing required fields")
+    if (!title || !category_id || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+      throw new Error(`Missing required fields. Please check all steps.`);
     }
 
     // Notice we do NOT update the slug to prevent breaking old links

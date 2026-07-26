@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, MapPin, Star } from "lucide-react"
+import { Clock, MapPin, Star, Gem } from "lucide-react"
 
 interface ActivityCardProps {
   title: string
@@ -40,7 +40,10 @@ export function ActivityCard({
           {/* Rating Pill overlay */}
           <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
             {isHiddenGem ? (
-              <span className="text-xs font-bold text-emerald-600 tracking-wide">💎 Hidden Gem</span>
+              <>
+                <Gem className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
+                <span className="text-xs font-bold text-rose-500 tracking-wide">Gem</span>
+              </>
             ) : reviewCount === 0 || !rating ? (
               <>
                 <Star className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
@@ -73,7 +76,7 @@ export function ActivityCard({
           
           <div className="flex items-baseline gap-1 mt-1">
             {priceUsd === 0 ? (
-              <span className="text-[1.15rem] font-black text-emerald-500 tracking-wide uppercase">Free</span>
+              <span className="text-[1.15rem] font-bold text-emerald-600">Free</span>
             ) : (
               <>
                 <span className="text-[1.15rem] font-bold text-zinc-900">${priceUsd}</span>

@@ -487,6 +487,25 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <Eye className="w-4 h-4 text-rose-500" />
+                    Hidden Gem Status
+                  </label>
+                  <label className="flex items-center gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer hover:border-rose-500 transition-colors group">
+                    <input 
+                      type="checkbox" 
+                      name="is_hidden_gem" 
+                      defaultChecked={initialData?.is_hidden_gem || false}
+                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer" 
+                    />
+                    <div>
+                      <div className="font-bold text-rose-500">Mark as Gem</div>
+                      <div className="text-xs font-medium text-zinc-500">Highlight this tour with a special badge.</div>
+                    </div>
+                  </label>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <CalendarDays className="w-4 h-4 text-rose-500" />
                     Availability & Blackout Dates
                   </label>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText } from "lucide-react"
+import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import * as Popover from "@radix-ui/react-popover"
@@ -54,8 +54,6 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
-  const [donationAmount, setDonationAmount] = useState<number>(0)
-
   // Calculate Totals using Tiered Pricing if available
   let totalUsd = priceUsd * guests
   let totalLkr = priceLkrApprox * guests
@@ -95,10 +93,10 @@ export function BookingDrawer({
           touristName,
           touristEmail,
           selectedOption,
-          totalUsd: priceUsd === 0 && donationAmount > 0 ? donationAmount : totalUsd,
+          totalUsd,
           pickupLocation,
           specialRequests,
-          paymentStrategy: priceUsd === 0 && donationAmount === 0 ? 'no_card' : (priceUsd === 0 && donationAmount > 0 ? 'full' : paymentStrategy)
+          paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy
         })
       })
       
@@ -156,8 +154,11 @@ export function BookingDrawer({
             {/* Rating */}
             <div className="flex flex-col items-end">
               {isHiddenGem ? (
-                <div className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 flex items-center shadow-sm">
-                  <span className="text-sm font-bold text-emerald-600 tracking-wide">💎 Hidden Gem</span>
+                <div className="px-3 py-1 rounded-full bg-rose-50 border border-rose-100 flex items-center shadow-sm">
+                  <span className="flex items-center gap-1 text-sm font-bold text-rose-500 tracking-wide">
+                    <Gem className="w-4 h-4 text-blue-500 fill-blue-500" />
+                    Gem
+                  </span>
                 </div>
               ) : reviewCount === 0 || !rating ? (
                 <div className="flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
@@ -207,7 +208,7 @@ export function BookingDrawer({
             Reserve Now
           </Button>
           <p className="text-center text-sm font-medium text-zinc-400 mt-1">
-            {priceUsd === 0 ? "Optional tip available during checkout." :
+            {priceUsd === 0 ? "Complete Reservation" :
              paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
              paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
              paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
@@ -394,8 +395,12 @@ export function BookingDrawer({
                       type="text" 
                       value={pickupLocation}
                       onChange={(e) => setPickupLocation(e.target.value)}
+                      placeholder="e.g. Hotel name, Address or Landmark"
                       className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                     />
+                    <p className="text-[0.8rem] text-zinc-500 font-medium leading-relaxed">
+                      If your activity includes pickup, please provide your hotel name or specific location. We will confirm details via WhatsApp.
+                    </p>
                   </div>
                 )}
 
@@ -413,37 +418,17 @@ export function BookingDrawer({
                 </div>
               </div>
 
-              {priceUsd === 0 ? (
-                <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 mb-6">
-                  <div className="mb-4 text-center">
-                    <h4 className="font-black text-emerald-900 text-lg mb-1">Support this free guide 🌴</h4>
-                    <p className="text-sm text-emerald-600 font-medium">Tips are 100% optional but keep these hidden gems accessible to everyone.</p>
-                  </div>
-                  <div className="flex gap-2 justify-center">
-                    {[0, 3, 5, 10].map((amount) => (
-                      <button
-                        key={amount}
-                        onClick={() => setDonationAmount(amount)}
-                        className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                          donationAmount === amount 
-                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
-                            : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'
-                        }`}
-                      >
-                        ${amount}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
+              {priceUsd > 0 && (
                 <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-zinc-600 font-medium">Total (USD)</span>
                     <span className="font-black text-2xl text-zinc-900">{formatUSD(totalUsd)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-400 font-medium text-xs">Est. Local LKR</span>
-                    <span className="font-bold text-xs text-zinc-400">{formatLKR(totalLkr)}</span>
+                    <span className="text-zinc-500 text-xs">≈ {formatLKR(totalLkr)} LKR</span>
+                    {paymentStrategy === 'deposit_15' && (
+                      <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
+                    )}
                   </div>
                 </div>
               )}
@@ -451,10 +436,10 @@ export function BookingDrawer({
               <Button 
                 onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
                 disabled={!date || !whatsapp || !touristName || !touristEmail}
-                className={`w-full h-14 text-lg font-bold rounded-xl transition-all ${priceUsd === 0 ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20' : 'shadow-xl shadow-rose-500/20'}`}
+                className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
               >
                 {priceUsd === 0 
-                  ? (donationAmount === 0 ? "Get Guide for Free" : `Donate $${donationAmount} & Get Guide`) 
+                  ? "Complete Reservation" 
                   : "Proceed to Payment"}
               </Button>
             </div>
