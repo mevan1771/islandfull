@@ -189,6 +189,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               tourOptions={activity.tour_options}
               paymentStrategy={activity.payment_strategy}
               hasPickup={activity.has_pickup}
+              blackoutDates={activity.blackout_dates || []}
             />
           </div>
         </div>
@@ -206,6 +207,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           tourOptions={activity.tour_options}
           paymentStrategy={activity.payment_strategy}
           hasPickup={activity.has_pickup}
+          blackoutDates={activity.blackout_dates || []}
         />
       </div>
     </div>

@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createTour, updateTour } from "@/app/actions/tours"
 import { uploadToCloudinary } from "@/app/actions/upload"
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car, CalendarDays } from "lucide-react"
 import Link from "next/link"
+import { DayPicker } from "react-day-picker"
+import { format, parse } from "date-fns"
+import "react-day-picker/dist/style.css"
 
 const TOTAL_STEPS = 4;
 
@@ -20,6 +23,13 @@ export default function TourForm({ categories, initialData }: { categories: any[
   
   const [previewImage, setPreviewImage] = useState(initialData?.cover_image_url || "")
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData?.gallery_urls || [])
+  
+  const [blackoutDates, setBlackoutDates] = useState<Date[]>(
+    initialData?.blackout_dates 
+      ? initialData.blackout_dates.map((d: string) => parse(d, 'yyyy-MM-dd', new Date())) 
+      : []
+  )
+
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isUploadingGallery, setIsUploadingGallery] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -411,6 +421,33 @@ export default function TourForm({ categories, initialData }: { categories: any[
                       <div className="text-xs font-medium text-zinc-500">Ask the customer for their hotel/location during checkout.</div>
                     </div>
                   </label>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <CalendarDays className="w-4 h-4 text-rose-500" />
+                    Availability & Blackout Dates
+                  </label>
+                  <p className="text-xs font-medium text-zinc-500 mb-2">Select dates when this tour is unavailable or fully booked.</p>
+                  
+                  <div className="p-4 bg-white border border-zinc-200 rounded-2xl w-fit shadow-sm">
+                    <DayPicker 
+                      mode="multiple"
+                      selected={blackoutDates}
+                      onSelect={(dates) => setBlackoutDates(dates || [])}
+                      modifiersClassNames={{
+                        selected: 'bg-zinc-900 text-white font-bold hover:bg-zinc-800',
+                        today: 'text-rose-500 font-bold'
+                      }}
+                      styles={{
+                        caption: { color: '#18181b', fontWeight: 'bold' },
+                        head_cell: { color: '#71717a', fontWeight: 'bold', fontSize: '0.8rem' },
+                        cell: { padding: '2px' },
+                        day: { borderRadius: '0.5rem', width: '2.5rem', height: '2.5rem' }
+                      }}
+                    />
+                  </div>
+                  <input type="hidden" name="blackout_dates" value={JSON.stringify((blackoutDates || []).map(d => format(d, 'yyyy-MM-dd')))} />
                 </div>
               </div>
 

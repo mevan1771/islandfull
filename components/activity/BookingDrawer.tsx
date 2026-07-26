@@ -190,7 +190,7 @@ export function BookingDrawer({
             <div className="space-y-5">
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1 col-span-1 md:col-span-2">
                     <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
                       Travel Date

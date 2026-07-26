@@ -28,6 +28,16 @@ export async function createTour(formData: FormData) {
     const has_pickup = formData.get("has_pickup") === "on"
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
+    const blackout_dates_raw = formData.get("blackout_dates") as string
+    
+    let blackout_dates = [];
+    try {
+      if (blackout_dates_raw) {
+        blackout_dates = JSON.parse(blackout_dates_raw);
+      }
+    } catch (e) {
+      console.warn("Failed to parse blackout_dates:", e);
+    }
     
     let tour_options = null;
     try {
@@ -98,6 +108,7 @@ export async function createTour(formData: FormData) {
       tour_options,
       payment_strategy,
       has_pickup,
+      blackout_dates,
       status
     })
 
@@ -110,9 +121,7 @@ export async function createTour(formData: FormData) {
     }
 
     // Revalidate paths so the new tour appears instantly
-    revalidatePath('/')
-    revalidatePath('/admin/tours')
-    revalidatePath('/activity/[slug]', 'page')
+    revalidatePath('/', 'layout')
 
     return { success: true }
   } catch (err: any) {
@@ -138,6 +147,16 @@ export async function updateTour(id: string, formData: FormData) {
     const has_pickup = formData.get("has_pickup") === "on"
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
+    const blackout_dates_raw = formData.get("blackout_dates") as string
+    
+    let blackout_dates = [];
+    try {
+      if (blackout_dates_raw) {
+        blackout_dates = JSON.parse(blackout_dates_raw);
+      }
+    } catch (e) {
+      console.warn("Failed to parse blackout_dates:", e);
+    }
     
     let tour_options = null;
     try {
@@ -204,17 +223,16 @@ export async function updateTour(id: string, formData: FormData) {
       tour_options,
       payment_strategy,
       has_pickup,
+      blackout_dates,
       status
     }).eq('id', id)
 
     if (error) {
       console.error("Supabase Error:", error)
-      throw new Error("Failed to update tour in database")
+      throw new Error(`DB Error: ${error.message} (Code: ${error.code})`)
     }
 
-    revalidatePath('/')
-    revalidatePath('/admin/tours')
-    revalidatePath('/activity/[slug]', 'page')
+    revalidatePath('/', 'layout')
 
     return { success: true }
   } catch (err: any) {
