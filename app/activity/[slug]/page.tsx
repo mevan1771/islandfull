@@ -36,7 +36,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   try {
     const { data, error } = await supabase
       .from('activities')
-      .select('*, reviews(rating)')
+      .select('*, reviews(*)')
       .eq('slug', slug)
       .single()
 
