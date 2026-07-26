@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Plus, Eye, EyeOff, Pencil } from "lucide-react"
 import { StatusToggle } from "@/components/admin/StatusToggle"
+import { DeleteTourButton } from "@/components/admin/DeleteTourButton"
 
 export const dynamic = 'force-dynamic';
 
@@ -95,13 +96,16 @@ export default async function AdminToursDashboard() {
                         <StatusToggle id={t.id} initialStatus={t.status} />
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link 
-                          href={`/admin/tours/${t.id}/edit`}
-                          className="inline-flex items-center justify-center p-2 rounded-xl bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 transition-colors shadow-sm"
-                          title="Edit Tour"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link 
+                            href={`/admin/tours/${t.id}/edit`}
+                            className="inline-flex items-center justify-center p-2 rounded-xl bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 transition-colors shadow-sm"
+                            title="Edit Tour"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Link>
+                          <DeleteTourButton id={t.id} />
+                        </div>
                       </td>
                     </tr>
                   ))

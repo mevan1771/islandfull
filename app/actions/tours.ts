@@ -365,3 +365,23 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
     return { success: false, error: err.message }
   }
 }
+
+export async function deleteTour(activityId: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('activities')
+      .delete()
+      .eq('id', activityId)
+
+    if (error) {
+      console.error("Failed to delete tour:", error)
+      return { success: false, error: "Failed to delete tour from database" }
+    }
+
+    revalidatePath('/', 'layout')
+    return { success: true }
+  } catch (err: any) {
+    console.error("Delete tour error:", err)
+    return { success: false, error: err.message }
+  }
+}
