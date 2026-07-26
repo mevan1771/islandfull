@@ -323,6 +323,50 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     ))}
                   </datalist>
                 </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <MapPin className="w-4 h-4 text-rose-500" />
+                    Rough Latitude
+                  </label>
+                  <input 
+                    type="number"
+                    step="any"
+                    name="approx_lat"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
+                    placeholder="e.g. 6.0123"
+                    defaultValue={initialData?.approx_lat || ""}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <MapPin className="w-4 h-4 text-rose-500" />
+                    Rough Longitude
+                  </label>
+                  <input 
+                    type="number"
+                    step="any"
+                    name="approx_lng"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
+                    placeholder="e.g. 80.2451"
+                    defaultValue={initialData?.approx_lng || ""}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                  <MapPin className="w-4 h-4 text-rose-500" />
+                  Secret Meeting Instructions - Only shown after payment
+                </label>
+                <textarea 
+                  name="private_meeting_instructions"
+                  rows={3}
+                  className="w-full p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300 resize-none"
+                  placeholder="e.g. Meet Guide Sam at the red gate near the southern entrance..."
+                  defaultValue={initialData?.private_meeting_instructions || ""}
+                />
               </div>
             </div>
           </div>

@@ -25,7 +25,14 @@ export async function createTour(formData: FormData) {
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
     const payment_strategy = formData.get("payment_strategy") as string || "full"
+    const inventory_type = formData.get("inventory_type") as string || "private"
     const has_pickup = formData.get("has_pickup") === "on"
+    const is_hidden_gem = formData.get("is_hidden_gem") === "on"
+    const approx_lat_str = formData.get("approx_lat") as string
+    const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
+    const approx_lng_str = formData.get("approx_lng") as string
+    const approx_lng = approx_lng_str ? parseFloat(approx_lng_str) : null
+    const private_meeting_instructions = formData.get("private_meeting_instructions") as string
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
@@ -107,7 +114,9 @@ export async function createTour(formData: FormData) {
       pricing_tiers,
       tour_options,
       payment_strategy,
+      inventory_type,
       has_pickup,
+      is_hidden_gem,
       blackout_dates,
       status
     })
@@ -144,7 +153,14 @@ export async function updateTour(id: string, formData: FormData) {
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
     const payment_strategy = formData.get("payment_strategy") as string || "full"
+    const inventory_type = formData.get("inventory_type") as string || "private"
     const has_pickup = formData.get("has_pickup") === "on"
+    const is_hidden_gem = formData.get("is_hidden_gem") === "on"
+    const approx_lat_str = formData.get("approx_lat") as string
+    const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
+    const approx_lng_str = formData.get("approx_lng") as string
+    const approx_lng = approx_lng_str ? parseFloat(approx_lng_str) : null
+    const private_meeting_instructions = formData.get("private_meeting_instructions") as string
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
@@ -222,9 +238,14 @@ export async function updateTour(id: string, formData: FormData) {
       pricing_tiers,
       tour_options,
       payment_strategy,
+      inventory_type,
       has_pickup,
+      is_hidden_gem,
       blackout_dates,
-      status
+      status,
+      approx_lat,
+      approx_lng,
+      private_meeting_instructions
     }).eq('id', id)
 
     if (error) {
@@ -238,5 +259,109 @@ export async function updateTour(id: string, formData: FormData) {
   } catch (err: any) {
     console.error("Failed to update tour:", err)
     return { success: false, error: err.message || "An unexpected error occurred" }
+  }
+}
+
+export async function autoBlockDate(activityId: string, dateString: string) {
+  try {
+    const { data: activity, error: fetchError } = await supabaseAdmin
+      .from('activities')
+      .select('inventory_type, blackout_dates')
+      .eq('id', activityId)
+      .single()
+
+    if (fetchError || !activity) {
+      console.error("Failed to fetch activity for auto-blocking:", fetchError)
+      return { success: false, error: "Activity not found" }
+    }
+
+    if (activity.inventory_type === 'private') {
+      const currentBlackoutDates = activity.blackout_dates || []
+      
+      // Only block if not already blocked
+      if (!currentBlackoutDates.includes(dateString)) {
+        const newBlackoutDates = [...currentBlackoutDates, dateString]
+        
+        const { error: updateError } = await supabaseAdmin
+          .from('activities')
+          .update({ blackout_dates: newBlackoutDates })
+          .eq('id', activityId)
+
+        if (updateError) {
+          console.error("Failed to update blackout_dates:", updateError)
+          return { success: false, error: "Failed to update database" }
+        }
+
+        revalidatePath('/', 'layout')
+      }
+    }
+    
+    return { success: true }
+  } catch (err: any) {
+    console.error("Auto-block date error:", err)
+    return { success: false, error: err.message }
+  }
+}
+
+export async function autoUnblockDate(activityId: string, dateString: string) {
+  try {
+    const { data: activity, error: fetchError } = await supabaseAdmin
+      .from('activities')
+      .select('inventory_type, blackout_dates')
+      .eq('id', activityId)
+      .single()
+
+    if (fetchError || !activity) {
+      console.error("Failed to fetch activity for auto-unblocking:", fetchError)
+      return { success: false, error: "Activity not found" }
+    }
+
+    if (activity.inventory_type === 'private') {
+      const currentBlackoutDates = activity.blackout_dates || []
+      
+      // Only unblock if it is currently blocked
+      if (currentBlackoutDates.includes(dateString)) {
+        const newBlackoutDates = currentBlackoutDates.filter((d: string) => d !== dateString)
+        
+        const { error: updateError } = await supabaseAdmin
+          .from('activities')
+          .update({ blackout_dates: newBlackoutDates })
+          .eq('id', activityId)
+
+        if (updateError) {
+          console.error("Failed to update blackout_dates (unblock):", updateError)
+          return { success: false, error: "Failed to update database" }
+        }
+
+        revalidatePath('/', 'layout')
+      }
+    }
+    
+    return { success: true }
+  } catch (err: any) {
+    console.error("Auto-unblock date error:", err)
+    return { success: false, error: err.message }
+  }
+}
+
+export async function toggleTourStatus(activityId: string, currentStatus: string) {
+  try {
+    const newStatus = currentStatus === 'published' ? 'draft' : 'published'
+    
+    const { error } = await supabaseAdmin
+      .from('activities')
+      .update({ status: newStatus })
+      .eq('id', activityId)
+
+    if (error) {
+      console.error("Failed to toggle status:", error)
+      return { success: false, error: "Failed to update status" }
+    }
+
+    revalidatePath('/', 'layout')
+    return { success: true, newStatus }
+  } catch (err: any) {
+    console.error("Status toggle error:", err)
+    return { success: false, error: err.message }
   }
 }

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation"
 import { MapPin, Clock, Users, ArrowLeft, Check } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
+import { ActivityReviews } from "@/components/activity/ActivityReviews"
+import { ActivityMap } from "@/components/activity/ActivityMap"
 import { getExchangeRate } from "@/app/actions/settings"
 
 // Fallback data for the specific slugs if DB is not ready
@@ -34,7 +36,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   try {
     const { data, error } = await supabase
       .from('activities')
-      .select('*')
+      .select('*, reviews(rating)')
       .eq('slug', slug)
       .single()
 
@@ -52,6 +54,11 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   if (!activity) {
     notFound();
   }
+
+  const reviewCount = activity.reviews ? activity.reviews.length : 0;
+  const avgRating = reviewCount > 0 
+    ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
+    : undefined;
 
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
@@ -144,6 +151,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             </div>
           </section>
 
+          {/* Rough Location Map */}
+          <ActivityMap lat={activity.approx_lat} lng={activity.approx_lng} />
+
           {/* Inclusions */}
           {activity.inclusions && activity.inclusions.length > 0 && (
             <section className="bg-rose-50/50 rounded-3xl p-8 md:p-10 border border-rose-100">
@@ -174,6 +184,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               </div>
             </section>
           )}
+
+          {/* Reviews Section */}
+          <ActivityReviews reviews={activity.reviews} />
         </div>
 
         {/* Sidebar / Desktop Booking */}
@@ -190,6 +203,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               paymentStrategy={activity.payment_strategy}
               hasPickup={activity.has_pickup}
               blackoutDates={activity.blackout_dates || []}
+              isHiddenGem={activity.is_hidden_gem}
+              rating={avgRating}
+              reviewCount={reviewCount}
             />
           </div>
         </div>
@@ -208,6 +224,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           paymentStrategy={activity.payment_strategy}
           hasPickup={activity.has_pickup}
           blackoutDates={activity.blackout_dates || []}
+          isHiddenGem={activity.is_hidden_gem}
+          rating={avgRating}
+          reviewCount={reviewCount}
         />
       </div>
     </div>

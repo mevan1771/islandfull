@@ -36,7 +36,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   let activities = MOCK_ACTIVITIES;
   
   try {
-    let query = supabase.from('activities').select('*, categories!inner(slug)');
+    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)');
     
     if (params.location) {
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
@@ -57,15 +57,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     if (error) {
       console.error("Supabase query error:", error);
     } else if (data && data.length > 0) {
-      activities = data.map(d => ({
-        id: d.id,
-        title: d.title,
-        slug: d.slug,
-        location: d.location,
-        duration: d.duration,
-        priceUsd: d.price_usd,
-        coverImage: d.cover_image_url
-      }));
+      activities = data.map(d => {
+        const reviewCount = d.reviews ? d.reviews.length : 0;
+        const avgRating = reviewCount > 0 
+          ? d.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
+          : undefined;
+
+        return {
+          id: d.id,
+          title: d.title,
+          slug: d.slug,
+          location: d.location,
+          duration: d.duration,
+          priceUsd: d.price_usd,
+          coverImage: d.cover_image_url,
+          isHiddenGem: d.is_hidden_gem,
+          rating: avgRating,
+          reviewCount: reviewCount
+        };
+      });
     }
   } catch (err) {
     console.log("Supabase error (using mock data):", err);
@@ -124,6 +134,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
               duration={act.duration}
               priceUsd={act.priceUsd}
               coverImage={act.coverImage}
+              isHiddenGem={act.isHiddenGem}
+              rating={act.rating}
+              reviewCount={act.reviewCount}
             />
           ))}
         </div>

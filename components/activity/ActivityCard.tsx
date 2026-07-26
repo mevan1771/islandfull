@@ -7,8 +7,9 @@ interface ActivityCardProps {
   slug: string
   location: string
   duration: string
-  priceUsd: number
-  coverImage: string
+  isHiddenGem?: boolean
+  rating?: number
+  reviewCount?: number
 }
 
 export function ActivityCard({
@@ -18,6 +19,9 @@ export function ActivityCard({
   duration,
   priceUsd,
   coverImage,
+  isHiddenGem = false,
+  rating,
+  reviewCount = 0,
 }: ActivityCardProps) {
   return (
     <Link href={`/activity/${slug}`} className="block group">
@@ -33,11 +37,22 @@ export function ActivityCard({
             className="object-cover transition-transform duration-700 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
-          {/* Rating Pill overlay (Mocked rating for UI) */}
+          {/* Rating Pill overlay */}
           <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-bold text-zinc-900">4.9</span>
-            <span className="text-xs font-medium text-zinc-500">(1.2k)</span>
+            {isHiddenGem ? (
+              <span className="text-xs font-bold text-emerald-600 tracking-wide">💎 Hidden Gem</span>
+            ) : reviewCount === 0 || !rating ? (
+              <>
+                <Star className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+                <span className="text-xs font-bold text-rose-500">New</span>
+              </>
+            ) : (
+              <>
+                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="text-xs font-bold text-zinc-900">{rating.toFixed(1)}</span>
+                <span className="text-xs font-medium text-zinc-500">({reviewCount})</span>
+              </>
+            )}
           </div>
         </div>
         
@@ -57,8 +72,14 @@ export function ActivityCard({
           </p>
           
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-[1.15rem] font-bold text-zinc-900">${priceUsd}</span>
-            <span className="text-xs font-medium text-zinc-400">/person</span>
+            {priceUsd === 0 ? (
+              <span className="text-[1.15rem] font-black text-emerald-500 tracking-wide uppercase">Free</span>
+            ) : (
+              <>
+                <span className="text-[1.15rem] font-bold text-zinc-900">${priceUsd}</span>
+                <span className="text-xs font-medium text-zinc-400">/person</span>
+              </>
+            )}
           </div>
         </div>
       </div>

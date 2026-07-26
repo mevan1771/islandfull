@@ -20,6 +20,9 @@ interface BookingDrawerProps {
   paymentStrategy?: 'no_card' | 'deposit_15' | 'manual_hold' | 'full' | string
   hasPickup?: boolean
   blackoutDates?: string[]
+  isHiddenGem?: boolean
+  rating?: number
+  reviewCount?: number
 }
 
 export function BookingDrawer({
@@ -32,7 +35,10 @@ export function BookingDrawer({
   tourOptions,
   paymentStrategy = 'full',
   hasPickup = false,
-  blackoutDates = []
+  blackoutDates = [],
+  isHiddenGem = false,
+  rating,
+  reviewCount = 0
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -46,6 +52,7 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
+  const [donationAmount, setDonationAmount] = useState<number>(0)
 
   // Calculate Totals using Tiered Pricing if available
   let totalUsd = priceUsd * guests
@@ -86,9 +93,10 @@ export function BookingDrawer({
           touristName,
           touristEmail,
           selectedOption,
-          totalUsd,
+          totalUsd: priceUsd === 0 && donationAmount > 0 ? donationAmount : totalUsd,
           pickupLocation,
-          specialRequests
+          specialRequests,
+          paymentStrategy: priceUsd === 0 && donationAmount === 0 ? 'no_card' : (priceUsd === 0 && donationAmount > 0 ? 'full' : paymentStrategy)
         })
       })
       
@@ -132,20 +140,39 @@ export function BookingDrawer({
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
-                <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
-                {paymentStrategy === 'no_card' && <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
+                {priceUsd === 0 ? (
+                  <span className="text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
+                ) : (
+                  <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                )}
+                {paymentStrategy === 'no_card' && priceUsd !== 0 && <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
                 {paymentStrategy === 'deposit_15' && <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
                 {paymentStrategy === 'manual_hold' && <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
-              <span className="text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>
+              {priceUsd !== 0 && <span className="text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>}
             </div>
-            {/* Mock Rating */}
+            {/* Rating */}
             <div className="flex flex-col items-end">
-              <div className="flex items-center gap-1">
-                <span className="font-bold">4.9</span>
-                <span className="text-rose-500">★</span>
-              </div>
-              <span className="text-sm text-zinc-500 underline">128 reviews</span>
+              {isHiddenGem ? (
+                <div className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 flex items-center shadow-sm">
+                  <span className="text-sm font-bold text-emerald-600 tracking-wide">💎 Hidden Gem</span>
+                </div>
+              ) : reviewCount === 0 || !rating ? (
+                <div className="flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+                  <span className="text-rose-500">★</span>
+                  <span className="font-bold text-rose-500 text-sm">New</span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold">{rating.toFixed(1)}</span>
+                    <span className="text-yellow-400">★</span>
+                  </div>
+                  <a href="#reviews-section" className="text-sm text-zinc-500 hover:text-zinc-800 hover:underline transition-colors cursor-pointer">
+                    {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
@@ -153,7 +180,8 @@ export function BookingDrawer({
             Reserve Now
           </Button>
           <p className="text-center text-sm font-medium text-zinc-400 mt-1">
-            {paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
+            {priceUsd === 0 ? "Optional tip available during checkout." :
+             paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
              paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
              paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
              "Secure checkout with Stripe."}
@@ -355,23 +383,49 @@ export function BookingDrawer({
                 </div>
               </div>
 
-              <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-zinc-600 font-medium">Total (USD)</span>
-                  <span className="font-black text-2xl text-zinc-900">{formatUSD(totalUsd)}</span>
+              {priceUsd === 0 ? (
+                <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 mb-6">
+                  <div className="mb-4 text-center">
+                    <h4 className="font-black text-emerald-900 text-lg mb-1">Support this free guide 🌴</h4>
+                    <p className="text-sm text-emerald-600 font-medium">Tips are 100% optional but keep these hidden gems accessible to everyone.</p>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    {[0, 3, 5, 10].map((amount) => (
+                      <button
+                        key={amount}
+                        onClick={() => setDonationAmount(amount)}
+                        className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                          donationAmount === amount 
+                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
+                            : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'
+                        }`}
+                      >
+                        ${amount}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-400 font-medium text-xs">Est. Local LKR</span>
-                  <span className="font-bold text-xs text-zinc-400">{formatLKR(totalLkr)}</span>
+              ) : (
+                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-zinc-600 font-medium">Total (USD)</span>
+                    <span className="font-black text-2xl text-zinc-900">{formatUSD(totalUsd)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-400 font-medium text-xs">Est. Local LKR</span>
+                    <span className="font-bold text-xs text-zinc-400">{formatLKR(totalLkr)}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Button 
                 onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
                 disabled={!date || !whatsapp || !touristName || !touristEmail}
-                className="w-full h-12 text-base font-bold shadow-xl shadow-rose-500/20 rounded-xl"
+                className={`w-full h-14 text-lg font-bold rounded-xl transition-all ${priceUsd === 0 ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20' : 'shadow-xl shadow-rose-500/20'}`}
               >
-                Proceed to Payment
+                {priceUsd === 0 
+                  ? (donationAmount === 0 ? "Get Guide for Free" : `Donate $${donationAmount} & Get Guide`) 
+                  : "Proceed to Payment"}
               </Button>
             </div>
           )}
