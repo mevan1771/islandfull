@@ -379,7 +379,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
             </div>
 
             <div className="space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <Clock className="w-4 h-4 text-rose-500" />
@@ -408,6 +408,24 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
                     required
                   />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <CalendarDays className="w-4 h-4 text-rose-500" />
+                    Lead Time
+                  </label>
+                  <select 
+                    name="min_notice_days"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
+                    defaultValue={initialData?.min_notice_days !== undefined ? initialData.min_notice_days : 1}
+                  >
+                    <option value="0">Same Day (0 hours)</option>
+                    <option value="1">1 Day (24 hours)</option>
+                    <option value="2">2 Days (48 hours)</option>
+                    <option value="3">3 Days (72 hours)</option>
+                    <option value="7">1 Week</option>
+                  </select>
                 </div>
               </div>
 

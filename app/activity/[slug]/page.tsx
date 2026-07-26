@@ -206,6 +206,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               isHiddenGem={activity.is_hidden_gem}
               rating={avgRating}
               reviewCount={reviewCount}
+              minNoticeDays={activity.min_notice_days}
             />
           </div>
         </div>
@@ -227,6 +228,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           isHiddenGem={activity.is_hidden_gem}
           rating={avgRating}
           reviewCount={reviewCount}
+          minNoticeDays={activity.min_notice_days}
         />
       </div>
     </div>

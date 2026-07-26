@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker } from "react-day-picker"
-import { format, parse, isBefore, startOfToday } from "date-fns"
+import { format, parse, isBefore, startOfToday, addDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 
 interface BookingDrawerProps {
@@ -23,6 +23,7 @@ interface BookingDrawerProps {
   isHiddenGem?: boolean
   rating?: number
   reviewCount?: number
+  minNoticeDays?: number
 }
 
 export function BookingDrawer({
@@ -38,7 +39,8 @@ export function BookingDrawer({
   blackoutDates = [],
   isHiddenGem = false,
   rating,
-  reviewCount = 0
+  reviewCount = 0,
+  minNoticeDays = 1
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -183,7 +185,8 @@ export function BookingDrawer({
               selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
               onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
               disabled={(d) => {
-                if (isBefore(d, startOfToday())) return true;
+                const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                if (isBefore(d, minDate)) return true;
                 const dateString = format(d, 'yyyy-MM-dd');
                 return blackoutDates.includes(dateString);
               }}
@@ -273,7 +276,8 @@ export function BookingDrawer({
                               selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                               onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
                               disabled={(d) => {
-                                if (isBefore(d, startOfToday())) return true;
+                                const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                                if (isBefore(d, minDate)) return true;
                                 const dateString = format(d, 'yyyy-MM-dd');
                                 return blackoutDates.includes(dateString);
                               }}

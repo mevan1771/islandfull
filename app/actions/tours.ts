@@ -24,6 +24,7 @@ export async function createTour(formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
+    const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
     const inventory_type = formData.get("inventory_type") as string || "private"
     const has_pickup = formData.get("has_pickup") === "on"
@@ -118,7 +119,8 @@ export async function createTour(formData: FormData) {
       has_pickup,
       is_hidden_gem,
       blackout_dates,
-      status
+      status,
+      min_notice_days
     })
 
     if (error) {
@@ -152,6 +154,7 @@ export async function updateTour(id: string, formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
+    const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
     const inventory_type = formData.get("inventory_type") as string || "private"
     const has_pickup = formData.get("has_pickup") === "on"
@@ -243,6 +246,7 @@ export async function updateTour(id: string, formData: FormData) {
       is_hidden_gem,
       blackout_dates,
       status,
+      min_notice_days,
       approx_lat,
       approx_lng,
       private_meeting_instructions
