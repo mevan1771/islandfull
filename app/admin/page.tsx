@@ -86,6 +86,9 @@ export default async function AdminDashboard() {
                         <div className="font-semibold text-zinc-800 max-w-[200px] truncate" title={b.activities?.title}>
                           {b.activities?.title || 'Unknown Activity'}
                         </div>
+                        {b.tour_option && (
+                          <div className="text-zinc-500 text-xs font-medium mt-0.5">{b.tour_option}</div>
+                        )}
                         <div className="text-rose-500 font-bold mt-0.5">${b.total_usd}</div>
                       </td>
 
@@ -122,7 +125,7 @@ export default async function AdminDashboard() {
 
                           {/* WhatsApp Link */}
                           <a 
-                            href={`https://wa.me/${b.tourist_whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${b.tourist_name}! This is Mevan from IslandFull regarding your booking for ${b.activities?.title}.`)}`}
+                            href={`https://wa.me/${b.tourist_whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${b.tourist_name}! This is Mevan from IslandFull regarding your booking for ${b.activities?.title}${b.tour_option ? ` (${b.tour_option})` : ''}.${b.pickup_location ? `\n\nPickup: ${b.pickup_location}` : ''}${b.special_requests ? `\n\nNotes: ${b.special_requests}` : ''}`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 px-3 py-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 font-bold rounded-lg transition-colors border border-[#25D366]/20"

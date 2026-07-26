@@ -186,6 +186,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               priceLkrApprox={Math.round(activity.price_usd * exchangeRate)}
               maxCapacity={activity.max_capacity}
               pricingTiers={activity.pricing_tiers}
+              tourOptions={activity.tour_options}
+              paymentStrategy={activity.payment_strategy}
+              hasPickup={activity.has_pickup}
             />
           </div>
         </div>
@@ -200,6 +203,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priceLkrApprox={Math.round(activity.price_usd * exchangeRate)}
           maxCapacity={activity.max_capacity}
           pricingTiers={activity.pricing_tiers}
+          tourOptions={activity.tour_options}
+          paymentStrategy={activity.payment_strategy}
+          hasPickup={activity.has_pickup}
         />
       </div>
     </div>

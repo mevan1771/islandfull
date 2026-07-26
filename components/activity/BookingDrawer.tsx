@@ -1,9 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarDays, Users, Phone, X, CheckCircle2 } from "lucide-react"
+import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
+import * as Popover from "@radix-ui/react-popover"
+import { DayPicker } from "react-day-picker"
+import { format, parse, isBefore, startOfToday } from "date-fns"
+import "react-day-picker/dist/style.css"
 
 interface BookingDrawerProps {
   activityId: string
@@ -12,6 +16,10 @@ interface BookingDrawerProps {
   priceLkrApprox: number
   maxCapacity: number
   pricingTiers?: Record<string, number> | null
+  tourOptions?: {title: string, price_modifier: number}[] | null
+  paymentStrategy?: 'no_card' | 'deposit_15' | 'manual_hold' | 'full' | string
+  hasPickup?: boolean
+  blackoutDates?: string[]
 }
 
 export function BookingDrawer({
@@ -20,7 +28,11 @@ export function BookingDrawer({
   priceUsd,
   priceLkrApprox,
   maxCapacity,
-  pricingTiers
+  pricingTiers,
+  tourOptions,
+  paymentStrategy = 'full',
+  hasPickup = false,
+  blackoutDates = []
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -31,6 +43,9 @@ export function BookingDrawer({
   const [whatsapp, setWhatsapp] = useState("")
   const [touristName, setTouristName] = useState("")
   const [touristEmail, setTouristEmail] = useState("")
+  const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
+  const [pickupLocation, setPickupLocation] = useState("")
+  const [specialRequests, setSpecialRequests] = useState("")
 
   // Calculate Totals using Tiered Pricing if available
   let totalUsd = priceUsd * guests
@@ -40,6 +55,16 @@ export function BookingDrawer({
     totalUsd = pricingTiers[guests.toString()]
     const exchangeRate = priceLkrApprox / priceUsd
     totalLkr = totalUsd * exchangeRate
+  }
+
+  // Add Option Price Modifier (per person)
+  if (selectedOption && tourOptions) {
+    const opt = tourOptions.find(o => o.title === selectedOption)
+    if (opt) {
+      totalUsd += (opt.price_modifier * guests)
+      const exchangeRate = priceLkrApprox / priceUsd
+      totalLkr = totalUsd * exchangeRate
+    }
   }
 
   const handleStripeCheckout = async () => {
@@ -59,7 +84,11 @@ export function BookingDrawer({
           guests,
           whatsapp,
           touristName,
-          touristEmail
+          touristEmail,
+          selectedOption,
+          totalUsd,
+          pickupLocation,
+          specialRequests
         })
       })
       
@@ -90,6 +119,8 @@ export function BookingDrawer({
       setDate("")
       setGuests(1)
       setWhatsapp("")
+      setPickupLocation("")
+      setSpecialRequests("")
     }, 300)
   }
 
@@ -100,7 +131,12 @@ export function BookingDrawer({
         <div className="max-w-md mx-auto flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                {paymentStrategy === 'no_card' && <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
+                {paymentStrategy === 'deposit_15' && <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
+                {paymentStrategy === 'manual_hold' && <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
+              </div>
               <span className="text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>
             </div>
             {/* Mock Rating */}
@@ -116,7 +152,12 @@ export function BookingDrawer({
           <Button onClick={() => setIsOpen(true)} size="lg" className="w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
             Reserve Now
           </Button>
-          <p className="text-center text-sm font-medium text-zinc-400 mt-1">You won't be charged yet</p>
+          <p className="text-center text-sm font-medium text-zinc-400 mt-1">
+            {paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
+             paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
+             paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
+             "Secure checkout with Stripe."}
+          </p>
         </div>
       </div>
 
@@ -134,64 +175,115 @@ export function BookingDrawer({
           isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
         }`}
       >
-        <div className="p-8 overflow-y-auto flex-1 overscroll-contain">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
+        <div className="p-6 overflow-y-auto flex-1 overscroll-contain">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
             <button 
               onClick={resetAndClose}
-              className="p-2.5 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50"
+              className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {step === "details" && (
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
-                      <CalendarDays className="w-4 h-4 text-rose-500" />
+            <div className="space-y-5">
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                      <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
                       Travel Date
                     </label>
-                    <input 
-                      type="date" 
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
-                      min={new Date().toISOString().split('T')[0]}
-                      required
-                    />
+                    <Popover.Root>
+                      <Popover.Trigger asChild>
+                        <button 
+                          className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
+                        >
+                          {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>}
+                          <CalendarDays className="w-4 h-4 text-zinc-400" />
+                        </button>
+                      </Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
+                          <DayPicker 
+                            mode="single"
+                            selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                            onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+                            disabled={(d) => {
+                              if (isBefore(d, startOfToday())) return true;
+                              const dateString = format(d, 'yyyy-MM-dd');
+                              return blackoutDates.includes(dateString);
+                            }}
+                            modifiersClassNames={{
+                              selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                              today: 'text-rose-500 font-bold'
+                            }}
+                            styles={{
+                              caption: { color: '#18181b', fontWeight: 'bold' },
+                              head_cell: { color: '#71717a', fontWeight: 'bold', fontSize: '0.8rem' },
+                              cell: { padding: '2px' },
+                              day: { borderRadius: '0.5rem', width: '2.5rem', height: '2.5rem' }
+                            }}
+                          />
+                        </Popover.Content>
+                      </Popover.Portal>
+                    </Popover.Root>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
-                      <Users className="w-4 h-4 text-rose-500" />
+                  {tourOptions && tourOptions.length > 0 && (
+                    <div className="space-y-1 col-span-1 md:col-span-2">
+                      <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                        Timeslot / Package
+                      </label>
+                      <select 
+                        value={selectedOption}
+                        onChange={(e) => setSelectedOption(e.target.value)}
+                        className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white"
+                        required
+                      >
+                        {tourOptions.map((opt, idx) => (
+                          <option key={idx} value={opt.title}>
+                            {opt.title} {opt.price_modifier > 0 ? `(+$${opt.price_modifier} pp)` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                      <Users className="w-3.5 h-3.5 text-rose-500" />
                       Number of Guests
                     </label>
-                    <div className="flex items-center gap-4 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-12">
+                    <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                       <button 
                         onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
-                        className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
                         disabled={guests <= 1}
                       >
                         -
                       </button>
-                      <span className="w-8 text-center font-bold text-lg">{guests}</span>
+                      <span className="w-8 text-center font-bold text-base">{guests}</span>
                       <button 
                         onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
-                        className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
                         disabled={guests >= maxCapacity}
                       >
                         +
                       </button>
                     </div>
+                    {guests >= maxCapacity && (
+                      <p className="text-xs font-medium text-amber-600 mt-2 leading-snug max-w-[200px]">
+                        Max capacity reached
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       Full Name
                     </label>
                     <input 
@@ -199,13 +291,13 @@ export function BookingDrawer({
                       value={touristName}
                       onChange={(e) => setTouristName(e.target.value)}
                       placeholder="John Doe"
-                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       Email Address
                     </label>
                     <input 
@@ -213,15 +305,15 @@ export function BookingDrawer({
                       value={touristEmail}
                       onChange={(e) => setTouristEmail(e.target.value)}
                       placeholder="john@example.com"
-                      className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-zinc-800 flex items-center gap-2 uppercase tracking-wide">
-                    <Phone className="w-4 h-4 text-rose-500" />
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                    <Phone className="w-3.5 h-3.5 text-rose-500" />
                     WhatsApp Number
                   </label>
                   <input 
@@ -229,8 +321,36 @@ export function BookingDrawer({
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="+94 77 123 4567"
-                    className="w-full h-12 px-5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-zinc-900"
+                    className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                     required
+                  />
+                </div>
+
+                {hasPickup && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                      Pickup Hotel / Location (Optional)
+                    </label>
+                    <input 
+                      type="text" 
+                      value={pickupLocation}
+                      onChange={(e) => setPickupLocation(e.target.value)}
+                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                    <FileText className="w-3.5 h-3.5 text-rose-500" />
+                    Special Requests / Notes (Optional)
+                  </label>
+                  <textarea 
+                    value={specialRequests}
+                    onChange={(e) => setSpecialRequests(e.target.value)}
+                    rows={2}
+                    className="w-full h-auto p-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 resize-none"
                   />
                 </div>
               </div>
@@ -249,7 +369,7 @@ export function BookingDrawer({
               <Button 
                 onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
                 disabled={!date || !whatsapp || !touristName || !touristEmail}
-                className="w-full h-14 text-lg shadow-xl shadow-rose-500/20 rounded-xl"
+                className="w-full h-12 text-base font-bold shadow-xl shadow-rose-500/20 rounded-xl"
               >
                 Proceed to Payment
               </Button>
@@ -285,6 +405,12 @@ export function BookingDrawer({
                     <span className="text-zinc-500 font-medium">Date</span>
                     <span className="font-bold text-zinc-900">{date}</span>
                   </div>
+                  {selectedOption && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500 font-medium">Option</span>
+                      <span className="font-bold text-zinc-900">{selectedOption}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-zinc-500 font-medium">Guests</span>
                     <span className="font-bold text-zinc-900">{guests}</span>

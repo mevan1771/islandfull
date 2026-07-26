@@ -9,9 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { activityId, title, priceUsd, date, guests, whatsapp, touristName, touristEmail } = body
-
-    const totalUsd = priceUsd * guests
+    const { activityId, title, priceUsd, date, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests } = body
 
     // 1. Insert pending booking to Supabase
     const { data: booking, error: dbError } = await supabase
@@ -24,6 +22,9 @@ export async function POST(req: Request) {
         pax_count: guests,
         travel_date: date,
         total_usd: totalUsd,
+        tour_option: selectedOption || null,
+        pickup_location: pickupLocation || null,
+        special_requests: specialRequests || null,
         status: 'pending'
       })
       .select('id')
@@ -39,10 +40,10 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: title,
+              name: selectedOption ? `${title} (${selectedOption})` : title,
               description: `${guests} Pax on ${date}`,
             },
-            unit_amount: Math.round(priceUsd * 100), // Stripe expects cents
+            unit_amount: Math.round((totalUsd / guests) * 100), // Stripe expects cents, per unit
           },
           quantity: guests,
         },

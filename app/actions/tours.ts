@@ -14,7 +14,7 @@ function generateSlug(title: string): string {
 export async function createTour(formData: FormData) {
   try {
     const title = formData.get("title") as string
-    const category_id = formData.get("category_id") as string
+    const category_input = formData.get("category_id") as string
     const provider_name = formData.get("provider_name") as string || "IslandFull Official"
     const location = formData.get("location") as string
     const description = formData.get("description") as string
@@ -24,7 +24,20 @@ export async function createTour(formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
+    const payment_strategy = formData.get("payment_strategy") as string || "full"
+    const has_pickup = formData.get("has_pickup") === "on"
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
+    const tour_options_raw = formData.get("tour_options") as string
+    
+    let tour_options = null;
+    try {
+      if (tour_options_raw) {
+        tour_options = JSON.parse(tour_options_raw);
+        if (tour_options.length === 0) tour_options = null;
+      }
+    } catch (e) {
+      console.warn("Failed to parse tour_options:", e);
+    }
     
     let pricing_tiers = null;
     try {
@@ -45,6 +58,20 @@ export async function createTour(formData: FormData) {
 
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
+
+    let category_id = category_input;
+    if (category_input) {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_input);
+      if (!isUUID) {
+        const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', category_input).single();
+        if (existing) {
+          category_id = existing.id;
+        } else {
+          const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: category_input, slug: generateSlug(category_input) }).select('id').single();
+          if (newCat) category_id = newCat.id;
+        }
+      }
+    }
 
     if (!title || !category_id || !location || !description || !duration || !price_usd || !cover_image_url || !max_capacity) {
       throw new Error("Missing required fields")
@@ -68,6 +95,9 @@ export async function createTour(formData: FormData) {
       gallery_urls,
       max_capacity,
       pricing_tiers,
+      tour_options,
+      payment_strategy,
+      has_pickup,
       status
     })
 
@@ -94,7 +124,7 @@ export async function createTour(formData: FormData) {
 export async function updateTour(id: string, formData: FormData) {
   try {
     const title = formData.get("title") as string
-    const category_id = formData.get("category_id") as string
+    const category_input = formData.get("category_id") as string
     const provider_name = formData.get("provider_name") as string || "IslandFull Official"
     const location = formData.get("location") as string
     const description = formData.get("description") as string
@@ -104,7 +134,20 @@ export async function updateTour(id: string, formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
+    const payment_strategy = formData.get("payment_strategy") as string || "full"
+    const has_pickup = formData.get("has_pickup") === "on"
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
+    const tour_options_raw = formData.get("tour_options") as string
+    
+    let tour_options = null;
+    try {
+      if (tour_options_raw) {
+        tour_options = JSON.parse(tour_options_raw);
+        if (tour_options.length === 0) tour_options = null;
+      }
+    } catch (e) {
+      console.warn("Failed to parse tour_options:", e);
+    }
     
     let pricing_tiers = null;
     try {
@@ -123,6 +166,20 @@ export async function updateTour(id: string, formData: FormData) {
 
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
+
+    let category_id = category_input;
+    if (category_input) {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_input);
+      if (!isUUID) {
+        const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', category_input).single();
+        if (existing) {
+          category_id = existing.id;
+        } else {
+          const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: category_input, slug: generateSlug(category_input) }).select('id').single();
+          if (newCat) category_id = newCat.id;
+        }
+      }
+    }
 
     if (!title || !category_id || !location || !description || !duration || !price_usd || !cover_image_url || !max_capacity) {
       throw new Error("Missing required fields")
@@ -144,6 +201,9 @@ export async function updateTour(id: string, formData: FormData) {
       gallery_urls,
       max_capacity,
       pricing_tiers,
+      tour_options,
+      payment_strategy,
+      has_pickup,
       status
     }).eq('id', id)
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createTour, updateTour } from "@/app/actions/tours"
 import { uploadToCloudinary } from "@/app/actions/upload"
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car } from "lucide-react"
 import Link from "next/link"
 
 const TOTAL_STEPS = 4;
@@ -42,6 +42,25 @@ export default function TourForm({ categories, initialData }: { categories: any[
     const newTiers = [...tiers]
     newTiers[index][field] = value
     setTiers(newTiers)
+  }
+
+  // Tour Options State (array of {title, price_modifier})
+  const [options, setOptions] = useState<{title: string, price_modifier: string}[]>(() => {
+    if (initialData?.tour_options && Array.isArray(initialData.tour_options)) {
+      return initialData.tour_options.map((opt: any) => ({
+        title: opt.title || "",
+        price_modifier: String(opt.price_modifier || 0)
+      }))
+    }
+    return []
+  })
+
+  const addOption = () => setOptions([...options, { title: "", price_modifier: "0" }])
+  const removeOption = (index: number) => setOptions(options.filter((_, i) => i !== index))
+  const updateOption = (index: number, field: 'title' | 'price_modifier', value: string) => {
+    const newOptions = [...options]
+    newOptions[index][field] = value
+    setOptions(newOptions)
   }
 
   const nextStep = () => {
@@ -254,21 +273,24 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <MapPin className="w-4 h-4 text-rose-500" />
                     Location
                   </label>
-                  <select 
+                  <input 
+                    type="text"
                     name="location"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
+                    list="location-suggestions"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
+                    placeholder="e.g. Ella or Tissamaharama"
                     required
                     defaultValue={initialData?.location || ""}
-                  >
-                    <option value="" disabled>Select City</option>
-                    <option value="Ella">Ella</option>
-                    <option value="Mirissa">Mirissa</option>
-                    <option value="Hiriketiya">Hiriketiya</option>
-                    <option value="Sigiriya">Sigiriya</option>
-                    <option value="Kandy">Kandy</option>
-                    <option value="Arugam Bay">Arugam Bay</option>
-                    <option value="Colombo">Colombo</option>
-                  </select>
+                  />
+                  <datalist id="location-suggestions">
+                    <option value="Ella" />
+                    <option value="Mirissa" />
+                    <option value="Hiriketiya" />
+                    <option value="Sigiriya" />
+                    <option value="Kandy" />
+                    <option value="Arugam Bay" />
+                    <option value="Colombo" />
+                  </datalist>
                 </div>
 
                 <div className="space-y-3">
@@ -276,17 +298,20 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <Tag className="w-4 h-4 text-rose-500" />
                     Category
                   </label>
-                  <select 
+                  <input 
+                    type="text"
                     name="category_id"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
+                    list="category-suggestions"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
+                    placeholder="e.g. Wildlife or Wellness"
                     required
-                    defaultValue={initialData?.category_id || ""}
-                  >
-                    <option value="" disabled>Select Category</option>
+                    defaultValue={initialData?.category_id ? categories.find(c => c.id === initialData.category_id)?.name || "" : ""}
+                  />
+                  <datalist id="category-suggestions">
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.name} />
                     ))}
-                  </select>
+                  </datalist>
                 </div>
               </div>
             </div>
@@ -350,6 +375,42 @@ export default function TourForm({ categories, initialData }: { categories: any[
                       required
                     />
                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <DollarSign className="w-4 h-4 text-rose-500" />
+                    Payment Strategy
+                  </label>
+                  <select 
+                    name="payment_strategy"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
+                    defaultValue={initialData?.payment_strategy || "full"}
+                  >
+                    <option value="full">Pay in Full (Stripe)</option>
+                    <option value="deposit_15">15% Deposit (Cash on Arrival)</option>
+                    <option value="manual_hold">Card Hold (Zero Charge)</option>
+                    <option value="no_card">No Card Needed (Pay Later)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <Car className="w-4 h-4 text-rose-500" />
+                    Pickup Options
+                  </label>
+                  <label className="flex items-center gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer hover:border-rose-500 transition-colors group">
+                    <input 
+                      type="checkbox" 
+                      name="has_pickup" 
+                      defaultChecked={initialData?.has_pickup || false}
+                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer" 
+                    />
+                    <div>
+                      <div className="font-bold text-zinc-900">Provide Hotel Pickup</div>
+                      <div className="text-xs font-medium text-zinc-500">Ask the customer for their hotel/location during checkout.</div>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -416,6 +477,70 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 ) : (
                   <div className="text-center p-6 border-2 border-dashed border-zinc-200 rounded-2xl bg-zinc-50">
                     <p className="text-sm font-medium text-zinc-500">No custom tiers. The default Price (USD) will be multiplied by the guest count.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Tour Options & Timeslots */}
+              <div className="pt-8 border-t border-zinc-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-800 tracking-wide uppercase flex items-center gap-2">
+                      <List className="w-4 h-4 text-rose-500" />
+                      Tour Options & Timeslots
+                    </h3>
+                    <p className="text-xs text-zinc-500 mt-1">Add variations like "Morning Safari" or "Full-Day" that tourists must choose from.</p>
+                  </div>
+                  <button type="button" onClick={addOption} className="text-sm font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-full transition-colors">
+                    <Plus className="w-4 h-4" /> Add Option
+                  </button>
+                </div>
+
+                {/* Hidden input for JSON */}
+                <input 
+                  type="hidden" 
+                  name="tour_options" 
+                  value={JSON.stringify(
+                    options.filter(o => o.title.trim() !== "").map(o => ({
+                      title: o.title,
+                      price_modifier: parseFloat(o.price_modifier) || 0
+                    }))
+                  )} 
+                />
+
+                {options.length > 0 ? (
+                  <div className="space-y-3">
+                    {options.map((opt, idx) => (
+                      <div key={`opt-${idx}`} className="flex gap-4 items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex-[2]">
+                          <input
+                            type="text"
+                            value={opt.title}
+                            onChange={(e) => updateOption(idx, 'title', e.target.value)}
+                            placeholder="e.g. Morning Safari (6:00 AM)"
+                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium"
+                          />
+                        </div>
+                        <div className="flex-1 relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">+$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={opt.price_modifier}
+                            onChange={(e) => updateOption(idx, 'price_modifier', e.target.value)}
+                            placeholder="Add-on Price"
+                            className="w-full h-12 pl-10 pr-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-bold"
+                          />
+                        </div>
+                        <button type="button" onClick={() => removeOption(idx)} className="p-3 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center p-6 border-2 border-dashed border-zinc-200 rounded-2xl bg-zinc-50">
+                    <p className="text-sm font-medium text-zinc-500">No options added. The tour will not have a dropdown selector.</p>
                   </div>
                 )}
               </div>
