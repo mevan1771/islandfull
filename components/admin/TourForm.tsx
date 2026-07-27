@@ -685,6 +685,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   className="w-full h-40 p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-base text-zinc-900 placeholder:text-zinc-300 resize-none leading-relaxed"
                   required
                 />
+                <p className="text-xs text-zinc-500 font-medium mt-1">Supports Markdown. Use '-' for bullet points and '**' for bold text.</p>
               </div>
 
               <div className="space-y-3">

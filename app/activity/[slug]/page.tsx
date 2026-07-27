@@ -7,6 +7,7 @@ import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
 import { ActivityMap } from "@/components/activity/ActivityMap"
 import { getExchangeRate } from "@/app/actions/settings"
+import ReactMarkdown from "react-markdown"
 
 // Fallback data for the specific slugs if DB is not ready
 const MOCK_DETAILS: Record<string, any> = {
@@ -137,9 +138,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           {/* Description */}
           <section>
             <h2 className="text-3xl font-bold text-zinc-900 mb-6">About this experience</h2>
-            <p className="text-zinc-600 leading-relaxed text-lg font-medium">
-              {activity.description}
-            </p>
+            <div className="text-zinc-600 leading-relaxed text-lg font-medium space-y-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:pl-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-4 whitespace-pre-wrap">
+              <ReactMarkdown>{activity.description}</ReactMarkdown>
+            </div>
             <div className="mt-6 flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
               <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center">
                 <span className="font-bold text-zinc-500">{activity.provider_name.charAt(0)}</span>
