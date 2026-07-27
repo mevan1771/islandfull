@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { validatePromoCode } from '@/app/actions/promo'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -9,10 +10,37 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { activityId, title, priceUsd, date, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, paymentStrategy } = body
+    const { activityId, title, priceUsd, date, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, paymentStrategy, promoCode } = body
+
+    // 0. Fetch Commission Rate
+    const { data: activity } = await supabaseAdmin
+      .from('activities')
+      .select('commission_rate')
+      .eq('id', activityId)
+      .single()
+      
+    const commissionRate = activity?.commission_rate || 15.00
+
+    let discountAmountUsd = 0;
+    let appliedPromoCode = null;
+
+    if (promoCode) {
+      const validation = await validatePromoCode(promoCode, totalUsd)
+      if (!validation.success) {
+         return new NextResponse(validation.error, { status: 400 })
+      }
+      discountAmountUsd = validation.discountAmountUsd || 0
+      appliedPromoCode = validation.code
+    }
+
+    // Commission Ledger Math
+    const grossPlatformFee = (totalUsd * commissionRate) / 100;
+    const hostPayoutUsd = totalUsd - grossPlatformFee;
+    const platformFeeUsd = Math.max(0, grossPlatformFee - discountAmountUsd); // Platform absorbs discount
+    const finalTotalUsd = Math.max(0, totalUsd - discountAmountUsd); // Final total charged to customer
 
     // 1. Insert pending booking to Supabase
-    const { data: booking, error: dbError } = await supabase
+    const { data: booking, error: dbError } = await supabaseAdmin
       .from('bookings')
       .insert({
         activity_id: activityId,
@@ -21,11 +49,15 @@ export async function POST(req: Request) {
         tourist_whatsapp: whatsapp,
         pax_count: guests,
         travel_date: date,
-        total_usd: totalUsd,
+        total_usd: finalTotalUsd,
         tour_option: selectedOption || null,
         pickup_location: pickupLocation || null,
         special_requests: specialRequests || null,
-        status: 'pending'
+        status: 'pending',
+        promo_code_applied: appliedPromoCode,
+        discount_amount_usd: discountAmountUsd,
+        platform_fee_usd: platformFeeUsd,
+        host_payout_usd: hostPayoutUsd
       })
       .select('id')
       .single()
@@ -33,9 +65,11 @@ export async function POST(req: Request) {
     if (dbError) throw dbError;
 
     // If No Card Needed, skip Stripe entirely
-    if (paymentStrategy === 'no_card') {
+    const actualPaymentStrategy = finalTotalUsd === 0 ? 'no_card' : paymentStrategy;
+
+    if (actualPaymentStrategy === 'no_card') {
       // Mark booking as confirmed instantly
-      await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', booking.id);
+      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', booking.id);
       
       // Auto-block the date if applicable
       try {
@@ -43,6 +77,13 @@ export async function POST(req: Request) {
         await autoBlockDate(activityId, date);
       } catch (e) {
         console.error("Failed to auto-block date for no_card booking:", e);
+      }
+      
+      if (appliedPromoCode) {
+         const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', appliedPromoCode).single()
+         if (currentPromo) {
+             await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', appliedPromoCode)
+         }
       }
 
       return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/booking/success?session_id=no_card_${booking.id}` })
@@ -59,7 +100,7 @@ export async function POST(req: Request) {
               name: selectedOption ? `${title} (${selectedOption})` : title,
               description: `${guests} Pax on ${date}`,
             },
-            unit_amount: Math.round((totalUsd / guests) * 100), // Stripe expects cents, per unit
+            unit_amount: Math.round((finalTotalUsd / guests) * 100), // Stripe expects cents, per unit
           },
           quantity: guests,
         },

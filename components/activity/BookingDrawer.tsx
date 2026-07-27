@@ -4,6 +4,7 @@ import { useState } from "react"
 import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
+import { validatePromoCode } from "@/app/actions/promo"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays } from "date-fns"
@@ -54,6 +55,15 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
+  
+  // Promo state
+  const [promoInput, setPromoInput] = useState("")
+  const [promoError, setPromoError] = useState("")
+  const [promoSuccess, setPromoSuccess] = useState("")
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
+  const [discountUsd, setDiscountUsd] = useState(0)
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false)
+
   // Calculate Totals using Tiered Pricing if available
   let totalUsd = priceUsd * guests
   let totalLkr = priceLkrApprox * guests
@@ -96,7 +106,8 @@ export function BookingDrawer({
           totalUsd,
           pickupLocation,
           specialRequests,
-          paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy
+          paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy,
+          promoCode: appliedPromo
         })
       })
       
@@ -129,6 +140,11 @@ export function BookingDrawer({
       setWhatsapp("")
       setPickupLocation("")
       setSpecialRequests("")
+      setPromoInput("")
+      setPromoError("")
+      setPromoSuccess("")
+      setAppliedPromo(null)
+      setDiscountUsd(0)
     }, 300)
   }
 
@@ -419,13 +435,87 @@ export function BookingDrawer({
               </div>
 
               {priceUsd > 0 && (
-                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-zinc-600 font-medium">Total (USD)</span>
-                    <span className="font-black text-2xl text-zinc-900">{formatUSD(totalUsd)}</span>
+                <div className="space-y-3 mt-4">
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={promoInput}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value.toUpperCase())
+                        setPromoError("")
+                        setPromoSuccess("")
+                      }}
+                      placeholder="Have a promo code?"
+                      className="flex-1 h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-sm text-zinc-900 uppercase placeholder:normal-case"
+                      disabled={!!appliedPromo}
+                    />
+                    {appliedPromo ? (
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="h-10 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-200"
+                        onClick={() => {
+                          setAppliedPromo(null)
+                          setDiscountUsd(0)
+                          setPromoInput("")
+                          setPromoSuccess("")
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        className="h-10"
+                        disabled={!promoInput || isApplyingPromo}
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          setIsApplyingPromo(true)
+                          setPromoError("")
+                          setPromoSuccess("")
+                          try {
+                            const res = await validatePromoCode(promoInput, totalUsd)
+                            if (res.success) {
+                              setAppliedPromo(res.code)
+                              setDiscountUsd(res.discountAmountUsd)
+                              setPromoSuccess(`-$${res.discountAmountUsd} discount applied!`)
+                            } else {
+                              setPromoError(res.error)
+                            }
+                          } catch (err) {
+                            setPromoError("Failed to validate promo code.")
+                          }
+                          setIsApplyingPromo(false)
+                        }}
+                      >
+                        {isApplyingPromo ? "..." : "Apply"}
+                      </Button>
+                    )}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 text-xs">≈ {formatLKR(totalLkr)} LKR</span>
+                  {promoError && <p className="text-xs text-rose-500 font-bold">{promoError}</p>}
+                  {promoSuccess && <p className="text-xs text-emerald-500 font-bold">{promoSuccess}</p>}
+                </div>
+              )}
+
+              {priceUsd > 0 && (
+                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 mt-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-zinc-600 font-medium">Subtotal</span>
+                    <span className="font-medium text-lg text-zinc-900">{formatUSD(totalUsd)}</span>
+                  </div>
+                  {discountUsd > 0 && (
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-emerald-600 font-bold">Promo Discount</span>
+                      <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-zinc-200">
+                    <span className="text-zinc-800 font-bold">Total (USD)</span>
+                    <span className="font-black text-2xl text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
                     {paymentStrategy === 'deposit_15' && (
                       <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
                     )}

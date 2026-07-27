@@ -138,7 +138,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           {/* Description */}
           <section>
             <h2 className="text-3xl font-bold text-zinc-900 mb-6">About this experience</h2>
-            <div className="text-zinc-600 leading-relaxed text-lg font-medium space-y-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:pl-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-4 whitespace-pre-wrap">
+            <div className="text-zinc-600 leading-relaxed text-lg font-medium space-y-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
             <div className="mt-6 flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
