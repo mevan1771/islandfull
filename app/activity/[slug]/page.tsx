@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
 import { ActivityMap } from "@/components/activity/ActivityMap"
+import { ActivityGallery } from "@/components/activity/ActivityGallery"
+import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { getExchangeRate } from "@/app/actions/settings"
 import ReactMarkdown from "react-markdown"
 
@@ -81,6 +83,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           className="object-cover"
           priority
         />
+        <FavoriteButton activityId={activity.id} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-6 md:p-16 text-white w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
@@ -173,18 +176,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           )}
 
           {/* Photo Gallery */}
-          {activity.gallery_urls && activity.gallery_urls.length > 0 && (
-            <section>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-6">Gallery</h2>
-              <div className="grid grid-cols-2 gap-4">
-                {activity.gallery_urls.map((url: string, i: number) => (
-                  <div key={i} className="relative aspect-video rounded-3xl overflow-hidden shadow-sm group">
-                    <Image src={url} alt="Gallery image" fill placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" className="object-cover transition-transform duration-700 group-hover:scale-110" />
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          <ActivityGallery galleryUrls={activity.gallery_urls} />
 
           {/* Reviews Section */}
           <ActivityReviews reviews={activity.reviews} />

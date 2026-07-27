@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, FormEvent } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 const CATEGORIES = [
   { id: "all", name: "All Places" },
+  { id: "saved", name: "Saved", icon: Heart },
   { id: "surf", name: "Surfing" },
   { id: "wildlife-safaris", name: "Wildlife Safaris" },
   { id: "hiking-treks", name: "Hiking & Treks" },
@@ -139,12 +140,21 @@ export function HomeFilters() {
               <button 
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
-                className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors border ${
-                  currentCategory === cat.id
-                    ? 'border-rose-500 text-rose-500 bg-rose-50' 
-                    : 'border-zinc-200 text-zinc-600 hover:border-zinc-300'
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all border ${
+                  cat.id === "saved"
+                    ? currentCategory === cat.id
+                      ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"
+                      : "bg-rose-500/5 text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 backdrop-blur-sm"
+                    : currentCategory === cat.id 
+                      ? "bg-zinc-900 text-white border-zinc-900 shadow-md" 
+                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
                 }`}
               >
+                {cat.icon && <cat.icon className={`w-4 h-4 ${
+                  cat.id === 'saved' 
+                    ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
+                    : (currentCategory === cat.id ? "fill-white" : "")
+                }`} />}
                 {cat.name}
               </button>
             ))}

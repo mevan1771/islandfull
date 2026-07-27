@@ -1,18 +1,23 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Clock, MapPin, Star, Gem } from "lucide-react"
+import { FavoriteButton } from "@/components/ui/FavoriteButton"
 
 interface ActivityCardProps {
+  id: string
   title: string
   slug: string
   location: string
   duration: string
+  priceUsd: number
+  coverImage: string
   isHiddenGem?: boolean
   rating?: number
   reviewCount?: number
 }
 
 export function ActivityCard({
+  id,
   title,
   slug,
   location,
@@ -37,6 +42,7 @@ export function ActivityCard({
             className="object-cover transition-transform duration-700 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
+          <FavoriteButton activityId={id} />
           {/* Rating Pill overlay */}
           <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
             {isHiddenGem ? (

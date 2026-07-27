@@ -1,6 +1,7 @@
 import { ShieldCheck, Tag, HeartHandshake } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { HomeFilters } from "@/components/home/HomeFilters"
+import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
@@ -42,7 +43,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
     }
     
-    if (params.category) {
+    if (params.category && params.category !== 'saved') {
       query = query.eq('categories.slug', params.category);
     }
 
@@ -52,17 +53,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       query = query.order('price_usd', { ascending: false });
     }
 
-    const { data, error } = await query.limit(12);
+    // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
+    const fetchLimit = params.category === 'saved' ? 50 : 12;
+    const { data, error } = await query.limit(fetchLimit);
     
     if (error) {
       console.error("Supabase query error:", error);
     } else if (data && data.length > 0) {
       activities = data.map(d => {
-        const reviewCount = d.reviews ? d.reviews.length : 0;
-        const avgRating = reviewCount > 0 
-          ? d.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
+        const rating = d.reviews && d.reviews.length > 0 
+          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length 
           : undefined;
-
+          
         return {
           id: d.id,
           title: d.title,
@@ -72,14 +74,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           priceUsd: d.price_usd,
           coverImage: d.cover_image_url,
           isHiddenGem: d.is_hidden_gem,
-          rating: avgRating,
-          reviewCount: reviewCount
+          rating: rating,
+          reviewCount: d.reviews ? d.reviews.length : 0
         };
       });
     }
-  } catch (err) {
-    console.log("Supabase error (using mock data):", err);
+  } catch (e) {
+    console.error("Failed to fetch activities:", e);
   }
+
+  const currentCategory = params.category || 'all';
 
   return (
     <div className="pb-24">
@@ -97,7 +101,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full flex flex-col items-center text-center mt-[-10vh]">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-md">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-md text-white">
             Your Journey Starts<br/>Before You Go
           </h1>
           <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl drop-shadow-md">
@@ -116,30 +120,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Activity Grid */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        
-        {activities.length === 0 && (
-          <div className="text-center py-20 bg-zinc-50 rounded-3xl border border-zinc-100">
-            <h3 className="text-xl font-bold text-zinc-900 mb-2">No activities found</h3>
-            <p className="text-zinc-500">Try adjusting your search filters to see more results.</p>
-          </div>
-        )}
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {activities.map((act) => (
-            <ActivityCard
-              key={act.id}
-              title={act.title}
-              slug={act.slug}
-              location={act.location}
-              duration={act.duration}
-              priceUsd={act.priceUsd}
-              coverImage={act.coverImage}
-              isHiddenGem={act.isHiddenGem}
-              rating={act.rating}
-              reviewCount={act.reviewCount}
-            />
-          ))}
-        </div>
+        <ActivityGrid activities={activities} currentCategory={currentCategory} />
       </section>
 
       {/* Our Story Section */}
