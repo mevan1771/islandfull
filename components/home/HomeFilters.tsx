@@ -13,10 +13,11 @@ const CATEGORIES = [
   { id: "culture-history", name: "Culture & History" },
 ]
 
-export function HomeFilters() {
+export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const currentVertical = searchParams.get("vertical") || "tour"
   const currentCategory = searchParams.get("category") || "all"
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
@@ -24,6 +25,12 @@ export function HomeFilters() {
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
   const [travelers, setTravelers] = useState("")
+
+  const CATEGORIES = [
+    { id: "all", name: "All Places" },
+    { id: "saved", name: "Saved", icon: Heart },
+    ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
+  ]
 
   const handleSearch = (e?: FormEvent) => {
     if (e) e.preventDefault()
@@ -45,6 +52,13 @@ export function HomeFilters() {
     router.push(`/?${params.toString()}`, { scroll: false })
   }
 
+  const handleVerticalClick = (vertical: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("vertical", vertical)
+    params.delete("category") // Reset category when switching vertical
+    router.push(`/?${params.toString()}`, { scroll: false })
+  }
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString())
     const sortVal = e.target.value
@@ -62,14 +76,23 @@ export function HomeFilters() {
         <div className="max-w-5xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
           <div className="flex items-center gap-6 border-b border-zinc-100 pb-4 mb-6 overflow-x-auto hide-scrollbar">
-            <button className="flex items-center gap-2 text-rose-500 font-semibold border-b-2 border-rose-500 pb-4 -mb-[18px] whitespace-nowrap">
+            <button 
+              onClick={() => handleVerticalClick('tour')}
+              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'tour' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+            >
               <Map className="w-4 h-4" /> Tours & Guides
             </button>
-            <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
-              Flight
+            <button 
+              onClick={() => handleVerticalClick('event')}
+              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'event' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+            >
+              <Calendar className="w-4 h-4" /> Events
             </button>
-            <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
-              Hotel
+            <button 
+              onClick={() => handleVerticalClick('transport')}
+              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'transport' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+            >
+              <Users className="w-4 h-4" /> Transport
             </button>
           </div>
 

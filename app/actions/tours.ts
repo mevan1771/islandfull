@@ -14,13 +14,20 @@ function generateSlug(title: string): string {
 export async function createTour(formData: FormData) {
   try {
     const title = formData.get("title") as string
-    const category_input = formData.get("category_id") as string
+    const category_inputs = formData.getAll("category_ids") as string[]
     const provider_name = formData.get("provider_name") as string || "IslandFull Official"
+    const host_id = formData.get("host_id") as string
     const location = formData.get("location") as string
     const description = formData.get("description") as string
     const duration = formData.get("duration") as string
     const price_usd = parseFloat(formData.get("price_usd") as string)
     const price_lkr_approx = 0 // Automatically calculated via global rate now
+    
+    // Commission & Category
+    const category_type = formData.get("category_type") as string || "tour"
+    const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
+    const is_custom_commission = formData.get("is_custom_commission") === "true"
+
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
@@ -77,38 +84,36 @@ export async function createTour(formData: FormData) {
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
 
-    let category_id = category_input;
-    if (category_input) {
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_input);
-      if (!isUUID) {
-        const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', category_input).single();
-        if (existing) {
-          category_id = existing.id;
-        } else {
-          const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: category_input, slug: generateSlug(category_input) }).select('id').single();
-          if (newCat) category_id = newCat.id;
-        }
-      }
-    }
+    const category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cat_input);
+      if (isUUID) return cat_input;
+      const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', cat_input).single();
+      if (existing) return existing.id;
+      const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: cat_input, slug: generateSlug(cat_input), category_type }).select('id').single();
+      return newCat?.id;
+    })).then(res => res.filter(Boolean));
 
-    if (!title || !category_id || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+    if (!title || category_ids.length === 0 || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
       throw new Error(`Missing required fields. Please check all steps.`);
     }
 
     const slug = generateSlug(title)
 
     // Insert into Supabase
-    const { error } = await supabaseAdmin.from('activities').insert({
+    const { data: activity, error } = await supabaseAdmin.from('activities').insert({
       title,
       slug,
-      category_id,
       provider_name,
+      host_id,
       location,
       description,
       inclusions,
       duration,
       price_usd,
       price_lkr_approx,
+      category_type,
+      commission_rate,
+      is_custom_commission,
       cover_image_url,
       gallery_urls,
       max_capacity,
@@ -121,14 +126,21 @@ export async function createTour(formData: FormData) {
       blackout_dates,
       status,
       min_notice_days
-    })
+    }).select('id').single()
 
-    if (error) {
+    if (error || !activity) {
       console.error("Supabase Error:", error)
-      if (error.code === '23505') { // Unique violation
+      if (error?.code === '23505') { // Unique violation
         throw new Error("A tour with a similar title already exists. Please choose a different title.")
       }
       throw new Error("Failed to insert tour into database")
+    }
+
+    // Insert into junction table
+    if (category_ids.length > 0) {
+      const joinData = category_ids.map(cId => ({ activity_id: activity.id, category_id: cId }));
+      const { error: joinError } = await supabaseAdmin.from('activity_categories').insert(joinData);
+      if (joinError) console.error("Failed to insert activity_categories:", joinError);
     }
 
     // Revalidate paths so the new tour appears instantly
@@ -144,13 +156,20 @@ export async function createTour(formData: FormData) {
 export async function updateTour(id: string, formData: FormData) {
   try {
     const title = formData.get("title") as string
-    const category_input = formData.get("category_id") as string
+    const category_inputs = formData.getAll("category_ids") as string[]
     const provider_name = formData.get("provider_name") as string || "IslandFull Official"
+    const host_id = formData.get("host_id") as string
     const location = formData.get("location") as string
     const description = formData.get("description") as string
     const duration = formData.get("duration") as string
     const price_usd = parseFloat(formData.get("price_usd") as string)
     const price_lkr_approx = 0 // Automatically calculated via global rate now
+    
+    // Commission & Category
+    const category_type = formData.get("category_type") as string || "tour"
+    const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
+    const is_custom_commission = formData.get("is_custom_commission") === "true"
+
     const cover_image_url = formData.get("cover_image_url") as string
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
@@ -205,21 +224,16 @@ export async function updateTour(id: string, formData: FormData) {
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
 
-    let category_id = category_input;
-    if (category_input) {
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_input);
-      if (!isUUID) {
-        const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', category_input).single();
-        if (existing) {
-          category_id = existing.id;
-        } else {
-          const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: category_input, slug: generateSlug(category_input) }).select('id').single();
-          if (newCat) category_id = newCat.id;
-        }
-      }
-    }
+    const category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cat_input);
+      if (isUUID) return cat_input;
+      const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', cat_input).single();
+      if (existing) return existing.id;
+      const { data: newCat } = await supabaseAdmin.from('categories').insert({ name: cat_input, slug: generateSlug(cat_input), category_type }).select('id').single();
+      return newCat?.id;
+    })).then(res => res.filter(Boolean));
 
-    if (!title || !category_id || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+    if (!title || category_ids.length === 0 || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
       throw new Error(`Missing required fields. Please check all steps.`);
     }
 
@@ -227,14 +241,17 @@ export async function updateTour(id: string, formData: FormData) {
 
     const { error } = await supabaseAdmin.from('activities').update({
       title,
-      category_id,
       provider_name,
+      host_id,
       location,
       description,
       inclusions,
       duration,
       price_usd,
       price_lkr_approx,
+      category_type,
+      commission_rate,
+      is_custom_commission,
       cover_image_url,
       gallery_urls,
       max_capacity,
@@ -255,6 +272,14 @@ export async function updateTour(id: string, formData: FormData) {
     if (error) {
       console.error("Supabase Error:", error)
       throw new Error(`DB Error: ${error.message} (Code: ${error.code})`)
+    }
+
+    // Update junction table: delete old, insert new
+    await supabaseAdmin.from('activity_categories').delete().eq('activity_id', id);
+    if (category_ids.length > 0) {
+      const joinData = category_ids.map(cId => ({ activity_id: id, category_id: cId }));
+      const { error: joinError } = await supabaseAdmin.from('activity_categories').insert(joinData);
+      if (joinError) console.error("Failed to update activity_categories:", joinError);
     }
 
     revalidatePath('/', 'layout')

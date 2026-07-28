@@ -57,7 +57,8 @@ export async function POST(req: Request) {
         promo_code_applied: appliedPromoCode,
         discount_amount_usd: discountAmountUsd,
         platform_fee_usd: platformFeeUsd,
-        host_payout_usd: hostPayoutUsd
+        host_payout_usd: hostPayoutUsd,
+        commission_rate_applied: commissionRate
       })
       .select('id')
       .single()
@@ -86,7 +87,7 @@ export async function POST(req: Request) {
          }
       }
 
-      return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/booking/success?session_id=no_card_${booking.id}` })
+      return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
     }
 
     // 2. Create Stripe Checkout Session
@@ -106,8 +107,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/booking/cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/cancel`,
       client_reference_id: booking.id, // we use this in the webhook to mark as confirmed
       customer_email: touristEmail,
     })

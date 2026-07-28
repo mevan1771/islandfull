@@ -39,7 +39,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   try {
     const { data, error } = await supabase
       .from('activities')
-      .select('*, reviews(*)')
+      .select('*, reviews(*), hosts(*)')
       .eq('slug', slug)
       .single()
 
@@ -145,12 +145,16 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
             <div className="mt-6 flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
-              <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center">
-                <span className="font-bold text-zinc-500">{activity.provider_name.charAt(0)}</span>
+              <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden relative shadow-sm border border-zinc-200">
+                {activity.hosts?.image_url ? (
+                  <Image src={activity.hosts.image_url} alt={activity.hosts?.name || activity.provider_name} fill className="object-cover" />
+                ) : (
+                  <span className="font-bold text-zinc-500">{(activity.hosts?.name || activity.provider_name).charAt(0)}</span>
+                )}
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-zinc-400 uppercase">Hosted By</span>
-                <span className="font-bold text-zinc-900">{activity.provider_name}</span>
+                <span className="font-bold text-zinc-900">{activity.hosts?.name || activity.provider_name}</span>
               </div>
             </div>
           </section>

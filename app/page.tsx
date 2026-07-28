@@ -37,7 +37,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   let activities = MOCK_ACTIVITIES;
   
   try {
-    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)');
+    const currentVertical = params.vertical || 'tour';
+
+    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
+      .eq('category_type', currentVertical);
     
     if (params.location) {
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
@@ -83,7 +86,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     console.error("Failed to fetch activities:", e);
   }
 
+  const currentVertical = params.vertical || 'tour';
   const currentCategory = params.category || 'all';
+
+  let dynamicCategories: any[] = [];
+  try {
+    const { data: catData } = await supabase
+      .from('categories')
+      .select('name, slug')
+      .eq('category_type', currentVertical);
+      
+    if (catData) {
+      dynamicCategories = catData;
+    }
+  } catch (e) {
+    console.error("Failed to fetch dynamic categories:", e);
+  }
 
   return (
     <div className="pb-24">
@@ -115,7 +133,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Dynamic Filters UI */}
       <Suspense fallback={<div className="h-40"></div>}>
-        <HomeFilters />
+        <HomeFilters dynamicCategories={dynamicCategories} />
       </Suspense>
 
       {/* Activity Grid */}

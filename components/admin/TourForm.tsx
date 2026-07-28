@@ -1,15 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createTour, updateTour } from "@/app/actions/tours"
 import { uploadToCloudinary } from "@/app/actions/upload"
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car, CalendarDays } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car, CalendarDays, Percent } from "lucide-react"
 import Link from "next/link"
 import { DayPicker } from "react-day-picker"
 import { format, parse } from "date-fns"
 import "react-day-picker/dist/style.css"
+import CreatableSelect from "react-select/creatable"
 
 const TOTAL_STEPS = 4;
 
@@ -24,6 +25,58 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [previewImage, setPreviewImage] = useState(initialData?.cover_image_url || "")
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData?.gallery_urls || [])
   
+  // Commission & Category State
+  const [categoryType, setCategoryType] = useState<string>(initialData?.category_type || "tour")
+  const [commissionRate, setCommissionRate] = useState<string>(initialData?.commission_rate?.toString() || "15")
+  const [isCustomCommission, setIsCustomCommission] = useState<boolean>(initialData?.is_custom_commission || false)
+  const [globalSettings, setGlobalSettings] = useState<Record<string, number>>({})
+  const [hosts, setHosts] = useState<any[]>([])
+
+  useEffect(() => {
+    import("@/app/actions/finances").then(({ getCommissionSettings }) => {
+      getCommissionSettings().then((settings) => {
+        const rates: Record<string, number> = {}
+        settings.forEach((s: any) => {
+          rates[s.category_name] = s.default_rate
+        })
+        setGlobalSettings(rates)
+        
+        // If creating a new tour and no custom rate set yet, use the global default for 'tour'
+        if (!initialData && rates["tour"]) {
+          setCommissionRate(rates["tour"].toString())
+        }
+      })
+    })
+
+    import("@/app/actions/hosts").then(({ getHosts }) => {
+      getHosts().then((fetchedHosts) => {
+        setHosts(fetchedHosts)
+      })
+    })
+  }, [initialData])
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCategory = e.target.value
+    setCategoryType(newCategory)
+    
+    // Auto-fill commission rate if it's not custom
+    if (!isCustomCommission && globalSettings[newCategory]) {
+      setCommissionRate(globalSettings[newCategory].toString())
+    }
+  }
+
+  const handleCommissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCommissionRate(e.target.value)
+    setIsCustomCommission(true) // Mark as custom if user edits it
+  }
+
+  const resetToGlobalDefault = () => {
+    if (globalSettings[categoryType]) {
+      setCommissionRate(globalSettings[categoryType].toString())
+      setIsCustomCommission(false)
+    }
+  }
+
   const [blackoutDates, setBlackoutDates] = useState<Date[]>(
     initialData?.blackout_dates 
       ? initialData.blackout_dates.map((d: string) => parse(d, 'yyyy-MM-dd', new Date())) 
@@ -265,16 +318,67 @@ export default function TourForm({ categories, initialData }: { categories: any[
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <Briefcase className="w-4 h-4 text-rose-500" />
-                  Hosted By (Provider Name)
+                  Hosted By (Provider)
                 </label>
-                <input 
-                  name="provider_name"
-                  type="text" 
-                  defaultValue={initialData?.provider_name || "IslandFull Official"}
-                  placeholder="e.g. Hiriketiya Surf School"
-                  className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
+                <select 
+                  name="host_id"
+                  defaultValue={initialData?.host_id || "00000000-0000-0000-0000-000000000000"}
+                  className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
                   required
-                />
+                >
+                  <option value="" disabled>Select a host...</option>
+                  {hosts.map(host => (
+                    <option key={host.id} value={host.id}>{host.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <List className="w-4 h-4 text-rose-500" />
+                    MAIN VERTICAL
+                  </label>
+                  <select 
+                    name="category_type"
+                    value={categoryType}
+                    onChange={handleCategoryChange}
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
+                    required
+                  >
+                    <option value="tour">Tour</option>
+                    <option value="event">Event</option>
+                    <option value="transport">Transport</option>
+                  </select>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <Percent className="w-4 h-4 text-rose-500" />
+                    Commission Rate (%)
+                  </label>
+                  <div className="relative">
+                    <input 
+                      name="commission_rate"
+                      type="number" 
+                      step="0.01"
+                      value={commissionRate}
+                      onChange={handleCommissionChange}
+                      className="w-full h-14 pl-5 pr-24 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900"
+                      required
+                    />
+                    <input type="hidden" name="is_custom_commission" value={isCustomCommission.toString()} />
+                    {isCustomCommission && (
+                      <button
+                        type="button"
+                        onClick={resetToGlobalDefault}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -306,22 +410,44 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <Tag className="w-4 h-4 text-rose-500" />
-                    Category
+                    SUB-CATEGORY (TAG)
                   </label>
-                  <input 
-                    type="text"
-                    name="category_id"
-                    list="category-suggestions"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
-                    placeholder="e.g. Wildlife or Wellness"
-                    required
-                    defaultValue={initialData?.category_id ? categories.find(c => c.id === initialData.category_id)?.name || "" : ""}
+                  <CreatableSelect
+                    isMulti
+                    instanceId="tour-category-select"
+                    name="category_ids"
+                    placeholder="Select or type a new tag..."
+                    options={categories.filter(c => !c.category_type || c.category_type === categoryType).map(c => ({ label: c.name, value: c.name }))}
+                    defaultValue={
+                      initialData?.categories
+                        ? initialData.categories.map((c: any) => ({ label: c.name, value: c.name }))
+                        : []
+                    }
+                    className="react-select-container font-medium text-lg text-zinc-900"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (base, state) => ({
+                        ...base,
+                        minHeight: '3.5rem',
+                        borderRadius: '1rem',
+                        border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
+                        boxShadow: state.isFocused ? '0 0 0 4px rgba(244, 63, 94, 0.1)' : 'none',
+                        '&:hover': {
+                          border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
+                        },
+                        padding: '0 8px'
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        padding: '0 8px',
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        margin: 0,
+                        padding: 0,
+                      }),
+                    }}
                   />
-                  <datalist id="category-suggestions">
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.name} />
-                    ))}
-                  </datalist>
                 </div>
 
                 <div className="space-y-3">

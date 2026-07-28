@@ -8,7 +8,7 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const { data: tour, error } = await supabase
     .from('activities')
-    .select('*')
+    .select('*, categories(*)')
     .eq('id', id)
     .single();
 
