@@ -173,7 +173,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                       : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
                 }`}
               >
-                {cat.icon && <cat.icon className={`w-4 h-4 ${
+                {('icon' in cat && cat.icon) && <(cat as any).icon className={`w-4 h-4 ${
                   cat.id === 'saved' 
                     ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
                     : (currentCategory === cat.id ? "fill-white" : "")
