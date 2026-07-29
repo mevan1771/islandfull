@@ -481,9 +481,9 @@ export function BookingDrawer({
                               setDiscountUsd(res.discountAmountUsd || 0)
                               setPromoSuccess(`-$${res.discountAmountUsd || 0} discount applied!`)
                             } else {
-                              setPromoError(res.error)
+                              setPromoError(res.error || "Failed to apply promo")
                             }
-                          } catch (err) {
+                          } catch (err: any) {
                             setPromoError("Failed to validate promo code.")
                           }
                           setIsApplyingPromo(false)
