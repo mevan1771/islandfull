@@ -109,7 +109,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   return (
     <div className="pb-24">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-48 text-white min-h-[85vh] flex flex-col justify-center">
+      <section className="relative pt-32 pb-48 text-white min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
         <div className="absolute inset-0 z-0">
           <Image 
             src="https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
@@ -122,13 +122,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full flex flex-col items-center text-center mt-[-10vh]">
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-md text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold md:text-6xl tracking-tight mb-6 drop-shadow-md text-white">
             Your Journey Starts<br/>Before You Go
           </h1>
           <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl drop-shadow-md">
             Inspiration, Planning, And Booking — All In One Travel Experience.
           </p>
-          <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white px-8 py-3.5 rounded-full font-semibold transition-all">
+          <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white px-8 py-3.5 rounded-xl md:rounded-full font-semibold transition-all">
             View Package
           </button>
         </div>
@@ -145,25 +145,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </section>
 
       {/* Our Story Section */}
-      <section className="bg-zinc-50 py-24 mt-12">
+      <section className="bg-zinc-50 py-12 md:py-24 mt-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 leading-tight">
+              <h2 className="text-2xl md:text-5xl font-bold text-zinc-900 leading-tight">
                 Our Story: Driven By Wanderlust, Powered By Experience
               </h2>
               <p className="text-zinc-600 text-lg leading-relaxed max-w-lg">
                 We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures.
               </p>
-              <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-full font-semibold transition-all">
+              <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl md:rounded-full font-semibold transition-all">
                 Find More
               </button>
             </div>
             <div className="grid grid-cols-2 gap-4 h-[300px] md:h-[500px]">
-              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mt-4 md:mt-8">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mt-4 md:mt-8 aspect-[4/3] md:aspect-auto">
                 <Image src="https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Safari" fill className="object-cover" />
               </div>
-              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mb-4 md:mb-8">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mb-4 md:mb-8 aspect-[4/3] md:aspect-auto">
                 <Image src="https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Train" fill className="object-cover" />
               </div>
             </div>
@@ -172,7 +172,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </section>
 
       {/* Why Travelers Trust Us */}
-      <section className="max-w-7xl mx-auto px-4 py-24 text-center">
+      <section className="max-w-7xl mx-auto px-4 py-12 md:py-24 text-center">
         <h2 className="text-4xl font-bold text-zinc-900 mb-4">Why Travelers Trust Us</h2>
         <p className="text-zinc-500 mb-16">We Deliver Every Milestone Memorably, We're Dedicated.</p>
 

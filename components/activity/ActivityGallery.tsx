@@ -34,12 +34,12 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   return (
     <>
       <section>
-        <h2 className="text-3xl font-bold text-zinc-900 mb-6">Gallery</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-4 md:mb-6">Gallery</h2>
+        <div className="flex overflow-x-auto no-scrollbar gap-2 pb-4 px-4 -mx-4 md:grid md:grid-cols-2 md:gap-4 md:pb-0 md:px-0 md:mx-0">
           {galleryUrls.map((url: string, i: number) => (
             <div 
               key={i} 
-              className={`relative aspect-video rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity ${i > 0 ? 'hidden sm:block' : ''}`}
+              className="relative aspect-[4/3] md:aspect-video w-[85vw] md:w-auto flex-shrink-0 rounded-xl md:rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity"
               onClick={() => setSelectedImage(url)}
             >
               <Image 
@@ -50,11 +50,9 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                 blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
                 className="object-cover transition-transform duration-700 group-hover:scale-110" 
               />
-              {i === 0 && galleryUrls.length > 1 && (
-                <div className="absolute bottom-4 right-4 sm:hidden bg-zinc-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                  1/{galleryUrls.length} Photos
-                </div>
-              )}
+              <div className="absolute bottom-3 right-3 md:hidden bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg">
+                {i + 1}/{galleryUrls.length}
+              </div>
             </div>
           ))}
         </div>

@@ -90,7 +90,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-[45vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto md:rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative w-full h-[35vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto rounded-b-xl md:rounded-3xl overflow-hidden shadow-2xl">
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -123,42 +123,42 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <div className="flex-1 space-y-12">
           
           {/* Quick Info Pills */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <Clock className="w-5 h-5 text-rose-500" />
+          <div className="flex flex-wrap gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-zinc-400 uppercase">Duration</span>
-                <span className="font-semibold text-zinc-900">{activity.duration}</span>
+                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Duration</span>
+                <span className="text-xs md:text-base font-semibold text-zinc-900">{activity.duration}</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <MapPin className="w-5 h-5 text-rose-500" />
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-zinc-400 uppercase">Location</span>
-                <span className="font-semibold text-zinc-900">{activity.location}</span>
+                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Location</span>
+                <span className="text-xs md:text-base font-semibold text-zinc-900">{activity.location}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <Users className="w-5 h-5 text-rose-500" />
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-zinc-400 uppercase">Capacity</span>
-                <span className="font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
+                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Capacity</span>
+                <span className="text-xs md:text-base font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
               </div>
             </div>
           </div>
 
           {/* Description */}
           <section>
-            <h2 className="text-3xl font-bold text-zinc-900 mb-6">About this experience</h2>
-            <div className="text-zinc-600 leading-relaxed text-lg font-medium space-y-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
+            <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-4 md:mb-6">About this experience</h2>
+            <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
             <div className="mt-6 flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
@@ -181,15 +181,15 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Inclusions */}
           {activity.inclusions && activity.inclusions.length > 0 && (
-            <section className="bg-rose-50/50 rounded-3xl p-8 md:p-10 border border-rose-100">
-              <h2 className="text-2xl font-bold text-zinc-900 mb-8">What's included</h2>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <section className="bg-rose-50/50 rounded-3xl p-6 md:p-10 border border-rose-100">
+              <h2 className="text-xl md:text-2xl font-bold text-zinc-900 mb-6 md:mb-8">What's included</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 {activity.inclusions.map((item: string, i: number) => (
-                  <li key={i} className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-500/20">
-                      <Check className="w-4 h-4 text-white" />
+                  <li key={i} className="flex items-center gap-3 md:gap-4">
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-500/20">
+                      <Check className="w-3 h-3 md:w-4 md:h-4 text-white" />
                     </div>
-                    <span className="text-zinc-800 font-semibold">{item}</span>
+                    <span className="text-zinc-800 text-sm md:text-base font-semibold">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -230,7 +230,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       {moreActivities && moreActivities.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <div className="border-t border-zinc-200 pt-12">
-            <h2 className="text-3xl font-bold text-zinc-900 mb-8">
+            <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-6 md:mb-8">
               More from {activity.hosts?.name || activity.provider_name}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

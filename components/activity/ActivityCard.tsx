@@ -32,7 +32,7 @@ export function ActivityCard({
     <Link href={`/activity/${slug}`} className="block group">
       <div className="flex flex-col gap-3">
         {/* Image Container */}
-        <div className="relative aspect-[4/3] sm:aspect-[3/4] w-full overflow-hidden rounded-3xl bg-zinc-100">
+        <div className="relative aspect-[4/3] sm:aspect-[3/4] w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100">
           <Image
             src={coverImage}
             alt={title}
@@ -48,18 +48,18 @@ export function ActivityCard({
             {isHiddenGem ? (
               <>
                 <Gem className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
-                <span className="text-xs font-bold text-rose-500 tracking-wide">Gem</span>
+                <span className="text-[10px] md:text-xs font-bold text-rose-500 tracking-wide">Gem</span>
               </>
             ) : reviewCount === 0 || !rating ? (
               <>
                 <Star className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
-                <span className="text-xs font-bold text-rose-500">New</span>
+                <span className="text-[10px] md:text-xs font-bold text-rose-500">New</span>
               </>
             ) : (
               <>
                 <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs font-bold text-zinc-900">{rating.toFixed(1)}</span>
-                <span className="text-xs font-medium text-zinc-500">({reviewCount})</span>
+                <span className="text-[10px] md:text-xs font-bold text-zinc-900">{rating.toFixed(1)}</span>
+                <span className="text-[10px] md:text-xs font-medium text-zinc-500">({reviewCount})</span>
               </>
             )}
           </div>
@@ -67,25 +67,25 @@ export function ActivityCard({
         
         {/* Content Details */}
         <div>
-          <h3 className="text-sm sm:text-base font-bold text-zinc-900 mb-1 line-clamp-1 group-hover:text-rose-500 transition-colors">
+          <h3 className="text-xs sm:text-base font-semibold text-zinc-900 mb-1 line-clamp-1 group-hover:text-rose-500 transition-colors">
             {title}
           </h3>
           
           <div className="flex items-center gap-1.5 text-zinc-500 mb-2">
             <MapPin className="w-3.5 h-3.5" />
-            <span className="text-[11px] sm:text-sm">{location}, Sri Lanka</span>
+            <span className="text-[10px] sm:text-[11px]">{location}, Sri Lanka</span>
           </div>
 
-          <p className="text-[11px] sm:text-sm font-medium text-zinc-600 mb-2">
+          <p className="text-[10px] sm:text-[11px] font-medium text-zinc-600 mb-2">
             {duration}
           </p>
           
           <div className="flex items-baseline gap-1 mt-1">
             {priceUsd === 0 ? (
-              <span className="text-sm sm:text-[1.15rem] font-bold text-emerald-600">Free</span>
+              <span className="text-xs sm:text-[1.15rem] font-bold text-emerald-600">Free</span>
             ) : (
               <>
-                <span className="text-sm sm:text-[1.15rem] font-bold text-zinc-900">${priceUsd}</span>
+                <span className="text-xs sm:text-[1.15rem] font-bold text-zinc-900">${priceUsd}</span>
                 <span className="text-[10px] sm:text-xs font-medium text-zinc-400">/person</span>
               </>
             )}

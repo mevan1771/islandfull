@@ -79,7 +79,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     <>
       {/* Floating Search Widget */}
       <div className="relative -mt-24 z-20 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
+        <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-3 sm:p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
           <div className="flex items-center gap-6 border-b border-zinc-100 mb-6">
             <button 
@@ -104,14 +104,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
           {/* Inputs */}
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4">
-            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4 focus-within:border-rose-500 transition-colors">
-              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
+            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4 focus-within:border-rose-500 transition-colors">
+              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-zinc-400" />
+                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
                 <input 
                   type="text" 
                   placeholder="Ella, Sigiriya..." 
-                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
+                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
                   value={location}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -126,34 +126,34 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               </div>
             </div>
             
-            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
-              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Date (Optional)</label>
+            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4">
+              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Date (Optional)</label>
               <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-zinc-400" />
+                <Calendar className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
                 <input 
                   type="date" 
-                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
+                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
-              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers (Optional)</label>
+            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4">
+              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers (Optional)</label>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-zinc-400" />
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
                 <input 
                   type="text" 
                   placeholder="e.g. 2 Pax" 
-                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
+                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
                 />
               </div>
             </div>
 
-            <button type="submit" className="w-full md:w-auto h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-10 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
+            <button type="submit" className="w-full md:w-auto h-[50px] md:h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-10 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
               <Search className="w-5 h-5" />
               Search
             </button>
