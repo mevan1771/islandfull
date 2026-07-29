@@ -31,6 +31,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [isCustomCommission, setIsCustomCommission] = useState<boolean>(initialData?.is_custom_commission || false)
   const [globalSettings, setGlobalSettings] = useState<Record<string, number>>({})
   const [hosts, setHosts] = useState<any[]>([])
+  const [hostId, setHostId] = useState<string>(initialData?.host_id || "00000000-0000-0000-0000-000000000000")
 
   useEffect(() => {
     import("@/app/actions/finances").then(({ getCommissionSettings }) => {
@@ -316,13 +317,29 @@ export default function TourForm({ categories, initialData }: { categories: any[
               </div>
 
               <div className="space-y-3">
+                <label className="flex items-center gap-3 p-4 border-2 border-rose-100 bg-rose-50 rounded-2xl cursor-pointer hover:bg-rose-100/50 transition-colors">
+                  <input 
+                    type="checkbox" 
+                    name="is_featured" 
+                    defaultChecked={initialData?.is_featured || false}
+                    className="w-5 h-5 text-rose-500 rounded focus:ring-rose-500 cursor-pointer"
+                  />
+                  <div>
+                    <span className="block font-bold text-zinc-900">Feature this Activity (Pin to top of homepage)</span>
+                    <span className="block text-sm text-zinc-600 font-medium">Prioritizes this activity for maximum visibility.</span>
+                  </div>
+                </label>
+              </div>
+
+              <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <Briefcase className="w-4 h-4 text-rose-500" />
                   Hosted By (Provider)
                 </label>
                 <select 
                   name="host_id"
-                  defaultValue={initialData?.host_id || "00000000-0000-0000-0000-000000000000"}
+                  value={hostId}
+                  onChange={(e) => setHostId(e.target.value)}
                   className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
                   required
                 >

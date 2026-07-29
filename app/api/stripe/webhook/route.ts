@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { supabaseAdmin } from '@/lib/supabase'
+import QRCode from 'qrcode'
+import { sendReceiptEmail } from '@/app/actions/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -25,15 +27,39 @@ export async function POST(req: Request) {
 
     if (bookingId) {
       // Mark as confirmed
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', bookingId)
+      await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)
       
-      // Look up booking to increment promo uses
-      const { data: booking } = await supabaseAdmin.from('bookings').select('promo_code_applied').eq('id', bookingId).single()
-      if (booking && booking.promo_code_applied) {
-         const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', booking.promo_code_applied).single()
-         if (currentPromo) {
-             await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', booking.promo_code_applied)
-         }
+      // Look up booking details for email and promo
+      const { data: booking } = await supabaseAdmin
+        .from('bookings')
+        .select('*, activities(title)')
+        .eq('id', bookingId)
+        .single()
+        
+      if (booking) {
+        // Increment promo uses
+        if (booking.promo_code_applied) {
+           const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', booking.promo_code_applied).single()
+           if (currentPromo) {
+               await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', booking.promo_code_applied)
+           }
+        }
+        
+        // Generate QR Code
+        const qrCodeDataUri = await QRCode.toDataURL(bookingId)
+        
+        // Send Receipt Email
+        const activityTitle = booking.activities?.title || 'Your Activity'
+        const tourOption = booking.tour_option ? ` (${booking.tour_option})` : ''
+        
+        await sendReceiptEmail({
+          toEmail: booking.tourist_email,
+          touristName: booking.tourist_name,
+          activityTitle: `${activityTitle}${tourOption}`,
+          date: booking.travel_date,
+          guests: booking.pax_count,
+          qrCodeDataUri
+        })
       }
     }
   }

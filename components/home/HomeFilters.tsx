@@ -75,22 +75,22 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       <div className="relative -mt-24 z-20 px-4">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
-          <div className="flex items-center gap-6 border-b border-zinc-100 pb-4 mb-6 overflow-x-auto hide-scrollbar">
+          <div className="flex items-center gap-6 border-b border-zinc-100 mb-6">
             <button 
               onClick={() => handleVerticalClick('tour')}
-              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'tour' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Map className="w-4 h-4" /> Tours & Guides
             </button>
             <button 
               onClick={() => handleVerticalClick('event')}
-              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'event' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Calendar className="w-4 h-4" /> Events
             </button>
             <button 
               onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-2 font-semibold pb-4 -mb-[18px] whitespace-nowrap transition-colors ${currentVertical === 'transport' ? 'text-rose-500 border-b-2 border-rose-500' : 'text-zinc-500 hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Users className="w-4 h-4" /> Transport
             </button>

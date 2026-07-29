@@ -40,7 +40,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     const currentVertical = params.vertical || 'tour';
 
     let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
-      .eq('category_type', currentVertical);
+      .eq('category_type', currentVertical)
+      .eq('status', 'published');
     
     if (params.location) {
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
@@ -49,6 +50,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     if (params.category && params.category !== 'saved') {
       query = query.eq('categories.slug', params.category);
     }
+    // Always prioritize featured tours
+    query = query.order('is_featured', { ascending: false, nullsFirst: false });
 
     if (params.sort === 'price_asc') {
       query = query.order('price_usd', { ascending: true });

@@ -53,7 +53,8 @@ export async function POST(req: Request) {
         tour_option: selectedOption || null,
         pickup_location: pickupLocation || null,
         special_requests: specialRequests || null,
-        status: 'pending',
+        status: paymentStrategy === 'no_card' ? 'pending_payment' : 'pending',
+        payment_status: paymentStrategy === 'no_card' ? 'unpaid' : 'unpaid',
         promo_code_applied: appliedPromoCode,
         discount_amount_usd: discountAmountUsd,
         platform_fee_usd: platformFeeUsd,
@@ -69,15 +70,27 @@ export async function POST(req: Request) {
     const actualPaymentStrategy = finalTotalUsd === 0 ? 'no_card' : paymentStrategy;
 
     if (actualPaymentStrategy === 'no_card') {
-      // Mark booking as confirmed instantly
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed' }).eq('id', booking.id);
-      
-      // Auto-block the date if applicable
-      try {
-        const { autoBlockDate } = await import('@/app/actions/tours');
-        await autoBlockDate(activityId, date);
-      } catch (e) {
-        console.error("Failed to auto-block date for no_card booking:", e);
+      if (finalTotalUsd === 0) {
+        // Mark totally free booking as confirmed instantly
+        await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
+        
+        // Auto-block the date if applicable
+        try {
+          const { autoBlockDate } = await import('@/app/actions/tours');
+          await autoBlockDate(activityId, date);
+        } catch (e) {
+          console.error("Failed to auto-block date for free booking:", e);
+        }
+      } else {
+        // Pay Later: send pending email
+        const { sendPendingEmail } = await import('@/app/actions/email');
+        await sendPendingEmail({
+          toEmail: touristEmail,
+          touristName,
+          activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
+          date,
+          guests
+        });
       }
       
       if (appliedPromoCode) {

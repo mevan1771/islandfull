@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Plus, Eye, EyeOff, Pencil } from "lucide-react"
 import { StatusToggle } from "@/components/admin/StatusToggle"
+import { FeaturedToggle } from "@/components/admin/FeaturedToggle"
 import { DeleteTourButton } from "@/components/admin/DeleteTourButton"
 
 export const dynamic = 'force-dynamic';
@@ -81,8 +82,11 @@ export default async function AdminToursDashboard() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-zinc-900 max-w-[250px] truncate">{t.title}</div>
-                        <div className="text-zinc-500 text-xs mt-0.5">{t.location}</div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <div className="font-bold text-zinc-900 max-w-[230px] truncate">{t.title}</div>
+                          <FeaturedToggle id={t.id} initialStatus={t.is_featured} />
+                        </div>
+                        <div className="text-zinc-500 text-xs">{t.location}</div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-600">

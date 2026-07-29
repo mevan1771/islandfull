@@ -22,6 +22,7 @@ export async function createTour(formData: FormData) {
     const duration = formData.get("duration") as string
     const price_usd = parseFloat(formData.get("price_usd") as string)
     const price_lkr_approx = 0 // Automatically calculated via global rate now
+    const is_featured = formData.get("is_featured") === "on"
     
     // Commission & Category
     const category_type = formData.get("category_type") as string || "tour"
@@ -111,6 +112,7 @@ export async function createTour(formData: FormData) {
       duration,
       price_usd,
       price_lkr_approx,
+      is_featured,
       category_type,
       commission_rate,
       is_custom_commission,
@@ -164,6 +166,7 @@ export async function updateTour(id: string, formData: FormData) {
     const duration = formData.get("duration") as string
     const price_usd = parseFloat(formData.get("price_usd") as string)
     const price_lkr_approx = 0 // Automatically calculated via global rate now
+    const is_featured = formData.get("is_featured") === "on"
     
     // Commission & Category
     const category_type = formData.get("category_type") as string || "tour"
@@ -249,6 +252,7 @@ export async function updateTour(id: string, formData: FormData) {
       duration,
       price_usd,
       price_lkr_approx,
+      is_featured,
       category_type,
       commission_rate,
       is_custom_commission,
@@ -411,6 +415,26 @@ export async function deleteTour(activityId: string) {
     return { success: true }
   } catch (err: any) {
     console.error("Delete tour error:", err)
+    return { success: false, error: err.message }
+  }
+}
+
+export async function toggleFeaturedStatus(activityId: string, isFeatured: boolean) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('activities')
+      .update({ is_featured: isFeatured })
+      .eq('id', activityId)
+
+    if (error) {
+      console.error("Failed to toggle featured status:", error)
+      return { success: false, error: "Failed to update featured status" }
+    }
+
+    revalidatePath('/', 'layout')
+    return { success: true }
+  } catch (err: any) {
+    console.error("Featured toggle error:", err)
     return { success: false, error: err.message }
   }
 }

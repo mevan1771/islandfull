@@ -9,6 +9,7 @@ import { ActivityMap } from "@/components/activity/ActivityMap"
 import { ActivityGallery } from "@/components/activity/ActivityGallery"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { getExchangeRate } from "@/app/actions/settings"
+import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 
 // Fallback data for the specific slugs if DB is not ready
@@ -41,6 +42,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       .from('activities')
       .select('*, reviews(*), hosts(*)')
       .eq('slug', slug)
+      .eq('status', 'published')
       .single()
 
     if (data) {
@@ -62,6 +64,21 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   const avgRating = reviewCount > 0 
     ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
     : undefined;
+
+  let moreActivities = [];
+  if (activity?.host_id) {
+    const { data: moreData } = await supabase
+      .from('activities')
+      .select('*, reviews(rating)')
+      .eq('host_id', activity.host_id)
+      .eq('status', 'published')
+      .neq('id', activity.id)
+      .limit(4);
+    
+    if (moreData) {
+      moreActivities = moreData;
+    }
+  }
 
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
@@ -208,6 +225,41 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
       </div>
+
+      {/* More from Host */}
+      {moreActivities && moreActivities.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <div className="border-t border-zinc-200 pt-12">
+            <h2 className="text-3xl font-bold text-zinc-900 mb-8">
+              More from {activity.hosts?.name || activity.provider_name}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {moreActivities.map((d: any) => {
+                let rating = 0;
+                if (d.reviews && d.reviews.length > 0) {
+                  rating = d.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / d.reviews.length;
+                }
+                
+                return (
+                  <ActivityCard
+                    key={d.id}
+                    id={d.id}
+                    title={d.title}
+                    slug={d.slug}
+                    location={d.location}
+                    duration={d.duration}
+                    priceUsd={d.price_usd}
+                    coverImage={d.cover_image_url || '/placeholder.jpg'}
+                    isHiddenGem={d.is_hidden_gem}
+                    rating={rating}
+                    reviewCount={d.reviews ? d.reviews.length : 0}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Booking Widget (Sticky Bottom) */}
       <div className="md:hidden">
