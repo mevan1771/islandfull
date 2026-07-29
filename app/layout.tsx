@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className={`${inter.className} bg-white min-h-screen flex flex-col`}>
+      <body className={`${inter.className} bg-white min-h-screen flex flex-col overflow-x-hidden`}>
         {/* Transparent Header */}
         <header className="absolute top-0 md:top-6 left-0 right-0 z-40 w-full pt-4">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">

@@ -34,12 +34,12 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   return (
     <>
       <section>
-        <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-4 md:mb-6">Gallery</h2>
-        <div className="flex overflow-x-auto no-scrollbar gap-2 pb-4 px-4 -mx-4 md:grid md:grid-cols-2 md:gap-4 md:pb-0 md:px-0 md:mx-0">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">Gallery</h2>
+        <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2 pb-4 px-4 -mx-4 md:grid md:grid-cols-2 md:gap-4 md:pb-0 md:px-0 md:mx-0">
           {galleryUrls.map((url: string, i: number) => (
             <div 
               key={i} 
-              className="relative aspect-[4/3] md:aspect-video w-[85vw] md:w-auto flex-shrink-0 rounded-xl md:rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative snap-center aspect-[4/3] md:aspect-video w-4/5 sm:w-2/3 md:w-auto flex-shrink-0 rounded-xl md:rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity"
               onClick={() => setSelectedImage(url)}
             >
               <Image 

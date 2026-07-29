@@ -157,7 +157,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Description */}
           <section>
-            <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-4 md:mb-6">About this experience</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">About this experience</h2>
             <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
@@ -182,7 +182,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           {/* Inclusions */}
           {activity.inclusions && activity.inclusions.length > 0 && (
             <section className="bg-rose-50/50 rounded-3xl p-6 md:p-10 border border-rose-100">
-              <h2 className="text-xl md:text-2xl font-bold text-zinc-900 mb-6 md:mb-8">What's included</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">What's included</h2>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                 {activity.inclusions.map((item: string, i: number) => (
                   <li key={i} className="flex items-center gap-3 md:gap-4">
@@ -230,7 +230,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       {moreActivities && moreActivities.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <div className="border-t border-zinc-200 pt-12">
-            <h2 className="text-xl md:text-3xl font-bold text-zinc-900 mb-6 md:mb-8">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">
               More from {activity.hosts?.name || activity.provider_name}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

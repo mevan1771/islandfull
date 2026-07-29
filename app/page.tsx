@@ -1,6 +1,7 @@
 import { ShieldCheck, Tag, HeartHandshake } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { HomeFilters } from "@/components/home/HomeFilters"
+import { MobileSearchPill } from "@/components/home/MobileSearchPill"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { supabase } from "@/lib/supabase"
@@ -133,6 +134,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           </button>
         </div>
       </section>
+
+      {/* Mobile Search Pill */}
+      <Suspense fallback={null}>
+        <MobileSearchPill />
+      </Suspense>
 
       {/* Dynamic Filters UI */}
       <Suspense fallback={<div className="h-40"></div>}>
