@@ -1,11 +1,12 @@
 import { CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
-export default function BookingSuccess({
+export default async function BookingSuccess({
   searchParams,
 }: {
-  searchParams: { session_id?: string }
+  searchParams: Promise<{ session_id?: string }>
 }) {
+  const params = await searchParams;
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl text-center space-y-6">
@@ -20,10 +21,10 @@ export default function BookingSuccess({
           </p>
         </div>
 
-        {searchParams.session_id && (
+        {params.session_id && (
           <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 text-left text-sm">
             <span className="text-zinc-500 font-medium block mb-1">Session ID:</span>
-            <span className="font-mono text-zinc-900 break-all">{searchParams.session_id}</span>
+            <span className="font-mono text-zinc-900 break-all">{params.session_id}</span>
           </div>
         )}
 
