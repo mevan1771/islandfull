@@ -477,7 +477,7 @@ export function BookingDrawer({
                           try {
                             const res = await validatePromoCode(promoInput, totalUsd)
                             if (res.success) {
-                              setAppliedPromo(res.code)
+                              setAppliedPromo(res.code || null)
                               setDiscountUsd(res.discountAmountUsd)
                               setPromoSuccess(`-$${res.discountAmountUsd} discount applied!`)
                             } else {
