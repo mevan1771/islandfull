@@ -124,7 +124,7 @@ export function BookingDrawer({
       } else {
         throw new Error('No checkout URL returned')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
       setStep("details")
       alert(`Checkout failed: ${err.message}`)

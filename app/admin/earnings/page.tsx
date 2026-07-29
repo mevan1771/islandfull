@@ -21,7 +21,7 @@ export default function EarningsDashboard() {
     const data = await getFinancialLedger()
     if (data.success) {
       setMetrics(data.metrics)
-      setLedger(data.ledger)
+      setLedger(data.ledger || [])
     } else {
       alert("Error loading financial data")
     }
