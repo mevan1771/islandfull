@@ -4,7 +4,13 @@ import { useState, FormEvent } from "react"
 import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-const CATEGORIES = [
+type CategoryType = {
+  id: string
+  name: string
+  icon?: any
+}
+
+const CATEGORIES: CategoryType[] = [
   { id: "all", name: "All Places" },
   { id: "saved", name: "Saved", icon: Heart },
   { id: "surf", name: "Surfing" },
@@ -173,7 +179,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                       : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
                 }`}
               >
-                {('icon' in cat && cat.icon) && <(cat as any).icon className={`w-4 h-4 ${
+                {cat.icon && <cat.icon className={`w-4 h-4 ${
                   cat.id === 'saved' 
                     ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
                     : (currentCategory === cat.id ? "fill-white" : "")
