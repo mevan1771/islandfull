@@ -668,7 +668,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                         head_cell: { color: '#71717a', fontWeight: 'bold', fontSize: '0.8rem' },
                         cell: { padding: '2px' },
                         day: { borderRadius: '0.5rem', width: '2.5rem', height: '2.5rem' }
-                      }}
+                      } as any}
                     />
                   </div>
                   <input type="hidden" name="blackout_dates" value={JSON.stringify((blackoutDates || []).map(d => format(d, 'yyyy-MM-dd')))} />
