@@ -79,7 +79,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     <>
       {/* Floating Search Widget */}
       <div className="relative -mt-24 z-20 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-2xl">
+        <div className="max-w-5xl mx-auto bg-white rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
           <div className="flex items-center gap-6 border-b border-zinc-100 mb-6">
             <button 
@@ -164,14 +164,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       {/* Activity Grid Header / Filters */}
       <div className="max-w-7xl mx-auto px-4 mt-16 mb-8 text-zinc-900">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap gap-2 pb-2 px-4 -mx-4 md:px-0 md:mx-0 md:flex-wrap items-center md:gap-3">
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
                 <button 
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all border ${
+                  className={`flex items-center gap-2 text-xs px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold md:text-sm transition-all border ${
                     cat.id === "saved"
                       ? currentCategory === cat.id
                         ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"

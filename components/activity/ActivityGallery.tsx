@@ -35,11 +35,11 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     <>
       <section>
         <h2 className="text-3xl font-bold text-zinc-900 mb-6">Gallery</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {galleryUrls.map((url: string, i: number) => (
             <div 
               key={i} 
-              className="relative aspect-video rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity"
+              className={`relative aspect-video rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity ${i > 0 ? 'hidden sm:block' : ''}`}
               onClick={() => setSelectedImage(url)}
             >
               <Image 
@@ -50,6 +50,11 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                 blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
                 className="object-cover transition-transform duration-700 group-hover:scale-110" 
               />
+              {i === 0 && galleryUrls.length > 1 && (
+                <div className="absolute bottom-4 right-4 sm:hidden bg-zinc-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  1/{galleryUrls.length} Photos
+                </div>
+              )}
             </div>
           ))}
         </div>

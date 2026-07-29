@@ -122,7 +122,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full flex flex-col items-center text-center mt-[-10vh]">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-md text-white">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 drop-shadow-md text-white">
             Your Journey Starts<br/>Before You Go
           </h1>
           <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl drop-shadow-md">
@@ -159,11 +159,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                 Find More
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-4 h-[500px]">
-              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mt-8">
+            <div className="grid grid-cols-2 gap-4 h-[300px] md:h-[500px]">
+              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mt-4 md:mt-8">
                 <Image src="https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Safari" fill className="object-cover" />
               </div>
-              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mb-8">
+              <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-lg mb-4 md:mb-8">
                 <Image src="https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Train" fill className="object-cover" />
               </div>
             </div>

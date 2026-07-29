@@ -151,24 +151,24 @@ export function BookingDrawer({
   return (
     <>
       {/* Sticky Bottom Widget Trigger */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-zinc-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-40 md:relative md:border border-zinc-200 md:rounded-3xl md:shadow-xl md:p-6 md:bg-white md:z-auto">
-        <div className="max-w-md mx-auto flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-zinc-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 md:relative md:border border-zinc-200 md:rounded-3xl md:shadow-xl md:p-6 md:bg-white md:z-auto">
+        <div className="max-w-md mx-auto flex flex-row md:flex-col items-center md:items-stretch justify-between gap-4">
+          <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
                 {priceUsd === 0 ? (
-                  <span className="text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
+                  <span className="text-xl md:text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
                 ) : (
-                  <span className="text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                  <span className="text-xl md:text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
                 )}
-                {paymentStrategy === 'no_card' && priceUsd !== 0 && <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
-                {paymentStrategy === 'deposit_15' && <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
-                {paymentStrategy === 'manual_hold' && <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
+                {paymentStrategy === 'no_card' && priceUsd !== 0 && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
+                {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
+                {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
-              {priceUsd !== 0 && <span className="text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>}
+              {priceUsd !== 0 && <span className="text-[11px] md:text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>}
             </div>
-            {/* Rating */}
-            <div className="flex flex-col items-end">
+            {/* Rating (Desktop Only) */}
+            <div className="hidden md:flex flex-col items-end">
               {isHiddenGem ? (
                 <div className="px-3 py-1 rounded-full bg-rose-50 border border-rose-100 flex items-center shadow-sm">
                   <span className="flex items-center gap-1 text-sm font-bold text-rose-500 tracking-wide">
@@ -193,6 +193,11 @@ export function BookingDrawer({
                 </>
               )}
             </div>
+            
+            {/* Mobile Button: Side-by-side with price */}
+            <Button onClick={() => setIsOpen(true)} size="lg" className="flex md:hidden w-auto px-6 py-6 text-base font-bold shadow-lg shadow-rose-500/20">
+              Reserve Now
+            </Button>
           </div>
 
           {/* Desktop Only: Inline Calendar */}
@@ -218,12 +223,8 @@ export function BookingDrawer({
           <Button onClick={() => setIsOpen(true)} disabled={!date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
             Reserve Now
           </Button>
-
-          {/* Mobile Button: Always enabled, opens drawer */}
-          <Button onClick={() => setIsOpen(true)} size="lg" className="flex md:hidden w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
-            Reserve Now
-          </Button>
-          <p className="text-center text-sm font-medium text-zinc-400 mt-1">
+          
+          <p className="hidden md:block text-center text-sm font-medium text-zinc-400 mt-1">
             {priceUsd === 0 ? "Complete Reservation" :
              paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
              paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
