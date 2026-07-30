@@ -119,7 +119,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
-        <div className="flex-1 space-y-5 md:space-y-12">
+        <div className="flex-1 space-y-6 md:space-y-12">
           
           {/* Quick Info (Mobile Minimalist Row) */}
           <div className="flex md:hidden items-center justify-between w-full pt-2 pb-4 px-4 border-b border-gray-100">
@@ -174,7 +174,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Description */}
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-0 md:mt-8 mb-2">About this experience</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">About this experience</h2>
             <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
@@ -198,15 +198,15 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Inclusions */}
           {activity.inclusions && activity.inclusions.length > 0 && (
-            <section className="bg-rose-50/50 rounded-3xl p-6 md:p-10 border border-rose-100">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">What's included</h2>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <section>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">What's included</h2>
+              <ul className="grid grid-cols-2 gap-y-3 gap-x-4 w-full">
                 {activity.inclusions.map((item: string, i: number) => (
-                  <li key={i} className="flex items-center gap-3 md:gap-4">
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-500/20">
-                      <Check className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                  <li key={i} className="flex items-start gap-2">
+                    <div className="mt-0.5 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <Check className="w-2.5 h-2.5 text-white" />
                     </div>
-                    <span className="text-zinc-800 text-sm md:text-base font-semibold">{item}</span>
+                    <span className="text-gray-700 text-sm font-medium leading-tight">{item}</span>
                   </li>
                 ))}
               </ul>

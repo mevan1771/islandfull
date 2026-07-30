@@ -34,7 +34,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   return (
     <>
       <section>
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">Gallery</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
         <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2 pb-4 px-4 -mx-4 md:grid md:grid-cols-2 md:gap-4 md:pb-0 md:px-0 md:mx-0">
           {galleryUrls.map((url: string, i: number) => (
             <div 

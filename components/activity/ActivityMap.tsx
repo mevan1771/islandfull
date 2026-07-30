@@ -20,8 +20,8 @@ export function ActivityMap({ lat, lng }: { lat: number, lng: number }) {
   if (!lat || !lng) return null;
 
   return (
-    <div className="mt-16">
-      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">Where you'll be</h2>
+    <div>
+      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Where you'll be</h2>
       <p className="text-zinc-500 mb-6">Exact meeting point provided after booking confirmation.</p>
       
       <div className="w-full aspect-[4/3] md:aspect-[21/9]">
