@@ -73,7 +73,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
         <div className={`grid gap-2 rounded-2xl overflow-hidden w-full transition-all duration-500 ${
           isExpanded 
             ? 'grid-cols-3 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[250px]' 
-            : 'grid-cols-2 grid-rows-2 h-[250px] sm:h-[350px] md:h-[450px]'
+            : 'grid-cols-2 grid-rows-2 h-[260px] sm:h-[350px] md:h-[450px]'
         }`}>
           {(isExpanded ? galleryUrls : galleryUrls.slice(0, 4)).map((url: string, i: number) => {
             const isLast = !isExpanded && i === 3;

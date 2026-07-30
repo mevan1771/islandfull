@@ -30,17 +30,17 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
           </h2>
         </div>
         
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 no-scrollbar pb-2 w-full">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {displayedReviews.map((review) => (
-            <div key={review.id} className="w-[80%] sm:w-[280px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-xl p-3.5 shadow-sm">
-              <div className="flex justify-between items-start mb-2">
+            <div key={review.id} className="w-[80%] sm:w-[280px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+              <div className="flex justify-between items-start w-full">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 text-xs font-bold">
                     {(review.guest_name || 'A').charAt(0)}
                   </div>
                   <div className="flex flex-col">
-                    <h4 className="text-xs font-semibold text-gray-800">{review.guest_name || 'Anonymous'}</h4>
-                    <span className="text-[10px] text-gray-400">
+                    <h4 className="text-sm font-bold text-gray-800">{review.guest_name || 'Anonymous'}</h4>
+                    <span className="text-[10px] text-gray-500">
                       {new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                     </span>
                   </div>
@@ -56,7 +56,7 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
               </div>
               
               {review.comment && (
-                <p className="text-xs text-gray-600 mt-2 line-clamp-3 leading-relaxed">
+                <p className="text-sm text-gray-700 mt-3 line-clamp-3 leading-relaxed">
                   {review.comment}
                 </p>
               )}
@@ -65,7 +65,7 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
           {reviews.length > 3 && (
             <div 
               onClick={() => setIsModalOpen(true)}
-              className="w-[140px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-xl p-3.5 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+              className="w-[140px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <span className="text-sm font-bold text-gray-900 mb-1">See All</span>
               <span className="text-xs text-gray-500">{reviews.length} Reviews</span>
