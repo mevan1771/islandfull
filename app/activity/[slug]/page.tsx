@@ -118,11 +118,11 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8 md:gap-12">
-        <div className="flex-1 space-y-8 md:space-y-12">
+      <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
+        <div className="flex-1 space-y-5 md:space-y-12">
           
           {/* Quick Info (Mobile Minimalist Row) */}
-          <div className="flex md:hidden items-center justify-between w-full py-4 px-4 border-b border-gray-100">
+          <div className="flex md:hidden items-center justify-between w-full pt-2 pb-4 px-4 border-b border-gray-100">
             <div className="flex flex-row items-center gap-1.5">
               <Clock className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
@@ -174,7 +174,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Description */}
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-2 md:mt-8 mb-3">About this experience</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-0 md:mt-8 mb-2">About this experience</h2>
             <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
