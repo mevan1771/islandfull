@@ -90,7 +90,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-[35vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto rounded-b-xl md:rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative w-full h-[35vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto rounded-none md:rounded-3xl overflow-hidden shadow-2xl">
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -105,7 +105,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <div className="absolute bottom-0 left-0 p-6 md:p-16 text-white w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
             <div>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="hidden md:flex items-center gap-2 mb-4">
                 <span className="px-4 py-1.5 bg-rose-500 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-lg shadow-rose-500/30">
                   {activity.location}
                 </span>
@@ -119,12 +119,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-12">
-        <div className="flex-1 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8 md:gap-12">
+        <div className="flex-1 space-y-8 md:space-y-12">
           
           {/* Quick Info Pills */}
-          <div className="flex flex-wrap gap-3 md:gap-4">
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+          <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap gap-3 md:gap-4 w-full py-2">
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                 <Clock className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
@@ -134,7 +134,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
             
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                 <MapPin className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
@@ -144,7 +144,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                 <Users className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
               </div>
@@ -157,7 +157,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Description */}
           <section>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">About this experience</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-2 md:mt-8 mb-3">About this experience</h2>
             <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
