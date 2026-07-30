@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { validatePromoCode } from '@/app/actions/promo'
+import { eachDayOfInterval, parseISO, format } from 'date-fns'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -10,16 +11,50 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { activityId, title, priceUsd, date, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, paymentStrategy, promoCode } = body
+    const { activityId, title, priceUsd, date, endDate, bookingType, pricingModel, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, paymentStrategy, promoCode } = body
 
-    // 0. Fetch Commission Rate
+    // 0. Fetch Commission Rate and Capacity
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('commission_rate')
+      .select('commission_rate, max_capacity')
       .eq('id', activityId)
       .single()
       
     const commissionRate = activity?.commission_rate || 15.00
+    const maxCapacity = activity?.max_capacity || 10
+
+    // Multi-Day Overlap Validation
+    if (bookingType === 'multi_day' && endDate) {
+      const { data: overlappingBookings } = await supabaseAdmin
+        .from('bookings')
+        .select('travel_date, end_date, pax_count')
+        .eq('activity_id', activityId)
+        .in('status', ['confirmed', 'pending', 'pending_payment', 'completed'])
+        .lte('travel_date', endDate)
+        .gte('end_date', date)
+        
+      if (overlappingBookings && overlappingBookings.length > 0) {
+        const dailyCounts: Record<string, number> = {}
+        
+        for (const b of overlappingBookings) {
+          if (!b.travel_date || !b.end_date) continue
+          const bDays = eachDayOfInterval({ start: parseISO(b.travel_date), end: parseISO(b.end_date) })
+          for (const d of bDays) {
+            const dStr = format(d, 'yyyy-MM-dd')
+            dailyCounts[dStr] = (dailyCounts[dStr] || 0) + b.pax_count
+          }
+        }
+        
+        const reqDays = eachDayOfInterval({ start: parseISO(date), end: parseISO(endDate) })
+        for (const d of reqDays) {
+          const dStr = format(d, 'yyyy-MM-dd')
+          const currentBooked = dailyCounts[dStr] || 0
+          if (currentBooked + guests > maxCapacity) {
+            return new NextResponse(`Not enough availability on ${dStr}. Max capacity is ${maxCapacity}, currently ${currentBooked} booked.`, { status: 400 })
+          }
+        }
+      }
+    }
 
     let discountAmountUsd = 0;
     let appliedPromoCode = null;
@@ -49,6 +84,7 @@ export async function POST(req: Request) {
         tourist_whatsapp: whatsapp,
         pax_count: guests,
         travel_date: date,
+        end_date: endDate || null,
         total_usd: finalTotalUsd,
         tour_option: selectedOption || null,
         pickup_location: pickupLocation || null,

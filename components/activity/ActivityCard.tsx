@@ -17,6 +17,7 @@ interface ActivityCardProps {
   isHiddenGem?: boolean
   rating?: number
   reviewCount?: number
+  pricingModel?: 'per_person' | 'per_day'
 }
 
 export function ActivityCard({
@@ -30,6 +31,7 @@ export function ActivityCard({
   isHiddenGem = false,
   rating,
   reviewCount = 0,
+  pricingModel = 'per_person',
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -137,7 +139,7 @@ export function ActivityCard({
               ) : (
                 <>
                   <span className="text-xs sm:text-sm font-bold text-gray-900">${priceUsd}</span>
-                  <span className="text-[10px] sm:text-xs font-normal text-gray-500">/ person</span>
+                  <span className="text-[10px] sm:text-xs font-normal text-gray-500">/ {pricingModel === 'per_day' ? 'day' : 'person'}</span>
                 </>
               )}
             </div>

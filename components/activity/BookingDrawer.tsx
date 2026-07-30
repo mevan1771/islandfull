@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import { validatePromoCode } from "@/app/actions/promo"
 import * as Popover from "@radix-ui/react-popover"
-import { DayPicker } from "react-day-picker"
-import { format, parse, isBefore, startOfToday, addDays } from "date-fns"
+import { DayPicker, DateRange } from "react-day-picker"
+import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 
 interface BookingDrawerProps {
@@ -25,6 +25,8 @@ interface BookingDrawerProps {
   rating?: number
   reviewCount?: number
   minNoticeDays?: number
+  bookingType?: 'single_day' | 'multi_day'
+  pricingModel?: 'per_person' | 'per_day'
 }
 
 export function BookingDrawer({
@@ -41,13 +43,16 @@ export function BookingDrawer({
   isHiddenGem = false,
   rating,
   reviewCount = 0,
-  minNoticeDays = 1
+  minNoticeDays = 1,
+  bookingType = 'single_day',
+  pricingModel = 'per_person'
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
   
   // Form state
   const [date, setDate] = useState("")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [guests, setGuests] = useState(1)
   const [whatsapp, setWhatsapp] = useState("")
   const [touristName, setTouristName] = useState("")
@@ -65,27 +70,39 @@ export function BookingDrawer({
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
   // Calculate Totals using Tiered Pricing if available
-  let totalUsd = priceUsd * guests
-  let totalLkr = priceLkrApprox * guests
+  const totalDays = bookingType === 'multi_day' && dateRange?.from && dateRange?.to 
+    ? (differenceInDays(dateRange.to, dateRange.from) || 1)
+    : 1;
 
+  let basePriceUsd = priceUsd;
   if (pricingTiers && pricingTiers[guests.toString()]) {
-    totalUsd = pricingTiers[guests.toString()]
-    const exchangeRate = priceLkrApprox / priceUsd
-    totalLkr = totalUsd * exchangeRate
+    basePriceUsd = pricingTiers[guests.toString()]
   }
+
+  let totalUsd = basePriceUsd * guests;
+  if (pricingModel === 'per_day') {
+    totalUsd = basePriceUsd * guests * totalDays;
+  }
+  
+  let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
 
   // Add Option Price Modifier (per person)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
     if (opt) {
-      totalUsd += (opt.price_modifier * guests)
+      const optionModifier = opt.price_modifier * guests * (pricingModel === 'per_day' ? totalDays : 1);
+      totalUsd += optionModifier
       const exchangeRate = priceLkrApprox / priceUsd
       totalLkr = totalUsd * exchangeRate
     }
   }
 
   const handleStripeCheckout = async () => {
-    if (!date || !whatsapp || !touristName || !touristEmail) return
+    const isMulti = bookingType === 'multi_day';
+    const finalDate = isMulti ? (dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : "") : date;
+    const finalEndDate = isMulti && dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : "";
+
+    if (!finalDate || !whatsapp || !touristName || !touristEmail || (isMulti && !finalEndDate)) return
     
     setStep("processing")
     
@@ -97,7 +114,10 @@ export function BookingDrawer({
           activityId,
           title,
           priceUsd,
-          date,
+          date: finalDate,
+          endDate: finalEndDate,
+          bookingType,
+          pricingModel,
           guests,
           whatsapp,
           touristName,
@@ -136,6 +156,7 @@ export function BookingDrawer({
     setTimeout(() => {
       setStep("details")
       setDate("")
+      setDateRange(undefined)
       setGuests(1)
       setWhatsapp("")
       setPickupLocation("")
@@ -202,25 +223,43 @@ export function BookingDrawer({
 
           {/* Desktop Only: Inline Calendar */}
           <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
-            <DayPicker 
-              mode="single"
-              selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
-              onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
-              disabled={(d) => {
-                const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
-                if (isBefore(d, minDate)) return true;
-                const dateString = format(d, 'yyyy-MM-dd');
-                return blackoutDates.includes(dateString);
-              }}
-              modifiersClassNames={{
-                selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
-                today: 'text-rose-500 font-bold'
-              }}
-            />
+            {bookingType === 'multi_day' ? (
+              <DayPicker 
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                disabled={(d) => {
+                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                  if (isBefore(d, minDate)) return true;
+                  const dateString = format(d, 'yyyy-MM-dd');
+                  return blackoutDates.includes(dateString);
+                }}
+                modifiersClassNames={{
+                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                  today: 'text-rose-500 font-bold'
+                }}
+              />
+            ) : (
+              <DayPicker 
+                mode="single"
+                selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+                disabled={(d) => {
+                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                  if (isBefore(d, minDate)) return true;
+                  const dateString = format(d, 'yyyy-MM-dd');
+                  return blackoutDates.includes(dateString);
+                }}
+                modifiersClassNames={{
+                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                  today: 'text-rose-500 font-bold'
+                }}
+              />
+            )}
           </div>
 
           {/* Desktop Button: Disabled if no date */}
-          <Button onClick={() => setIsOpen(true)} disabled={!date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+          <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !(dateRange?.from && dateRange?.to) : !date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
             Reserve Now
           </Button>
           
@@ -271,7 +310,9 @@ export function BookingDrawer({
                     {/* Desktop View: Static Readonly Date */}
                     <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
                       <span className="font-medium text-sm text-zinc-900">
-                        {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected"}
+                        {bookingType === 'multi_day' 
+                          ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
+                          : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
                       </span>
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     </div>
@@ -283,27 +324,47 @@ export function BookingDrawer({
                           <button 
                             className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                           >
-                            {date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>}
+                            {bookingType === 'multi_day' 
+                              ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
+                              : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
                             <CalendarDays className="w-4 h-4 text-zinc-400" />
                           </button>
                         </Popover.Trigger>
                         <Popover.Portal>
                           <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
-                            <DayPicker 
-                              mode="single"
-                              selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
-                              onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
-                              disabled={(d) => {
-                                const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
-                                if (isBefore(d, minDate)) return true;
-                                const dateString = format(d, 'yyyy-MM-dd');
-                                return blackoutDates.includes(dateString);
-                              }}
-                              modifiersClassNames={{
-                                selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
-                                today: 'text-rose-500 font-bold'
-                              }}
-                            />
+                            {bookingType === 'multi_day' ? (
+                              <DayPicker 
+                                mode="range"
+                                selected={dateRange}
+                                onSelect={setDateRange}
+                                disabled={(d) => {
+                                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                                  if (isBefore(d, minDate)) return true;
+                                  const dateString = format(d, 'yyyy-MM-dd');
+                                  return blackoutDates.includes(dateString);
+                                }}
+                                modifiersClassNames={{
+                                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                  today: 'text-rose-500 font-bold'
+                                }}
+                              />
+                            ) : (
+                              <DayPicker 
+                                mode="single"
+                                selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                                onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+                                disabled={(d) => {
+                                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                                  if (isBefore(d, minDate)) return true;
+                                  const dateString = format(d, 'yyyy-MM-dd');
+                                  return blackoutDates.includes(dateString);
+                                }}
+                                modifiersClassNames={{
+                                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                  today: 'text-rose-500 font-bold'
+                                }}
+                              />
+                            )}
                           </Popover.Content>
                         </Popover.Portal>
                       </Popover.Root>
@@ -334,7 +395,7 @@ export function BookingDrawer({
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                         <Users className="w-3.5 h-3.5 text-rose-500" />
-                        Guests
+                        {bookingType === 'multi_day' ? 'Quantity' : 'Guests'}
                       </label>
                       <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                         <button 

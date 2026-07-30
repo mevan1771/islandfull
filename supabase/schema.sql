@@ -41,6 +41,8 @@ CREATE TABLE activities (
   gallery_urls TEXT[] DEFAULT '{}',
   max_capacity INTEGER NOT NULL DEFAULT 10,
   status TEXT DEFAULT 'published' CHECK (status IN ('published', 'draft')),
+  booking_type TEXT DEFAULT 'single_day' CHECK (booking_type IN ('single_day', 'multi_day')),
+  pricing_model TEXT DEFAULT 'per_person' CHECK (pricing_model IN ('per_person', 'per_day')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -55,6 +57,7 @@ CREATE TABLE bookings (
   pax_count INTEGER NOT NULL CHECK (pax_count > 0),
   total_usd DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+  end_date DATE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
