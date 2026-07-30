@@ -573,7 +573,9 @@ export function BookingDrawer({
               {priceUsd > 0 && (
                 <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 mt-4">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-zinc-600 font-medium">Subtotal</span>
+                    <span className="text-zinc-600 font-medium">
+                      Subtotal {pricingModel === 'per_day' && totalDays > 0 ? <span className="text-xs text-zinc-400 ml-1">({totalDays} {totalDays === 1 ? 'day' : 'days'})</span> : ''}
+                    </span>
                     <span className="font-medium text-lg text-zinc-900">{formatUSD(totalUsd)}</span>
                   </div>
                   {discountUsd > 0 && (
