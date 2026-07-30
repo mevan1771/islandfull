@@ -238,8 +238,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               rating={avgRating}
               reviewCount={reviewCount}
               minNoticeDays={activity.min_notice_days}
-              bookingType={activity.booking_type}
-              pricingModel={activity.pricing_model}
+              bookingType={activity.booking_type || 'single_day'}
+              pricingModel={activity.pricing_model || 'per_person'}
             />
           </div>
         </div>
@@ -297,6 +297,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           rating={avgRating}
           reviewCount={reviewCount}
           minNoticeDays={activity.min_notice_days}
+          bookingType={activity.booking_type || 'single_day'}
+          pricingModel={activity.pricing_model || 'per_person'}
         />
       </div>
     </div>
