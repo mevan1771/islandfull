@@ -35,6 +35,8 @@ export async function createTour(formData: FormData) {
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
     const inventory_type = formData.get("inventory_type") as string || "private"
+    const booking_type = formData.get("booking_type") as string || "single_day"
+    const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
     const approx_lat_str = formData.get("approx_lat") as string
@@ -123,6 +125,8 @@ export async function createTour(formData: FormData) {
       tour_options,
       payment_strategy,
       inventory_type,
+      booking_type,
+      pricing_model,
       has_pickup,
       is_hidden_gem,
       blackout_dates,
@@ -179,6 +183,8 @@ export async function updateTour(id: string, formData: FormData) {
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
     const inventory_type = formData.get("inventory_type") as string || "private"
+    const booking_type = formData.get("booking_type") as string || "single_day"
+    const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
     const approx_lat_str = formData.get("approx_lat") as string
@@ -263,6 +269,8 @@ export async function updateTour(id: string, formData: FormData) {
       tour_options,
       payment_strategy,
       inventory_type,
+      booking_type,
+      pricing_model,
       has_pickup,
       is_hidden_gem,
       blackout_dates,
