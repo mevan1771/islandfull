@@ -23,52 +23,55 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
   return (
     <>
       <section id="reviews-section" className="scroll-mt-24">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Guest Reviews</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-900 flex items-center gap-1.5">
+            Guest Reviews 
+            <span className="font-normal text-sm">⭐ {avgRating.toFixed(1)} ({reviews.length})</span>
+          </h2>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 no-scrollbar pb-2 w-full">
           {displayedReviews.map((review) => (
-            <div key={review.id} className="bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 font-bold">
+            <div key={review.id} className="w-[80%] sm:w-[280px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-xl p-3.5 shadow-sm">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 text-xs font-bold">
                     {(review.guest_name || 'A').charAt(0)}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-zinc-900">{review.guest_name || 'Anonymous'}</h4>
-                    <div className="text-xs text-zinc-500 font-medium">
-                      {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                    </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-xs font-semibold text-gray-800">{review.guest_name || 'Anonymous'}</h4>
+                    <span className="text-[10px] text-gray-400">
+                      {new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </span>
                   </div>
                 </div>
-                <div className="flex gap-0.5">
+                <div className="flex gap-0.5 mt-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
-                      className={`w-4 h-4 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'fill-zinc-200 text-zinc-200'}`} 
+                      className={`w-3 h-3 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
                     />
                   ))}
                 </div>
               </div>
               
               {review.comment && (
-                <p className="text-zinc-600 leading-relaxed">
-                  "{review.comment}"
+                <p className="text-xs text-gray-600 mt-2 line-clamp-3 leading-relaxed">
+                  {review.comment}
                 </p>
               )}
             </div>
           ))}
-        </div>
-
-        {reviews.length > 6 && (
-          <div className="mt-8">
-            <button 
+          {reviews.length > 3 && (
+            <div 
               onClick={() => setIsModalOpen(true)}
-              className="px-6 py-3 border border-zinc-900 rounded-xl font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
+              className="w-[140px] flex-shrink-0 snap-align-start bg-white border border-gray-100 rounded-xl p-3.5 shadow-sm flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
             >
-              Show all {reviews.length} reviews
-            </button>
-          </div>
-        )}
+              <span className="text-sm font-bold text-gray-900 mb-1">See All</span>
+              <span className="text-xs text-gray-500">{reviews.length} Reviews</span>
+            </div>
+          )}
+        </div>
       </section>
 
       {isModalOpen && (
