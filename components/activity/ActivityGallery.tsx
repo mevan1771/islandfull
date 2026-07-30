@@ -70,14 +70,10 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     <>
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
-        <div className={`grid gap-2 rounded-2xl overflow-hidden w-full transition-all duration-500 ${
-          isExpanded 
-            ? 'grid-cols-2 auto-rows-[120px] sm:auto-rows-[180px] md:auto-rows-[250px]' 
-            : 'grid-cols-2 grid-rows-2 h-[260px] sm:h-[350px] md:h-[450px]'
-        }`}>
-          {(isExpanded ? galleryUrls : galleryUrls.slice(0, 4)).map((url: string, i: number) => {
-            const isLast = !isExpanded && i === 3;
-            const hasMore = galleryUrls.length > 4;
+        <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
+          {(isExpanded ? galleryUrls : galleryUrls.slice(0, 6)).map((url: string, i: number) => {
+            const isLast = !isExpanded && i === 5;
+            const hasMore = galleryUrls.length > 6;
             
             return (
               <div 
@@ -103,7 +99,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                 />
                 {isLast && hasMore && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm sm:text-base">+{galleryUrls.length - 4} Photos</span>
+                    <span className="text-white font-semibold text-sm sm:text-base">+{galleryUrls.length - 6} Photos</span>
                   </div>
                 )}
               </div>
