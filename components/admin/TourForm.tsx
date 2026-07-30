@@ -858,9 +858,28 @@ export default function TourForm({ categories, initialData }: { categories: any[
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <ImageIcon className="w-4 h-4 text-rose-500" />
-                  Cover Image
+                  Cover Image / Video URL
                 </label>
                 
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={previewImage}
+                    onChange={(e) => setPreviewImage(e.target.value)}
+                    placeholder="Paste Cloudinary URL (.jpg or .mp4) here..."
+                    className="flex-1 h-12 px-4 rounded-xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-sm text-zinc-900 placeholder:text-zinc-400"
+                  />
+                  {previewImage && (
+                    <button 
+                      type="button"
+                      onClick={() => setPreviewImage("")}
+                      className="px-4 py-2 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900 rounded-xl font-bold transition-colors text-sm"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
                 {/* Hidden input to pass the secure_url string to the form submission action */}
                 <input type="hidden" name="cover_image_url" value={previewImage} />
                 
