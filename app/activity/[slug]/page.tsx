@@ -84,13 +84,13 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Mobile Back Button */}
       <div className="absolute top-4 left-4 z-20 md:hidden">
-        <Link href="/" className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
-          <ArrowLeft className="w-5 h-5 text-zinc-900" />
+        <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
+          <ArrowLeft className="w-4 h-4 text-white" />
         </Link>
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full h-[35vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto rounded-none md:rounded-3xl overflow-hidden shadow-2xl">
+      <div className="relative w-full h-[35vh] md:h-[65vh] md:mt-6 max-w-[1400px] mx-auto rounded-b-[2rem] md:rounded-3xl overflow-hidden shadow-2xl">
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -110,7 +110,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                   {activity.location}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight drop-shadow-md">
+              <h1 className="text-2xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight drop-shadow-md">
                 {activity.title}
               </h1>
             </div>
@@ -122,35 +122,35 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-12 flex flex-col md:flex-row gap-8 md:gap-12">
         <div className="flex-1 space-y-8 md:space-y-12">
           
-          {/* Quick Info Pills */}
-          <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap gap-3 md:gap-4 w-full py-2">
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <Clock className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
+          {/* Quick Info Balloons */}
+          <div className="grid grid-cols-3 gap-2 w-full py-2">
+            <div className="flex flex-col items-center justify-center gap-1.5 p-2 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Clock className="w-3.5 h-3.5 md:w-5 md:h-5 text-rose-500" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Duration</span>
-                <span className="text-xs md:text-base font-semibold text-zinc-900">{activity.duration}</span>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[9px] md:text-xs font-bold text-zinc-400 uppercase">Duration</span>
+                <span className="text-[11px] md:text-base font-semibold text-zinc-900 whitespace-nowrap">{activity.duration}</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
+            <div className="flex flex-col items-center justify-center gap-1.5 p-2 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <MapPin className="w-3.5 h-3.5 md:w-5 md:h-5 text-rose-500" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Location</span>
-                <span className="text-xs md:text-base font-semibold text-zinc-900">{activity.location}</span>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[9px] md:text-xs font-bold text-zinc-400 uppercase">Location</span>
+                <span className="text-[11px] md:text-base font-semibold text-zinc-900 whitespace-nowrap overflow-hidden text-ellipsis w-full max-w-[80px] sm:max-w-none">{activity.location}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 px-3 py-2 md:px-5 md:py-3 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100 flex-shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <Users className="w-4 h-4 md:w-5 md:h-5 text-rose-500" />
+            <div className="flex flex-col items-center justify-center gap-1.5 p-2 bg-zinc-50 rounded-xl md:rounded-2xl border border-zinc-100">
+              <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Users className="w-3.5 h-3.5 md:w-5 md:h-5 text-rose-500" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase">Capacity</span>
-                <span className="text-xs md:text-base font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[9px] md:text-xs font-bold text-zinc-400 uppercase">Capacity</span>
+                <span className="text-[11px] md:text-base font-semibold text-zinc-900 whitespace-nowrap">Up to {activity.max_capacity}</span>
               </div>
             </div>
           </div>
