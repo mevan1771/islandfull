@@ -7,6 +7,8 @@ import { Suspense } from "react"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
 
+export const revalidate = 60;
+
 // Mock data fallback if DB fails
 const MOCK_ACTIVITIES = [
   {

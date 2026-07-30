@@ -12,6 +12,8 @@ import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 
+export const revalidate = 60;
+
 // Fallback data for the specific slugs if DB is not ready
 const MOCK_DETAILS: Record<string, any> = {
   'secret-sunset-surf-hiriketiya': {
