@@ -250,7 +250,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">
               More from {activity.hosts?.name || activity.provider_name}
             </h2>
-            <div className="flex overflow-x-auto gap-4 snap-x snap-mandatory no-scrollbar pb-4 w-full">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {moreActivities.map((d: any) => {
                 let rating = 0;
                 if (d.reviews && d.reviews.length > 0) {
@@ -258,20 +258,19 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 }
                 
                 return (
-                  <div key={d.id} className="w-[85%] sm:w-[280px] flex-shrink-0 snap-start">
-                    <ActivityCard
-                      id={d.id}
-                      title={d.title}
-                      slug={d.slug}
-                      location={d.location}
-                      duration={d.duration}
-                      priceUsd={d.price_usd}
-                      coverImage={d.cover_image_url || '/placeholder.jpg'}
-                      isHiddenGem={d.is_hidden_gem}
-                      rating={rating}
-                      reviewCount={d.reviews ? d.reviews.length : 0}
-                    />
-                  </div>
+                  <ActivityCard
+                    key={d.id}
+                    id={d.id}
+                    title={d.title}
+                    slug={d.slug}
+                    location={d.location}
+                    duration={d.duration}
+                    priceUsd={d.price_usd}
+                    coverImage={d.cover_image_url || '/placeholder.jpg'}
+                    isHiddenGem={d.is_hidden_gem}
+                    rating={rating}
+                    reviewCount={d.reviews ? d.reviews.length : 0}
+                  />
                 )
               })}
             </div>
