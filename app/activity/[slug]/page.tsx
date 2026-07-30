@@ -83,7 +83,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="relative h-[35vh] md:h-[65vh] m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-none rounded-b-[2rem] sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
+      <div className="relative h-[35vh] md:h-[65vh] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
         {/* Mobile Back Button */}
         <div className="absolute top-4 left-4 z-20 md:hidden">
           <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
@@ -124,17 +124,17 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           {/* Quick Info (Mobile Minimalist Row) */}
           <div className="flex md:hidden items-center justify-between w-full py-4 px-4 border-b border-gray-100">
             <div className="flex flex-row items-center gap-1.5">
-              <Clock className="w-4 h-4 text-zinc-500" />
+              <Clock className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
             </div>
             
             <div className="flex flex-row items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-zinc-500" />
+              <MapPin className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800 max-w-[120px] truncate">{activity.location}</span>
             </div>
 
             <div className="flex flex-row items-center gap-1.5">
-              <Users className="w-4 h-4 text-zinc-500" />
+              <Users className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800">Up to {activity.max_capacity}</span>
             </div>
           </div>
