@@ -1,5 +1,8 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
 import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 
@@ -29,21 +32,65 @@ export function ActivityCard({
   reviewCount = 0,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch((e) => console.log('Video autoplay prevented:', e))
+        } else {
+          video.pause()
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(video)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  // Derive Cloudinary video URL from image URL
+  let videoUrl: string | null = null
+  if (coverImage?.includes('res.cloudinary.com')) {
+    videoUrl = coverImage
+      .replace('/image/upload/', '/video/upload/f_auto,q_auto,c_fill,ar_9:16/')
+      .replace(/\.(jpg|jpeg|png|webp|avif)$/i, '.mp4')
+  }
 
   return (
     <Link href={`/activity/${slug}`} className="block group h-full">
       <div className="flex flex-col gap-2 h-full">
-        {/* Image Container */}
+        {/* Image / Video Container */}
         <div className="relative aspect-[4/3] sm:aspect-[3/4] w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100">
-          <Image
-            src={coverImage}
-            alt={title}
-            fill
-            placeholder="blur"
-            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          />
+          {videoUrl ? (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              poster={coverImage}
+              preload="none"
+              playsInline
+              muted
+              loop
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+          ) : (
+            <Image
+              src={coverImage}
+              alt={title}
+              fill
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            />
+          )}
           <FavoriteButton activityId={id} />
         </div>
         
