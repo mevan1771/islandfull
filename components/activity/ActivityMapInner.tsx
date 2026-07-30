@@ -3,9 +3,11 @@
 import { MapContainer, TileLayer, Circle } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function ActivityMapInner({ lat, lng }: { lat: number, lng: number }) {
+  const [isInteractive, setIsInteractive] = useState(false);
+
   // Fix Leaflet's default icon path issues even though we aren't using markers
   useEffect(() => {
     // @ts-ignore
@@ -19,12 +21,25 @@ export default function ActivityMapInner({ lat, lng }: { lat: number, lng: numbe
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[300px] rounded-3xl overflow-hidden shadow-sm border border-zinc-200">
+    <div 
+      className="relative w-full h-full min-h-[300px] rounded-3xl overflow-hidden shadow-sm border border-zinc-200"
+      onMouseLeave={() => setIsInteractive(false)}
+    >
+      {!isInteractive && (
+        <div 
+          className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/5 cursor-pointer hover:bg-black/10 transition-colors"
+          onClick={() => setIsInteractive(true)}
+        >
+          <span className="px-5 py-2.5 bg-white rounded-full font-bold shadow-lg text-sm text-zinc-900 border border-zinc-100 flex items-center gap-2 transition-transform hover:scale-105">
+            Tap to interact
+          </span>
+        </div>
+      )}
       <MapContainer 
         center={[lat, lng]} 
         zoom={12} 
-        scrollWheelZoom={false}
-        dragging={false}
+        scrollWheelZoom={isInteractive}
+        dragging={isInteractive}
         attributionControl={false}
         className="w-full h-full min-h-[300px] z-0"
       >

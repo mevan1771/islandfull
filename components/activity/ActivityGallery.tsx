@@ -35,26 +35,36 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     <>
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
-        <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2 pb-4 px-4 -mx-4 md:grid md:grid-cols-2 md:gap-4 md:pb-0 md:px-0 md:mx-0">
-          {galleryUrls.map((url: string, i: number) => (
-            <div 
-              key={i} 
-              className="relative snap-center aspect-[4/3] md:aspect-video w-4/5 sm:w-2/3 md:w-auto flex-shrink-0 rounded-xl md:rounded-3xl overflow-hidden shadow-sm group cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => setSelectedImage(url)}
-            >
-              <Image 
-                src={url} 
-                alt={`Gallery image ${i + 1}`} 
-                fill 
-                placeholder="blur" 
-                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
-                className="object-cover transition-transform duration-700 group-hover:scale-110" 
-              />
-              <div className="absolute bottom-3 right-3 md:hidden bg-zinc-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg">
-                {i + 1}/{galleryUrls.length}
+        <div className="grid grid-cols-2 grid-rows-2 gap-2 rounded-2xl overflow-hidden h-[250px] sm:h-[350px] md:h-[450px] w-full">
+          {galleryUrls.slice(0, 3).map((url: string, i: number) => {
+            const isFirst = i === 0;
+            const isLast = i === 2;
+            const hasMore = galleryUrls.length > 3;
+            
+            return (
+              <div 
+                key={i} 
+                className={`relative group cursor-pointer hover:opacity-90 transition-opacity ${
+                  isFirst ? 'col-span-1 row-span-2' : 'col-span-1 row-span-1'
+                }`}
+                onClick={() => setSelectedImage(url)}
+              >
+                <Image 
+                  src={url} 
+                  alt={`Gallery image ${i + 1}`} 
+                  fill 
+                  placeholder="blur" 
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                {isLast && hasMore && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm md:text-base">+{galleryUrls.length - 3} Photos</span>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
