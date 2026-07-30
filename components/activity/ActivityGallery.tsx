@@ -36,17 +36,14 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
         <div className="grid grid-cols-2 grid-rows-2 gap-2 rounded-2xl overflow-hidden h-[250px] sm:h-[350px] md:h-[450px] w-full">
-          {galleryUrls.slice(0, 3).map((url: string, i: number) => {
-            const isFirst = i === 0;
-            const isLast = i === 2;
-            const hasMore = galleryUrls.length > 3;
+          {galleryUrls.slice(0, 4).map((url: string, i: number) => {
+            const isLast = i === 3;
+            const hasMore = galleryUrls.length > 4;
             
             return (
               <div 
                 key={i} 
-                className={`relative group cursor-pointer hover:opacity-90 transition-opacity ${
-                  isFirst ? 'col-span-1 row-span-2' : 'col-span-1 row-span-1'
-                }`}
+                className="relative col-span-1 row-span-1 group cursor-pointer hover:opacity-90 transition-opacity rounded-xl shadow-sm overflow-hidden"
                 onClick={() => setSelectedImage(url)}
               >
                 <Image 
@@ -59,7 +56,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                 />
                 {isLast && hasMore && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm md:text-base">+{galleryUrls.length - 3} Photos</span>
+                    <span className="text-white font-semibold text-sm sm:text-base">+{galleryUrls.length - 4} Photos</span>
                   </div>
                 )}
               </div>
