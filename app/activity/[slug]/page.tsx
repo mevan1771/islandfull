@@ -83,7 +83,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="relative h-[35vh] md:h-[65vh] mx-4 mt-4 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
+      <div className="relative h-[35vh] md:h-[65vh] m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-none rounded-b-[2rem] sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
         {/* Mobile Back Button */}
         <div className="absolute top-4 left-4 z-20 md:hidden">
           <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
@@ -122,23 +122,20 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <div className="flex-1 space-y-8 md:space-y-12">
           
           {/* Quick Info (Mobile Minimalist Row) */}
-          <div className="flex md:hidden items-center justify-between w-full py-4 border-b border-zinc-100 px-2">
-            <div className="flex flex-col items-center justify-center">
-              <Clock className="w-4 h-4 text-zinc-500 mb-1" />
-              <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Duration</span>
-              <span className="text-xs font-semibold text-zinc-900">{activity.duration}</span>
+          <div className="flex md:hidden items-center justify-between w-full py-4 px-4 border-b border-gray-100">
+            <div className="flex flex-row items-center gap-1.5">
+              <Clock className="w-4 h-4 text-zinc-500" />
+              <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
             </div>
             
-            <div className="flex flex-col items-center justify-center">
-              <MapPin className="w-4 h-4 text-zinc-500 mb-1" />
-              <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Location</span>
-              <span className="text-xs font-semibold text-zinc-900 max-w-[120px] truncate text-center">{activity.location}</span>
+            <div className="flex flex-row items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-zinc-500" />
+              <span className="text-xs font-semibold text-gray-800 max-w-[120px] truncate">{activity.location}</span>
             </div>
 
-            <div className="flex flex-col items-center justify-center">
-              <Users className="w-4 h-4 text-zinc-500 mb-1" />
-              <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Capacity</span>
-              <span className="text-xs font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
+            <div className="flex flex-row items-center gap-1.5">
+              <Users className="w-4 h-4 text-zinc-500" />
+              <span className="text-xs font-semibold text-gray-800">Up to {activity.max_capacity}</span>
             </div>
           </div>
 
