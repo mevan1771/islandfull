@@ -70,9 +70,12 @@ export function BookingDrawer({
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
   // Calculate Totals using Tiered Pricing if available
-  const totalDays = bookingType === 'multi_day' && dateRange?.from && dateRange?.to 
-    ? (differenceInDays(dateRange.to, dateRange.from) || 1)
-    : 1;
+  const totalDays = (() => {
+    if (bookingType !== 'multi_day') return 1;
+    if (!dateRange?.from) return 0;
+    const endDate = dateRange.to || dateRange.from;
+    return differenceInDays(endDate, dateRange.from) + 1;
+  })();
 
   let basePriceUsd = priceUsd;
   if (pricingTiers && pricingTiers[guests.toString()]) {
@@ -100,7 +103,8 @@ export function BookingDrawer({
   const handleStripeCheckout = async () => {
     const isMulti = bookingType === 'multi_day';
     const finalDate = isMulti ? (dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : "") : date;
-    const finalEndDate = isMulti && dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : "";
+    const resolvedEndDate = isMulti ? (dateRange?.to || dateRange?.from) : undefined;
+    const finalEndDate = resolvedEndDate ? format(resolvedEndDate, 'yyyy-MM-dd') : "";
 
     if (!finalDate || !whatsapp || !touristName || !touristEmail || (isMulti && !finalEndDate)) return
     
@@ -262,7 +266,7 @@ export function BookingDrawer({
           </div>
 
           {/* Desktop Button: Disabled if no date */}
-          <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !(dateRange?.from && dateRange?.to) : !date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+          <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
             Reserve Now
           </Button>
           
@@ -593,7 +597,7 @@ export function BookingDrawer({
 
               <Button 
                 onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
-                disabled={!date || !whatsapp || !touristName || !touristEmail}
+                disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
                 className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
               >
                 {priceUsd === 0 
