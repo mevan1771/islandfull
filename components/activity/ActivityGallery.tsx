@@ -173,7 +173,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
             <img 
               src={galleryUrls[selectedIndex]}
               alt={`Fullscreen gallery view ${selectedIndex + 1}`}
-              className="w-full h-auto max-h-[100vh] object-contain select-none"
+              className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-cover select-none rounded-[32px] border-[2px] border-white/40 shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
               draggable="false"
             />
 
