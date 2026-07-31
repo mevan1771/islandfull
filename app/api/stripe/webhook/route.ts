@@ -21,10 +21,17 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 })
   }
 
+  let bookingId: string | null = null;
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-    const bookingId = session.client_reference_id
+    bookingId = session.client_reference_id
+  } else if (event.type === 'invoice.paid') {
+    const invoice = event.data.object as Stripe.Invoice
+    bookingId = invoice.metadata?.booking_id || null
+  }
 
+  if (event.type === 'checkout.session.completed' || event.type === 'invoice.paid') {
     if (bookingId) {
       // Mark as confirmed
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)

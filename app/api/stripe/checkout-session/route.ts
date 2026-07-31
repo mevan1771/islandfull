@@ -89,8 +89,8 @@ export async function POST(req: Request) {
         tour_option: selectedOption || null,
         pickup_location: pickupLocation || null,
         special_requests: specialRequests || null,
-        status: paymentStrategy === 'no_card' ? 'pending_payment' : 'pending',
-        payment_status: paymentStrategy === 'no_card' ? 'unpaid' : 'unpaid',
+        status: ['no_card', 'pay_later'].includes(paymentStrategy) ? 'pending_payment' : 'pending',
+        payment_status: 'unpaid',
         promo_code_applied: appliedPromoCode,
         discount_amount_usd: discountAmountUsd,
         platform_fee_usd: platformFeeUsd,
@@ -102,10 +102,10 @@ export async function POST(req: Request) {
 
     if (dbError) throw dbError;
 
-    // If No Card Needed, skip Stripe entirely
+    // If No Card Needed or Pay Later, skip Stripe entirely
     const actualPaymentStrategy = finalTotalUsd === 0 ? 'no_card' : paymentStrategy;
 
-    if (actualPaymentStrategy === 'no_card') {
+    if (['no_card', 'pay_later'].includes(actualPaymentStrategy)) {
       if (finalTotalUsd === 0) {
         // Mark totally free booking as confirmed instantly
         await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
