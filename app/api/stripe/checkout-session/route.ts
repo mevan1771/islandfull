@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { validatePromoCode } from '@/app/actions/promo'
 import { eachDayOfInterval, parseISO, format } from 'date-fns'
+import { sendPendingEmail, sendReceiptEmail } from '@/app/actions/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -119,14 +120,17 @@ export async function POST(req: Request) {
         }
       } else {
         // Pay Later: send pending email
-        const { sendPendingEmail } = await import('@/app/actions/email');
-        await sendPendingEmail({
-          toEmail: touristEmail,
-          touristName,
-          activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
-          date,
-          guests
-        });
+        try {
+          await sendPendingEmail({
+            toEmail: touristEmail,
+            touristName,
+            activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
+            date,
+            guests
+          });
+        } catch (emailErr) {
+          console.error("Failed to send pending email:", emailErr);
+        }
       }
       
       if (appliedPromoCode) {
