@@ -77,28 +77,30 @@ export function BookingDrawer({
     return differenceInDays(endDate, dateRange.from) + 1;
   })();
 
-  let basePriceUsd = priceUsd;
+  let totalUsd = 0;
   if (pricingTiers && pricingTiers[guests.toString()]) {
-    basePriceUsd = pricingTiers[guests.toString()]
+    // The tier price IS the flat total price for this specific group size
+    totalUsd = pricingTiers[guests.toString()];
+  } else {
+    // Default fallback: base price * number of guests
+    totalUsd = priceUsd * guests;
   }
 
-  let totalUsd = basePriceUsd * guests;
+  // Multiply by days if it's a rental (per_day model)
   if (pricingModel === 'per_day') {
-    totalUsd = basePriceUsd * guests * totalDays;
+    totalUsd = totalUsd * totalDays;
   }
   
-  let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
-
-  // Add Option Price Modifier (per person)
+  // Add Option Price Modifier (which is applied per person)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
     if (opt) {
       const optionModifier = opt.price_modifier * guests * (pricingModel === 'per_day' ? totalDays : 1);
       totalUsd += optionModifier
-      const exchangeRate = priceLkrApprox / priceUsd
-      totalLkr = totalUsd * exchangeRate
     }
   }
+
+  let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
 
   const handleStripeCheckout = async () => {
     const isMulti = bookingType === 'multi_day';
