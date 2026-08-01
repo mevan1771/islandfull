@@ -224,29 +224,25 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
       {/* Activity Grid Header / Filters */}
       <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-16 mb-4 md:mb-6 text-zinc-900">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-4">
-          <div className="flex overflow-x-auto whitespace-nowrap gap-2 pb-2 px-4 -mx-4 md:px-0 md:mx-0 md:flex-wrap items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex flex-row items-center justify-between gap-4">
+          <div className="flex overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 px-4 -mx-4 md:px-0 md:mx-0 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
                 <button 
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center justify-center text-xs rounded-full font-bold md:text-sm transition-all border ${
-                    cat.id === "saved" ? "p-1.5 md:p-2.5 w-[30px] md:w-[42px] h-[30px] md:h-[42px]" : "gap-2 px-3 py-1.5 md:px-5 md:py-2.5"
+                  className={`flex items-center justify-center rounded-full transition-all duration-200 border ${
+                    cat.id === "saved" ? "w-[36px] md:w-[42px] h-[36px] md:h-[42px]" : "gap-2 px-4 py-2 md:px-5 md:py-2.5 text-sm font-medium"
                   } ${
-                    cat.id === "saved"
-                      ? currentCategory === cat.id
-                        ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"
-                        : "bg-rose-500/5 text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 backdrop-blur-sm"
-                      : currentCategory === cat.id 
-                        ? "bg-zinc-900 text-white border-zinc-900 shadow-md" 
-                        : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
+                    currentCategory === cat.id 
+                      ? "bg-black text-white border-black shadow-md" 
+                      : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900"
                   }`}
                 >
                   {Icon && <Icon className={`w-4 h-4 ${
                     cat.id === 'saved' 
-                      ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
+                      ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
                       : (currentCategory === cat.id ? "fill-white" : "")
                   }`} />}
                   {cat.name}
@@ -254,7 +250,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               );
             })}
           </div>
-          <div className="flex items-center justify-end w-full md:w-auto">
+          <div className="flex items-center justify-end flex-shrink-0 ml-auto">
             <div className="flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-zinc-50 hover:bg-zinc-100 text-xs md:text-sm font-semibold text-zinc-600 transition-colors cursor-pointer">
               <span>Sort by:</span>
               <select 
