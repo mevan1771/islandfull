@@ -1,8 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, MapPin, Calendar, Users, Map } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Loader2 } from "lucide-react"
+import { useDebounce } from "@/hooks/useDebounce"
+import { useOnClickOutside } from "@/hooks/useOnClickOutside"
+import { searchLocationsAndTags } from "@/app/actions/search"
 
 export function MobileSearch() {
   const router = useRouter()
@@ -14,6 +17,35 @@ export function MobileSearch() {
   const [location, setLocation] = useState(searchParams.get("location") || "")
   const [date, setDate] = useState(searchParams.get("date") || "")
   const [travelers, setTravelers] = useState(searchParams.get("travelers") || "")
+
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const debouncedLocation = useDebounce(location, 300)
+
+  useOnClickOutside(dropdownRef, () => setIsDropdownOpen(false))
+
+  useEffect(() => {
+    async function fetchSuggestions() {
+      if (!debouncedLocation || debouncedLocation.length < 2) {
+        setSuggestions([])
+        setIsFetching(false)
+        return
+      }
+      setIsFetching(true)
+      const results = await searchLocationsAndTags(debouncedLocation)
+      setSuggestions(results)
+      setIsDropdownOpen(true)
+      setIsFetching(false)
+    }
+
+    if (isFocused) {
+      fetchSuggestions()
+    }
+  }, [debouncedLocation, isFocused])
 
   const handleVerticalClick = (vertical: 'tour' | 'event' | 'transport') => {
     setCurrentVertical(vertical)
@@ -70,15 +102,46 @@ export function MobileSearch() {
         {/* Inputs */}
         <form onSubmit={handleSearch} className="flex flex-col gap-2">
           {/* Location */}
-          <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors">
-            <MapPin className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-            <input 
-              type="text" 
-              placeholder="Where to?" 
-              className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
+          <div ref={dropdownRef} className="relative">
+            <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors">
+              <MapPin className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Where to?" 
+                className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
+                value={location}
+                onFocus={() => {
+                  setIsFocused(true)
+                  if (suggestions.length > 0) setIsDropdownOpen(true)
+                }}
+                onBlur={() => setIsFocused(false)}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+              {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
+            </div>
+
+            {/* Autocomplete Dropdown */}
+            {isDropdownOpen && suggestions.length > 0 && (
+              <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50 max-h-60 overflow-y-auto">
+                {suggestions.map((sug, idx) => (
+                  <li 
+                    key={idx}
+                    className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
+                    onMouseDown={(e) => {
+                      e.preventDefault() // prevent input blur
+                      setLocation(sug)
+                      setIsDropdownOpen(false)
+                      const params = new URLSearchParams(searchParams.toString())
+                      params.set("location", sug)
+                      router.push(`/?${params.toString()}`, { scroll: false })
+                    }}
+                  >
+                    <Search className="w-4 h-4 text-zinc-400" />
+                    {sug}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="flex gap-2">

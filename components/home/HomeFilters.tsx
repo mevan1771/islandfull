@@ -1,8 +1,11 @@
 "use client"
 
-import { useState, FormEvent } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart } from "lucide-react"
+import { useState, FormEvent, useEffect, useRef } from "react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useDebounce } from "@/hooks/useDebounce"
+import { useOnClickOutside } from "@/hooks/useOnClickOutside"
+import { searchLocationsAndTags } from "@/app/actions/search"
 
 type CategoryType = {
   id: string
@@ -31,6 +34,35 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
   const [travelers, setTravelers] = useState("")
+
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const debouncedLocation = useDebounce(location, 300)
+
+  useOnClickOutside(dropdownRef, () => setIsDropdownOpen(false))
+
+  useEffect(() => {
+    async function fetchSuggestions() {
+      if (!debouncedLocation || debouncedLocation.length < 2) {
+        setSuggestions([])
+        setIsFetching(false)
+        return
+      }
+      setIsFetching(true)
+      const results = await searchLocationsAndTags(debouncedLocation)
+      setSuggestions(results)
+      setIsDropdownOpen(true)
+      setIsFetching(false)
+    }
+
+    if (isFocused) {
+      fetchSuggestions()
+    }
+  }, [debouncedLocation, isFocused])
 
   const CATEGORIES = [
     { id: "all", name: "All Places" },
@@ -104,7 +136,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
           {/* Inputs */}
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4">
-            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4 focus-within:border-rose-500 transition-colors">
+            <div ref={dropdownRef} className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4 focus-within:border-rose-500 transition-colors relative">
               <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
@@ -113,6 +145,11 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   placeholder="Ella, Sigiriya..." 
                   className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
                   value={location}
+                  onFocus={() => {
+                    setIsFocused(true)
+                    if (suggestions.length > 0) setIsDropdownOpen(true)
+                  }}
+                  onBlur={() => setIsFocused(false)}
                   onChange={(e) => {
                     const val = e.target.value;
                     setLocation(val);
@@ -123,7 +160,31 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                     }
                   }}
                 />
+                {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
               </div>
+
+              {/* Autocomplete Dropdown */}
+              {isDropdownOpen && suggestions.length > 0 && (
+                <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50">
+                  {suggestions.map((sug, idx) => (
+                    <li 
+                      key={idx}
+                      className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
+                      onMouseDown={(e) => {
+                        e.preventDefault() // prevent input blur
+                        setLocation(sug)
+                        setIsDropdownOpen(false)
+                        const params = new URLSearchParams(searchParams.toString())
+                        params.set("location", sug)
+                        router.push(`/?${params.toString()}`, { scroll: false })
+                      }}
+                    >
+                      <Search className="w-4 h-4 text-zinc-400" />
+                      {sug}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             
             <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4">
