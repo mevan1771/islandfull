@@ -26,7 +26,7 @@ interface BookingDrawerProps {
   reviewCount?: number
   minNoticeDays?: number
   bookingType?: 'single_day' | 'multi_day'
-  pricingModel?: 'per_person' | 'per_day'
+  pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
 }
 
 export function BookingDrawer({
