@@ -17,6 +17,7 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
       from: 'IslandFull <bookings@islandfull.com>',
+      reply_to: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
       react: React.createElement(BookingPendingEmail, {
@@ -51,7 +52,8 @@ interface SendReceiptEmailProps {
 export async function sendReceiptEmail(props: SendReceiptEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <tickets@islandfull.com>',
+      from: 'IslandFull <bookings@islandfull.com>',
+      reply_to: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,
       react: React.createElement(BookingReceiptEmail, {
