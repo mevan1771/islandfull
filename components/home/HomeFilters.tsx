@@ -249,24 +249,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 </button>
               );
             })}
-            {/* Spacer so the last pill isn't hidden behind the sticky gradient on mobile */}
-            <div className="w-12 flex-shrink-0 md:hidden" />
-          </div>
-
-          {/* Mobile Sort Icon - Absolutely positioned on the right */}
-          <div className="md:hidden absolute right-0 top-0 bottom-2 w-20 bg-gradient-to-l from-zinc-50 via-zinc-50 to-transparent pointer-events-none flex items-center justify-end">
-            <div className="pointer-events-auto relative flex items-center justify-center w-[36px] h-[36px] rounded-full bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer -mr-2">
-              <SlidersHorizontal className="w-4 h-4" />
-              <select 
-                value={currentSort}
-                onChange={handleSortChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              >
-                <option value="">Recommended</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-              </select>
-            </div>
           </div>
 
           {/* Desktop Sort Dropdown */}

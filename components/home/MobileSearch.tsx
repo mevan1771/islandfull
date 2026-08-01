@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, MapPin, Calendar, Users, Map, Loader2 } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags } from "@/app/actions/search"
@@ -169,14 +169,36 @@ export function MobileSearch() {
             </div>
           </div>
 
-          {/* Button */}
-          <button 
-            type="submit" 
-            className="w-full h-10 mt-1 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
-          >
-            <Search className="w-4 h-4" />
-            Search
-          </button>
+          {/* Actions: Filter & Search */}
+          <div className="w-full flex items-center gap-3 mt-1">
+            {/* Filter / Sort Button */}
+            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer">
+              <SlidersHorizontal className="w-4 h-4" />
+              <select 
+                value={searchParams.get("sort") || ""}
+                onChange={(e) => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  if (e.target.value) params.set("sort", e.target.value)
+                  else params.delete("sort")
+                  router.push(`/?${params.toString()}`, { scroll: false })
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              >
+                <option value="">Recommended</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+
+            {/* Search Button */}
+            <button 
+              type="submit" 
+              className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+            >
+              <Search className="w-4 h-4" />
+              Search
+            </button>
+          </div>
         </form>
       </div>
     </div>
