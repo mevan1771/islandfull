@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { BookingPendingEmail } from '@/components/emails/BookingPendingEmail';
 import { BookingReceiptEmail } from '@/components/emails/BookingReceiptEmail';
 import React from 'react';
-import { renderAsync } from '@react-email/components';
+import { render } from '@react-email/components';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,7 +21,7 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
-      html: await renderAsync(React.createElement(BookingPendingEmail, {
+      html: render(React.createElement(BookingPendingEmail, {
         touristName: props.touristName,
         activityTitle: props.activityTitle,
         date: props.date,
@@ -57,7 +57,7 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,
-      html: await renderAsync(React.createElement(BookingReceiptEmail, {
+      html: render(React.createElement(BookingReceiptEmail, {
         touristName: props.touristName,
         activityTitle: props.activityTitle,
         date: props.date,
