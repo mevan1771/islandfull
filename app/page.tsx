@@ -117,7 +117,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   return (
     <div className="pb-24">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-48 text-white min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
+      <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50vh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
         <div className="absolute inset-0 z-0">
           <Image 
             src="https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
@@ -129,14 +129,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           <div className="absolute inset-0 bg-black/30"></div>
         </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 w-full flex flex-col items-center text-center mt-[-10vh]">
-          <h1 className="text-2xl sm:text-3xl font-bold md:text-6xl tracking-tight mb-6 drop-shadow-md text-white">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 w-full flex flex-col items-center text-center mt-[-5vh] md:mt-[-10vh]">
+          <h1 className="text-2xl sm:text-3xl font-bold md:text-6xl tracking-tight mb-3 md:mb-6 drop-shadow-md text-white">
             Your Journey Starts<br/>Before You Go
           </h1>
-          <p className="text-white/90 text-lg md:text-xl mb-10 max-w-2xl drop-shadow-md">
+          <p className="text-white/90 text-sm sm:text-lg md:text-xl mb-6 md:mb-10 max-w-2xl drop-shadow-md">
             Inspiration, Planning, And Booking — All In One Travel Experience.
           </p>
-          <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white px-8 py-3.5 rounded-xl md:rounded-full font-semibold transition-all">
+          <button className="hidden md:flex bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white px-8 py-3.5 rounded-xl md:rounded-full font-semibold transition-all">
             View Package
           </button>
         </div>
