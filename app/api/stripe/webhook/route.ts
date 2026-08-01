@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { supabaseAdmin } from '@/lib/supabase'
-import QRCode from 'qrcode'
+
 import { sendReceiptEmail } from '@/app/actions/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         }
         
         // Generate QR Code
-        const qrCodeDataUri = await QRCode.toDataURL(bookingId)
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bookingId)}`
         
         // Send Receipt Email
         const activityTitle = booking.activities?.title || 'Your Activity'
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
           activityTitle: `${activityTitle}${tourOption}`,
           date: booking.travel_date,
           guests: booking.pax_count,
-          qrCodeDataUri
+          qrCodeUrl
         })
       }
     }

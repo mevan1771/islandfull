@@ -6,7 +6,7 @@ interface BookingReceiptEmailProps {
   activityTitle: string;
   date: string;
   guests: number;
-  qrCodeDataUri: string;
+  qrCodeUrl: string;
 }
 
 export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
@@ -14,7 +14,7 @@ export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
   activityTitle,
   date,
   guests,
-  qrCodeDataUri
+  qrCodeUrl
 }) => {
   return (
     <Html>
@@ -36,7 +36,7 @@ export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
 
           <Section style={qrSection}>
             <Text style={text}><strong>Your Entry Ticket</strong></Text>
-            <img src={qrCodeDataUri} width="200" height="200" alt="Booking QR Code" style={qrCode} />
+            <img src={qrCodeUrl} width="200" height="200" alt="Booking QR Code" style={qrCode} />
           </Section>
 
           <Hr style={hr} />
