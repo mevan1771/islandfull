@@ -81,6 +81,8 @@ export function BookingDrawer({
   if (pricingTiers && pricingTiers[guests.toString()]) {
     // The tier price IS the flat total price for this specific group size
     totalUsd = pricingTiers[guests.toString()];
+  } else if (pricingModel === 'flat_rate') {
+    totalUsd = priceUsd;
   } else {
     // Default fallback: base price * number of guests
     totalUsd = priceUsd * guests;

@@ -157,11 +157,11 @@ export async function POST(req: Request) {
             currency: 'usd',
             product_data: {
               name: selectedOption ? `${title} (${selectedOption})` : title,
-              description: `${guests} Pax on ${date}`,
+              description: pricingModel === 'flat_rate' ? `Private Group (Up to ${guests} guests) on ${date}` : `${guests} Pax on ${date}`,
             },
-            unit_amount: Math.round((finalTotalUsd / guests) * 100), // Stripe expects cents, per unit
+            unit_amount: pricingModel === 'flat_rate' ? Math.round(finalTotalUsd * 100) : Math.round((finalTotalUsd / guests) * 100),
           },
-          quantity: guests,
+          quantity: pricingModel === 'flat_rate' ? 1 : guests,
         },
       ],
       mode: 'payment',
