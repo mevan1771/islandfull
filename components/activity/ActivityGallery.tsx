@@ -10,7 +10,6 @@ interface ActivityGalleryProps {
 
 export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const [isExpanded, setIsExpanded] = useState(false)
   
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
@@ -71,23 +70,12 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
         <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
-          {(isExpanded ? galleryUrls : galleryUrls.slice(0, 6)).map((url: string, i: number) => {
-            const isLast = !isExpanded && i === 5;
-            const hasMore = galleryUrls.length > 6;
-            
+          {galleryUrls.map((url: string, i: number) => {
             return (
               <div 
                 key={i} 
-                className={`relative group cursor-pointer hover:opacity-90 transition-opacity rounded-xl shadow-sm overflow-hidden ${
-                  !isExpanded ? 'col-span-1 row-span-1' : ''
-                }`}
-                onClick={() => {
-                  if (isLast && hasMore) {
-                    setIsExpanded(true)
-                  } else {
-                    setSelectedIndex(isExpanded ? i : i)
-                  }
-                }}
+                className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-xl shadow-sm overflow-hidden"
+                onClick={() => setSelectedIndex(i)}
               >
                 <Image 
                   src={url} 
@@ -97,27 +85,10 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                 />
-                {isLast && hasMore && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm sm:text-base">+{galleryUrls.length - 6} Photos</span>
-                  </div>
-                )}
               </div>
             )
           })}
         </div>
-
-        {isExpanded && (
-          <div className="mt-4 text-center pb-2">
-            <button 
-              onClick={() => setIsExpanded(false)}
-              className="text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors inline-flex items-center justify-center gap-1"
-            >
-              <ChevronUp className="w-4 h-4" />
-              Show Less Gallery
-            </button>
-          </div>
-        )}
       </section>
 
       {/* Lightbox Overlay */}
