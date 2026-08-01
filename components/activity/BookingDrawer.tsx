@@ -69,6 +69,13 @@ export function BookingDrawer({
   const [discountUsd, setDiscountUsd] = useState(0)
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
+  const getPricingLabel = () => {
+    if (pricingTiers && Object.keys(pricingTiers).length > 0) return "starting price"
+    if (pricingModel === 'flat_rate') return `group (Max ${maxCapacity})`
+    if (pricingModel === 'per_day') return "per day"
+    return "per person"
+  }
+
   // Calculate Totals using Tiered Pricing if available
   const totalDays = (() => {
     if (bookingType !== 'multi_day') return 1;
@@ -194,7 +201,7 @@ export function BookingDrawer({
                 {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
                 {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
-              {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{pricingTiers && Object.keys(pricingTiers).length > 0 ? "starting price" : "per person"}</span>}
+              {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{getPricingLabel()}</span>}
             </div>
             {/* Rating (Desktop Only) */}
             <div className="hidden md:flex flex-col items-end">
