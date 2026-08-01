@@ -16,7 +16,7 @@ interface SendPendingEmailProps {
 export async function sendPendingEmail(props: SendPendingEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <bookings@islandfull.com>',
+      from: 'onboarding@resend.dev',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
@@ -52,7 +52,7 @@ interface SendReceiptEmailProps {
 export async function sendReceiptEmail(props: SendReceiptEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <bookings@islandfull.com>',
+      from: 'onboarding@resend.dev',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,

@@ -128,8 +128,8 @@ export async function POST(req: Request) {
             date,
             guests
           });
-        } catch (emailErr) {
-          console.error("Failed to send pending email:", emailErr);
+        } catch (error) {
+          console.error("[RESEND_EMAIL_ERROR]", error);
         }
       }
       
