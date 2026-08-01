@@ -17,7 +17,8 @@ interface ActivityCardProps {
   isHiddenGem?: boolean
   rating?: number
   reviewCount?: number
-  pricingModel?: 'per_person' | 'per_day'
+  pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
+  maxGuests?: number
 }
 
 export function ActivityCard({
@@ -32,6 +33,7 @@ export function ActivityCard({
   rating,
   reviewCount = 0,
   pricingModel = 'per_person',
+  maxGuests,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -97,7 +99,12 @@ export function ActivityCard({
         </div>
         
         {/* Content Details */}
-        <div className="flex flex-col flex-1 pb-1">
+        <div className="flex flex-col flex-1 pb-1 mt-1">
+          {pricingModel === 'flat_rate' && (
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded w-fit mb-1 border border-amber-100">
+              👥 Private Booking
+            </span>
+          )}
           <h3 className="text-xs sm:text-base font-semibold text-zinc-900 mb-1 leading-snug w-full line-clamp-2 group-hover:text-rose-500 transition-colors">
             {title}
           </h3>
@@ -132,19 +139,28 @@ export function ActivityCard({
             <span className="truncate">{displayLocation}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 mt-auto pt-1.5">
-            <div className="flex items-baseline gap-0.5">
-              {priceUsd === 0 ? (
-                <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
-              ) : (
-                <>
-                  <span className="text-xs sm:text-sm font-bold text-gray-900">${priceUsd}</span>
-                  <span className="text-[10px] sm:text-xs font-normal text-gray-500">/ {pricingModel === 'per_day' ? 'day' : 'person'}</span>
-                </>
-              )}
+          <div className="flex flex-col mt-auto pt-1.5">
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-baseline gap-0.5">
+                {priceUsd === 0 ? (
+                  <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
+                ) : (
+                  <>
+                    <span className="text-xs sm:text-sm font-bold text-gray-900">${priceUsd}</span>
+                    <span className="text-[10px] sm:text-xs font-normal text-gray-500">
+                      / {pricingModel === 'flat_rate' ? 'private group' : pricingModel === 'per_day' ? 'day' : 'person'}
+                    </span>
+                  </>
+                )}
+              </div>
+              <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
+              <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
             </div>
-            <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
-            <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
+            {pricingModel === 'flat_rate' && maxGuests && (
+              <div className="text-[10px] text-gray-400 mt-0.5">
+                (Up to {maxGuests} guests)
+              </div>
+            )}
           </div>
         </div>
       </div>

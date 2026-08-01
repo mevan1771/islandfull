@@ -87,7 +87,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           coverImage: d.cover_image_url,
           isHiddenGem: d.is_hidden_gem,
           rating: rating,
-          reviewCount: d.reviews ? d.reviews.length : 0
+          reviewCount: d.reviews ? d.reviews.length : 0,
+          pricingModel: d.pricing_model,
+          maxGuests: d.max_capacity
         };
       });
     }

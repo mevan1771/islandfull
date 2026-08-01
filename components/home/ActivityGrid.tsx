@@ -53,6 +53,8 @@ export function ActivityGrid({ activities, currentCategory }: ActivityGridProps)
           isHiddenGem={act.isHiddenGem}
           rating={act.rating}
           reviewCount={act.reviewCount}
+          pricingModel={act.pricingModel}
+          maxGuests={act.maxGuests}
         />
       ))}
     </div>
