@@ -83,7 +83,7 @@ export function MobileSearch() {
             onClick={() => handleVerticalClick('tour')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
           >
-            <Map className="w-3.5 h-3.5" /> Tours & Guides
+            <Map className="w-3.5 h-3.5" /> Tours
           </button>
           <button 
             onClick={() => handleVerticalClick('event')}

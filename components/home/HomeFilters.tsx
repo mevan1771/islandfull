@@ -14,8 +14,8 @@ type CategoryType = {
 }
 
 const CATEGORIES: CategoryType[] = [
-  { id: "all", name: "All Places" },
-  { id: "saved", name: "Saved", icon: Heart },
+  { id: "all", name: "All" },
+  { id: "saved", name: "", icon: Heart },
   { id: "surf", name: "Surfing" },
   { id: "wildlife-safaris", name: "Wildlife Safaris" },
   { id: "hiking-treks", name: "Hiking & Treks" },
@@ -65,8 +65,8 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   }, [debouncedLocation, isFocused])
 
   const CATEGORIES = [
-    { id: "all", name: "All Places" },
-    { id: "saved", name: "Saved", icon: Heart },
+    { id: "all", name: "All" },
+    { id: "saved", name: "", icon: Heart },
     ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
   ]
 
@@ -118,7 +118,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               onClick={() => handleVerticalClick('tour')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
-              <Map className="w-4 h-4" /> Tours & Guides
+              <Map className="w-4 h-4" /> Tours
             </button>
             <button 
               onClick={() => handleVerticalClick('event')}
@@ -232,7 +232,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 <button 
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center gap-2 text-xs px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold md:text-sm transition-all border ${
+                  className={`flex items-center justify-center text-xs rounded-full font-bold md:text-sm transition-all border ${
+                    cat.id === "saved" ? "p-1.5 md:p-2.5 w-[30px] md:w-[42px] h-[30px] md:h-[42px]" : "gap-2 px-3 py-1.5 md:px-5 md:py-2.5"
+                  } ${
                     cat.id === "saved"
                       ? currentCategory === cat.id
                         ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"
