@@ -99,13 +99,13 @@ export function ActivityCard({
         </div>
         
         {/* Content Details */}
-        <div className="flex flex-col flex-1 pb-1 mt-1">
+        <div className="flex flex-col flex-1 pb-1 mt-1.5 px-1 sm:px-0">
           {pricingModel === 'flat_rate' && (
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded w-fit mb-1 border border-amber-100">
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded w-fit mb-1 border border-amber-100">
               👥 Private Booking
             </span>
           )}
-          <h3 className="text-xs sm:text-base font-semibold text-zinc-900 mb-1 leading-snug w-full line-clamp-2 group-hover:text-rose-500 transition-colors">
+          <h3 className="text-xs sm:text-sm md:text-base font-semibold text-zinc-900 mb-1 leading-tight w-full line-clamp-2 group-hover:text-rose-500 transition-colors">
             {title}
           </h3>
           
@@ -146,7 +146,7 @@ export function ActivityCard({
                   <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>
-                    <span className="text-xs sm:text-sm font-bold text-gray-900">${priceUsd}</span>
+                    <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
                     <span className="text-[10px] sm:text-xs font-normal text-gray-500">
                       / {pricingModel === 'flat_rate' ? (maxGuests ? `group (Max ${maxGuests})` : 'group') : pricingModel === 'per_day' ? 'day' : 'person'}
                     </span>
