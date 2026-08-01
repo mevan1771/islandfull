@@ -606,7 +606,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <DollarSign className="w-4 h-4 text-rose-500" />
@@ -657,7 +657,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <option value="no_card">No Card Needed (Pay Later)</option>
                   </select>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <Car className="w-4 h-4 text-rose-500" />
