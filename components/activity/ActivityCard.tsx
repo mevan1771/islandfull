@@ -148,7 +148,7 @@ export function ActivityCard({
                   <>
                     <span className="text-xs sm:text-sm font-bold text-gray-900">${priceUsd}</span>
                     <span className="text-[10px] sm:text-xs font-normal text-gray-500">
-                      / {pricingModel === 'flat_rate' ? 'private group' : pricingModel === 'per_day' ? 'day' : 'person'}
+                      / {pricingModel === 'flat_rate' ? (maxGuests ? `group (Max ${maxGuests})` : 'group') : pricingModel === 'per_day' ? 'day' : 'person'}
                     </span>
                   </>
                 )}
@@ -156,11 +156,6 @@ export function ActivityCard({
               <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
               <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
             </div>
-            {pricingModel === 'flat_rate' && maxGuests && (
-              <div className="text-[10px] text-gray-400 mt-0.5">
-                (Up to {maxGuests} guests)
-              </div>
-            )}
           </div>
         </div>
       </div>
