@@ -12,6 +12,8 @@ import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 
+import { Metadata, ResolvingMetadata } from 'next'
+
 export const revalidate = 60;
 
 // Fallback data for the specific slugs if DB is not ready
@@ -29,6 +31,57 @@ const MOCK_DETAILS: Record<string, any> = {
     inclusions: ['Surfboard rental', '1.5 hours of instruction', 'Rash guard', 'Post-surf king coconut'],
     cover_image_url: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
     gallery_urls: ['https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80']
+  }
+}
+
+type Props = {
+  params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { slug } = await params
+  
+  let activity = null
+
+  try {
+    const { data } = await supabase
+      .from('activities')
+      .select('title, description, cover_image_url, location')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .single()
+
+    if (data) activity = data
+  } catch (err) {}
+
+  if (!activity) {
+    activity = MOCK_DETAILS[slug]
+  }
+
+  if (!activity) {
+    return {
+      title: 'Activity Not Found | Islandfull'
+    }
+  }
+
+  return {
+    title: `${activity.title} in ${activity.location} | Islandfull`,
+    description: activity.description,
+    openGraph: {
+      title: `${activity.title} | Islandfull`,
+      description: activity.description,
+      images: [{ url: activity.cover_image_url }],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${activity.title} | Islandfull`,
+      description: activity.description,
+      images: [activity.cover_image_url],
+    },
   }
 }
 
