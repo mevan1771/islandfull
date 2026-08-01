@@ -42,6 +42,7 @@ export function ImageCropperModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <h2 className="text-xl font-bold text-zinc-900">Crop Cover Image</h2>
           <button 
+            type="button"
             onClick={onCancel}
             disabled={isUploading}
             className="p-2 hover:bg-zinc-100 rounded-full transition-colors disabled:opacity-50"
@@ -79,6 +80,7 @@ export function ImageCropperModal({
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
             <button
+              type="button"
               onClick={onCancel}
               disabled={isUploading}
               className="flex-1 sm:flex-none px-6 py-3 font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-colors disabled:opacity-50"
@@ -86,6 +88,7 @@ export function ImageCropperModal({
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleSave}
               disabled={isUploading}
               className="flex-1 sm:flex-none px-8 py-3 font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
