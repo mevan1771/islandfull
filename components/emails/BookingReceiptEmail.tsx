@@ -35,7 +35,7 @@ export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
           </Section>
 
           <Section style={qrSection}>
-            <Text style={text}><strong>Your Entry Ticket</strong></Text>
+            <Heading as="h2" style={qrHeading}>Your Entry Ticket</Heading>
             <img src={qrCodeUrl} width="200" height="200" alt="Booking QR Code" style={qrCode} />
           </Section>
 
@@ -95,7 +95,15 @@ const detailsText = {
 
 const qrSection = {
   textAlign: 'center' as const,
-  margin: '32px 0',
+  margin: '16px 0',
+};
+
+const qrHeading = {
+  color: '#333',
+  fontSize: '18px',
+  fontWeight: '600',
+  margin: '0 0 12px',
+  textAlign: 'center' as const,
 };
 
 const qrCode = {
