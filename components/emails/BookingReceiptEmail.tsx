@@ -7,6 +7,7 @@ interface BookingReceiptEmailProps {
   date: string;
   guests: number;
   qrCodeUrl: string;
+  imageUrl?: string;
 }
 
 export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
@@ -14,28 +15,41 @@ export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
   activityTitle,
   date,
   guests,
-  qrCodeUrl
+  qrCodeUrl,
+  imageUrl
 }) => {
+  const isVideo = imageUrl?.match(/\.(mp4|webm|mov)$/i);
+  const finalImageUrl = isVideo 
+    ? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' 
+    : imageUrl;
   return (
     <Html>
       <Head />
       <Preview>Your ticket for {activityTitle} is confirmed!</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Booking Confirmed!</Heading>
+          {finalImageUrl && (
+            <img 
+              src={finalImageUrl} 
+              alt={activityTitle} 
+              width="100%"
+              height="120"
+              style={heroImage} 
+            />
+          )}
+          <Heading style={h1}>Your Ticket</Heading>
           <Text style={text}>
-            Hi {touristName}, your reservation is confirmed! Please present this QR code to your guide upon arrival.
+            Hi {touristName}, you're all set! Present this pass to your guide.
           </Text>
           
           <Section style={detailsSection}>
             <Text style={detailsText}><strong>Activity:</strong> {activityTitle}</Text>
             <Text style={detailsText}><strong>Date:</strong> {date}</Text>
             <Text style={detailsText}><strong>Guests:</strong> {guests} Pax</Text>
-          </Section>
 
-          <Section style={qrSection}>
-            <Heading as="h2" style={qrHeading}>Your Entry Ticket</Heading>
-            <img src={qrCodeUrl} width="200" height="200" alt="Booking QR Code" style={qrCode} />
+            <Section style={qrSection}>
+              <img src={qrCodeUrl} width="160" height="160" alt="Booking QR Code" style={qrCode} />
+            </Section>
           </Section>
 
           <Hr style={hr} />
@@ -57,18 +71,27 @@ const main = {
 const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
-  padding: '12px 0 24px',
+  padding: '0 0 24px',
   marginBottom: '24px',
   width: '100%',
   maxWidth: '600px',
+  borderRadius: '8px',
+  overflow: 'hidden',
+};
+
+const heroImage = {
+  width: '100%',
+  height: '120px',
+  objectFit: 'cover' as const,
+  display: 'block',
 };
 
 const h1 = {
   color: '#333',
-  fontSize: '22px',
+  fontSize: '20px',
   fontWeight: '600',
-  lineHeight: '32px',
-  margin: '0 0 12px',
+  lineHeight: '28px',
+  margin: '16px 0 8px',
   textAlign: 'center' as const,
 };
 

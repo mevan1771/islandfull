@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       // Look up booking details for email and promo
       const { data: booking } = await supabaseAdmin
         .from('bookings')
-        .select('*, activities(title)')
+        .select('*, activities(title, cover_image_url)')
         .eq('id', bookingId)
         .single()
         
@@ -65,7 +65,8 @@ export async function POST(req: Request) {
           activityTitle: `${activityTitle}${tourOption}`,
           date: booking.travel_date,
           guests: booking.pax_count,
-          qrCodeUrl
+          qrCodeUrl,
+          imageUrl: booking.activities?.cover_image_url
         })
       }
     }

@@ -52,6 +52,7 @@ interface SendReceiptEmailProps {
   date: string;
   guests: number;
   qrCodeUrl: string;
+  imageUrl?: string;
 }
 
 export async function sendReceiptEmail(props: SendReceiptEmailProps) {
@@ -62,6 +63,7 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
       date: props.date,
       guests: props.guests,
       qrCodeUrl: props.qrCodeUrl,
+      imageUrl: props.imageUrl,
     }));
 
     const { data, error } = await resend.emails.send({
