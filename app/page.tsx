@@ -105,7 +105,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     const { data: catData } = await supabase
       .from('categories')
       .select('name, slug')
-      .eq('category_type', currentVertical);
+      .eq('category_type', currentVertical)
+      .order('sort_order', { ascending: true })
+      .order('name');
       
     if (catData) {
       dynamicCategories = catData;

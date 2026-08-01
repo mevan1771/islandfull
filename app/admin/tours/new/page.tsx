@@ -7,6 +7,7 @@ export default async function NewTourPage() {
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
+    .order('sort_order', { ascending: true })
     .order('name');
 
   return (

@@ -23,6 +23,7 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
+    .order('sort_order', { ascending: true })
     .order('name');
 
   return (
