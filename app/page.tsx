@@ -84,7 +84,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           location: d.location,
           duration: d.duration,
           priceUsd: d.price_usd,
-          coverImage: d.cover_image_url,
+          coverImage: d.card_image_url || d.cover_image_url,
           isHiddenGem: d.is_hidden_gem,
           rating: rating,
           reviewCount: d.reviews ? d.reviews.length : 0,

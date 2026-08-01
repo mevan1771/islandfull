@@ -30,6 +30,7 @@ export async function createTour(formData: FormData) {
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
     const cover_image_url = formData.get("cover_image_url") as string
+    const card_image_url = formData.get("card_image_url") as string || null
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
@@ -119,6 +120,7 @@ export async function createTour(formData: FormData) {
       commission_rate,
       is_custom_commission,
       cover_image_url,
+      card_image_url,
       gallery_urls,
       max_capacity,
       pricing_tiers,
@@ -178,6 +180,7 @@ export async function updateTour(id: string, formData: FormData) {
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
     const cover_image_url = formData.get("cover_image_url") as string
+    const card_image_url = formData.get("card_image_url") as string || null
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const status = formData.get("status") as string || "published"
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
@@ -263,6 +266,7 @@ export async function updateTour(id: string, formData: FormData) {
       commission_rate,
       is_custom_commission,
       cover_image_url,
+      card_image_url,
       gallery_urls,
       max_capacity,
       pricing_tiers,

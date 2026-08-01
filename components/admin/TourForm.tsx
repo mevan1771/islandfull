@@ -90,6 +90,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [isDragOver, setIsDragOver] = useState(false)
   const [isGalleryDragOver, setIsGalleryDragOver] = useState(false)
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
+  const [useOriginalForCard, setUseOriginalForCard] = useState(true)
+  const [originalCoverFile, setOriginalCoverFile] = useState<File | null>(null)
+  const [cardImage, setCardImage] = useState<string>(initialData?.card_image_url || "")
 
   // Tiered Pricing State (array of {guests, price} for easy rendering)
   const [tiers, setTiers] = useState<{guests: string, price: string}[]>(() => {
@@ -176,6 +179,8 @@ export default function TourForm({ categories, initialData }: { categories: any[
       return;
     }
 
+    setOriginalCoverFile(file);
+
     if (file.type.startsWith('video/')) {
       // Direct upload for video files
       await uploadCroppedImage(file)
@@ -193,16 +198,32 @@ export default function TourForm({ categories, initialData }: { categories: any[
     setIsUploadingImage(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      if (useOriginalForCard && originalCoverFile) {
+        // Upload the original uncropped file for the card
+        const originalData = new FormData();
+        originalData.append("file", originalCoverFile);
+        const originalResult = await uploadToCloudinary(originalData);
+        if (originalResult.success && originalResult.secure_url) {
+          setCardImage(originalResult.secure_url);
+        } else {
+          throw new Error("Failed to upload uncropped card image");
+        }
+      }
 
-    const result = await uploadToCloudinary(formData);
-    
-    if (result.success && result.secure_url) {
-      setPreviewImage(result.secure_url);
-      setCropImageSrc(null); // Close modal on success
-    } else {
-      alert(result.error || "Failed to upload image");
+      // Upload the cropped file for the banner
+      const formData = new FormData();
+      formData.append("file", file);
+      const result = await uploadToCloudinary(formData);
+      
+      if (result.success && result.secure_url) {
+        setPreviewImage(result.secure_url);
+        setCropImageSrc(null); // Close modal on success
+      } else {
+        throw new Error(result.error || "Failed to upload cropped cover image");
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to upload image");
     }
     
     setIsUploadingImage(false);
@@ -936,6 +957,25 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
                 {/* Hidden input to pass the secure_url string to the form submission action */}
                 <input type="hidden" name="cover_image_url" value={previewImage} />
+                <input type="hidden" name="card_image_url" value={cardImage} />
+
+                <div className="flex items-center gap-3 mt-4 bg-zinc-50 p-4 rounded-xl border border-zinc-100">
+                  <input
+                    type="checkbox"
+                    id="useOriginalForCard"
+                    checked={useOriginalForCard}
+                    onChange={(e) => setUseOriginalForCard(e.target.checked)}
+                    className="w-5 h-5 accent-rose-500 rounded cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <label htmlFor="useOriginalForCard" className="text-sm font-bold text-zinc-900 cursor-pointer">
+                      Use uncropped original for Tour Card
+                    </label>
+                    <p className="text-xs text-zinc-500">
+                      If checked, the tall (uncropped) image is used on the home page grid.
+                    </p>
+                  </div>
+                </div>
                 
                 {/* Media Dropzone Illusion */}
                 <label 

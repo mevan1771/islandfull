@@ -39,6 +39,7 @@ CREATE TABLE activities (
   price_lkr_approx DECIMAL(10, 2) NOT NULL,
   cover_image_url TEXT NOT NULL,
   gallery_urls TEXT[] DEFAULT '{}',
+  card_image_url TEXT,
   max_capacity INTEGER NOT NULL DEFAULT 10,
   status TEXT DEFAULT 'published' CHECK (status IN ('published', 'draft')),
   booking_type TEXT DEFAULT 'single_day' CHECK (booking_type IN ('single_day', 'multi_day')),
