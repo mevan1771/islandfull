@@ -16,14 +16,25 @@ export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
   guests,
   imageUrl
 }) => {
+  const isVideo = imageUrl?.match(/\.(mp4|webm|mov)$/i);
+  const finalImageUrl = isVideo 
+    ? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' 
+    : imageUrl;
+
   return (
     <Html>
       <Head />
       <Preview>Your booking request for {activityTitle} is received!</Preview>
       <Body style={main}>
         <Container style={container}>
-          {imageUrl && (
-            <img src={imageUrl} alt={activityTitle} style={heroImage} />
+          {finalImageUrl && (
+            <img 
+              src={finalImageUrl} 
+              alt={activityTitle} 
+              width="100%"
+              height="250"
+              style={heroImage} 
+            />
           )}
           <Heading style={h1}>Booking Received!</Heading>
           <Text style={text}>Hi {touristName},</Text>
@@ -56,7 +67,7 @@ const main = {
 const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
-  padding: '0 0 48px', // Removed top padding to allow edge-to-edge image
+  padding: '0 0 48px',
   marginBottom: '64px',
   width: '100%',
   maxWidth: '600px',
@@ -66,9 +77,9 @@ const container = {
 
 const heroImage = {
   width: '100%',
-  height: 'auto',
-  maxHeight: '300px',
+  height: '250px',
   objectFit: 'cover' as const,
+  display: 'block',
 };
 
 const h1 = {
