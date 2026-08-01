@@ -101,7 +101,8 @@ const text = {
 const detailsSection = {
   background: '#f4f4f5',
   padding: '16px 24px',
-  margin: '24px',
+  margin: '24px auto',
+  width: '85%',
   borderRadius: '8px',
 };
 
