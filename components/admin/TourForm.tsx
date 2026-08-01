@@ -415,21 +415,6 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   </select>
                 </div>
 
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
-                    <Percent className="w-4 h-4 text-rose-500" />
-                    Pricing Model
-                  </label>
-                  <select 
-                    name="pricing_model"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
-                    defaultValue={initialData?.pricing_model || "per_person"}
-                    required
-                  >
-                    <option value="per_person">Per Person</option>
-                    <option value="per_day">Per Day</option>
-                  </select>
-                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -637,6 +622,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     defaultValue={initialData?.pricing_model || "per_person"}
                   >
                     <option value="per_person">Per Person</option>
+                    <option value="per_day">Per Day</option>
                     <option value="flat_rate">Flat Rate (Per Group)</option>
                   </select>
                 </div>
