@@ -23,9 +23,8 @@ export const BookingReceiptEmail: React.FC<BookingReceiptEmailProps> = ({
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Booking Confirmed!</Heading>
-          <Text style={text}>Hi {touristName},</Text>
           <Text style={text}>
-            Your payment is successful and your reservation is officially confirmed. Please present the QR code below to your guide upon arrival.
+            Hi {touristName}, your reservation is confirmed! Please present this QR code to your guide upon arrival.
           </Text>
           
           <Section style={detailsSection}>
@@ -58,31 +57,31 @@ const main = {
 const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
-  padding: '20px 0 48px',
-  marginBottom: '64px',
+  padding: '12px 0 24px',
+  marginBottom: '24px',
 };
 
 const h1 = {
   color: '#333',
-  fontSize: '24px',
+  fontSize: '22px',
   fontWeight: '600',
-  lineHeight: '40px',
-  margin: '0 0 20px',
+  lineHeight: '32px',
+  margin: '0 0 12px',
   textAlign: 'center' as const,
 };
 
 const text = {
   color: '#525f7f',
-  fontSize: '16px',
-  lineHeight: '24px',
-  margin: '16px 24px',
+  fontSize: '15px',
+  lineHeight: '22px',
+  margin: '12px 24px',
   textAlign: 'center' as const,
 };
 
 const detailsSection = {
   background: '#f4f4f5',
-  padding: '16px 24px',
-  margin: '24px',
+  padding: '12px 24px',
+  margin: '16px 24px',
   borderRadius: '8px',
 };
 
