@@ -4,6 +4,7 @@ import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { validatePromoCode } from '@/app/actions/promo'
 import { eachDayOfInterval, parseISO, format } from 'date-fns'
 import { sendPendingEmail, sendReceiptEmail } from '@/app/actions/email'
+import { revalidatePath } from 'next/cache'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -102,6 +103,9 @@ export async function POST(req: Request) {
       .single()
 
     if (dbError) throw dbError;
+
+    // Instantly revalidate the admin dashboard so the new booking shows up
+    revalidatePath('/admin', 'layout');
 
     // If No Card Needed or Pay Later, skip Stripe entirely
     const actualPaymentStrategy = finalTotalUsd === 0 ? 'no_card' : paymentStrategy;
