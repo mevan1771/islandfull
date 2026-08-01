@@ -6,7 +6,7 @@ import { updateStatus, archiveBooking } from "@/app/actions/bookings"
 
 export default function BookingsClient({ initialBookings }: { initialBookings: any[] }) {
   const [bookings, setBookings] = useState(initialBookings)
-  const [filter, setFilter] = useState<'default' | 'all' | 'active' | 'pending' | 'cancelled'>('default')
+  const [filter, setFilter] = useState<'default' | 'all' | 'active' | 'pending' | 'cancelled'>('all')
   
   const handleArchive = async (id: string) => {
     if (window.confirm("Are you sure you want to archive this booking? It will be hidden from the dashboard but kept for financial records.")) {
@@ -46,9 +46,9 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
   }
 
   const filteredBookings = bookings.filter(b => {
-    if (filter === 'default') return b.status === 'pending' || b.status === 'confirmed' || b.status === 'completed';
+    if (filter === 'default') return b.status === 'confirmed' || b.status.toLowerCase().includes('pending') || b.status === 'completed';
     if (filter === 'active') return b.status === 'confirmed' || b.status === 'completed';
-    if (filter === 'pending') return b.status === 'pending';
+    if (filter === 'pending') return b.status.toLowerCase().includes('pending');
     if (filter === 'cancelled') return b.status === 'cancelled';
     return true; // all
   });
@@ -76,6 +76,12 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
 
       <div className="flex gap-2 mb-6">
         <button 
+          onClick={() => setFilter('all')}
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${filter === 'all' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`}
+        >
+          All
+        </button>
+        <button 
           onClick={() => setFilter('default')}
           className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${filter === 'default' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`}
         >
@@ -99,11 +105,6 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
         >
           Cancelled
         </button>
-        <button 
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${filter === 'all' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`}
-        >
-          All
         </button>
       </div>
 
