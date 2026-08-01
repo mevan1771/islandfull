@@ -16,17 +16,19 @@ interface SendPendingEmailProps {
 
 export async function sendPendingEmail(props: SendPendingEmailProps) {
   try {
+    const htmlString = await render(React.createElement(BookingPendingEmail, {
+      touristName: props.touristName,
+      activityTitle: props.activityTitle,
+      date: props.date,
+      guests: props.guests,
+    }));
+
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
-      html: render(React.createElement(BookingPendingEmail, {
-        touristName: props.touristName,
-        activityTitle: props.activityTitle,
-        date: props.date,
-        guests: props.guests,
-      })),
+      html: htmlString,
     });
 
     if (error) {
@@ -52,18 +54,20 @@ interface SendReceiptEmailProps {
 
 export async function sendReceiptEmail(props: SendReceiptEmailProps) {
   try {
+    const htmlString = await render(React.createElement(BookingReceiptEmail, {
+      touristName: props.touristName,
+      activityTitle: props.activityTitle,
+      date: props.date,
+      guests: props.guests,
+      qrCodeDataUri: props.qrCodeDataUri,
+    }));
+
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,
-      html: render(React.createElement(BookingReceiptEmail, {
-        touristName: props.touristName,
-        activityTitle: props.activityTitle,
-        date: props.date,
-        guests: props.guests,
-        qrCodeDataUri: props.qrCodeDataUri,
-      })),
+      html: htmlString,
     });
 
     if (error) {
