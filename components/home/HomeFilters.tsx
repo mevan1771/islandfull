@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2 } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -223,9 +223,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       </div>
 
       {/* Activity Grid Header / Filters */}
-      <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-16 mb-4 md:mb-6 text-zinc-900">
-        <div className="flex flex-col items-start md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex w-full md:w-auto overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 px-4 -mx-4 md:px-0 md:mx-0 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-16 mb-4 md:mb-6 text-zinc-900 overflow-hidden md:overflow-visible">
+        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex w-[calc(100%+2rem)] md:w-auto -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
@@ -249,8 +249,28 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 </button>
               );
             })}
+            {/* Spacer so the last pill isn't hidden behind the sticky gradient on mobile */}
+            <div className="w-12 flex-shrink-0 md:hidden" />
           </div>
-          <div className="flex items-center justify-end w-full md:w-auto self-end flex-shrink-0">
+
+          {/* Mobile Sort Icon - Absolutely positioned on the right */}
+          <div className="md:hidden absolute right-0 top-0 bottom-2 w-20 bg-gradient-to-l from-zinc-50 via-zinc-50 to-transparent pointer-events-none flex items-center justify-end">
+            <div className="pointer-events-auto relative flex items-center justify-center w-[36px] h-[36px] rounded-full bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer -mr-2">
+              <SlidersHorizontal className="w-4 h-4" />
+              <select 
+                value={currentSort}
+                onChange={handleSortChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              >
+                <option value="">Recommended</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Desktop Sort Dropdown */}
+          <div className="hidden md:flex items-center justify-end w-full md:w-auto self-end flex-shrink-0 ml-auto">
             <div className="flex items-center gap-1.5 md:px-4 md:py-2 md:rounded-full md:bg-zinc-50 md:hover:bg-zinc-100 text-xs md:text-sm font-semibold text-gray-500 md:text-zinc-600 transition-colors cursor-pointer">
               <span>Sort by:</span>
               <select 
