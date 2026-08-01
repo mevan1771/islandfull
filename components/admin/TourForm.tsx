@@ -633,7 +633,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   </label>
                   <select 
                     name="pricing_model"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white appearance-none"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.pricing_model || "per_person"}
                   >
                     <option value="per_person">Per Person</option>
