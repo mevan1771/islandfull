@@ -105,7 +105,6 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
         >
           Cancelled
         </button>
-        </button>
       </div>
 
       <div className="bg-white rounded-3xl shadow-sm border border-zinc-200 overflow-hidden">
