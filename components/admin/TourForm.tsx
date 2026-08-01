@@ -11,6 +11,7 @@ import { DayPicker } from "react-day-picker"
 import { format, parse } from "date-fns"
 import "react-day-picker/dist/style.css"
 import CreatableSelect from "react-select/creatable"
+import { ImageCropperModal } from "./ImageCropperModal"
 
 const TOTAL_STEPS = 4;
 
@@ -88,6 +89,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [isUploadingGallery, setIsUploadingGallery] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const [isGalleryDragOver, setIsGalleryDragOver] = useState(false)
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null)
 
   // Tiered Pricing State (array of {guests, price} for easy rendering)
   const [tiers, setTiers] = useState<{guests: string, price: string}[]>(() => {
@@ -174,6 +176,20 @@ export default function TourForm({ categories, initialData }: { categories: any[
       return;
     }
 
+    if (file.type.startsWith('video/')) {
+      // Direct upload for video files
+      await uploadCroppedImage(file)
+    } else {
+      // Use FileReader to get base64 string for cropper
+      const reader = new FileReader()
+      reader.onload = () => {
+        setCropImageSrc(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  async function uploadCroppedImage(file: File | Blob) {
     setIsUploadingImage(true);
     setError(null);
 
@@ -184,6 +200,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
     
     if (result.success && result.secure_url) {
       setPreviewImage(result.secure_url);
+      setCropImageSrc(null); // Close modal on success
     } else {
       alert(result.error || "Failed to upload image");
     }
@@ -1086,6 +1103,15 @@ export default function TourForm({ categories, initialData }: { categories: any[
             </button>
           )}
         </div>
+
+        {cropImageSrc && (
+          <ImageCropperModal
+            imageSrc={cropImageSrc}
+            isUploading={isUploadingImage}
+            onCropComplete={uploadCroppedImage}
+            onCancel={() => setCropImageSrc(null)}
+          />
+        )}
       </form>
     </div>
   )
