@@ -12,6 +12,7 @@ interface SendPendingEmailProps {
   activityTitle: string;
   date: string;
   guests: number;
+  imageUrl?: string;
 }
 
 export async function sendPendingEmail(props: SendPendingEmailProps) {
@@ -21,6 +22,7 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
       activityTitle: props.activityTitle,
       date: props.date,
       guests: props.guests,
+      imageUrl: props.imageUrl,
     }));
 
     const { data, error } = await resend.emails.send({

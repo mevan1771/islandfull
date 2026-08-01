@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     // 0. Fetch Commission Rate and Capacity
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('commission_rate, max_capacity')
+      .select('commission_rate, max_capacity, image_url')
       .eq('id', activityId)
       .single()
       
@@ -126,7 +126,8 @@ export async function POST(req: Request) {
             touristName,
             activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
             date,
-            guests
+            guests,
+            imageUrl: activity?.image_url
           });
         } catch (error) {
           console.error("[RESEND_EMAIL_ERROR]", error);

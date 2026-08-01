@@ -59,6 +59,8 @@ const container = {
   margin: '0 auto',
   padding: '12px 0 24px',
   marginBottom: '24px',
+  width: '100%',
+  maxWidth: '600px',
 };
 
 const h1 = {

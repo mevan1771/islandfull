@@ -6,13 +6,15 @@ interface BookingPendingEmailProps {
   activityTitle: string;
   date: string;
   guests: number;
+  imageUrl?: string;
 }
 
 export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
   touristName,
   activityTitle,
   date,
-  guests
+  guests,
+  imageUrl
 }) => {
   return (
     <Html>
@@ -20,6 +22,9 @@ export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
       <Preview>Your booking request for {activityTitle} is received!</Preview>
       <Body style={main}>
         <Container style={container}>
+          {imageUrl && (
+            <img src={imageUrl} alt={activityTitle} style={heroImage} />
+          )}
           <Heading style={h1}>Booking Received!</Heading>
           <Text style={text}>Hi {touristName},</Text>
           <Text style={text}>
@@ -51,8 +56,19 @@ const main = {
 const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
-  padding: '20px 0 48px',
+  padding: '0 0 48px', // Removed top padding to allow edge-to-edge image
   marginBottom: '64px',
+  width: '100%',
+  maxWidth: '600px',
+  borderRadius: '8px',
+  overflow: 'hidden',
+};
+
+const heroImage = {
+  width: '100%',
+  height: 'auto',
+  maxHeight: '300px',
+  objectFit: 'cover' as const,
 };
 
 const h1 = {
@@ -60,7 +76,7 @@ const h1 = {
   fontSize: '24px',
   fontWeight: '600',
   lineHeight: '40px',
-  margin: '0 0 20px',
+  margin: '24px 0 20px',
   textAlign: 'center' as const,
 };
 
