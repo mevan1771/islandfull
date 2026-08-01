@@ -53,13 +53,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     if (params.category && params.category !== 'saved') {
       query = query.eq('categories.slug', params.category);
     }
-    // Always prioritize featured tours
+    // Always prioritize featured tours, then sort by newest first
     query = query.order('is_featured', { ascending: false, nullsFirst: false });
 
     if (params.sort === 'price_asc') {
       query = query.order('price_usd', { ascending: true });
     } else if (params.sort === 'price_desc') {
       query = query.order('price_usd', { ascending: false });
+    } else {
+      // Default sort for maximum visibility of new tours
+      query = query.order('created_at', { ascending: false });
     }
 
     // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
