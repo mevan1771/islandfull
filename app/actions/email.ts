@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { BookingPendingEmail } from '@/components/emails/BookingPendingEmail';
 import { BookingReceiptEmail } from '@/components/emails/BookingReceiptEmail';
 import React from 'react';
+import { renderAsync } from '@react-email/components';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -20,12 +21,12 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
-      react: React.createElement(BookingPendingEmail, {
+      html: await renderAsync(React.createElement(BookingPendingEmail, {
         touristName: props.touristName,
         activityTitle: props.activityTitle,
         date: props.date,
         guests: props.guests,
-      }),
+      })),
     });
 
     if (error) {
@@ -56,13 +57,13 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,
-      react: React.createElement(BookingReceiptEmail, {
+      html: await renderAsync(React.createElement(BookingReceiptEmail, {
         touristName: props.touristName,
         activityTitle: props.activityTitle,
         date: props.date,
         guests: props.guests,
         qrCodeDataUri: props.qrCodeDataUri,
-      }),
+      })),
     });
 
     if (error) {
