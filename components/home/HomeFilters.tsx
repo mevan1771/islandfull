@@ -214,10 +214,28 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               </div>
             </div>
 
-            <button type="submit" className="w-full md:w-auto h-[50px] md:h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-10 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
-              <Search className="w-5 h-5" />
-              Search
-            </button>
+            {/* Actions: Filter & Search */}
+            <div className="w-full md:w-auto flex items-center gap-3">
+              {/* Filter / Sort Button */}
+              <div className="relative w-[50px] md:w-[60px] h-[50px] md:h-[60px] flex-shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer hover:bg-zinc-50 transition-colors">
+                <SlidersHorizontal className="w-5 h-5 md:w-6 md:h-6" />
+                <select 
+                  value={currentSort}
+                  onChange={handleSortChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                >
+                  <option value="">Recommended</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                </select>
+              </div>
+
+              {/* Search Button */}
+              <button type="submit" className="flex-1 md:flex-none h-[50px] md:h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-8 md:px-10 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
+                <Search className="w-5 h-5" />
+                Search
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -249,28 +267,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 </button>
               );
             })}
-          </div>
-
-          {/* Desktop Sort Dropdown */}
-          <div className="hidden md:flex items-center justify-end w-full md:w-auto self-end flex-shrink-0 ml-auto">
-            <div className="flex items-center gap-1.5 md:px-4 md:py-2 md:rounded-full md:bg-zinc-50 md:hover:bg-zinc-100 text-xs md:text-sm font-semibold text-gray-500 md:text-zinc-600 transition-colors cursor-pointer">
-              <span>Sort by:</span>
-              <select 
-                value={currentSort}
-                onChange={handleSortChange}
-                className="bg-transparent outline-none cursor-pointer appearance-none pr-4 text-gray-900 md:text-zinc-600 font-bold md:font-semibold"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right center',
-                  backgroundSize: '12px'
-                }}
-              >
-                <option value="">Recommended</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
