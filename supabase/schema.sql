@@ -70,3 +70,13 @@ ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow public read access to categories" ON categories FOR SELECT USING (true);
 CREATE POLICY "Allow public read access to activities" ON activities FOR SELECT USING (true);
+
+-- Global Settings Table
+CREATE TABLE global_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE global_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read access to global_settings" ON global_settings FOR SELECT USING (true);

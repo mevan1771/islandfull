@@ -134,10 +134,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     console.error("Failed to fetch featured tours:", e);
   }
 
+  let introSlide = null;
+  try {
+    const { data } = await supabase
+      .from('global_settings')
+      .select('value')
+      .eq('key', 'hero_intro_slide')
+      .single();
+    if (data) introSlide = data.value;
+  } catch (e) {
+    console.error("Failed to fetch intro slide:", e);
+  }
+
   return (
     <div className="pb-24">
       {/* Hero Section */}
-      <HeroCarousel tours={featuredTours} />
+      <HeroCarousel tours={featuredTours} introSlide={introSlide} />
 
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>

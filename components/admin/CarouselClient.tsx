@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { updateCarouselOrder } from "@/app/actions/carousel"
+import toast from "react-hot-toast"
 import { Save, Loader2, Plus, Trash2 } from "lucide-react"
 
 export function CarouselClient({ initialTours, allTours }: { initialTours: any[], allTours: any[] }) {
@@ -73,11 +74,11 @@ export function CarouselClient({ initialTours, allTours }: { initialTours: any[]
 
     const res = await updateCarouselOrder(updates)
     if (res.success) {
-      alert("Order saved successfully!")
+      toast.success("Carousel order saved successfully!")
       // update state to have clean 1,2,3 order
       setTours(sorted.map((t, idx) => ({...t, featured_order: idx + 1})))
     } else {
-      alert("Failed to save: " + res.error)
+      toast.error("Failed to save: " + res.error)
     }
     setSaving(false)
   }

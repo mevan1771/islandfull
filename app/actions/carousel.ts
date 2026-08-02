@@ -1,6 +1,6 @@
 "use server"
 
-import { supabase } from "@/lib/supabase"
+import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 
 export async function updateCarouselOrder(
@@ -8,7 +8,7 @@ export async function updateCarouselOrder(
 ) {
   try {
     for (const update of updates) {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('activities')
         .update({ 
           featured_order: update.featured_order,

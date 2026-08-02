@@ -15,20 +15,21 @@ interface Tour {
   isStatic?: boolean
 }
 
-const staticIntroSlide: Tour = {
-  id: 'static-intro',
-  title: 'Your Journey Starts Before You Go',
-  subtitle: 'Inspiration, planning, and booking—all in one place.',
-  slug: '',
-  cover_image_url: 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-  isStatic: true
-}
-
-export function HeroCarousel({ tours }: { tours: Tour[] }) {
+export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Merge static intro slide with fetched tours
-  const carouselSlides = [staticIntroSlide, ...tours]
+  // Merge dynamic intro slide with fetched tours
+  const carouselSlides = [
+    {
+      id: 'static-intro',
+      title: introSlide?.title || 'Your Journey Starts Before You Go',
+      subtitle: introSlide?.subtitle || 'Inspiration, planning, and booking—all in one place.',
+      slug: '',
+      cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      isStatic: true
+    },
+    ...tours
+  ]
 
   useEffect(() => {
     if (carouselSlides.length <= 1) return;

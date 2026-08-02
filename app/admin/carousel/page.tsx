@@ -1,5 +1,6 @@
-import { supabase } from "@/lib/supabase"
+import { supabase, supabaseAdmin } from "@/lib/supabase"
 import { CarouselClient } from "@/components/admin/CarouselClient"
+import { IntroSlideConfig } from "@/components/admin/IntroSlideConfig"
 import Link from "next/link"
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,12 @@ export default async function CarouselManagementPage() {
     .select('id, title, cover_image_url')
     .eq('status', 'published')
     .order('title', { ascending: true })
+
+  const { data: introSetting } = await supabaseAdmin
+    .from('global_settings')
+    .select('value')
+    .eq('key', 'hero_intro_slide')
+    .single()
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
@@ -42,6 +49,7 @@ export default async function CarouselManagementPage() {
         </div>
 
         <div className="space-y-6">
+          <IntroSlideConfig initialData={introSetting?.value || null} />
           <CarouselClient initialTours={featured || []} allTours={allTours || []} />
         </div>
         

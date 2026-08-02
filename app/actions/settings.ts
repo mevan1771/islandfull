@@ -71,3 +71,25 @@ export async function updateSettings(use_live_rate: boolean, manual_usd_lkr_rate
     return { success: false, error: err.message };
   }
 }
+
+export async function updateGlobalSetting(key: string, value: any) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('global_settings')
+      .upsert({ 
+        key,
+        value,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' })
+      
+    if (error) throw error
+    
+    // Revalidate paths that might use this setting
+    revalidatePath('/', 'layout')
+    
+    return { success: true }
+  } catch (error: any) {
+    console.error(`Failed to update global setting [${key}]:`, error)
+    return { success: false, error: error.message || "Failed to save settings" }
+  }
+}
