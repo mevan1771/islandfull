@@ -19,6 +19,7 @@ interface ActivityCardProps {
   reviewCount?: number
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   maxGuests?: number
+  priceSuffix?: string
 }
 
 export function ActivityCard({
@@ -34,6 +35,7 @@ export function ActivityCard({
   reviewCount = 0,
   pricingModel = 'per_person',
   maxGuests,
+  priceSuffix,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -148,7 +150,7 @@ export function ActivityCard({
                   <>
                     <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
                     <span className="text-[10px] sm:text-xs font-normal text-gray-500">
-                      {pricingModel === 'flat_rate' ? (maxGuests ? `total (Max ${maxGuests})` : 'total') : pricingModel === 'per_day' ? '/ day' : '/ person'}
+                      {priceSuffix ? ` ${priceSuffix}` : ''}
                     </span>
                   </>
                 )}

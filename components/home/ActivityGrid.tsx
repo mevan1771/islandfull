@@ -55,6 +55,7 @@ export function ActivityGrid({ activities, currentCategory }: ActivityGridProps)
           reviewCount={act.reviewCount}
           pricingModel={act.pricingModel}
           maxGuests={act.maxGuests}
+          priceSuffix={act.price_suffix}
         />
       ))}
     </div>
