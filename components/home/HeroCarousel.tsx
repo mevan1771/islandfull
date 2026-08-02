@@ -19,7 +19,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   const [currentIndex, setCurrentIndex] = useState(0)
 
   // Merge dynamic intro slide with fetched tours
-  const carouselSlides = [
+  const carouselSlides: Tour[] = [
     {
       id: 'static-intro',
       title: introSlide?.title || 'Your Journey Starts Before You Go',
