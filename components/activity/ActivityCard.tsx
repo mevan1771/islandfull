@@ -140,15 +140,15 @@ export function ActivityCard({
           </div>
 
           <div className="flex flex-col mt-auto pt-1.5">
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-baseline gap-0.5">
+            <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
+              <div className="flex items-baseline gap-0.5 flex-shrink-0">
                 {priceUsd === 0 ? (
                   <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>
                     <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
                     <span className="text-[10px] sm:text-xs font-normal text-gray-500">
-                      / {pricingModel === 'flat_rate' ? (maxGuests ? `group (Max ${maxGuests})` : 'group') : pricingModel === 'per_day' ? 'day' : 'person'}
+                      {pricingModel === 'flat_rate' ? (maxGuests ? `total (Max ${maxGuests})` : 'total') : pricingModel === 'per_day' ? '/ day' : '/ person'}
                     </span>
                   </>
                 )}
