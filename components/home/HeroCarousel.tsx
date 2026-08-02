@@ -33,12 +33,14 @@ export function HeroCarousel({ tours }: { tours: Tour[] }) {
   useEffect(() => {
     if (carouselSlides.length <= 1) return;
     
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselSlides.length)
-    }, 6000); // 6 seconds per slide
+    const waitTime = currentIndex === 0 ? 2000 : 6000;
     
-    return () => clearInterval(interval)
-  }, [carouselSlides.length])
+    const timeout = setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselSlides.length)
+    }, waitTime); 
+    
+    return () => clearTimeout(timeout)
+  }, [carouselSlides.length, currentIndex])
 
   return (
     <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50vh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
