@@ -39,6 +39,7 @@ export function HeroCarousel({ tours }: { tours: Tour[] }) {
             priority={true}
             quality={90}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+            unoptimized={true}
           />
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent"></div>
         </div>
@@ -74,6 +75,7 @@ export function HeroCarousel({ tours }: { tours: Tour[] }) {
             priority={index === 0}
             quality={90}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+            unoptimized={true}
           />
           
           {/* Slide-specific Legibility Mask */}
