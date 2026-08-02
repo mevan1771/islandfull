@@ -102,11 +102,7 @@ export function ActivityCard({
         
         {/* Content Details */}
         <div className="flex flex-col flex-1 pb-1 mt-1.5 px-1 sm:px-0">
-          {pricingModel === 'flat_rate' && (
-            <span className="text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded w-fit mb-1 border border-amber-100">
-              👥 Private Booking
-            </span>
-          )}
+
           <h3 className="text-xs sm:text-sm md:text-base font-semibold text-zinc-900 mb-1 leading-tight w-full line-clamp-2 group-hover:text-rose-500 transition-colors">
             {title}
           </h3>
