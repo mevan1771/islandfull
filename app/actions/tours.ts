@@ -135,7 +135,10 @@ export async function createTour(formData: FormData) {
       is_hidden_gem,
       blackout_dates,
       status,
-      min_notice_days
+      min_notice_days,
+      approx_lat,
+      approx_lng,
+      private_meeting_instructions
     }).select('id').single()
 
     if (error || !activity) {
