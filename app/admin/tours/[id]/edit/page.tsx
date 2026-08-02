@@ -3,6 +3,7 @@ import TourForm from "@/components/admin/TourForm"
 import { notFound } from "next/navigation"
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export default async function EditTourPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

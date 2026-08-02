@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase"
 import TourForm from "@/components/admin/TourForm"
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export default async function NewTourPage() {
   const { data: categories } = await supabase
