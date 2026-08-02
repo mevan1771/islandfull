@@ -32,6 +32,12 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
 
+  const [optimisticCategory, setOptimisticCategory] = useState(currentCategory)
+
+  useEffect(() => {
+    setOptimisticCategory(currentCategory)
+  }, [currentCategory])
+
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
   const [travelers, setTravelers] = useState("")
@@ -85,6 +91,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   }
 
   const handleCategoryClick = (categoryId: string) => {
+    setOptimisticCategory(categoryId) // Optimistic UI update
     const params = new URLSearchParams(searchParams.toString())
     
     if (categoryId !== "all") params.set("category", categoryId)
@@ -262,15 +269,15 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${
                     cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-5 md:py-2.5 text-sm font-medium"
                   } ${
-                    currentCategory === cat.id 
+                    optimisticCategory === cat.id 
                       ? "bg-black text-white border-black shadow-md" 
                       : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900 hover:bg-zinc-100"
                   }`}
                 >
                   {Icon && <Icon className={`w-4 h-4 ${
                     cat.id === 'saved' 
-                      ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
-                      : (currentCategory === cat.id ? "fill-white" : "")
+                      ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
+                      : (optimisticCategory === cat.id ? "fill-white" : "")
                   }`} />}
                   {cat.name}
                 </button>
