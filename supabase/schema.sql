@@ -44,6 +44,8 @@ CREATE TABLE activities (
   status TEXT DEFAULT 'published' CHECK (status IN ('published', 'draft')),
   booking_type TEXT DEFAULT 'single_day' CHECK (booking_type IN ('single_day', 'multi_day')),
   pricing_model TEXT DEFAULT 'per_person' CHECK (pricing_model IN ('per_person', 'per_day', 'flat_rate')),
+  is_featured BOOLEAN DEFAULT false,
+  featured_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

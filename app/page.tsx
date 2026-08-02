@@ -125,8 +125,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       .from('activities')
       .select('*')
       .eq('status', 'published')
-      .order('is_featured', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
+      .eq('is_featured', true)
+      .order('featured_order', { ascending: true })
       .limit(5);
     
     if (data) featuredTours = data;
