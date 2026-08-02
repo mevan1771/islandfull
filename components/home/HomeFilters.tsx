@@ -267,7 +267,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
                   className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${
-                    cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-5 md:py-2.5 text-sm font-medium"
+                    cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
                   } ${
                     optimisticCategory === cat.id 
                       ? "bg-black text-white border-black shadow-md" 
