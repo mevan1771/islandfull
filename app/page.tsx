@@ -9,8 +9,6 @@ import { HeroCarousel } from "@/components/home/HeroCarousel"
 import Image from "next/image"
 import Link from "next/link"
 
-export const revalidate = 60;
-
 // Mock data fallback if DB fails
 const MOCK_ACTIVITIES = [
   {
