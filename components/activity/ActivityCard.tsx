@@ -137,7 +137,7 @@ export function ActivityCard({
             <span className="truncate">{displayLocation}</span>
           </div>
 
-          <div className="flex flex-col mt-2">
+          <div className="flex flex-col mt-auto pt-0">
             <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
               <div className="flex items-baseline gap-0.5 flex-shrink-0">
                 {priceUsd === 0 ? (
