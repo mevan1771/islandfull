@@ -107,7 +107,7 @@ export function ActivityCard({
             {title}
           </h3>
           
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs md:text-[13px] text-gray-500 truncate mb-1">
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-500 truncate mb-1">
             {(rating || isHiddenGem || reviewCount === 0) && (
               <div className="flex items-center gap-0.5 flex-shrink-0">
                 {isHiddenGem ? (
@@ -137,22 +137,22 @@ export function ActivityCard({
             <span className="truncate">{displayLocation}</span>
           </div>
 
-          <div className="flex flex-col mt-auto pt-0">
+          <div className="flex flex-col mt-auto pt-1.5">
             <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
               <div className="flex items-baseline gap-0.5 flex-shrink-0">
                 {priceUsd === 0 ? (
-                  <span className="text-xs sm:text-sm md:text-base font-bold text-emerald-600">Free</span>
+                  <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>
-                    <span className="text-sm sm:text-base md:text-[17px] font-bold text-gray-900">${priceUsd}</span>
-                    <span className="text-[10px] sm:text-xs md:text-[13px] font-normal text-gray-500">
+                    <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
+                    <span className="text-[10px] sm:text-xs font-normal text-gray-500">
                       {priceSuffix ? ` ${priceSuffix}` : ''}
                     </span>
                   </>
                 )}
               </div>
-              <span className="text-gray-300 text-[10px] sm:text-xs md:text-[13px] flex-shrink-0">•</span>
-              <span className="text-[10px] sm:text-xs md:text-[13px] font-normal text-gray-500 truncate">{duration}</span>
+              <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
+              <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
             </div>
           </div>
         </div>
