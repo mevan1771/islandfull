@@ -1,5 +1,7 @@
 "use server"
 
+export const maxDuration = 60;
+
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
