@@ -34,7 +34,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   useEffect(() => {
     if (carouselSlides.length <= 1) return;
     
-    const waitTime = currentIndex === 0 ? 2000 : 6000;
+    const waitTime = currentIndex === 0 ? 5000 : 6000;
     
     const timeout = setTimeout(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselSlides.length)
