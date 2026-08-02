@@ -51,7 +51,7 @@ export function CarouselClient({ initialTours, allTours }: { initialTours: any[]
     const currentIds = new Set(tours.map(t => t.id))
     const removedIds = initialTours.filter(t => !currentIds.has(t.id)).map(t => t.id)
     
-    const updates = []
+    const updates: { id: string; is_featured: boolean; featured_order: number }[] = []
     
     // Add current active ones
     sorted.forEach((tour, index) => {
