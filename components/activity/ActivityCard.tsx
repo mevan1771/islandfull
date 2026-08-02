@@ -71,7 +71,7 @@ export function ActivityCard({
   }
 
   return (
-    <Link href={`/activity/${slug}`} className="block group h-full">
+    <Link href={`/activity/${slug}`} prefetch={true} className="block group h-full">
       <div className="flex flex-col gap-2 h-full">
         {/* Image / Video Container */}
         <div className="relative aspect-[4/3] sm:aspect-[3/4] w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100">

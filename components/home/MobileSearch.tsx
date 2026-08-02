@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -10,6 +10,7 @@ import { searchLocationsAndTags } from "@/app/actions/search"
 export function MobileSearch() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
   
   const [currentVertical, setCurrentVertical] = useState<'tour' | 'event' | 'transport'>(
     (searchParams.get("vertical") as any) || 'tour'
@@ -51,7 +52,9 @@ export function MobileSearch() {
     setCurrentVertical(vertical)
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
-    router.push(`/?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -71,7 +74,9 @@ export function MobileSearch() {
     const sortVal = searchParams.get("sort")
     if (sortVal) params.set("sort", sortVal)
     
-    router.push(`/?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   return (

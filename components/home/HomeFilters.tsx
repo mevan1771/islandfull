@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, FormEvent, useEffect, useRef } from "react"
+import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
 import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -25,6 +25,7 @@ const CATEGORIES: CategoryType[] = [
 export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
 
   const currentVertical = searchParams.get("vertical") || "tour"
   const currentCategory = searchParams.get("category") || "all"
@@ -78,7 +79,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     if (location) params.set("location", location)
     else params.delete("location")
     
-    router.push(`/?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   const handleCategoryClick = (categoryId: string) => {
@@ -87,24 +90,30 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
     
-    router.push(`/?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   const handleVerticalClick = (vertical: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category") // Reset category when switching vertical
-    router.push(`/?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString())
-    const sortVal = e.target.value
-    
-    if (sortVal) params.set("sort", sortVal)
-    else params.delete("sort")
-    
-    router.push(`/?${params.toString()}`, { scroll: false })
+    if (e.target.value) {
+      params.set("sort", e.target.value)
+    } else {
+      params.delete("sort")
+    }
+    startTransition(() => {
+      router.push(`/?${params.toString()}`, { scroll: false })
+    })
   }
 
   return (
