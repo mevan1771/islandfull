@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags } from "@/app/actions/search"
@@ -100,7 +100,7 @@ export function MobileSearch() {
             onClick={() => handleVerticalClick('transport')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
           >
-            <Users className="w-3.5 h-3.5" /> Transport
+            <Bike className="w-3.5 h-3.5" /> Transport
           </button>
         </div>
 

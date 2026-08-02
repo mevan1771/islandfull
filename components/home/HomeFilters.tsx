@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -146,7 +146,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               onClick={() => handleVerticalClick('transport')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
-              <Users className="w-4 h-4" /> Transport
+              <Bike className="w-4 h-4" /> Transport
             </button>
           </div>
 
@@ -257,7 +257,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       </div>
 
       {/* Activity Grid Header / Filters */}
-      <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-16 mb-4 md:mb-6 text-zinc-900 overflow-hidden md:overflow-visible">
+      <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900 overflow-hidden md:overflow-visible">
         <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex w-[calc(100%+2rem)] md:w-auto -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {CATEGORIES.map((cat) => {
