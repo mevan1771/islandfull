@@ -12,6 +12,7 @@ import { format, parse } from "date-fns"
 import "react-day-picker/dist/style.css"
 import CreatableSelect from "react-select/creatable"
 import { ImageCropperModal } from "./ImageCropperModal"
+import imageCompression from 'browser-image-compression'
 
 const TOTAL_STEPS = 4;
 
@@ -199,10 +200,17 @@ export default function TourForm({ categories, initialData }: { categories: any[
     setError(null);
 
     try {
+      const compressionOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+
       if (useOriginalForCard && originalCoverFile) {
         // Upload the original uncropped file for the card
+        const compressedOriginal = await imageCompression(originalCoverFile as File, compressionOptions);
         const originalData = new FormData();
-        originalData.append("file", originalCoverFile);
+        originalData.append("file", compressedOriginal);
         const originalResult = await uploadToCloudinary(originalData);
         if (originalResult.success && originalResult.secure_url) {
           setCardImage(originalResult.secure_url);
@@ -212,8 +220,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
       }
 
       // Upload the cropped file for the banner
+      const compressedFile = await imageCompression(file as File, compressionOptions);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       const result = await uploadToCloudinary(formData);
       
       if (result.success && result.secure_url) {
@@ -242,11 +251,14 @@ export default function TourForm({ categories, initialData }: { categories: any[
     setError(null);
 
     const uploadPromises = Array.from(files).map(async (file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error(`File ${file.name} exceeds 5MB limit`);
-      }
+      const compressionOptions = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, compressionOptions);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       const result = await uploadToCloudinary(formData);
       if (!result.success || !result.secure_url) {
         throw new Error(result.error || `Failed to upload ${file.name}`);
