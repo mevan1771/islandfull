@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Html, Head, Preview, Body, Container, Section, Text, Heading, Hr } from '@react-email/components';
+import { Html, Head, Preview, Body, Container, Section, Text, Heading, Hr, Button } from '@react-email/components';
 
 interface BookingPendingEmailProps {
   touristName: string;
@@ -7,6 +7,7 @@ interface BookingPendingEmailProps {
   date: string;
   guests: number;
   imageUrl?: string;
+  paymentUrl?: string;
 }
 
 export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
@@ -14,7 +15,8 @@ export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
   activityTitle,
   date,
   guests,
-  imageUrl
+  imageUrl,
+  paymentUrl
 }) => {
   const isVideo = imageUrl?.match(/\.(mp4|webm|mov)$/i);
   const finalImageUrl = isVideo 
@@ -39,7 +41,7 @@ export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
           <Heading style={h1}>Booking Received!</Heading>
           <Text style={text}>Hi {touristName},</Text>
           <Text style={text}>
-            Your reservation request is received! Our team will review and send you a payment invoice shortly.
+            Your reservation is held! Please complete your payment below to confirm your spot and receive your QR ticket.
           </Text>
           
           <Section style={detailsSection}>
@@ -47,6 +49,14 @@ export const BookingPendingEmail: React.FC<BookingPendingEmailProps> = ({
             <Text style={detailsText}><strong>Date:</strong> {date}</Text>
             <Text style={detailsText}><strong>Guests:</strong> {guests} Pax</Text>
           </Section>
+
+          {paymentUrl && (
+            <Section style={buttonContainer}>
+              <Button style={button} href={paymentUrl}>
+                Complete Your Payment & Confirm Booking
+              </Button>
+            </Section>
+          )}
 
           <Hr style={hr} />
           
@@ -123,6 +133,23 @@ const footer = {
   fontSize: '12px',
   lineHeight: '16px',
   margin: '16px 24px',
+};
+
+const buttonContainer = {
+  textAlign: 'center' as const,
+  margin: '32px 0',
+};
+
+const button = {
+  backgroundColor: '#f43f5e',
+  borderRadius: '8px',
+  color: '#fff',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'inline-block',
+  padding: '16px 32px',
 };
 
 export default BookingPendingEmail;

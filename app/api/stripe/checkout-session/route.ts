@@ -107,37 +107,17 @@ export async function POST(req: Request) {
     // Instantly revalidate the admin dashboard so the new booking shows up
     revalidatePath('/admin', 'layout');
 
-    // If No Card Needed or Pay Later, skip Stripe entirely
-    const actualPaymentStrategy = finalTotalUsd === 0 ? 'no_card' : paymentStrategy;
-
-    if (['no_card', 'pay_later'].includes(actualPaymentStrategy)) {
-      if (finalTotalUsd === 0) {
-        // Mark totally free booking as confirmed instantly
-        await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
-        
-        // Auto-block the date if applicable
-        try {
-          const { autoBlockDate } = await import('@/app/actions/tours');
-          await autoBlockDate(activityId, date);
-        } catch (e) {
-          console.error("Failed to auto-block date for free booking:", e);
-        }
-      } else {
-        // Pay Later: send pending email
-        try {
-          await sendPendingEmail({
-            toEmail: touristEmail,
-            touristName,
-            activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
-            date,
-            guests,
-            imageUrl: activity?.cover_image_url
-          });
-        } catch (error) {
-          console.error("[RESEND_EMAIL_ERROR]", error);
-        }
-      }
+    // If it's totally free, handle it immediately without Stripe
+    if (finalTotalUsd === 0) {
+      await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
       
+      try {
+        const { autoBlockDate } = await import('@/app/actions/tours');
+        await autoBlockDate(activityId, date);
+      } catch (e) {
+        console.error("Failed to auto-block date for free booking:", e);
+      }
+
       if (appliedPromoCode) {
          const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', appliedPromoCode).single()
          if (currentPromo) {
@@ -148,7 +128,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
     }
 
-    // 2. Create Stripe Checkout Session
+    // 2. Create Stripe Checkout Session (for both 'card' and 'pay_later')
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -171,6 +151,34 @@ export async function POST(req: Request) {
       customer_email: touristEmail,
     })
 
+    if (['no_card', 'pay_later'].includes(paymentStrategy)) {
+      // Pay Later: send pending email WITH the Stripe link
+      try {
+        await sendPendingEmail({
+          toEmail: touristEmail,
+          touristName,
+          activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
+          date,
+          guests,
+          imageUrl: activity?.cover_image_url,
+          paymentUrl: session.url || undefined
+        });
+      } catch (error) {
+        console.error("[RESEND_EMAIL_ERROR]", error);
+      }
+      
+      if (appliedPromoCode) {
+         const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', appliedPromoCode).single()
+         if (currentPromo) {
+             await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', appliedPromoCode)
+         }
+      }
+
+      // Return local success URL so the guest is NOT forced to pay immediately
+      return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
+    }
+
+    // Direct Card Payment: Return Stripe URL
     return NextResponse.json({ url: session.url })
   } catch (error: any) {
     console.error('Stripe error:', error)

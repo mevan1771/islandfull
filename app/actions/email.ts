@@ -13,6 +13,7 @@ interface SendPendingEmailProps {
   date: string;
   guests: number;
   imageUrl?: string;
+  paymentUrl?: string;
 }
 
 export async function sendPendingEmail(props: SendPendingEmailProps) {
@@ -23,6 +24,7 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
       date: props.date,
       guests: props.guests,
       imageUrl: props.imageUrl,
+      paymentUrl: props.paymentUrl,
     }));
 
     const { data, error } = await resend.emails.send({
