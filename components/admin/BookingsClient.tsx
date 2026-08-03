@@ -135,11 +135,11 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 uppercase text-[11px] font-bold tracking-wider">
               <tr>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Guest Details</th>
-                <th className="px-6 py-4">Activity</th>
-                <th className="px-6 py-4">Booking Info</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Guest Details</th>
+                <th className="px-4 py-3">Activity</th>
+                <th className="px-4 py-3">Booking Info</th>
+                <th className="px-4 py-3 text-right min-w-[200px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
@@ -153,7 +153,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                 filteredBookings.map((b: any) => (
                   <tr key={b.id} className="hover:bg-zinc-50/50 transition-colors">
                     {/* Status */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
                         b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200' :
                         b.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
@@ -169,13 +169,13 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     </td>
 
                     {/* Guest Details */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="font-bold text-zinc-900">{b.tourist_name}</div>
                       <div className="text-zinc-500">{b.tourist_email}</div>
                     </td>
 
                     {/* Activity */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="font-semibold text-zinc-800 max-w-[200px] truncate" title={b.activities?.title}>
                         {b.activities?.title || 'Unknown Activity'}
                       </div>
@@ -186,7 +186,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     </td>
 
                     {/* Booking Info */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2 text-zinc-600 mb-1">
                         <CalendarDays className="w-4 h-4 text-zinc-400" />
                         <span className="font-medium">{new Date(b.travel_date).toLocaleDateString()}</span>
@@ -202,7 +202,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {/* Status Actions */}
                         {(b.status === 'pending' || b.status === 'pending_payment') && (
@@ -231,21 +231,15 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                           <button
                             onClick={() => handleSendInvoice(b.id)}
                             disabled={loadingInvoice === b.id}
-                            className={`flex items-center gap-2 px-3 py-1.5 font-bold rounded-lg transition-colors border ${b.payment_request_sent_at ? 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100' : 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'}`}
+                            className={`p-2 rounded-lg transition-colors border ${b.payment_request_sent_at ? 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100' : 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'}`}
                             title="Send Payment Request"
                           >
                             {loadingInvoice === b.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-5 h-5 animate-spin" />
                             ) : b.payment_request_sent_at ? (
-                              <>
-                                <Check className="w-4 h-4" />
-                                Sent
-                              </>
+                              <Check className="w-5 h-5" />
                             ) : (
-                              <>
-                                <Mail className="w-4 h-4" />
-                                Send Link
-                              </>
+                              <Mail className="w-5 h-5" />
                             )}
                           </button>
                         )}
@@ -255,19 +249,19 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                           href={`https://wa.me/${(b.tourist_whatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${b.tourist_name}! This is Mevan from IslandFull regarding your booking for ${b.activities?.title}${b.tour_option ? ` (${b.tour_option})` : ''}.${b.pickup_location ? `\n\nPickup: ${b.pickup_location}` : ''}${b.special_requests ? `\n\nNotes: ${b.special_requests}` : ''}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-1.5 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 font-bold rounded-lg transition-colors border border-[#25D366]/20"
+                          className="p-2 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 rounded-lg transition-colors border border-[#25D366]/20"
+                          title="Chat on WhatsApp"
                         >
-                          <MessageCircle className="w-4 h-4" />
-                          Chat
+                          <MessageCircle className="w-5 h-5" />
                         </a>
                         
                         {/* Archive Action */}
                         <button 
                           onClick={() => handleArchive(b.id)}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 text-zinc-500 hover:bg-rose-50 hover:text-rose-500 font-bold rounded-lg transition-colors border border-zinc-200 hover:border-rose-200 ml-1"
+                          className="p-2 bg-zinc-100 text-zinc-500 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-colors border border-zinc-200 hover:border-rose-200"
                           title="Archive Booking"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
