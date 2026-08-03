@@ -21,7 +21,7 @@ export default async function BookingSuccess({
           <p className="text-zinc-500 font-medium">
             {params.session_id?.startsWith("no_card_") 
               ? "Your request has been successfully submitted. We have sent a confirmation to your email. Please keep an eye out for your invoice—your official digital ticket will be issued once payment is completed."
-              : "Your payment was successful and your reservation is locked in. We will reach out to you on WhatsApp shortly."}
+              : "Your payment was successful and your reservation is locked in. A confirmation email containing your booking details and QR code ticket has been sent to your inbox."}
           </p>
         </div>
 
