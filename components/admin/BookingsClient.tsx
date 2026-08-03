@@ -172,6 +172,10 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                         <Users className="w-4 h-4 text-zinc-400" />
                         <span className="font-medium">{b.pax_count} Pax</span>
                       </div>
+                      <div className="flex items-center gap-2 text-zinc-500 mt-1.5">
+                        <Clock className="w-4 h-4 text-zinc-400" />
+                        <span className="font-medium text-xs">Booked: {new Date(b.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
                     </td>
 
                     {/* Actions */}
