@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { updateSession } from '@/utils/supabase/middleware'
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  // Supabase Auth protection for /host
+  if (req.nextUrl.pathname.startsWith('/host')) {
+    return await updateSession(req)
+  }
+
+  // Basic Auth for /admin
   if (req.nextUrl.pathname.startsWith('/admin')) {
     const basicAuth = req.headers.get('authorization')
     
@@ -24,5 +31,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/host/:path*'],
 }

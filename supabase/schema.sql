@@ -30,6 +30,7 @@ CREATE TABLE activities (
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  host_id UUID REFERENCES users(id) ON DELETE SET NULL,
   provider_name TEXT NOT NULL,
   location TEXT NOT NULL, -- city/district
   description TEXT NOT NULL,
@@ -59,18 +60,37 @@ CREATE TABLE bookings (
   travel_date DATE NOT NULL,
   pax_count INTEGER NOT NULL CHECK (pax_count > 0),
   total_usd DECIMAL(10, 2) NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled', 'redeemed', 'pending_payment')),
   end_date DATE,
   payment_request_sent_at TIMESTAMPTZ,
+  scanned_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Basic RLS Policies (For Phase 1, we can just allow read access for public data)
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow public read access to categories" ON categories FOR SELECT USING (true);
 CREATE POLICY "Allow public read access to activities" ON activities FOR SELECT USING (true);
+
+-- Provider Policies for Bookings
+CREATE POLICY "Providers can view their own bookings" 
+ON bookings FOR SELECT 
+USING (
+  activity_id IN (
+    SELECT id FROM activities WHERE host_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Providers can update their own bookings" 
+ON bookings FOR UPDATE 
+USING (
+  activity_id IN (
+    SELECT id FROM activities WHERE host_id = auth.uid()
+  )
+);
 
 -- Global Settings Table
 CREATE TABLE global_settings (
