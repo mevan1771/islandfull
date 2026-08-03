@@ -61,6 +61,7 @@ CREATE TABLE bookings (
   total_usd DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
   end_date DATE,
+  payment_request_sent_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

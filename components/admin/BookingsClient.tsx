@@ -1,13 +1,36 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2 } from "lucide-react"
+import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check } from "lucide-react"
 import { updateStatus, archiveBooking } from "@/app/actions/bookings"
+import toast from "react-hot-toast"
 
 export default function BookingsClient({ initialBookings }: { initialBookings: any[] }) {
   const [bookings, setBookings] = useState(initialBookings)
   const [filter, setFilter] = useState<'default' | 'all' | 'active' | 'pending' | 'cancelled'>('all')
+  const [loadingInvoice, setLoadingInvoice] = useState<string | null>(null)
   
+  const handleSendInvoice = async (bookingId: string) => {
+    setLoadingInvoice(bookingId)
+    try {
+      const res = await fetch('/api/admin/send-payment-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId })
+      })
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText)
+      }
+      toast.success('Payment link sent to guest!')
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, payment_request_sent_at: new Date().toISOString() } : b))
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send payment request')
+    } finally {
+      setLoadingInvoice(null)
+    }
+  }
+
   const handleArchive = async (id: string) => {
     if (window.confirm("Are you sure you want to archive this booking? It will be hidden from the dashboard but kept for financial records.")) {
       // Optimistic UI update
@@ -182,7 +205,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {/* Status Actions */}
-                        {b.status === 'pending' && (
+                        {(b.status === 'pending' || b.status === 'pending_payment') && (
                           <form action={() => {
                             updateStatus(b.id, 'confirmed')
                             setBookings(prev => prev.map(bk => bk.id === b.id ? { ...bk, status: 'confirmed' } : bk))
@@ -192,7 +215,7 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                             </button>
                           </form>
                         )}
-                        {(b.status === 'pending' || b.status === 'confirmed') && (
+                        {(b.status === 'pending' || b.status === 'pending_payment' || b.status === 'confirmed') && (
                           <form action={() => {
                             updateStatus(b.id, 'cancelled')
                             setBookings(prev => prev.map(bk => bk.id === b.id ? { ...bk, status: 'cancelled' } : bk))
@@ -201,6 +224,30 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                               <XCircle className="w-5 h-5" />
                             </button>
                           </form>
+                        )}
+
+                        {/* Send Payment Request */}
+                        {b.status === 'pending_payment' && (
+                          <button
+                            onClick={() => handleSendInvoice(b.id)}
+                            disabled={loadingInvoice === b.id}
+                            className={`flex items-center gap-2 px-3 py-1.5 font-bold rounded-lg transition-colors border ${b.payment_request_sent_at ? 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100' : 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'}`}
+                            title="Send Payment Request"
+                          >
+                            {loadingInvoice === b.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : b.payment_request_sent_at ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                Sent
+                              </>
+                            ) : (
+                              <>
+                                <Mail className="w-4 h-4" />
+                                Send Link
+                              </>
+                            )}
+                          </button>
                         )}
 
                         {/* WhatsApp Link */}
