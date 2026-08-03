@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check } from "lucide-react"
+import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check, Phone } from "lucide-react"
 import { updateStatus, archiveBooking } from "@/app/actions/bookings"
 import toast from "react-hot-toast"
 
@@ -172,6 +172,12 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                     <td className="px-4 py-3">
                       <div className="font-bold text-zinc-900">{b.tourist_name}</div>
                       <div className="text-zinc-500">{b.tourist_email}</div>
+                      {b.tourist_whatsapp && (
+                        <div className="flex items-center gap-1.5 text-zinc-500 text-sm mt-0.5">
+                          <Phone className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>{b.tourist_whatsapp}</span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Activity */}
