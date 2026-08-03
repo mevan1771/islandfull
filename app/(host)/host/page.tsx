@@ -22,13 +22,23 @@ export default async function HostDashboard() {
   // Get today's bookings for this host
   const today = new Date().toISOString().split('T')[0]
   
-  // Need to get activities owned by this host first, then their bookings
-  const { data: activities } = await supabase
-    .from('activities')
+  // Get host profile for this user
+  const { data: host } = await supabase
+    .from('hosts')
     .select('id')
-    .eq('host_id', user.id)
+    .eq('user_id', user.id)
+    .single()
 
-  const activityIds = activities?.map(a => a.id) || []
+  let activityIds: string[] = []
+
+  if (host) {
+    const { data: activities } = await supabase
+      .from('activities')
+      .select('id')
+      .eq('host_id', host.id)
+    
+    activityIds = activities?.map(a => a.id) || []
+  }
 
   let expectedGuests = 0
   let pendingArrival = 0

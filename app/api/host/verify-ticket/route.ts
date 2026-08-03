@@ -17,7 +17,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid QR code. No booking ID found.' }, { status: 400 })
     }
 
+    // Get the host profile for the logged in user
+    const { data: host } = await supabase
+      .from('hosts')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!host) {
+      return NextResponse.json({ error: 'Host profile not found.' }, { status: 404 })
+    }
+
     // Since RLS is enabled, the provider can only select bookings that belong to their activities.
+    // The RLS policy will automatically use the hosts table mapping.
     const { data: booking, error } = await supabase
       .from('bookings')
       .select('id, status, tourist_name, pax_count, activities(host_id)')
