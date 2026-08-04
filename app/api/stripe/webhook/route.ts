@@ -52,8 +52,9 @@ export async function POST(req: Request) {
            }
         }
         
-        // Generate QR Code
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bookingId)}`
+        // Generate QR Code internally
+        const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://islandfull.com';
+        const qrCodeUrl = `${appUrl}/api/qr?id=${encodeURIComponent(bookingId)}`
         
         // Send Receipt Email
         const activityTitle = booking.activities?.title || 'Your Activity'

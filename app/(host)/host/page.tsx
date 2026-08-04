@@ -19,6 +19,10 @@ export default async function HostDashboard() {
     .eq('id', user.id)
     .single()
 
+  if (profile?.role !== 'provider' && profile?.role !== 'admin') {
+    redirect('/host/login')
+  }
+
   // Get today's bookings for this host
   const today = new Date().toISOString().split('T')[0]
   
