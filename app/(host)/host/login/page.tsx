@@ -33,16 +33,16 @@ export default function HostLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-1">Email</label>
-            <input 
-              name="email" 
-              type="email" 
-              required 
-              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl p-4 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
-              placeholder="guide@example.com"
-            />
-          </div>
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-zinc-100">Email or Phone Number</label>
+              <input 
+                type="text" 
+                name="email"
+                required
+                className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl p-4 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                placeholder="guide@example.com or 0771234567"
+              />
+            </div>
 
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-1">Password</label>

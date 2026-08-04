@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getHosts, createHost, updateHost, deleteHost } from "@/app/actions/hosts"
-import { adminCreateHostAccount } from "@/app/actions/admin-auth"
+import { adminCreateHostAccount, adminProvisionLegacyHost, adminResetHostPassword } from "@/app/actions/admin-auth"
 import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload } from "lucide-react"
 import toast from "react-hot-toast"
 import Link from "next/link"
@@ -12,6 +12,8 @@ export default function HostsPage() {
   const [hosts, setHosts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
+  const [resetPassword, setResetPassword] = useState("")
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -49,6 +51,7 @@ export default function HostsPage() {
       setFormData({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
     }
     setImageFile(null)
+    setResetPassword("")
     setIsModalOpen(true)
   }
 
@@ -56,6 +59,20 @@ export default function HostsPage() {
     setIsModalOpen(false)
     setEditingHost(null)
     setImageFile(null)
+    setResetPassword("")
+  }
+
+  const handleResetPassword = async () => {
+    if (!editingHost || !editingHost.user_id) return
+    setIsResetting(true)
+    const res = await adminResetHostPassword(editingHost.user_id, resetPassword)
+    if (res.success) {
+      toast.success("Password reset successfully!")
+      setResetPassword("")
+    } else {
+      toast.error("Error resetting password: " + res.error)
+    }
+    setIsResetting(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,7 +91,13 @@ export default function HostsPage() {
 
     let res;
     if (editingHost) {
-      res = await updateHost(editingHost.id, data)
+      if (!editingHost.user_id && formData.login_email && formData.login_password) {
+        data.append("login_email", formData.login_email)
+        data.append("login_password", formData.login_password)
+        res = await adminProvisionLegacyHost(editingHost.id, data)
+      } else {
+        res = await updateHost(editingHost.id, data)
+      }
     } else {
       // It's a new host, append the login details for provisioning
       data.append("login_email", formData.login_email)
@@ -223,19 +246,19 @@ export default function HostsPage() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
-              {!editingHost && (
+              {(!editingHost || (editingHost && !editingHost.user_id)) && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
                   <h3 className="text-lg font-bold text-zinc-900">Provision Login Account</h3>
                   <p className="text-sm text-zinc-500 mb-4">Set up a secure login account for the tour operator to access the portal.</p>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-zinc-800">Login Email</label>
+                    <label className="text-sm font-bold text-zinc-800">Login Email or Phone Number</label>
                     <input
-                      type="email"
-                      required
+                      type="text"
+                      required={!editingHost}
                       value={formData.login_email}
                       onChange={(e) => setFormData({ ...formData, login_email: e.target.value })}
-                      placeholder="operator@company.com"
+                      placeholder="operator@company.com or 0771234567"
                       className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 bg-white"
                     />
                   </div>
@@ -243,13 +266,37 @@ export default function HostsPage() {
                     <label className="text-sm font-bold text-zinc-800">Temporary Password</label>
                     <input
                       type="text"
-                      required
+                      required={!editingHost}
                       value={formData.login_password}
                       onChange={(e) => setFormData({ ...formData, login_password: e.target.value })}
                       placeholder="Secure temporary password"
                       className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 bg-white"
                     />
                     <p className="text-xs text-zinc-500 mt-1">They will be able to change this later.</p>
+                  </div>
+                </div>
+              )}
+
+              {editingHost && editingHost.user_id && (
+                <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
+                  <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">Reset Operator Password</h3>
+                  <p className="text-sm text-zinc-500 mb-4">Forcefully update the password for this operator's login account.</p>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={resetPassword}
+                      onChange={(e) => setResetPassword(e.target.value)}
+                      placeholder="New password (min 6 chars)"
+                      className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleResetPassword}
+                      disabled={isResetting || resetPassword.length < 6}
+                      className="h-12 px-6 font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-xl transition-colors flex items-center justify-center disabled:opacity-50"
+                    >
+                      {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reset"}
+                    </button>
                   </div>
                 </div>
               )}

@@ -4,8 +4,13 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function hostLogin(formData: FormData) {
-  const email = formData.get('email') as string
+  let email = formData.get('email') as string
   const password = formData.get('password') as string
+
+  // Pseudo-email strategy for phone numbers
+  if (email && !email.includes('@')) {
+    email = `${email}@islandfull.com`
+  }
 
   const supabase = await createClient()
 
