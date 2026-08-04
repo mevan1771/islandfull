@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { hostLogin } from "@/app/actions/auth"
 import { Loader2, ArrowRight } from "lucide-react"
 
