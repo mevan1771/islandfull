@@ -74,12 +74,14 @@ export default async function HostDashboard() {
   return (
     <div className="flex flex-col min-h-screen pb-24">
       {/* Header */}
-      <header className="bg-zinc-900 text-white p-6 sticky top-0 z-10 shadow-md flex justify-between items-center">
-        <div>
+      <header className="bg-zinc-900 text-white p-6 sticky top-0 z-10 shadow-md flex justify-between items-start w-full mb-6">
+        <div className="flex flex-col gap-1">
           <h1 className="text-xl font-bold">Today's Operations</h1>
-          <p className="text-zinc-400 text-sm">Welcome back, {profile?.full_name}</p>
+          <p className="text-sm text-zinc-400">Welcome back, {profile?.full_name}</p>
         </div>
-        <SignOutButton />
+        <div>
+          <SignOutButton />
+        </div>
       </header>
 
       {/* Metrics */}
