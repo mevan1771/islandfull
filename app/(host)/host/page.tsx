@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import HostDashboardClient from './HostDashboardClient'
+import SignOutButton from '@/components/host/SignOutButton'
 import { hostLogout } from '@/app/actions/auth'
 import { LogOut } from 'lucide-react'
 
@@ -78,11 +79,7 @@ export default async function HostDashboard() {
           <h1 className="text-xl font-bold">Today's Operations</h1>
           <p className="text-zinc-400 text-sm">Welcome back, {profile?.full_name}</p>
         </div>
-        <form action={hostLogout}>
-          <button type="submit" className="p-2 bg-zinc-800 rounded-full text-zinc-300 hover:text-white transition-colors">
-            <LogOut className="w-5 h-5" />
-          </button>
-        </form>
+        <SignOutButton />
       </header>
 
       {/* Metrics */}

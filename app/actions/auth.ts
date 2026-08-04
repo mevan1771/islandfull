@@ -36,8 +36,11 @@ export async function hostLogin(formData: FormData) {
   redirect('/host')
 }
 
+import { revalidatePath } from 'next/cache'
+
 export async function hostLogout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
   redirect('/host/login')
 }
