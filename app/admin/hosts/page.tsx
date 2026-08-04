@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { getHosts, createHost, updateHost, deleteHost } from "@/app/actions/hosts"
+import { adminCreateHostAccount } from "@/app/actions/admin-auth"
 import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload } from "lucide-react"
+import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -14,7 +16,7 @@ export default function HostsPage() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHost, setEditingHost] = useState<any>(null)
-  const [formData, setFormData] = useState({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "" })
+  const [formData, setFormData] = useState({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   useEffect(() => {
@@ -38,11 +40,13 @@ export default function HostsPage() {
         email: host.email || "",
         phone: host.phone || "",
         address: host.address || "",
-        payout_notes: host.payout_notes || ""
+        payout_notes: host.payout_notes || "",
+        login_email: "",
+        login_password: ""
       })
     } else {
       setEditingHost(null)
-      setFormData({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "" })
+      setFormData({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
     }
     setImageFile(null)
     setIsModalOpen(true)
@@ -72,14 +76,18 @@ export default function HostsPage() {
     if (editingHost) {
       res = await updateHost(editingHost.id, data)
     } else {
-      res = await createHost(data)
+      // It's a new host, append the login details for provisioning
+      data.append("login_email", formData.login_email)
+      data.append("login_password", formData.login_password)
+      res = await adminCreateHostAccount(data)
     }
 
     if (res.success) {
+      toast.success(editingHost ? "Host updated successfully!" : "Host account created successfully!")
       closeModal()
       await loadHosts()
     } else {
-      alert("Error saving host: " + res.error)
+      toast.error("Error saving host: " + res.error)
     }
     setIsSaving(false)
   }
@@ -215,8 +223,39 @@ export default function HostsPage() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
+              {!editingHost && (
+                <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
+                  <h3 className="text-lg font-bold text-zinc-900">Provision Login Account</h3>
+                  <p className="text-sm text-zinc-500 mb-4">Set up a secure login account for the tour operator to access the portal.</p>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800">Login Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.login_email}
+                      onChange={(e) => setFormData({ ...formData, login_email: e.target.value })}
+                      placeholder="operator@company.com"
+                      className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-zinc-800">Temporary Password</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.login_password}
+                      onChange={(e) => setFormData({ ...formData, login_password: e.target.value })}
+                      placeholder="Secure temporary password"
+                      className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 bg-white"
+                    />
+                    <p className="text-xs text-zinc-500 mt-1">They will be able to change this later.</p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <label className="text-sm font-bold text-zinc-800">Host Name</label>
+                <label className="text-sm font-bold text-zinc-800">Business / Host Name</label>
                 <input
                   type="text"
                   required

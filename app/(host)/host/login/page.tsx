@@ -52,6 +52,11 @@ export default function HostLogin() {
               className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl p-4 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
               placeholder="••••••••"
             />
+            <div className="flex justify-end mt-2">
+              <Link href="/host/forgot-password" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           {error && (
