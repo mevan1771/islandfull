@@ -28,6 +28,11 @@ export default async function BookingSuccess({
     bookingId = params.session_id.split('_')[2] || null; // assuming format no_card_UUID
   }
 
+  const formatBookingReference = (rawId: string) => {
+    const cleanId = rawId.replace(/^(no_card_|cs_test_|cs_live_)/, '');
+    return `BKG-${cleanId.substring(0, 8).toUpperCase()}`;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-4 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl text-center space-y-6">
@@ -67,9 +72,9 @@ export default async function BookingSuccess({
         )}
 
         {params.session_id && (
-          <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 text-left text-sm mt-4">
-            <span className="text-zinc-500 font-medium block mb-1">Session / Booking ID:</span>
-            <span className="font-mono text-zinc-900 break-all">{params.session_id}</span>
+          <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 text-left text-sm mt-4 text-center">
+            <span className="text-zinc-500 font-medium block mb-1">Booking Reference:</span>
+            <span className="font-mono text-zinc-900 font-bold text-lg">{formatBookingReference(params.session_id)}</span>
           </div>
         )}
 
