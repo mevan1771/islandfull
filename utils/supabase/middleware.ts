@@ -27,8 +27,11 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Do not run on non-host routes
-  if (!request.nextUrl.pathname.startsWith('/host')) {
+  // Do not run on non-protected routes
+  const isHostRoute = request.nextUrl.pathname.startsWith('/host')
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+  
+  if (!isHostRoute && !isAdminRoute) {
       return supabaseResponse;
   }
 
@@ -47,9 +50,20 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
   
-  // Optionally check user role from a custom claim or profile table
-  // For now, if they are logged in via Supabase, they have access to /host
-  // Role checks (provider) will primarily be enforced by RLS in the database.
+  // If accessing /admin, enforce admin role
+  if (isAdminRoute) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/host'
+      return NextResponse.redirect(url)
+    }
+  }
 
   return supabaseResponse
 }

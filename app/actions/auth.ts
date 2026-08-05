@@ -24,6 +24,7 @@ export async function hostLogin(formData: FormData) {
   }
 
   // Verify the role is provider or admin
+  let userRole = ''
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
     const { data: profile } = await supabase
@@ -36,9 +37,14 @@ export async function hostLogin(formData: FormData) {
       await supabase.auth.signOut()
       return { error: "Unauthorized. You do not have operator access." }
     }
+    userRole = profile.role
   }
 
-  redirect('/host')
+  if (userRole === 'admin') {
+    redirect('/admin')
+  } else {
+    redirect('/host')
+  }
 }
 
 import { revalidatePath } from 'next/cache'
