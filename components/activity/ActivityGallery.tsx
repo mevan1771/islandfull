@@ -69,21 +69,23 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     <>
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
-        <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
+        <div className="grid grid-cols-2 gap-1 sm:gap-2 rounded-xl overflow-hidden w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
           {galleryUrls.map((url: string, i: number) => {
             return (
               <div 
                 key={i} 
-                className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-xl shadow-sm overflow-hidden"
+                className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-none overflow-hidden bg-gray-100"
                 onClick={() => setSelectedIndex(i)}
               >
                 <Image 
                   src={url} 
                   alt={`Gallery image ${i + 1}`} 
                   fill 
+                  priority={i < 2}
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
                   placeholder="blur" 
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
               </div>
             )
@@ -144,7 +146,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
             <img 
               src={galleryUrls[selectedIndex]}
               alt={`Fullscreen gallery view ${selectedIndex + 1}`}
-              className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-cover select-none rounded-[32px] border-[2px] border-white/40 shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+              className="w-auto h-auto max-w-[100vw] max-h-[100vh] object-contain select-none rounded-none"
               draggable="false"
             />
 
