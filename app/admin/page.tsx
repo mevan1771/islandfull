@@ -1,11 +1,16 @@
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@supabase/supabase-js"
 import Link from "next/link"
 import BookingsClient from "@/components/admin/BookingsClient"
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
-  const { data: bookings, error } = await supabase
+  const { data: bookings, error } = await supabaseAdmin
     .from('bookings')
     .select('*, activities(title)')
     .neq('is_archived', true)
