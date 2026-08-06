@@ -20,6 +20,7 @@ export default function HostNavigation() {
             <Link
               key={tab.name}
               href={tab.href}
+              prefetch={true}
               className={`whitespace-nowrap py-4 px-6 font-semibold text-sm transition-colors border-b-2 ${
                 isActive
                   ? "border-black text-black"

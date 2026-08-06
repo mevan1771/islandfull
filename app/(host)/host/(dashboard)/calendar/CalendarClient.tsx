@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { DayPicker } from "react-day-picker"
-import { format, parseISO } from "date-fns"
-import { toggleActivityBlock } from "@/app/actions/calendar"
+import { useState, useOptimistic } from "react"
+import { DayPicker, DateRange } from "react-day-picker"
+import { format, parseISO, eachDayOfInterval, isBefore, startOfDay } from "date-fns"
+import { batchToggleActivityBlocks } from "@/app/actions/calendar"
 import { Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import "react-day-picker/dist/style.css"
@@ -41,6 +41,7 @@ export default function CalendarClient({
 
   const [drawerDate, setDrawerDate] = useState<Date | null>(null)
   const [drawerBookings, setDrawerBookings] = useState<Booking[]>([])
+  const [range, setRange] = useState<DateRange | undefined>()
 
   if (activities.length === 0) {
     return (
@@ -55,15 +56,77 @@ export default function CalendarClient({
     .filter(b => b.activity_id === selectedActivityId)
     .map(b => parseISO(b.blocked_date))
 
+  const [optimisticBlocks, addOptimisticBlock] = useOptimistic(
+    currentActivityBlocks,
+    (state: Date[], newBlocks: { dates: Date[], action: 'block' | 'unblock' }) => {
+      if (newBlocks.action === 'block') {
+        const toAdd = newBlocks.dates.filter(d => !state.some(s => s.getTime() === d.getTime()))
+        return [...state, ...toAdd]
+      } else {
+        return state.filter(s => !newBlocks.dates.some(d => d.getTime() === s.getTime()))
+      }
+    }
+  )
+
   const currentActivityBookings = bookings
     .filter(b => b.activity_id === selectedActivityId)
 
   const bookedDates = currentActivityBookings
     .map(b => parseISO(b.travel_date))
 
-  const toggleBlock = async (dateStr: string) => {
+  const handleSelect = (newRange: DateRange | undefined, selectedDay: Date) => {
+    if (!selectedActivityId || isLoading) return
+    
+    // Normalize date to YYYY-MM-DD local time
+    const dateStr = format(selectedDay, "yyyy-MM-dd")
+    
+    // Check if there are bookings for this day
+    const dayBookings = currentActivityBookings.filter(b => b.travel_date === dateStr)
+    
+    if (dayBookings.length > 0) {
+      setDrawerDate(selectedDay)
+      setDrawerBookings(dayBookings)
+      setRange(undefined)
+      return
+    }
+
+    setRange(newRange)
+  }
+
+  const getDatesInRange = () => {
+    if (!range?.from) return []
+    if (!range.to) return [range.from]
+    return eachDayOfInterval({ start: range.from, end: range.to })
+  }
+
+  const handleBatchToggle = async (action: 'block' | 'unblock') => {
+    const dates = getDatesInRange()
+    if (dates.length === 0) return
+
+    setRange(undefined)
+    addOptimisticBlock({ dates, action })
+
+    const dateStrs = dates.map(d => format(d, "yyyy-MM-dd"))
+    
     setIsLoading(true)
-    const res = await toggleActivityBlock(selectedActivityId, dateStr)
+    const res = await batchToggleActivityBlocks(selectedActivityId, dateStrs, action)
+    if (res.success) {
+      toast.success(action === 'block' ? "Dates blocked!" : "Dates unblocked!")
+    } else {
+      toast.error(res.error || "Failed to update availability")
+    }
+    setIsLoading(false)
+  }
+
+  const toggleSingleBlock = async (dateStr: string) => {
+    const date = parseISO(dateStr)
+    const isCurrentlyBlocked = optimisticBlocks.some(d => format(d, "yyyy-MM-dd") === dateStr)
+    const action = isCurrentlyBlocked ? 'unblock' : 'block'
+    
+    addOptimisticBlock({ dates: [date], action })
+    
+    setIsLoading(true)
+    const res = await batchToggleActivityBlocks(selectedActivityId, [dateStr], action)
     if (res.success) {
       toast.success("Availability updated!")
     } else {
@@ -72,23 +135,6 @@ export default function CalendarClient({
     setIsLoading(false)
   }
 
-  const handleDayClick = async (day: Date) => {
-    if (!selectedActivityId || isLoading) return
-    
-    // Normalize date to YYYY-MM-DD local time
-    const dateStr = format(day, "yyyy-MM-dd")
-    
-    // Check if there are bookings for this day
-    const dayBookings = currentActivityBookings.filter(b => b.travel_date === dateStr)
-    
-    if (dayBookings.length > 0) {
-      setDrawerDate(day)
-      setDrawerBookings(dayBookings)
-      return
-    }
-
-    await toggleBlock(dateStr)
-  }
 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-zinc-100 flex flex-col md:flex-row gap-8">
@@ -170,10 +216,12 @@ export default function CalendarClient({
         `}</style>
         
         <DayPicker
-          mode="multiple"
-          onDayClick={handleDayClick}
+          mode="range"
+          selected={range}
+          onSelect={handleSelect}
+          disabled={[{ before: startOfDay(new Date()) }]}
           modifiers={{
-            blocked: currentActivityBlocks,
+            blocked: optimisticBlocks,
             booked: bookedDates,
           }}
           modifiersClassNames={{
@@ -182,6 +230,26 @@ export default function CalendarClient({
           }}
           className="bg-white border border-zinc-100 rounded-2xl p-4 shadow-sm"
         />
+
+        {/* Action Bar for Range Selection */}
+        {range?.from && (
+          <div className="absolute -bottom-20 left-0 right-0 bg-white border border-zinc-200 shadow-xl rounded-2xl p-4 flex gap-3 animate-in fade-in slide-in-from-bottom-4 z-20">
+            <button
+              className="flex-1 bg-zinc-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50 text-sm"
+              onClick={() => handleBatchToggle('block')}
+              disabled={isLoading}
+            >
+              Block {getDatesInRange().length} {getDatesInRange().length === 1 ? 'Date' : 'Dates'}
+            </button>
+            <button
+              className="flex-1 bg-white border border-zinc-200 text-zinc-800 hover:bg-zinc-50 font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50 text-sm"
+              onClick={() => handleBatchToggle('unblock')}
+              disabled={isLoading}
+            >
+              Unblock
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Drawer (Guest Details) */}
@@ -221,7 +289,7 @@ export default function CalendarClient({
             <button 
               className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50"
               onClick={async () => {
-                await toggleBlock(format(drawerDate, "yyyy-MM-dd"))
+                await toggleSingleBlock(format(drawerDate, "yyyy-MM-dd"))
                 setDrawerDate(null)
               }}
               disabled={isLoading}

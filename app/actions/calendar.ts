@@ -64,3 +64,62 @@ export async function toggleActivityBlock(activityId: string, blockedDate: strin
     return { success: false, error: err.message || "An unexpected error occurred" }
   }
 }
+
+export async function batchToggleActivityBlocks(activityId: string, dates: string[], action: 'block' | 'unblock') {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { data: host } = await supabase
+      .from('hosts')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+      
+    if (!host) return { success: false, error: "Unauthorized" }
+
+    // Verify activity ownership
+    const { data: activity } = await supabase
+      .from('activities')
+      .select('host_id')
+      .eq('id', activityId)
+      .single()
+
+    if (activity?.host_id !== host.id) {
+      return { success: false, error: "Unauthorized: You do not own this activity." }
+    }
+
+    if (dates.length === 0) return { success: true }
+
+    if (action === 'unblock') {
+      const { error } = await supabase
+        .from('activity_blocks')
+        .delete()
+        .eq('activity_id', activityId)
+        .in('blocked_date', dates)
+
+      if (error) throw error
+    } else {
+      // For block, we need to handle potential duplicates (ON CONFLICT DO NOTHING is ideal but Supabase JS doesn't expose it easily for non-upsert)
+      // Upsert based on the unique constraint (activity_id, blocked_date)
+      const inserts = dates.map(d => ({
+        activity_id: activityId,
+        host_id: host.id,
+        blocked_date: d
+      }))
+
+      const { error } = await supabase
+        .from('activity_blocks')
+        .upsert(inserts, { onConflict: 'activity_id, blocked_date', ignoreDuplicates: true })
+
+      if (error) throw error
+    }
+
+    revalidatePath('/host/calendar')
+    revalidatePath(`/activity/[slug]`, 'page')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || "An unexpected error occurred" }
+  }
+}
