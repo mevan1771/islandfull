@@ -27,17 +27,17 @@ export default async function HostToursPage() {
     .eq('user_id', user.id)
     .single()
 
-  let activities: any[] = []
-  
-  if (host) {
-    const { data } = await supabase
-      .from('activities')
-      .select('id, title, status, is_paused_by_host, view_count, price_usd, card_image_url, cover_image_url')
-      .eq('host_id', host.id)
-      .order('created_at', { ascending: false })
-      
-    if (data) activities = data
+  const { data: activitiesData, error } = await supabase
+    .from('activities')
+    .select('id, title, status, is_paused_by_host, view_count, price_usd, card_image_url, cover_image_url')
+    .eq('host_id', user.id)
+    .order('created_at', { ascending: false })
+    
+  if (error) {
+    console.error("Error fetching host activities:", error)
   }
+  
+  const activities = activitiesData || []
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 pb-24">
