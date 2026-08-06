@@ -69,22 +69,6 @@ export default async function HostCalendarPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50 pb-24">
-      {/* Header */}
-      <header className="bg-zinc-900 text-white p-6 sticky top-0 z-10 shadow-md flex justify-between items-start w-full mb-6">
-        <div className="flex gap-4 items-center">
-          <Link href="/host" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-bold">Availability Calendar</h1>
-            <p className="text-sm text-zinc-400">{host?.name || "Operations"}</p>
-          </div>
-        </div>
-        <div>
-          <SignOutButton />
-        </div>
-      </header>
-
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-zinc-900 mb-2">Block Availability</h2>

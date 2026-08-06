@@ -80,28 +80,6 @@ export default async function HostDashboard() {
 
   return (
     <div className="flex flex-col min-h-screen pb-24">
-      {/* Header */}
-      <header className="bg-zinc-900 text-white p-6 sticky top-0 z-10 shadow-md flex justify-between items-start w-full mb-6">
-        <div className="flex gap-4 items-center">
-          {host?.image_url ? (
-            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shrink-0">
-              <Image src={host.image_url} alt="Logo" fill className="object-cover" />
-            </div>
-          ) : (
-            <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-zinc-800 flex items-center justify-center font-bold text-xl shrink-0">
-              {host?.name?.charAt(0) || 'H'}
-            </div>
-          )}
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold">{host?.name || "Operations"}</h1>
-            <p className="text-sm text-zinc-400">Welcome back, {profile?.full_name}</p>
-          </div>
-        </div>
-        <div>
-          <SignOutButton />
-        </div>
-      </header>
-
       {/* Metrics */}
       <main className="flex-1 p-6 space-y-4">
         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-2">Live Metrics</h2>
