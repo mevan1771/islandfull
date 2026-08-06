@@ -127,7 +127,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
     : undefined;
 
-  let moreActivities = [];
+  let moreActivities: any[] = [];
   let blockedDates: string[] = [];
 
   if (activity) {
