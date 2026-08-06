@@ -38,14 +38,12 @@ export default async function HostDashboard() {
 
   let activityIds: string[] = []
 
-  if (host) {
-    const { data: activities } = await supabase
-      .from('activities')
-      .select('id')
-      .eq('host_id', host.id)
-    
-    activityIds = activities?.map(a => a.id) || []
-  }
+  const { data: activities } = await supabase
+    .from('activities')
+    .select('id')
+    .eq('host_id', user.id)
+  
+  activityIds = activities?.map(a => a.id) || []
 
   let expectedGuests = 0
   let pendingArrival = 0
