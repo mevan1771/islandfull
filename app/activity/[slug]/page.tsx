@@ -11,6 +11,7 @@ import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
+import { incrementActivityView } from "@/app/actions/tracking"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -52,9 +53,14 @@ export async function generateMetadata(
       .select('title, description, cover_image_url, location')
       .eq('slug', slug)
       .eq('status', 'published')
+      .eq('is_paused_by_host', false)
       .single()
 
-    if (data) activity = data
+    if (data) {
+      activity = data
+      // Fire-and-forget the view tracking (doesn't block render)
+      incrementActivityView(activity.id)
+    }
   } catch (err) {}
 
   if (!activity) {
@@ -98,6 +104,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       .select('*, reviews(*), hosts(*)')
       .eq('slug', slug)
       .eq('status', 'published')
+      .eq('is_paused_by_host', false)
       .single()
 
     if (data) {
@@ -127,9 +134,10 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     if (activity.host_id) {
       const { data: moreData } = await supabase
         .from('activities')
-        .select('*, reviews(rating)')
+        .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, reviews(rating)')
         .eq('host_id', activity.host_id)
         .eq('status', 'published')
+        .eq('is_paused_by_host', false)
         .neq('id', activity.id)
         .limit(4);
       

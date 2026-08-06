@@ -14,6 +14,7 @@ export async function searchLocationsAndTags(query: string) {
       .select('location')
       .ilike('location', searchTerm)
       .eq('status', 'published')
+      .eq('is_paused_by_host', false)
 
     if (locError) throw locError
 

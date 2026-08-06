@@ -47,6 +47,8 @@ CREATE TABLE activities (
   pricing_model TEXT DEFAULT 'per_person' CHECK (pricing_model IN ('per_person', 'per_day', 'flat_rate')),
   is_featured BOOLEAN DEFAULT false,
   featured_order INTEGER DEFAULT 0,
+  is_paused_by_host BOOLEAN DEFAULT false,
+  view_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

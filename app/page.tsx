@@ -44,7 +44,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
     let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
       .eq('category_type', currentVertical)
-      .eq('status', 'published');
+      .eq('status', 'published')
+      .eq('is_paused_by_host', false);
     
     if (params.location) {
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
@@ -123,6 +124,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       .from('activities')
       .select('*')
       .eq('status', 'published')
+      .eq('is_paused_by_host', false)
       .eq('is_featured', true)
       .order('featured_order', { ascending: true })
       .limit(5);

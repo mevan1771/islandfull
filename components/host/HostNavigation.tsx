@@ -9,6 +9,7 @@ export default function HostNavigation() {
   const tabs = [
     { name: "Today", href: "/host" },
     { name: "Bookings", href: "/host/bookings" },
+    { name: "My Tours", href: "/host/tours" },
     { name: "Calendar", href: "/host/calendar" },
   ]
 
