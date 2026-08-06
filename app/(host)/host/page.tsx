@@ -2,8 +2,10 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import HostDashboardClient from './HostDashboardClient'
 import SignOutButton from '@/components/host/SignOutButton'
+import ManualCheckInButton from '@/components/host/ManualCheckInButton'
 import { hostLogout } from '@/app/actions/auth'
 import { LogOut } from 'lucide-react'
+import Image from 'next/image'
 
 export default async function HostDashboard() {
   const supabase = await createClient()
@@ -30,7 +32,7 @@ export default async function HostDashboard() {
   // Get host profile for this user
   const { data: host } = await supabase
     .from('hosts')
-    .select('id')
+    .select('id, name, image_url')
     .eq('user_id', user.id)
     .single()
 
@@ -48,15 +50,18 @@ export default async function HostDashboard() {
   let expectedGuests = 0
   let pendingArrival = 0
   let arrived = 0
+  let bookingsData: any[] = []
 
   if (activityIds.length > 0) {
     const { data: bookings } = await supabase
       .from('bookings')
-      .select('pax_count, status')
+      .select('id, full_name, pax_count, status, activities(title, start_time)')
       .in('activity_id', activityIds)
       .eq('travel_date', today)
+      .order('created_at', { ascending: true })
 
     if (bookings) {
+      bookingsData = bookings
       bookings.forEach(b => {
         if (b.status === 'confirmed' || b.status === 'completed' || b.status === 'redeemed' || b.status === 'pending_payment') {
           expectedGuests += b.pax_count
@@ -71,13 +76,26 @@ export default async function HostDashboard() {
     }
   }
 
+  const progress = expectedGuests > 0 ? Math.round((arrived / expectedGuests) * 100) : 0
+
   return (
     <div className="flex flex-col min-h-screen pb-24">
       {/* Header */}
       <header className="bg-zinc-900 text-white p-6 sticky top-0 z-10 shadow-md flex justify-between items-start w-full mb-6">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-bold">Today's Operations</h1>
-          <p className="text-sm text-zinc-400">Welcome back, {profile?.full_name}</p>
+        <div className="flex gap-4 items-center">
+          {host?.image_url ? (
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shrink-0">
+              <Image src={host.image_url} alt="Logo" fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-zinc-800 flex items-center justify-center font-bold text-xl shrink-0">
+              {host?.name?.charAt(0) || 'H'}
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-bold">{host?.name || "Operations"}</h1>
+            <p className="text-sm text-zinc-400">Welcome back, {profile?.full_name}</p>
+          </div>
         </div>
         <div>
           <SignOutButton />
@@ -99,16 +117,40 @@ export default async function HostDashboard() {
             <span className="text-3xl font-black text-amber-600">{pendingArrival}</span>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-2xl shadow-sm border border-green-100 flex flex-col justify-center col-span-2">
-            <span className="text-green-700 text-sm font-medium mb-1">Arrived (Scanned)</span>
-            <div className="flex items-end justify-between">
-              <span className="text-4xl font-black text-green-600">{arrived}</span>
-              <span className="text-green-600/80 font-bold mb-1">{expectedGuests > 0 ? Math.round((arrived / expectedGuests) * 100) : 0}% Complete</span>
+          <div className="bg-emerald-50 p-4 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-center col-span-2">
+            <div className="flex justify-between items-end mb-3">
+              <div className="flex flex-col">
+                <span className="text-emerald-700 text-sm font-medium mb-1">Arrived (Scanned)</span>
+                <span className="text-4xl font-black text-emerald-600">{arrived}</span>
+              </div>
+              <span className="text-emerald-600/80 font-bold mb-1">{progress}% Complete</span>
+            </div>
+            <div className="w-full bg-emerald-200/50 rounded-full h-2">
+              <div className="bg-emerald-500 h-2 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
             </div>
           </div>
         </div>
 
         <div className="mt-8">
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Today's Roster</h2>
+          <div className="space-y-3">
+            {!bookingsData || bookingsData.length === 0 ? (
+              <p className="text-zinc-500 text-sm text-center bg-zinc-100 p-8 rounded-2xl border border-zinc-200">No bookings scheduled for today.</p>
+            ) : (
+              bookingsData.map(b => (
+                <div key={b.id} className="bg-white p-4 rounded-2xl shadow-sm border border-zinc-100 flex justify-between items-center gap-4">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-zinc-900">{b.full_name}</span>
+                    <span className="text-xs text-zinc-500 mt-1">{b.activities?.title} @ {b.activities?.start_time} &bull; {b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</span>
+                  </div>
+                  <ManualCheckInButton bookingId={b.id} status={b.status} />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="mt-8 mb-4">
             <p className="text-sm text-zinc-500 text-center">Data automatically refreshes when you scan a ticket.</p>
         </div>
       </main>
