@@ -60,7 +60,7 @@ export default async function HostCalendarPage() {
   if (activityIds.length > 0) {
     const { data } = await supabase
       .from('bookings')
-      .select('travel_date')
+      .select('id, activity_id, travel_date, tourist_name, pax_count, tour_option')
       .in('activity_id', activityIds)
       .in('status', ['pending', 'confirmed', 'completed', 'redeemed', 'pending_payment'])
       

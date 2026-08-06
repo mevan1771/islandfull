@@ -19,7 +19,12 @@ interface ActivityBlock {
 }
 
 interface Booking {
+  id: string
+  activity_id: string
   travel_date: string
+  tourist_name: string
+  pax_count: number
+  tour_option?: string
 }
 
 export default function CalendarClient({
@@ -34,6 +39,9 @@ export default function CalendarClient({
   const [selectedActivityId, setSelectedActivityId] = useState<string>(activities[0]?.id || "")
   const [isLoading, setIsLoading] = useState(false)
 
+  const [drawerDate, setDrawerDate] = useState<Date | null>(null)
+  const [drawerBookings, setDrawerBookings] = useState<Booking[]>([])
+
   if (activities.length === 0) {
     return (
       <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
@@ -47,15 +55,13 @@ export default function CalendarClient({
     .filter(b => b.activity_id === selectedActivityId)
     .map(b => parseISO(b.blocked_date))
 
-  const currentBookings = bookings
+  const currentActivityBookings = bookings
+    .filter(b => b.activity_id === selectedActivityId)
+
+  const bookedDates = currentActivityBookings
     .map(b => parseISO(b.travel_date))
 
-  const handleDayClick = async (day: Date) => {
-    if (!selectedActivityId || isLoading) return
-    
-    // Normalize date to YYYY-MM-DD local time
-    const dateStr = format(day, "yyyy-MM-dd")
-
+  const toggleBlock = async (dateStr: string) => {
     setIsLoading(true)
     const res = await toggleActivityBlock(selectedActivityId, dateStr)
     if (res.success) {
@@ -64,6 +70,24 @@ export default function CalendarClient({
       toast.error(res.error || "Failed to update availability")
     }
     setIsLoading(false)
+  }
+
+  const handleDayClick = async (day: Date) => {
+    if (!selectedActivityId || isLoading) return
+    
+    // Normalize date to YYYY-MM-DD local time
+    const dateStr = format(day, "yyyy-MM-dd")
+    
+    // Check if there are bookings for this day
+    const dayBookings = currentActivityBookings.filter(b => b.travel_date === dateStr)
+    
+    if (dayBookings.length > 0) {
+      setDrawerDate(day)
+      setDrawerBookings(dayBookings)
+      return
+    }
+
+    await toggleBlock(dateStr)
   }
 
   return (
@@ -150,7 +174,7 @@ export default function CalendarClient({
           onDayClick={handleDayClick}
           modifiers={{
             blocked: currentActivityBlocks,
-            booked: currentBookings,
+            booked: bookedDates,
           }}
           modifiersClassNames={{
             blocked: 'blocked-day',
@@ -159,6 +183,61 @@ export default function CalendarClient({
           className="bg-white border border-zinc-100 rounded-2xl p-4 shadow-sm"
         />
       </div>
+
+      {/* Mobile Drawer (Guest Details) */}
+      {drawerDate && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+            onClick={() => setDrawerDate(null)}
+          ></div>
+          
+          {/* Drawer Content */}
+          <div className="bg-white rounded-t-3xl p-6 relative z-10 animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-y-auto w-full md:max-w-md md:mx-auto">
+            <div className="w-12 h-1.5 bg-zinc-200 rounded-full mx-auto mb-6"></div>
+            
+            <h3 className="text-2xl font-bold text-zinc-900 mb-1">
+              {format(drawerDate, 'MMMM d, yyyy')}
+            </h3>
+            <p className="text-sm text-zinc-500 mb-6">
+              {drawerBookings.length} {drawerBookings.length === 1 ? 'booking' : 'bookings'} expected
+            </p>
+
+            <div className="space-y-4 mb-8">
+              {drawerBookings.map((b, i) => (
+                <div key={b.id || i} className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex flex-col gap-2">
+                  <div className="flex justify-between items-start">
+                    <span className="font-bold text-zinc-900">{b.tourist_name}</span>
+                    <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full">{b.pax_count} Pax</span>
+                  </div>
+                  {b.tour_option && (
+                    <div className="text-sm text-zinc-500 font-medium">Time: {b.tour_option}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button 
+              className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50"
+              onClick={async () => {
+                await toggleBlock(format(drawerDate, "yyyy-MM-dd"))
+                setDrawerDate(null)
+              }}
+              disabled={isLoading}
+            >
+              Block Date (Prevent New Bookings)
+            </button>
+            
+            <button 
+              className="w-full mt-3 bg-white border-2 border-zinc-200 text-zinc-800 hover:bg-zinc-50 font-bold py-4 rounded-xl transition-colors"
+              onClick={() => setDrawerDate(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
