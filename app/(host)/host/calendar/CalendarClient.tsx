@@ -146,7 +146,7 @@ export default function CalendarClient({
         `}</style>
         
         <DayPicker
-          mode="default"
+          mode="multiple"
           onDayClick={handleDayClick}
           modifiers={{
             blocked: currentActivityBlocks,
