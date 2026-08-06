@@ -160,7 +160,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </Suspense>
 
       {/* Activity Grid */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-8">
         <ActivityGrid activities={activities} currentCategory={currentCategory} />
       </section>
 

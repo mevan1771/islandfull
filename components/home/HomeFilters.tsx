@@ -33,10 +33,24 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const currentSort = searchParams.get("sort") || ""
 
   const [optimisticCategory, setOptimisticCategory] = useState(currentCategory)
+  const [optimisticVertical, setOptimisticVertical] = useState(currentVertical)
 
   useEffect(() => {
     setOptimisticCategory(currentCategory)
   }, [currentCategory])
+
+  useEffect(() => {
+    setOptimisticVertical(currentVertical)
+  }, [currentVertical])
+
+  useEffect(() => {
+    const grid = document.getElementById('activity-grid-container')
+    if (grid) {
+      grid.style.opacity = isPending ? '0.5' : '1'
+      grid.style.pointerEvents = isPending ? 'none' : 'auto'
+      grid.style.transition = 'opacity 0.2s'
+    }
+  }, [isPending])
 
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
@@ -103,6 +117,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   }
 
   const handleVerticalClick = (vertical: string) => {
+    setOptimisticVertical(vertical)
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category") // Reset category when switching vertical
@@ -132,19 +147,19 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
           <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-6">
             <button 
               onClick={() => handleVerticalClick('tour')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Map className="w-4 h-4" /> Tours
             </button>
             <button 
               onClick={() => handleVerticalClick('event')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Calendar className="w-4 h-4" /> Events
             </button>
             <button 
               onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Bike className="w-4 h-4" /> Transport
             </button>
