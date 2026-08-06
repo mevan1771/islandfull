@@ -5,6 +5,7 @@ import { validatePromoCode } from '@/app/actions/promo'
 import { eachDayOfInterval, parseISO, format } from 'date-fns'
 import { sendPendingEmail, sendReceiptEmail } from '@/app/actions/email'
 import { revalidatePath } from 'next/cache'
+import { getExchangeRate } from '@/app/actions/settings'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -109,7 +110,8 @@ export async function POST(req: Request) {
         discount_amount_usd: discountAmountUsd,
         platform_fee_usd: platformFeeUsd,
         host_payout_usd: hostPayoutUsd,
-        commission_rate_applied: commissionRate
+        commission_rate_applied: commissionRate,
+        exchange_rate_used: await getExchangeRate()
       })
       .select('id')
       .single()

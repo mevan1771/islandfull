@@ -10,6 +10,7 @@ export default function HostNavigation() {
     { name: "Today", href: "/host" },
     { name: "Bookings", href: "/host/bookings" },
     { name: "My Tours", href: "/host/tours" },
+    { name: "Earnings", href: "/host/earnings" },
     { name: "Calendar", href: "/host/calendar" },
   ]
 
