@@ -9,6 +9,14 @@ export async function toggleActivityBlock(activityId: string, blockedDate: strin
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
 
+    const { data: host } = await supabase
+      .from('hosts')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+      
+    if (!host) return { success: false, error: "Unauthorized" }
+
     // Verify activity ownership
     const { data: activity } = await supabase
       .from('activities')
@@ -16,7 +24,7 @@ export async function toggleActivityBlock(activityId: string, blockedDate: strin
       .eq('id', activityId)
       .single()
 
-    if (activity?.host_id !== user.id) {
+    if (activity?.host_id !== host.id) {
       return { success: false, error: "Unauthorized: You do not own this activity." }
     }
 
@@ -42,7 +50,7 @@ export async function toggleActivityBlock(activityId: string, blockedDate: strin
         .from('activity_blocks')
         .insert({
           activity_id: activityId,
-          host_id: user.id,
+          host_id: host.id,
           blocked_date: blockedDate
         })
 

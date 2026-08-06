@@ -33,12 +33,14 @@ export default async function HostCalendarPage() {
 
   let activities: { id: string, title: string }[] = []
   
-  const { data } = await supabase
-    .from('activities')
-    .select('id, title')
-    .eq('host_id', user.id)
-    
-  if (data) activities = data
+  if (host) {
+    const { data } = await supabase
+      .from('activities')
+      .select('id, title')
+      .eq('host_id', host.id)
+      
+    if (data) activities = data
+  }
 
   const activityIds = activities.map(a => a.id)
 
