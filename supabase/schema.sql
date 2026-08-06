@@ -105,19 +105,28 @@ CREATE POLICY "Allow public read access to global_settings" ON global_settings F
 -- Activity Blocks Table (Availability Management)
 CREATE TABLE activity_blocks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  activity_id UUID REFERENCES activities(id) ON DELETE CASCADE,
-  host_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  activity_id UUID REFERENCES activities(id) ON DELETE CASCADE NOT NULL,
+  host_id UUID REFERENCES hosts(id) ON DELETE CASCADE NOT NULL,
   blocked_date DATE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(activity_id, blocked_date)
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  CONSTRAINT unique_activity_date UNIQUE (activity_id, blocked_date)
 );
 
 ALTER TABLE activity_blocks ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow public read access to activity_blocks" 
+CREATE POLICY "Allow public read access to activity blocks" 
 ON activity_blocks FOR SELECT USING (true);
 
-CREATE POLICY "Hosts can manage their own activity blocks" 
+CREATE POLICY "Hosts can manage their own blocks" 
 ON activity_blocks FOR ALL 
-USING (host_id = auth.uid())
-WITH CHECK (host_id = auth.uid());
+TO authenticated
+USING (
+  host_id IN (
+    SELECT id FROM hosts WHERE user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  host_id IN (
+    SELECT id FROM hosts WHERE user_id = auth.uid()
+  )
+);
