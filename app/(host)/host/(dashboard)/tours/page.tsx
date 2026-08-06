@@ -40,23 +40,10 @@ export default async function HostToursPage() {
       .order('created_at', { ascending: false })
       
     if (error) {
-      console.error("DEBUG TOURS PAGE - Error fetching activities:", error)
+      console.error("DEBUG TOURS PAGE - Supabase Error:", error)
+      // If the error is about missing columns, we know the SQL migration wasn't run
     }
-    console.log("DEBUG TOURS PAGE - activities result:", data?.length);
-    if (data) activities = data
-  } else {
-    // Fallback: try querying by user.id directly if host profile wasn't found or if schema uses user.id
-    console.log("DEBUG TOURS PAGE - No host found, trying user.id directly");
-    const { data, error } = await supabase
-      .from('activities')
-      .select('id, title, status, is_paused_by_host, view_count, price_usd, card_image_url, cover_image_url')
-      .eq('host_id', user.id)
-      .order('created_at', { ascending: false })
-      
-    if (error) {
-      console.error("DEBUG TOURS PAGE - Error fetching activities (user.id fallback):", error)
-    }
-    console.log("DEBUG TOURS PAGE - activities result (user.id fallback):", data?.length);
+    
     if (data) activities = data
   }
 
