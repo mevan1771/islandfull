@@ -50,7 +50,7 @@ export async function generateMetadata(
   try {
     const { data } = await supabase
       .from('activities')
-      .select('title, description, cover_image_url, location')
+      .select('id, title, description, cover_image_url, location')
       .eq('slug', slug)
       .eq('status', 'published')
       .eq('is_paused_by_host', false)
