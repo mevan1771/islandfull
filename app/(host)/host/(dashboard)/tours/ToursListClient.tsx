@@ -2,7 +2,7 @@
 
 import { useOptimistic, startTransition } from "react"
 import Image from "next/image"
-import { Eye, MapMap, Info } from "lucide-react"
+import { Eye, MapPin, Info } from "lucide-react"
 import { toggleActivityPauseState } from "@/app/actions/tours"
 
 interface Tour {
