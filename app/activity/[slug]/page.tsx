@@ -121,19 +121,34 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     : undefined;
 
   let moreActivities = [];
-  if (activity?.host_id) {
-    const { data: moreData } = await supabase
-      .from('activities')
-      .select('*, reviews(rating)')
-      .eq('host_id', activity.host_id)
-      .eq('status', 'published')
-      .neq('id', activity.id)
-      .limit(4);
+  let blockedDates: string[] = [];
+
+  if (activity) {
+    if (activity.host_id) {
+      const { data: moreData } = await supabase
+        .from('activities')
+        .select('*, reviews(rating)')
+        .eq('host_id', activity.host_id)
+        .eq('status', 'published')
+        .neq('id', activity.id)
+        .limit(4);
+      
+      if (moreData) {
+        moreActivities = moreData;
+      }
+    }
+
+    const { data: blocks } = await supabase
+      .from('activity_blocks')
+      .select('blocked_date')
+      .eq('activity_id', activity.id);
     
-    if (moreData) {
-      moreActivities = moreData;
+    if (blocks) {
+      blockedDates = blocks.map(b => b.blocked_date);
     }
   }
+
+  const allBlackoutDates = [...(activity?.blackout_dates || []), ...blockedDates];
 
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
@@ -291,7 +306,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               tourOptions={activity.tour_options}
               paymentStrategy={activity.payment_strategy}
               hasPickup={activity.has_pickup}
-              blackoutDates={activity.blackout_dates || []}
+              blackoutDates={allBlackoutDates}
               isHiddenGem={activity.is_hidden_gem}
               rating={avgRating}
               reviewCount={reviewCount}
@@ -350,7 +365,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           tourOptions={activity.tour_options}
           paymentStrategy={activity.payment_strategy}
           hasPickup={activity.has_pickup}
-          blackoutDates={activity.blackout_dates || []}
+          blackoutDates={allBlackoutDates}
           isHiddenGem={activity.is_hidden_gem}
           rating={avgRating}
           reviewCount={reviewCount}

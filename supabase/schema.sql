@@ -101,3 +101,23 @@ CREATE TABLE global_settings (
 
 ALTER TABLE global_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access to global_settings" ON global_settings FOR SELECT USING (true);
+
+-- Activity Blocks Table (Availability Management)
+CREATE TABLE activity_blocks (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  activity_id UUID REFERENCES activities(id) ON DELETE CASCADE,
+  host_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  blocked_date DATE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(activity_id, blocked_date)
+);
+
+ALTER TABLE activity_blocks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to activity_blocks" 
+ON activity_blocks FOR SELECT USING (true);
+
+CREATE POLICY "Hosts can manage their own activity blocks" 
+ON activity_blocks FOR ALL 
+USING (host_id = auth.uid())
+WITH CHECK (host_id = auth.uid());

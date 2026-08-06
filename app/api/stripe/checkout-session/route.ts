@@ -25,6 +25,18 @@ export async function POST(req: Request) {
     const commissionRate = activity?.commission_rate || 15.00
     const maxCapacity = activity?.max_capacity || 10
 
+    // Full-Day Availability Block Validation
+    const { data: blockedDate } = await supabaseAdmin
+      .from('activity_blocks')
+      .select('id')
+      .eq('activity_id', activityId)
+      .eq('blocked_date', date)
+      .single()
+
+    if (blockedDate) {
+      return new NextResponse(`The selected date (${date}) is blocked and unavailable for booking.`, { status: 400 })
+    }
+
     // Multi-Day Overlap Validation
     if (bookingType === 'multi_day' && endDate) {
       const { data: overlappingBookings } = await supabaseAdmin
