@@ -69,12 +69,12 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     <>
       <section>
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Gallery</h2>
-        <div className="grid grid-cols-2 gap-1 sm:gap-2 rounded-xl overflow-hidden w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
+        <div className="grid grid-cols-2 gap-1 sm:gap-2 w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
           {galleryUrls.map((url: string, i: number) => {
             return (
               <div 
                 key={i} 
-                className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-none overflow-hidden bg-gray-100"
+                className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-2xl overflow-hidden bg-gray-100"
                 onClick={() => setSelectedIndex(i)}
               >
                 <Image 
