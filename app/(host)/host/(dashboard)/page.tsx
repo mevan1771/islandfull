@@ -140,34 +140,37 @@ export default async function HostDashboard() {
                 const lkrPrice = b.total_usd * rate
                 
                 return (
-                  <div key={b.id} className="bg-white p-3 rounded-2xl shadow-sm border border-zinc-100 flex items-center gap-4">
-                    <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
-                      <Image 
-                        src={imageUrl}
-                        alt={b.activities?.title || 'Activity'}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-zinc-900 truncate">{b.tourist_name}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-700 whitespace-nowrap ml-2">
-                          {b.status.replace('_', ' ')}
-                        </span>
+                  <div key={b.id} className="bg-white p-4 rounded-2xl shadow-sm border border-zinc-100 flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
+                        <Image 
+                          src={imageUrl}
+                          alt={b.activities?.title || 'Activity'}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                      <div className="text-xs text-zinc-500 truncate">
-                        {b.activities?.title}
-                        {b.tour_option && ` @ ${b.tour_option}`}
-                      </div>
-                      <div className="flex items-center justify-between mt-1">
-                        <div className="text-xs font-semibold text-rose-600">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
-                        <div className="text-xs font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md">
-                          Rs. {lkrPrice.toLocaleString()} <span className="text-zinc-400 font-medium">/ ${b.total_usd}</span>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="font-bold text-zinc-900 truncate text-sm">{b.tourist_name}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-700 whitespace-nowrap ml-2 shrink-0">
+                            {b.status.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="text-xs text-zinc-500 truncate">
+                          {b.activities?.title}
+                          {b.tour_option && ` @ ${b.tour_option}`}
+                        </div>
+                        <div className="text-xs font-semibold text-rose-600 mt-1">
+                          {b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}
                         </div>
                       </div>
                     </div>
-                    <div className="shrink-0">
+                    
+                    <div className="flex items-center justify-between pt-3 border-t border-zinc-100/50">
+                      <div className="text-sm font-bold text-zinc-900 bg-zinc-50 px-2.5 py-1 rounded-lg border border-zinc-100">
+                        Rs. {lkrPrice.toLocaleString()} <span className="text-zinc-400 font-medium text-xs">/ ${b.total_usd}</span>
+                      </div>
                       <ManualCheckInButton bookingId={b.id} status={b.status} />
                     </div>
                   </div>
@@ -191,34 +194,37 @@ export default async function HostDashboard() {
                 const lkrPrice = b.total_usd * rate
                 
                 return (
-                  <div key={b.id} className="bg-amber-50 p-3 rounded-2xl shadow-sm border border-amber-200 flex items-center gap-4">
-                    <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100 border border-amber-200/50">
-                      <Image 
-                        src={imageUrl}
-                        alt={b.activities?.title || 'Activity'}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-zinc-900 truncate">{b.tourist_name}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-200 text-amber-800 whitespace-nowrap ml-2">
-                          Unpaid
-                        </span>
+                  <div key={b.id} className="bg-amber-50 p-4 rounded-2xl shadow-sm border border-amber-200 flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-zinc-100 border border-amber-200/50">
+                        <Image 
+                          src={imageUrl}
+                          alt={b.activities?.title || 'Activity'}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                      <div className="text-xs text-zinc-500 truncate">
-                        {b.activities?.title}
-                        {b.tour_option && ` @ ${b.tour_option}`}
-                      </div>
-                      <div className="flex items-center justify-between mt-1">
-                        <div className="text-xs font-semibold text-rose-600">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
-                        <div className="text-xs font-bold text-amber-900 bg-amber-200/50 px-2 py-0.5 rounded-md">
-                          Rs. {lkrPrice.toLocaleString()} <span className="text-amber-700/60 font-medium">/ ${b.total_usd}</span>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="font-bold text-zinc-900 truncate text-sm">{b.tourist_name}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-200 text-amber-800 whitespace-nowrap ml-2 shrink-0">
+                            Unpaid
+                          </span>
+                        </div>
+                        <div className="text-xs text-zinc-500 truncate">
+                          {b.activities?.title}
+                          {b.tour_option && ` @ ${b.tour_option}`}
+                        </div>
+                        <div className="text-xs font-semibold text-rose-600 mt-1">
+                          {b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}
                         </div>
                       </div>
                     </div>
-                    <div className="shrink-0">
+                    
+                    <div className="flex items-center justify-between pt-3 border-t border-amber-200/50">
+                      <div className="text-sm font-bold text-amber-900 bg-amber-200/50 px-2.5 py-1 rounded-lg border border-amber-200/50">
+                        Rs. {lkrPrice.toLocaleString()} <span className="text-amber-700/60 font-medium text-xs">/ ${b.total_usd}</span>
+                      </div>
                       <ManualCheckInButton bookingId={b.id} status={b.status} />
                     </div>
                   </div>
