@@ -193,12 +193,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
               </p>
               {featuredSpotlight?.target_url ? (
                 <Link href={featuredSpotlight.target_url}>
-                  <button className="mt-2 md:mt-4 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 md:px-8 md:py-3 rounded-lg md:rounded-full font-semibold text-sm md:text-base transition-all">
+                  <button className="mt-3 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 md:px-7 md:py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                     {featuredSpotlight.button_text || "Find More"}
                   </button>
                 </Link>
               ) : (
-                <button className="mt-2 md:mt-4 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 md:px-8 md:py-3 rounded-lg md:rounded-full font-semibold text-sm md:text-base transition-all">
+                <button className="mt-3 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 md:px-7 md:py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                   {featuredSpotlight?.button_text || "Find More"}
                 </button>
               )}
