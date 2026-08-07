@@ -203,11 +203,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-2 md:gap-4 h-[220px] md:h-[500px] mt-2 md:mt-0">
-              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:mt-8 aspect-auto">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 h-[240px] md:h-[500px] mt-4 md:mt-0 pb-4 md:pb-0">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg -mt-4 md:mt-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_1 || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
               </div>
-              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:mb-8 aspect-auto">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:-translate-y-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
             </div>
