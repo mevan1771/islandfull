@@ -194,16 +194,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                   : "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures."}
               </p>
               
-              {/* Desktop Button (Hidden on Mobile) */}
-              <div className="hidden md:block">
+              {/* Button */}
+              <div>
                 {featuredSpotlight?.target_url ? (
                   <Link href={featuredSpotlight.target_url}>
-                    <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                    <button className="mt-2 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                       {featuredSpotlight.button_text || "Find More"}
                     </button>
                   </Link>
                 ) : (
-                  <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                  <button className="mt-2 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                     {featuredSpotlight?.button_text || "Find More"}
                   </button>
                 )}
@@ -218,21 +218,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
               <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:-translate-y-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
-            </div>
-
-            {/* Mobile Button (Hidden on Desktop, displayed below images) */}
-            <div className="md:hidden flex justify-start -mt-2">
-              {featuredSpotlight?.target_url ? (
-                <Link href={featuredSpotlight.target_url}>
-                  <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                    {featuredSpotlight.button_text || "Find More"}
-                  </button>
-                </Link>
-              ) : (
-                <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                  {featuredSpotlight?.button_text || "Find More"}
-                </button>
-              )}
             </div>
 
           </div>
