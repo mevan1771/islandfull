@@ -203,11 +203,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                 </button>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4 h-[300px] md:h-[500px]">
-              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mt-4 md:mt-8 aspect-[4/3] md:aspect-auto">
+            <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none md:grid-cols-2 gap-4 md:gap-4 h-[300px] md:h-[500px] pb-4 md:pb-0 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+              <div className="relative min-w-[85%] md:min-w-0 w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg md:mt-8 snap-center aspect-[4/3] md:aspect-auto shrink-0 md:shrink">
                 <Image src={featuredSpotlight?.image_url_1 || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
               </div>
-              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mb-4 md:mb-8 aspect-[4/3] md:aspect-auto">
+              <div className="relative min-w-[85%] md:min-w-0 w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg md:mb-8 snap-center aspect-[4/3] md:aspect-auto shrink-0 md:shrink">
                 <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
             </div>
