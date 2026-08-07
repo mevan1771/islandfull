@@ -45,16 +45,17 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
       formData.append('folder', 'spotlight')
       
       const result = await uploadToCloudinary(formData)
-      if (result.success && result.url) {
+      if (result.success && result.secure_url) {
         setConfig(prev => ({
           ...prev,
-          [`image_url_${imageSlot}`]: result.url
+          [`image_url_${imageSlot}`]: result.secure_url
         }))
         toast.success(`Image ${imageSlot} uploaded successfully!`)
       } else {
         throw new Error(result.error || "Upload failed")
       }
     } catch (err: any) {
+      console.error("Image upload error:", err)
       toast.error(err.message || "Failed to upload image")
     } finally {
       if (imageSlot === 1) setIsUploading1(false)
