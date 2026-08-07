@@ -66,7 +66,7 @@ export default async function HostDashboard() {
   if (activityIds.length > 0) {
     const { data: bookings, error } = await supabase
       .from('bookings')
-      .select('id, tourist_name, pax_count, status, travel_date, activities(title, start_time, card_image_url, cover_image_url)')
+      .select('id, tourist_name, pax_count, status, travel_date, tour_option, activities(title, card_image_url, cover_image_url)')
       .in('activity_id', activityIds)
       .in('status', ['pending', 'pending_payment', 'confirmed', 'completed', 'redeemed', 'paid'])
       .eq('travel_date', today)
@@ -152,7 +152,10 @@ export default async function HostDashboard() {
                           {b.status.replace('_', ' ')}
                         </span>
                       </div>
-                      <div className="text-xs text-zinc-500 truncate">{b.activities?.title} @ {b.activities?.start_time}</div>
+                      <div className="text-xs text-zinc-500 truncate">
+                        {b.activities?.title}
+                        {b.tour_option && ` @ ${b.tour_option}`}
+                      </div>
                       <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
                     </div>
                     <div className="shrink-0">
@@ -191,7 +194,10 @@ export default async function HostDashboard() {
                           Unpaid
                         </span>
                       </div>
-                      <div className="text-xs text-zinc-500 truncate">{b.activities?.title} @ {b.activities?.start_time}</div>
+                      <div className="text-xs text-zinc-500 truncate">
+                        {b.activities?.title}
+                        {b.tour_option && ` @ ${b.tour_option}`}
+                      </div>
                       <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
                     </div>
                     <div className="shrink-0">
