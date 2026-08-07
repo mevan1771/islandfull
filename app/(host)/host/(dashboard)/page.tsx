@@ -64,13 +64,19 @@ export default async function HostDashboard() {
   let bookingsData: any[] = []
 
   if (activityIds.length > 0) {
-    const { data: bookings } = await supabase
+    const { data: bookings, error } = await supabase
       .from('bookings')
-      .select('id, tourist_name, pax_count, status, activities(title, start_time, card_image_url, cover_image_url)')
+      .select('id, tourist_name, pax_count, status, travel_date, activities(title, start_time, card_image_url, cover_image_url)')
       .in('activity_id', activityIds)
       .in('status', ['pending', 'pending_payment', 'confirmed', 'completed', 'redeemed', 'paid'])
       .eq('travel_date', today)
       .order('created_at', { ascending: true })
+
+    console.log("DEBUG TODAY TAB - Host ID:", host?.id, "User ID:", user.id)
+    console.log("DEBUG TODAY TAB - Target Date String:", today)
+    console.log("DEBUG TODAY TAB - Raw Bookings Query Error:", error)
+    console.log("DEBUG TODAY TAB - Raw Bookings Result Count:", bookings?.length)
+    console.log("DEBUG TODAY TAB - Raw Bookings Data:", JSON.stringify(bookings, null, 2))
 
     if (bookings) {
       bookingsData = bookings
