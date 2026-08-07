@@ -55,7 +55,7 @@ export default async function HostDashboard() {
   if (activityIds.length > 0) {
     const { data: bookings } = await supabase
       .from('bookings')
-      .select('id, tourist_name, pax_count, status, activities(title, start_time)')
+      .select('id, tourist_name, pax_count, status, activities(title, start_time, card_image_url, cover_image_url)')
       .in('activity_id', activityIds)
       .in('status', ['pending', 'pending_payment', 'confirmed', 'completed', 'redeemed', 'paid'])
       .eq('travel_date', today)
@@ -111,23 +111,81 @@ export default async function HostDashboard() {
         </div>
 
         <div className="mt-8">
-          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Today's Roster</h2>
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Confirmed / Paid Arrivals</h2>
           <div className="space-y-3">
-            {!bookingsData || bookingsData.length === 0 ? (
-              <p className="text-zinc-500 text-sm text-center bg-zinc-100 p-8 rounded-2xl border border-zinc-200">No bookings scheduled for today.</p>
+            {!bookingsData || bookingsData.filter(b => !['pending', 'pending_payment'].includes(b.status)).length === 0 ? (
+              <p className="text-zinc-500 text-sm text-center bg-zinc-100 p-8 rounded-2xl border border-zinc-200">No confirmed bookings for today.</p>
             ) : (
-              bookingsData.map(b => (
-                <div key={b.id} className="bg-white p-4 rounded-2xl shadow-sm border border-zinc-100 flex justify-between items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-zinc-900">{b.tourist_name}</span>
-                    <span className="text-xs text-zinc-500 mt-1">{b.activities?.title} @ {b.activities?.start_time} &bull; {b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</span>
+              bookingsData.filter(b => !['pending', 'pending_payment'].includes(b.status)).map(b => {
+                const imageUrl = b.activities?.card_image_url || b.activities?.cover_image_url || 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
+                return (
+                  <div key={b.id} className="bg-white p-3 rounded-2xl shadow-sm border border-zinc-100 flex items-center gap-4">
+                    <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
+                      <Image 
+                        src={imageUrl}
+                        alt={b.activities?.title || 'Activity'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-zinc-900 truncate">{b.tourist_name}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-emerald-100 text-emerald-700 whitespace-nowrap ml-2">
+                          {b.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="text-xs text-zinc-500 truncate">{b.activities?.title} @ {b.activities?.start_time}</div>
+                      <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                    </div>
+                    <div className="shrink-0">
+                      <ManualCheckInButton bookingId={b.id} status={b.status} />
+                    </div>
                   </div>
-                  <ManualCheckInButton bookingId={b.id} status={b.status} />
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>
+
+        {bookingsData && bookingsData.filter(b => ['pending', 'pending_payment'].includes(b.status)).length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-sm font-bold text-amber-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              Gate Collection (Unpaid)
+            </h2>
+            <div className="space-y-3">
+              {bookingsData.filter(b => ['pending', 'pending_payment'].includes(b.status)).map(b => {
+                const imageUrl = b.activities?.card_image_url || b.activities?.cover_image_url || 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
+                return (
+                  <div key={b.id} className="bg-amber-50 p-3 rounded-2xl shadow-sm border border-amber-200 flex items-center gap-4">
+                    <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100 border border-amber-200/50">
+                      <Image 
+                        src={imageUrl}
+                        alt={b.activities?.title || 'Activity'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-zinc-900 truncate">{b.tourist_name}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-200 text-amber-800 whitespace-nowrap ml-2">
+                          Unpaid
+                        </span>
+                      </div>
+                      <div className="text-xs text-zinc-500 truncate">{b.activities?.title} @ {b.activities?.start_time}</div>
+                      <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                    </div>
+                    <div className="shrink-0">
+                      <ManualCheckInButton bookingId={b.id} status={b.status} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 mb-4">
             <p className="text-sm text-zinc-500 text-center">Data automatically refreshes when you scan a ticket.</p>
