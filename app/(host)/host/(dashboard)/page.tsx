@@ -26,8 +26,8 @@ export default async function HostDashboard() {
     redirect('/host/login')
   }
 
-  // Get today's bookings for this host
-  const today = new Date().toISOString().split('T')[0]
+  // Get today's bookings for this host (force Sri Lanka timezone for Islandfull)
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Colombo' })
   
   // Get host profile for this user
   const { data: host } = await supabase
@@ -45,6 +45,16 @@ export default async function HostDashboard() {
       .eq('host_id', host.id)
     
     activityIds = activities?.map(a => a.id) || []
+  }
+
+  // Fallback: If no activities found via host.id, try user.id directly (schema variation)
+  if (activityIds.length === 0) {
+    const { data: activitiesFallback } = await supabase
+      .from('activities')
+      .select('id')
+      .eq('host_id', user.id)
+      
+    activityIds = activitiesFallback?.map(a => a.id) || []
   }
 
   let expectedGuests = 0
