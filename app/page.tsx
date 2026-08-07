@@ -43,18 +43,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   try {
     const currentVertical = params.vertical || 'tour';
     
-    // Fetch a featured spotlight item
-    const { data: featuredData } = await supabase
-      .from('activities')
-      .select('id, title, slug, description, card_image_url, cover_image_url')
-      .eq('is_featured', true)
-      .eq('status', 'published')
-      .order('created_at', { ascending: false })
-      .limit(1)
+    // Fetch the dynamic spotlight settings from global_settings
+    const { data: spotlightSetting } = await supabase
+      .from('global_settings')
+      .select('value')
+      .eq('key', 'featured_spotlight')
       .single();
       
-    if (featuredData) {
-      featuredSpotlight = featuredData;
+    if (spotlightSetting && spotlightSetting.value) {
+      featuredSpotlight = spotlightSetting.value;
     }
 
     let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
@@ -194,24 +191,24 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                   ? featuredSpotlight.description.replace(/<[^>]*>?/gm, '') 
                   : "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures."}
               </p>
-              {featuredSpotlight ? (
-                <Link href={`/activity/${featuredSpotlight.slug}`}>
+              {featuredSpotlight?.target_url ? (
+                <Link href={featuredSpotlight.target_url}>
                   <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl md:rounded-full font-semibold transition-all">
-                    Find More
+                    {featuredSpotlight.button_text || "Find More"}
                   </button>
                 </Link>
               ) : (
                 <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl md:rounded-full font-semibold transition-all">
-                  Find More
+                  {featuredSpotlight?.button_text || "Find More"}
                 </button>
               )}
             </div>
             <div className="grid grid-cols-2 gap-4 h-[300px] md:h-[500px]">
               <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mt-4 md:mt-8 aspect-[4/3] md:aspect-auto">
-                <Image src={featuredSpotlight?.card_image_url || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
+                <Image src={featuredSpotlight?.image_url_1 || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
               </div>
               <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg mb-4 md:mb-8 aspect-[4/3] md:aspect-auto">
-                <Image src={featuredSpotlight?.cover_image_url || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
+                <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
             </div>
           </div>

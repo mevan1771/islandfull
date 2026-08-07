@@ -93,3 +93,23 @@ export async function updateGlobalSetting(key: string, value: any) {
     return { success: false, error: error.message || "Failed to save settings" }
   }
 }
+
+export async function getGlobalSetting(key: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('global_settings')
+      .select('value')
+      .eq('key', key)
+      .single()
+      
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows found"
+      console.error(`Error fetching global setting [${key}]:`, error)
+      return null
+    }
+    
+    return data ? data.value : null
+  } catch (error) {
+    console.error(`Exception fetching global setting [${key}]:`, error)
+    return null
+  }
+}
