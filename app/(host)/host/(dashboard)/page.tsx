@@ -55,18 +55,19 @@ export default async function HostDashboard() {
   if (activityIds.length > 0) {
     const { data: bookings } = await supabase
       .from('bookings')
-      .select('id, full_name, pax_count, status, activities(title, start_time)')
+      .select('id, tourist_name, pax_count, status, activities(title, start_time)')
       .in('activity_id', activityIds)
+      .in('status', ['pending', 'pending_payment', 'confirmed', 'completed', 'redeemed', 'paid'])
       .eq('travel_date', today)
       .order('created_at', { ascending: true })
 
     if (bookings) {
       bookingsData = bookings
       bookings.forEach(b => {
-        if (b.status === 'confirmed' || b.status === 'completed' || b.status === 'redeemed' || b.status === 'pending_payment') {
+        if (b.status === 'confirmed' || b.status === 'completed' || b.status === 'redeemed' || b.status === 'pending_payment' || b.status === 'paid' || b.status === 'pending') {
           expectedGuests += b.pax_count
         }
-        if (b.status === 'confirmed' || b.status === 'completed' || b.status === 'pending_payment') {
+        if (b.status === 'confirmed' || b.status === 'completed' || b.status === 'pending_payment' || b.status === 'paid' || b.status === 'pending') {
           pendingArrival += b.pax_count
         }
         if (b.status === 'redeemed') {
@@ -118,7 +119,7 @@ export default async function HostDashboard() {
               bookingsData.map(b => (
                 <div key={b.id} className="bg-white p-4 rounded-2xl shadow-sm border border-zinc-100 flex justify-between items-center gap-4">
                   <div className="flex flex-col">
-                    <span className="font-bold text-zinc-900">{b.full_name}</span>
+                    <span className="font-bold text-zinc-900">{b.tourist_name}</span>
                     <span className="text-xs text-zinc-500 mt-1">{b.activities?.title} @ {b.activities?.start_time} &bull; {b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</span>
                   </div>
                   <ManualCheckInButton bookingId={b.id} status={b.status} />
