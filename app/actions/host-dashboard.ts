@@ -26,3 +26,27 @@ export async function manualCheckIn(bookingId: string) {
     return { success: false, error: err.message || "An unexpected error occurred" }
   }
 }
+
+export async function revertBookingToPending(bookingId: string) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'pending' })
+      .eq('id', bookingId)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    revalidatePath('/host')
+    revalidatePath('/host/bookings')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || "An unexpected error occurred" }
+  }
+}
+
