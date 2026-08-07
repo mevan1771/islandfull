@@ -66,7 +66,7 @@ export default async function HostDashboard() {
   if (activityIds.length > 0) {
     const { data: bookings, error } = await supabase
       .from('bookings')
-      .select('id, tourist_name, pax_count, status, travel_date, tour_option, activities(title, card_image_url, cover_image_url)')
+      .select('id, tourist_name, pax_count, status, travel_date, tour_option, total_usd, exchange_rate_used, activities(title, card_image_url, cover_image_url)')
       .in('activity_id', activityIds)
       .in('status', ['pending', 'pending_payment', 'confirmed', 'completed', 'redeemed', 'paid'])
       .eq('travel_date', today)
@@ -135,6 +135,10 @@ export default async function HostDashboard() {
             ) : (
               bookingsData.filter(b => !['pending', 'pending_payment'].includes(b.status)).map(b => {
                 const imageUrl = b.activities?.card_image_url || b.activities?.cover_image_url || 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
+                const fallbackRate = 300 // Fallback if no rate locked
+                const rate = b.exchange_rate_used || fallbackRate
+                const lkrPrice = b.total_usd * rate
+                
                 return (
                   <div key={b.id} className="bg-white p-3 rounded-2xl shadow-sm border border-zinc-100 flex items-center gap-4">
                     <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
@@ -156,7 +160,12 @@ export default async function HostDashboard() {
                         {b.activities?.title}
                         {b.tour_option && ` @ ${b.tour_option}`}
                       </div>
-                      <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="text-xs font-semibold text-rose-600">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                        <div className="text-xs font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md">
+                          Rs. {lkrPrice.toLocaleString()} <span className="text-zinc-400 font-medium">/ ${b.total_usd}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="shrink-0">
                       <ManualCheckInButton bookingId={b.id} status={b.status} />
@@ -177,6 +186,10 @@ export default async function HostDashboard() {
             <div className="space-y-3">
               {bookingsData.filter(b => ['pending', 'pending_payment'].includes(b.status)).map(b => {
                 const imageUrl = b.activities?.card_image_url || b.activities?.cover_image_url || 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
+                const fallbackRate = 300 // Fallback if no rate locked
+                const rate = b.exchange_rate_used || fallbackRate
+                const lkrPrice = b.total_usd * rate
+                
                 return (
                   <div key={b.id} className="bg-amber-50 p-3 rounded-2xl shadow-sm border border-amber-200 flex items-center gap-4">
                     <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-zinc-100 border border-amber-200/50">
@@ -198,7 +211,12 @@ export default async function HostDashboard() {
                         {b.activities?.title}
                         {b.tour_option && ` @ ${b.tour_option}`}
                       </div>
-                      <div className="text-xs font-semibold text-rose-600 mt-0.5">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="text-xs font-semibold text-rose-600">{b.pax_count} Guest{b.pax_count !== 1 ? 's' : ''}</div>
+                        <div className="text-xs font-bold text-amber-900 bg-amber-200/50 px-2 py-0.5 rounded-md">
+                          Rs. {lkrPrice.toLocaleString()} <span className="text-amber-700/60 font-medium">/ ${b.total_usd}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="shrink-0">
                       <ManualCheckInButton bookingId={b.id} status={b.status} />
