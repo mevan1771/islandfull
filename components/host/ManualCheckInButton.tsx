@@ -14,9 +14,19 @@ export default function ManualCheckInButton({ bookingId, status }: { bookingId: 
 
   if (isRedeemed) {
     return (
-      <div className="flex items-center gap-2 text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
-        <CheckCircle2 className="w-4 h-4" />
-        Checked In
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleRevert}
+          disabled={isReverting}
+          title="Mark as Unpaid"
+          className="flex items-center justify-center w-9 h-9 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 transition-colors rounded-xl border border-transparent hover:border-rose-100 disabled:opacity-50"
+        >
+          {isReverting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+        </button>
+        <div className="flex items-center gap-2 text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 h-9">
+          <CheckCircle2 className="w-4 h-4" />
+          Checked In
+        </div>
       </div>
     )
   }
