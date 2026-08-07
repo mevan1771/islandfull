@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { format } from 'date-fns'
 import { redirect } from 'next/navigation'
 import HostDashboardClient from './HostDashboardClient'
 import SignOutButton from '@/components/host/SignOutButton'
@@ -26,8 +27,8 @@ export default async function HostDashboard() {
     redirect('/host/login')
   }
 
-  // Get today's bookings for this host (force Sri Lanka timezone for Islandfull)
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Colombo' })
+  // Get today's bookings for this host
+  const today = format(new Date(), 'yyyy-MM-dd')
   
   // Get host profile for this user
   const { data: host } = await supabase
