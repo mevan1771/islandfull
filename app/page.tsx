@@ -179,35 +179,35 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </section>
 
       {/* Featured Tour Spotlight (Dynamic Our Story) */}
-      <section className="bg-zinc-50 py-12 md:py-24 mt-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6">
+      <section className="bg-zinc-50 py-8 md:py-24 mt-8 md:mt-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+            <div className="space-y-4 md:space-y-6">
               <h2 className="text-2xl md:text-5xl font-bold text-zinc-900 leading-tight line-clamp-3">
                 {featuredSpotlight ? featuredSpotlight.title : "Our Story: Driven By Wanderlust, Powered By Experience"}
               </h2>
-              <p className="text-zinc-600 text-lg leading-relaxed max-w-lg line-clamp-4">
+              <p className="text-zinc-600 text-sm md:text-lg leading-relaxed max-w-lg line-clamp-4">
                 {featuredSpotlight && featuredSpotlight.description 
                   ? featuredSpotlight.description.replace(/<[^>]*>?/gm, '') 
                   : "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures."}
               </p>
               {featuredSpotlight?.target_url ? (
                 <Link href={featuredSpotlight.target_url}>
-                  <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl md:rounded-full font-semibold transition-all">
+                  <button className="mt-2 md:mt-4 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 md:px-8 md:py-3 rounded-lg md:rounded-full font-semibold text-sm md:text-base transition-all">
                     {featuredSpotlight.button_text || "Find More"}
                   </button>
                 </Link>
               ) : (
-                <button className="mt-4 bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl md:rounded-full font-semibold transition-all">
+                <button className="mt-2 md:mt-4 bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 md:px-8 md:py-3 rounded-lg md:rounded-full font-semibold text-sm md:text-base transition-all">
                   {featuredSpotlight?.button_text || "Find More"}
                 </button>
               )}
             </div>
-            <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none md:grid-cols-2 gap-4 md:gap-4 h-[300px] md:h-[500px] pb-4 md:pb-0 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-              <div className="relative min-w-[85%] md:min-w-0 w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg md:mt-8 snap-center aspect-[4/3] md:aspect-auto shrink-0 md:shrink">
+            <div className="grid grid-cols-2 gap-2 md:gap-4 h-[220px] md:h-[500px] mt-2 md:mt-0">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:mt-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_1 || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
               </div>
-              <div className="relative min-w-[85%] md:min-w-0 w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg md:mb-8 snap-center aspect-[4/3] md:aspect-auto shrink-0 md:shrink">
+              <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:mb-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
             </div>
