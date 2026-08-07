@@ -179,9 +179,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </section>
 
       {/* Featured Tour Spotlight (Dynamic Our Story) */}
-      <section className="bg-zinc-50 py-8 md:py-24 mt-8 md:mt-12">
+      <section className="bg-zinc-50 py-10 md:py-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+            
+            {/* Text Content */}
             <div className="space-y-4 md:space-y-6">
               <h2 className="text-2xl md:text-5xl font-bold text-zinc-900 leading-tight line-clamp-3">
                 {featuredSpotlight ? featuredSpotlight.title : "Our Story: Driven By Wanderlust, Powered By Experience"}
@@ -191,19 +193,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                   ? featuredSpotlight.description.replace(/<[^>]*>?/gm, '') 
                   : "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures."}
               </p>
-              {featuredSpotlight?.target_url ? (
-                <Link href={featuredSpotlight.target_url}>
-                  <button className="mt-3 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 md:px-7 md:py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                    {featuredSpotlight.button_text || "Find More"}
+              
+              {/* Desktop Button (Hidden on Mobile) */}
+              <div className="hidden md:block">
+                {featuredSpotlight?.target_url ? (
+                  <Link href={featuredSpotlight.target_url}>
+                    <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                      {featuredSpotlight.button_text || "Find More"}
+                    </button>
+                  </Link>
+                ) : (
+                  <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                    {featuredSpotlight?.button_text || "Find More"}
                   </button>
-                </Link>
-              ) : (
-                <button className="mt-3 md:mt-5 bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 md:px-7 md:py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                  {featuredSpotlight?.button_text || "Find More"}
-                </button>
-              )}
+                )}
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 md:gap-4 h-[240px] md:h-[500px] mt-4 md:mt-0 pb-4 md:pb-0">
+
+            {/* Images */}
+            <div className="grid grid-cols-2 gap-3 md:gap-4 h-[240px] md:h-[500px] mt-2 md:mt-0 pb-4 md:pb-0">
               <div className="relative w-full h-full rounded-xl md:rounded-3xl overflow-hidden shadow-lg -mt-4 md:mt-8 aspect-auto">
                 <Image src={featuredSpotlight?.image_url_1 || "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 1" fill className="object-cover" />
               </div>
@@ -211,6 +219,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
                 <Image src={featuredSpotlight?.image_url_2 || "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Spotlight Image 2" fill className="object-cover" />
               </div>
             </div>
+
+            {/* Mobile Button (Hidden on Desktop, displayed below images) */}
+            <div className="md:hidden flex justify-start -mt-2">
+              {featuredSpotlight?.target_url ? (
+                <Link href={featuredSpotlight.target_url}>
+                  <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                    {featuredSpotlight.button_text || "Find More"}
+                  </button>
+                </Link>
+              ) : (
+                <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                  {featuredSpotlight?.button_text || "Find More"}
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       </section>
