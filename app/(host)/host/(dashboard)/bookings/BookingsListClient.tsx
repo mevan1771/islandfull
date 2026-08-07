@@ -51,8 +51,8 @@ export default function BookingsListClient({ bookings }: { bookings: Booking[] }
         const imageUrl = booking.activities?.card_image_url || booking.activities?.cover_image_url || 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800'
         
         return (
-          <div key={booking.id} className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex gap-4 transition-all hover:shadow-md">
-            <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
+          <div key={booking.id} className="bg-white rounded-2xl p-5 shadow-sm border border-zinc-100 flex flex-col sm:flex-row gap-5 transition-all hover:shadow-md">
+            <div className="relative w-full sm:w-28 h-40 sm:h-28 shrink-0 rounded-xl overflow-hidden bg-zinc-100">
               <Image 
                 src={imageUrl}
                 alt={booking.activities?.title || 'Activity'}
@@ -62,30 +62,32 @@ export default function BookingsListClient({ bookings }: { bookings: Booking[] }
             </div>
             
             <div className="flex-1 flex flex-col justify-center min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="font-bold text-zinc-900 text-base md:text-lg truncate flex items-center flex-wrap gap-2">
-                  {format(parseISO(booking.travel_date), 'MMM d, yyyy')}
+              <div className="flex items-start justify-between gap-4 mb-2">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-extrabold text-zinc-900 text-lg md:text-xl flex items-center flex-wrap gap-2">
+                    {format(parseISO(booking.travel_date), 'MMM d, yyyy')}
+                  </h3>
                   {booking.tour_option && (
-                    <span className="text-xs font-semibold text-zinc-500 inline-flex items-center gap-1 bg-zinc-100 px-2 py-0.5 rounded-md">
-                      <Clock className="w-3 h-3" />
+                    <span className="text-xs font-semibold text-zinc-500 inline-flex items-center gap-1 bg-zinc-50 px-2 py-1 rounded-md w-fit border border-zinc-100">
+                      <Clock className="w-3.5 h-3.5" />
                       {booking.tour_option}
                     </span>
                   )}
-                </h3>
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border whitespace-nowrap ${getStatusColor(booking.status)}`}>
+                </div>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border whitespace-nowrap mt-1 ${getStatusColor(booking.status)}`}>
                   {booking.status.replace('_', ' ')}
                 </span>
               </div>
               
-              <p className="text-sm font-medium text-zinc-500 truncate mb-2">
+              <p className="text-sm font-medium text-zinc-400 truncate mb-4">
                 {booking.activities?.title}
               </p>
               
-              <div className="flex items-center gap-2 text-sm font-bold text-zinc-900">
+              <div className="pt-3 border-t border-zinc-100 flex items-center gap-2 text-sm font-bold text-zinc-900">
                 <Users className="w-4 h-4 text-zinc-400" />
-                <span className="truncate">{booking.tourist_name}</span>
+                <span className="truncate text-zinc-700">{booking.tourist_name}</span>
                 <span className="text-zinc-300">•</span>
-                <span className="text-rose-600">{booking.pax_count} {booking.pax_count === 1 ? 'Guest' : 'Guests'}</span>
+                <span className="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">{booking.pax_count} {booking.pax_count === 1 ? 'Guest' : 'Guests'}</span>
               </div>
             </div>
           </div>
