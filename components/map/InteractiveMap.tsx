@@ -67,7 +67,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       // Cinematic Intro Fly-In
       map.flyTo({ 
         center: [80.7718, 7.8731], 
-        zoom: 7.2, 
+        zoom: 6.8, 
         pitch: 45, 
         duration: 3000, 
         essential: true,
