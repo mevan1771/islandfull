@@ -26,15 +26,23 @@ interface InteractiveMapProps {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
+// Create a type to hold our stable marker references
+interface MarkerRef {
+  marker: mapboxgl.Marker
+  el: HTMLDivElement
+  tour: MapTour
+  coords: { lat: number, lng: number }
+}
+
 export function InteractiveMap({ tours }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
-  const markersRef = useRef<{ [id: string]: mapboxgl.Marker }>({})
+  const markersRef = useRef<{ [id: string]: MarkerRef }>({})
   
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("All")
 
-  // Setup Mapbox once
+  // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
     if (!MAPBOX_TOKEN || !mapContainer.current) return
     
@@ -56,7 +64,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       mapInstance.current?.remove()
       mapInstance.current = null
     }
-  }, [])
+  }, []) // Empty dependency array guarantees it never tears down on state changes
 
   // Smooth camera flyTo when a marker is clicked
   const handleMarkerClick = useCallback((tour: MapTour & { coords: { lat: number, lng: number } }) => {
@@ -71,32 +79,44 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
     })
   }, [])
 
-  // Handle Markers & Filtering
+  // Initialize Markers ONCE
   useEffect(() => {
     if (!mapInstance.current) return
     const map = mapInstance.current
 
-    // Process coordinates
-    const mapTours = tours.map(tour => {
-      const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location)
-      return { ...tour, coords }
-    }).filter(t => t.coords !== null)
+    // Only create markers if we haven't already
+    if (Object.keys(markersRef.current).length === 0 && tours.length > 0) {
+      tours.forEach(tour => {
+        const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location)
+        if (!coords) return
 
-    // Clear old markers
-    Object.values(markersRef.current).forEach(marker => marker.remove())
-    markersRef.current = {}
+        const el = document.createElement('div')
+        
+        el.addEventListener('click', (e) => {
+          e.stopPropagation()
+          handleMarkerClick({ ...tour, coords })
+        })
 
-    // Filter
-    const filteredTours = mapTours.filter(tour => {
-      if (activeCategory === "All") return true
-      return tour.category.toLowerCase().includes(activeCategory.toLowerCase())
-    })
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([coords.lng, coords.lat])
+          .addTo(map)
 
-    // Create custom DOM markers
-    filteredTours.forEach(tour => {
-      const el = document.createElement('div')
-      
+        markersRef.current[tour.id] = { marker, el, tour, coords }
+      })
+    }
+  }, [tours, handleMarkerClick])
+
+  // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
+  useEffect(() => {
+    Object.values(markersRef.current).forEach(({ el, tour }) => {
+      // Filter logic
+      const isVisible = activeCategory === "All" || tour.category.toLowerCase().includes(activeCategory.toLowerCase())
+      el.style.display = isVisible ? 'block' : 'none'
+
+      // Selection logic
       const isSelected = selectedTour?.id === tour.id
+      
+      // Update DOM classes safely
       el.className = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-50' : 'scale-100 hover:scale-110 z-10'}`
 
       el.innerHTML = `
@@ -108,20 +128,8 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
         </div>
         <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-rose-500' : 'bg-white'}"></div>
       `
-
-      el.addEventListener('click', (e) => {
-        e.stopPropagation()
-        handleMarkerClick(tour as any)
-      })
-
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([tour.coords!.lng, tour.coords!.lat])
-        .addTo(map)
-
-      markersRef.current[tour.id] = marker
     })
-
-  }, [tours, activeCategory, selectedTour, handleMarkerClick])
+  }, [activeCategory, selectedTour])
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -140,9 +148,10 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
         onCategoryChange={setActiveCategory} 
       />
 
+      {/* Strict isolation for Mapbox Canvas */}
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* Bottom Drawer Preview for Selected Tour */}
+      {/* Render the drawer completely outside the map canvas layer */}
       <MapPreviewDrawer 
         tour={selectedTour} 
         onClose={() => setSelectedTour(null)} 
