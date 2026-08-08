@@ -3,7 +3,7 @@ import { Globe } from "lucide-react"
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-zinc-50 border-t border-zinc-200 pt-16 pb-8">
+    <footer className="bg-zinc-50 border-t border-neutral-200 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
           {/* Column 1: Brand & Mission */}

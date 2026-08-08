@@ -196,7 +196,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
             </div>
             <h3 className="text-sm md:text-xl font-bold text-zinc-900">Trusted Experience</h3>
             <p className="text-zinc-500 text-xs md:text-sm leading-relaxed max-w-xs">
-              We've created a memorable travel experience that cats to every traveler's unique needs.
+              We've created a memorable travel experience that caters to every traveler's unique needs.
             </p>
           </div>
           <div className="flex flex-col items-center text-center space-y-3 md:space-y-4">
