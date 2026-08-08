@@ -16,11 +16,10 @@ const CATEGORIES = [
   { name: "Wildlife", icon: Bird },
   { name: "Boat Ride", icon: Ship }
 ]
-
 export function MapFilterBar({ activeCategory, onCategoryChange }: MapFilterBarProps) {
   return (
-    <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-10 w-full max-w-3xl px-4">
-      <div className="flex items-center gap-2 overflow-x-auto bg-white/90 backdrop-blur-md p-2 rounded-full shadow-lg hide-scrollbar">
+    <div className="absolute top-24 md:top-28 left-1/2 -translate-x-1/2 z-10 w-full max-w-3xl px-4 pt-2">
+      <div className="flex items-center gap-2 overflow-x-auto bg-white/95 backdrop-blur-md p-2 rounded-full shadow-lg hide-scrollbar">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.name}
