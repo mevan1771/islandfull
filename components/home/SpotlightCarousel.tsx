@@ -60,12 +60,12 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                       {slide.target_url ? (
                         <Link href={slide.target_url}>
                           <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                            {slide.button_text || "Find More"}
+                            {slide.button_text ? slide.button_text : 'Find More'}
                           </button>
                         </Link>
                       ) : (
                         <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                          {slide.button_text || "Find More"}
+                          {slide.button_text ? slide.button_text : 'Find More'}
                         </button>
                       )}
                     </div>
@@ -86,12 +86,12 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                     {slide.target_url ? (
                       <Link href={slide.target_url}>
                         <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                          {slide.button_text || "Find More"}
+                          {slide.button_text ? slide.button_text : 'Find More'}
                         </button>
                       </Link>
                     ) : (
                       <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
-                        {slide.button_text || "Find More"}
+                        {slide.button_text ? slide.button_text : 'Find More'}
                       </button>
                     )}
                   </div>
