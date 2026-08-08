@@ -50,16 +50,32 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
     
     if (mapInstance.current) return // Map already initialized
 
-    mapInstance.current = new mapboxgl.Map({
+    const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [80.7718, 7.8731], // Sri Lanka center
-      zoom: 7.5,
-      minZoom: 2, // Allow zooming out globally
-      pitch: 45,
+      center: [80.0, -5.0], // Start out over the Indian Ocean
+      zoom: 3,
+      minZoom: 2,
+      pitch: 0,
       bearing: 0,
       attributionControl: false
     })
+
+    map.on('load', () => {
+      map.resize() // Fix container layout offsets
+
+      // Cinematic Intro Fly-In
+      map.flyTo({ 
+        center: [80.7718, 7.8731], 
+        zoom: 7.2, 
+        pitch: 45, 
+        duration: 3000, 
+        essential: true,
+        padding: { top: 80, bottom: 20, left: 20, right: 20 } // Responsive padding for top filter bar
+      })
+    })
+
+    mapInstance.current = map
 
     return () => {
       mapInstance.current?.remove()
