@@ -55,13 +55,10 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       style: "mapbox://styles/mapbox/satellite-streets-v12",
       center: [80.7718, 7.8731], // Sri Lanka center
       zoom: 7.5,
+      minZoom: 2, // Allow zooming out globally
       pitch: 45,
       bearing: 0,
-      attributionControl: false,
-      maxBounds: [
-        [79.0, 5.5], // Southwest coordinates [lng, lat] extended slightly for padding
-        [82.5, 10.0]  // Northeast coordinates [lng, lat]
-      ]
+      attributionControl: false
     })
 
     return () => {
