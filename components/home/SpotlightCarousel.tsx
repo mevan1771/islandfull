@@ -40,7 +40,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={slide.id || index} 
                 className="flex-[0_0_100%] min-w-0"
               >
-                <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full">
+                <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full py-8 md:py-12">
                   {/* Text Content */}
                   <div className="space-y-4 md:space-y-6 px-1">
                     {slide.badge_text && (
@@ -72,11 +72,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   </div>
 
                   {/* Images */}
-                  <div className="grid grid-cols-2 gap-3 md:gap-5 h-[260px] md:h-[420px] mt-6 md:mt-0 pb-6 md:pb-0 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
-                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-0 md:mt-12 aspect-auto pointer-events-none transform-gpu">
+                  <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
+                    <div className="relative w-full h-[240px] md:h-[420px] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
-                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-8 md:mt-0 aspect-auto pointer-events-none transform-gpu">
+                    <div className="relative w-full h-[240px] md:h-[420px] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
                       <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                   </div>
