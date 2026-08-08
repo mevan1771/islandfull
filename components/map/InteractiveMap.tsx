@@ -64,14 +64,16 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
     map.on('load', () => {
       map.resize() // Fix container layout offsets
 
+      const isMobile = window.innerWidth < 768;
+      
       // Cinematic Intro Fly-In
       map.flyTo({ 
         center: [80.7718, 7.8731], 
-        zoom: 6.8, 
-        pitch: 45, 
+        zoom: isMobile ? 6.1 : 6.8, // Zoom out more on narrow mobile screens
+        pitch: 25, // Reduced tilt angle
         duration: 3000, 
         essential: true,
-        padding: { top: 80, bottom: 20, left: 20, right: 20 } // Responsive padding for top filter bar
+        padding: { top: 80, bottom: 20, left: 20, right: 20 }
       })
     })
 
@@ -89,9 +91,9 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
     
     mapInstance.current?.flyTo({
       center: [tour.coords.lng, tour.coords.lat],
-      zoom: 12, // Zoom in
-      pitch: 60, // Give it a nice 3D angle
-      duration: 2000, // Smooth 2s animation
+      zoom: 11, // Slightly wider zoom on marker click
+      pitch: 40, // Reduced from 60 to prevent extreme tilt
+      duration: 2000, 
       essential: true
     })
   }, [])
