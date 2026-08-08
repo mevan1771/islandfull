@@ -73,11 +73,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
 
                   {/* Images */}
                   <div className="grid grid-cols-2 gap-3 md:gap-5 h-[260px] md:h-[420px] mt-6 md:mt-0 pb-6 md:pb-0 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
-                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-0 md:mt-12 aspect-auto pointer-events-none">
-                      <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover" />
+                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-0 md:mt-12 aspect-auto pointer-events-none transform-gpu">
+                      <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
-                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-8 md:mt-0 aspect-auto pointer-events-none">
-                      <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover" />
+                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden shadow-lg mt-8 md:mt-0 aspect-auto pointer-events-none transform-gpu">
+                      <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                   </div>
 
