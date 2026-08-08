@@ -69,7 +69,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       // Cinematic Intro Fly-In
       map.flyTo({ 
         center: [80.7718, 7.8731], 
-        zoom: isMobile ? 6.1 : 6.8, // Zoom out more on narrow mobile screens
+        zoom: isMobile ? 6.4 : 6.8, // Zoomed in a bit more on mobile
         pitch: 25, // Reduced tilt angle
         duration: 3000, 
         essential: true,
