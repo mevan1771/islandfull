@@ -1,6 +1,6 @@
 "use client"
 
-import { Compass, Palmtree, Waves, Mountain, Camera } from "lucide-react"
+import { Compass, Palmtree, Waves, Mountain, Camera, Ship, Bird } from "lucide-react"
 
 interface MapFilterBarProps {
   activeCategory: string
@@ -9,15 +9,17 @@ interface MapFilterBarProps {
 
 const CATEGORIES = [
   { name: "All", icon: Compass },
-  { name: "Safari", icon: Camera },
-  { name: "Water", icon: Waves },
+  { name: "Surf", icon: Waves },
+  { name: "History", icon: Palmtree },
   { name: "Hiking", icon: Mountain },
-  { name: "Culture", icon: Palmtree }
+  { name: "Safaris", icon: Camera },
+  { name: "Wildlife", icon: Bird },
+  { name: "Boat Ride", icon: Ship }
 ]
 
 export function MapFilterBar({ activeCategory, onCategoryChange }: MapFilterBarProps) {
   return (
-    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 w-full max-w-md px-4">
+    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 w-full max-w-3xl px-4">
       <div className="flex items-center gap-2 overflow-x-auto bg-white/90 backdrop-blur-md p-2 rounded-full shadow-lg hide-scrollbar">
         {CATEGORIES.map((cat) => (
           <button
