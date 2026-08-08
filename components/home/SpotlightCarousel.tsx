@@ -103,7 +103,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
         
         {/* Pagination Dots */}
         {slides.length > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-8 md:mt-12">
+          <div className="flex justify-center items-center gap-2 mt-2 md:mt-4 relative z-10">
             {slides.map((_, index) => (
               <button
                 key={index}
