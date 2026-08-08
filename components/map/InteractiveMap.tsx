@@ -94,7 +94,8 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       zoom: 11, // Slightly wider zoom on marker click
       pitch: 40, // Reduced from 60 to prevent extreme tilt
       duration: 2000, 
-      essential: true
+      essential: true,
+      offset: [0, -150] // Shift camera center up so the marker sits cleanly above the preview drawer
     })
   }, [])
 
@@ -136,7 +137,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       const isSelected = selectedTour?.id === tour.id
       
       // Update DOM safely WITHOUT overwriting mapboxgl-marker root classes
-      const innerClass = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-50' : 'scale-100 hover:scale-110 z-10'}`
+      const innerClass = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-[101]' : 'scale-100 hover:scale-110 z-10'}`
 
       el.innerHTML = `
         <div class="${innerClass}">
@@ -161,7 +162,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
   }
 
   return (
-    <div className="relative w-full h-[calc(100vh-80px)] overflow-hidden bg-zinc-900">
+    <div className="relative w-full h-[calc(100dvh-60px)] md:h-[calc(100vh-80px)] overflow-hidden bg-zinc-900">
       
       {/* Category Filter Bar (Floating on top) */}
       <MapFilterBar 

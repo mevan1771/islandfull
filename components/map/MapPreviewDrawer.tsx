@@ -13,7 +13,7 @@ interface MapPreviewDrawerProps {
 export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
   return (
     <div 
-      className={`absolute bottom-0 left-0 right-0 md:left-8 md:right-auto md:bottom-8 p-4 md:p-0 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-20
+      className={`fixed bottom-0 left-0 right-0 md:left-8 md:right-auto md:bottom-8 p-4 md:p-0 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100]
         ${tour ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
       `}
     >
