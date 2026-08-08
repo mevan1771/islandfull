@@ -70,7 +70,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       map.flyTo({ 
         center: [80.7718, 7.8731], 
         zoom: isMobile ? 6.4 : 6.8, // Zoomed in a bit more on mobile
-        pitch: 25, // Reduced tilt angle
+        pitch: 0, // Flat top-down view
         duration: 3000, 
         essential: true,
         padding: { top: 80, bottom: 20, left: 20, right: 20 }
@@ -92,7 +92,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
     mapInstance.current?.flyTo({
       center: [tour.coords.lng, tour.coords.lat],
       zoom: 11, // Slightly wider zoom on marker click
-      pitch: 40, // Reduced from 60 to prevent extreme tilt
+      pitch: 0, // Flat top-down view
       duration: 2000, 
       essential: true,
       offset: [0, -150] // Shift camera center up so the marker sits cleanly above the preview drawer
