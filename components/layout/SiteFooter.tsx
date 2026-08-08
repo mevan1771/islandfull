@@ -5,9 +5,9 @@ export default function SiteFooter() {
   return (
     <footer className="bg-zinc-50 border-t border-neutral-200 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 md:gap-8 mb-12">
           {/* Column 1: Brand & Mission */}
-          <div className="space-y-4">
+          <div className="col-span-2 md:col-span-1 space-y-4 mb-2 md:mb-0">
             <Link href="/" className="text-2xl font-black text-rose-500 tracking-tight">
               IslandFull
             </Link>
