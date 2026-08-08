@@ -15,6 +15,7 @@ export interface SpotlightConfig {
   image_url_2: string;
   button_text: string;
   target_url: string;
+  badge_text?: string;
 }
 
 export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightConfig[] }) {
@@ -151,17 +152,28 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
       </div>
 
       <div className="grid md:grid-cols-2 gap-12" key={activeConfig.id}>
-        {/* Form Fields */}
         <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-semibold text-zinc-700 mb-2">Headline Title</label>
-            <input 
-              type="text" 
-              value={activeConfig.title}
-              onChange={(e) => updateActiveConfig({ title: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium"
-              placeholder="e.g. Our Story: Driven By Wanderlust..."
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-semibold text-zinc-700 mb-2">Location / Badge Text</label>
+              <input 
+                type="text" 
+                value={activeConfig.badge_text || ""}
+                onChange={(e) => updateActiveConfig({ badge_text: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium"
+                placeholder="e.g. Dambulla or 🌴 Featured"
+              />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-semibold text-zinc-700 mb-2">Headline Title</label>
+              <input 
+                type="text" 
+                value={activeConfig.title}
+                onChange={(e) => updateActiveConfig({ title: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium"
+                placeholder="e.g. Our Story: Driven By Wanderlust..."
+              />
+            </div>
           </div>
 
           <div>

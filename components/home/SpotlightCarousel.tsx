@@ -32,7 +32,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
 
   return (
     <section className="bg-zinc-50 py-10 md:py-24 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
           <div className="flex touch-pan-y">
             {slides.map((slide, index) => (
@@ -43,10 +43,15 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full">
                   {/* Text Content */}
                   <div className="space-y-4 md:space-y-6 px-1">
+                    {slide.badge_text && (
+                      <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
+                        {slide.badge_text}
+                      </div>
+                    )}
                     <h2 className="text-2xl md:text-5xl font-bold text-zinc-900 leading-tight line-clamp-3">
                       {slide.title}
                     </h2>
-                    <p className="text-zinc-600 text-sm md:text-lg leading-relaxed max-w-lg line-clamp-4">
+                    <p className="text-zinc-600 text-sm md:text-lg leading-relaxed max-w-xl line-clamp-4">
                       {slide.description.replace(/<[^>]*>?/gm, '')}
                     </p>
                     
