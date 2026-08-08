@@ -19,7 +19,7 @@ const CATEGORIES = [
 
 export function MapFilterBar({ activeCategory, onCategoryChange }: MapFilterBarProps) {
   return (
-    <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 w-full max-w-3xl px-4">
+    <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-10 w-full max-w-3xl px-4">
       <div className="flex items-center gap-2 overflow-x-auto bg-white/90 backdrop-blur-md p-2 rounded-full shadow-lg hide-scrollbar">
         {CATEGORIES.map((cat) => (
           <button
