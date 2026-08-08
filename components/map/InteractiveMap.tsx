@@ -168,6 +168,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
       <MapFilterBar 
         activeCategory={activeCategory} 
         onCategoryChange={setActiveCategory} 
+        isTourSelected={!!selectedTour}
       />
 
       {/* Strict isolation for Mapbox Canvas */}
