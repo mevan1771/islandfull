@@ -37,26 +37,43 @@ const SRILANKA_REGIONS: Record<string, Coordinates> = {
 export function getTourCoordinates(
   lat: number | null | undefined, 
   lng: number | null | undefined, 
-  locationString: string
+  locationString: string,
+  id?: string
 ): Coordinates | null {
   // If we have exact GPS coordinates, use them
   if (lat != null && lng != null) {
     return { lat, lng }
   }
 
+  // Calculate a deterministic jitter based on the ID to prevent perfect overlaps
+  // If no ID is provided, jitter is 0
+  let jitterLat = 0;
+  let jitterLng = 0;
+  if (id) {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+      hash |= 0;
+    }
+    // Generate a pseudo-random offset between -0.01 and +0.01 degrees (roughly +- 1km)
+    jitterLat = ((hash % 100) / 100 - 0.5) * 0.02;
+    jitterLng = (((hash >> 2) % 100) / 100 - 0.5) * 0.02;
+  }
+
   // Fallback 1: Try exact match
   const locKey = locationString.toLowerCase().trim()
   if (SRILANKA_REGIONS[locKey]) {
-    return SRILANKA_REGIONS[locKey]
+    const base = SRILANKA_REGIONS[locKey]
+    return { lat: base.lat + jitterLat, lng: base.lng + jitterLng }
   }
 
   // Fallback 2: Check if the string contains any of our known regions
   for (const [region, coords] of Object.entries(SRILANKA_REGIONS)) {
     if (locKey.includes(region)) {
-      return coords
+      return { lat: coords.lat + jitterLat, lng: coords.lng + jitterLng }
     }
   }
 
   // Default to center of Sri Lanka if absolutely nothing is found
-  return { lat: 7.8731, lng: 80.7718 }
+  return { lat: 7.8731 + jitterLat, lng: 80.7718 + jitterLng }
 }

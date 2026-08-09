@@ -120,7 +120,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     // Only create markers if we haven't already
     if (Object.keys(markersRef.current).length === 0 && tours.length > 0) {
       tours.forEach(tour => {
-        const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location)
+        const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location, tour.id)
         if (!coords) return
 
         const el = document.createElement('div')
