@@ -49,7 +49,11 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
                   : "bg-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 }`}
             >
-              {cat.icon && <cat.icon className="w-4 h-4" />}
+              {cat.icon && (
+                <cat.icon 
+                  className={`w-4 h-4 ${cat.id === 'saved' && isActive ? 'text-rose-500 fill-rose-500' : ''}`} 
+                />
+              )}
               {cat.name && <span>{cat.name}</span>}
             </button>
           )
