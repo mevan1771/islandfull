@@ -35,7 +35,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/book" className="hidden md:flex items-center px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+          <Link href="/map" className="hidden md:flex items-center px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
             Explore Map
           </Link>
           <div className="w-8 h-8 md:w-10 md:h-10 bg-black/20 md:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer md:hover:bg-white/30 transition-colors border-transparent md:border-white/20">

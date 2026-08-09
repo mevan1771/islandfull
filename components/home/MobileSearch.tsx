@@ -174,10 +174,19 @@ export function MobileSearch() {
             </div>
           </div>
 
-          {/* Actions: Filter & Search */}
-          <div className="w-full flex items-center gap-3 mt-1">
+          {/* Actions: Filter & Map & Search */}
+          <div className="w-full flex items-center gap-2 mt-1">
+            {/* Map Button */}
+            <button 
+              type="button"
+              onClick={() => router.push('/map')}
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+            >
+              <Map className="w-4 h-4" />
+            </button>
+
             {/* Filter / Sort Button */}
-            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer">
+            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">
               <SlidersHorizontal className="w-4 h-4" />
               <select 
                 value={searchParams.get("sort") || ""}
