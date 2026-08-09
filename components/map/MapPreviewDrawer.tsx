@@ -46,16 +46,26 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
       {currentTour && (
         <div className={`bg-white rounded-3xl shadow-2xl w-full max-w-sm md:max-w-none pointer-events-auto overflow-hidden flex flex-col transform transition-opacity duration-300 relative ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
           
-          {/* Close Button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-3 left-3 md:left-auto md:right-3 z-20 p-1.5 bg-black/40 hover:bg-black/60 md:bg-zinc-100 md:hover:bg-zinc-200 text-white md:text-zinc-600 rounded-full backdrop-blur-sm md:backdrop-blur-none transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
           {/* Cover Image */}
           <div className="relative w-full h-48 md:h-[220px] min-h-[200px] md:min-h-0">
+            {/* Action Buttons Container (Desktop) */}
+            <div className="absolute top-3 right-3 z-20 hidden md:flex items-center gap-2">
+              <FavoriteButton activityId={currentTour.id} className="static w-8 h-8 min-h-0 min-w-0 sm:w-8 sm:h-8 sm:top-auto sm:right-auto bg-white/90 hover:bg-white text-zinc-600 border-none shadow-sm" />
+              <button 
+                onClick={onClose}
+                className="w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-zinc-600 rounded-full backdrop-blur-none transition-colors shadow-sm"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Mobile Close Button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm transition-colors md:hidden"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <Image
               src={currentTour.cover_image_url}
               alt={currentTour.title}
@@ -64,7 +74,8 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
             
-            <FavoriteButton activityId={currentTour.id} />
+            {/* Mobile Favorite Button */}
+            <FavoriteButton activityId={currentTour.id} className="md:hidden" />
 
             {/* Mobile Title overlay */}
             <div className="absolute bottom-3 left-4 text-white md:hidden">
