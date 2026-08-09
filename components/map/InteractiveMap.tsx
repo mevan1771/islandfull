@@ -15,6 +15,8 @@ export interface MapTour {
   slug?: string
   description?: string
   location: string
+  inclusions?: string[]
+  hostName?: string
   price_usd: number
   cover_image_url: string
   duration: string
