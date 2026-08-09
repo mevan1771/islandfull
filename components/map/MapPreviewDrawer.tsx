@@ -24,7 +24,7 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
           {/* Close Button */}
           <button 
             onClick={onClose}
-            className="absolute top-3 right-3 z-20 p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm transition-colors"
+            className="absolute top-3 left-3 md:left-auto md:right-3 z-20 p-1.5 bg-black/40 hover:bg-black/60 md:bg-zinc-100 md:hover:bg-zinc-200 text-white md:text-zinc-600 rounded-full backdrop-blur-sm md:backdrop-blur-none transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -60,9 +60,18 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
               <div className="flex items-center justify-between mb-4 md:mb-6 md:mt-2">
                 <div className="flex items-center gap-4 text-sm text-zinc-600">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-rose-500 fill-rose-500" />
-                    <span className="font-medium text-zinc-900">{tour.rating?.toFixed(1) || '4.9'}</span>
-                    <span className="text-zinc-400">({tour.reviewCount || 0})</span>
+                    {!tour.reviewCount ? (
+                      <>
+                        <Star className="w-4 h-4 text-rose-500 fill-rose-500" />
+                        <span className="font-medium text-rose-500">New</span>
+                      </>
+                    ) : (
+                      <>
+                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <span className="font-medium text-zinc-900">{tour.rating?.toFixed(1)}</span>
+                        <span className="text-zinc-400">({tour.reviewCount})</span>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4 opacity-70" />
