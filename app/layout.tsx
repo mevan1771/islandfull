@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   title: "IslandFull | Sri Lanka Tours & Activities",
   description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
