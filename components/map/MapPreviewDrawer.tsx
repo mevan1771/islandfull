@@ -39,7 +39,7 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
 
   return (
     <div 
-      className={`fixed bottom-0 left-0 right-0 md:left-6 md:right-auto md:translate-x-0 md:bottom-6 p-4 md:p-0 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100] w-full md:w-[400px]
+      className={`fixed bottom-0 left-0 right-0 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 p-4 md:p-6 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100] w-full md:w-[420px]
         ${tour ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}
       `}
     >
@@ -64,8 +64,8 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
             
-            {/* Favorite Button spaced to the left of the close button */}
-            <FavoriteButton activityId={currentTour.id} className="right-14 sm:right-[72px]" />
+            {/* Favorite Button explicitly spaced to the left of the close button using !important overrides */}
+            <FavoriteButton activityId={currentTour.id} className="!right-14 sm:!right-16" />
 
             {/* Mobile Title overlay */}
             <div className="absolute bottom-3 left-4 text-white md:hidden">
