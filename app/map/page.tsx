@@ -4,10 +4,22 @@ import { supabase } from "@/lib/supabase"
 export const revalidate = 0 // Opt out of caching for now to always show fresh tours
 
 export default async function MapPage() {
+  // Fetch dynamic categories
+  let dynamicCategories: any[] = []
+  const { data: catData, error: catError } = await supabase
+    .from('categories')
+    .select('name, slug')
+    .order('sort_order', { ascending: true })
+    .order('name')
+    
+  if (!catError && catData) {
+    dynamicCategories = catData
+  }
+
   // Fetch active tours from the database
   const { data: activities, error } = await supabase
     .from('activities')
-    .select('*, categories(name)')
+    .select('*, categories(name, slug)')
     .eq('status', 'published')
     
   if (error) {
@@ -25,7 +37,7 @@ export default async function MapPage() {
       price_usd: activity.price_usd,
       cover_image_url: activity.cover_image_url,
       duration: activity.duration,
-      category: activity.categories?.name || 'All',
+      category: activity.categories?.slug || 'all',
       latitude: null, // Relies on location string fallback lookup
       longitude: null,
       rating: 4.9 // Or from reviews if available
@@ -37,26 +49,26 @@ export default async function MapPage() {
         id: '1', title: 'Secret Sunset Surf Lesson', 
         location: 'Hiriketiya', duration: '2 hours', price_usd: 35.00,
         cover_image_url: 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'Surf', rating: 4.9
+        category: 'surf', rating: 4.9
       },
       {
         id: '2', title: 'Ella Rock Sunrise Hike', 
         location: 'Ella', duration: '4 hours', price_usd: 45.00,
         cover_image_url: 'https://images.pexels.com/photos/347141/pexels-photo-347141.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'Hiking', rating: 4.8
+        category: 'hiking', rating: 4.8
       },
       {
         id: '3', title: 'Yala Leopard Safari', 
         location: 'Yala', duration: 'Half-day', price_usd: 85.00,
         cover_image_url: 'https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'Safaris', rating: 4.9
+        category: 'safaris', rating: 4.9
       }
     ]
   }
 
   return (
     <div className="w-full">
-      <InteractiveMap tours={mapData} />
+      <InteractiveMap tours={mapData} dynamicCategories={dynamicCategories} />
     </div>
   )
 }

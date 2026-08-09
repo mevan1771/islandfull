@@ -34,13 +34,13 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [] }: InteractiveMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
   const markersRef = useRef<{ [id: string]: MarkerRef }>({})
   
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
-  const [activeCategory, setActiveCategory] = useState<string>("All")
+  const [activeCategory, setActiveCategory] = useState<string>("all")
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -129,8 +129,8 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
     Object.values(markersRef.current).forEach(({ el, tour }) => {
-      // Filter logic
-      const isVisible = activeCategory === "All" || tour.category.toLowerCase().includes(activeCategory.toLowerCase())
+      // Filter logic (using slugs)
+      const isVisible = activeCategory === "all" || activeCategory === "saved" || tour.category === activeCategory
       el.style.display = isVisible ? 'block' : 'none'
 
       // Selection logic
@@ -169,6 +169,7 @@ export function InteractiveMap({ tours }: InteractiveMapProps) {
         activeCategory={activeCategory} 
         onCategoryChange={setActiveCategory} 
         isTourSelected={!!selectedTour}
+        dynamicCategories={dynamicCategories}
       />
 
       {/* Strict isolation for Mapbox Canvas */}
