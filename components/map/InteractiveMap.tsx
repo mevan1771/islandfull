@@ -7,10 +7,13 @@ import "mapbox-gl/dist/mapbox-gl.css"
 import { getTourCoordinates } from "@/lib/utils/coordinates"
 import { MapPreviewDrawer } from "./MapPreviewDrawer"
 import { MapFilterBar } from "./MapFilterBar"
+import { useFavorites } from "@/hooks/useFavorites"
 
 export interface MapTour {
   id: string
   title: string
+  slug?: string
+  description?: string
   location: string
   price_usd: number
   cover_image_url: string
@@ -20,6 +23,8 @@ export interface MapTour {
   latitude?: number | null
   longitude?: number | null
   rating?: number
+  reviewCount?: number
+  tags?: string[]
 }
 
 interface InteractiveMapProps {
@@ -46,6 +51,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("all")
+  const { favorites } = useFavorites()
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -134,8 +140,15 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
     Object.values(markersRef.current).forEach(({ el, tour }) => {
-      // Filter logic (using slugs)
-      const isVisible = activeCategory === "all" || activeCategory === "saved" || tour.category === activeCategory
+      // Filter logic (using slugs and favorites)
+      let isVisible = false;
+      if (activeCategory === "all") {
+        isVisible = true;
+      } else if (activeCategory === "saved") {
+        isVisible = favorites.includes(tour.id);
+      } else {
+        isVisible = tour.category === activeCategory || (!!tour.tags && tour.tags.includes(activeCategory));
+      }
       el.style.display = isVisible ? 'block' : 'none'
 
       // Selection logic
@@ -186,7 +199,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
       el.innerHTML = markerHTML
     })
-  }, [activeCategory, selectedTour])
+  }, [activeCategory, selectedTour, favorites])
 
   if (!MAPBOX_TOKEN) {
     return (

@@ -28,7 +28,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   // Fetch active tours from the database
   let activitiesQuery = supabase
     .from('activities')
-    .select('*, categories(name, slug)')
+    .select('*, categories(name, slug), reviews(rating)')
     .eq('status', 'published')
     
   if (currentVertical !== 'all') {
@@ -45,19 +45,36 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   let mapData: MapTour[] = []
   
   if (activities && activities.length > 0) {
-    mapData = activities.map((activity: any) => ({
-      id: activity.id,
-      title: activity.title,
-      location: activity.location,
-      price_usd: activity.price_usd,
-      cover_image_url: activity.cover_image_url,
-      duration: activity.duration,
-      category: activity.categories?.slug || 'all',
-      category_type: activity.category_type || 'tour',
-      latitude: null, // Relies on location string fallback lookup
-      longitude: null,
-      rating: 4.9 // Or from reviews if available
-    }))
+    mapData = activities.map((activity: any) => {
+      let rating = 4.9;
+      let reviewCount = 0;
+      if (activity.reviews && activity.reviews.length > 0) {
+        rating = activity.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / activity.reviews.length;
+        reviewCount = activity.reviews.length;
+      }
+
+      const tags = Array.isArray(activity.categories) 
+        ? activity.categories.map((c: any) => c.slug) 
+        : (activity.categories?.slug ? [activity.categories.slug] : []);
+
+      return {
+        id: activity.id,
+        title: activity.title,
+        slug: activity.slug,
+        location: activity.location,
+        description: activity.description,
+        price_usd: activity.price_usd,
+        cover_image_url: activity.cover_image_url,
+        duration: activity.duration,
+        category: activity.categories?.slug || tags[0] || 'all', // Fallback to first tag or all
+        category_type: activity.category_type || 'tour',
+        latitude: null, // Relies on location string fallback lookup
+        longitude: null,
+        rating: Number(rating.toFixed(1)),
+        reviewCount,
+        tags
+      }
+    })
   } else {
     // Fallback data if DB fetch fails or is empty, perfectly matching our filter bar keys
     mapData = [
