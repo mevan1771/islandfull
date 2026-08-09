@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import mapboxgl from "mapbox-gl"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { getTourCoordinates } from "@/lib/utils/coordinates"
@@ -15,6 +16,7 @@ export interface MapTour {
   cover_image_url: string
   duration: string
   category: string
+  category_type?: string
   latitude?: number | null
   longitude?: number | null
   rating?: number
@@ -23,6 +25,7 @@ export interface MapTour {
 interface InteractiveMapProps {
   tours: MapTour[]
   dynamicCategories?: any[]
+  currentVertical?: string
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -35,7 +38,8 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [] }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all' }: InteractiveMapProps) {
+  const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
   const markersRef = useRef<{ [id: string]: MarkerRef }>({})
@@ -140,17 +144,47 @@ export function InteractiveMap({ tours, dynamicCategories = [] }: InteractiveMap
       // Update DOM safely WITHOUT overwriting mapboxgl-marker root classes
       const innerClass = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-[101]' : 'scale-100 hover:scale-110 z-10'}`
 
-      el.innerHTML = `
-        <div class="${innerClass}">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md transition-colors ${isSelected ? 'bg-rose-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
-            $${tour.price_usd}
+      let markerHTML = '';
+      if (tour.category_type === 'event') {
+        markerHTML = `
+          <div class="${innerClass}">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md transition-colors ${isSelected ? 'bg-indigo-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+              $${tour.price_usd}
+            </div>
+            <div class="w-12 h-12 bg-white rounded-xl shadow-lg flex flex-col items-center justify-center border-2 transition-colors ${isSelected ? 'border-indigo-500' : 'border-zinc-200'}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            </div>
+            <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-indigo-500' : 'bg-white'}"></div>
           </div>
-          <div class="w-14 h-14 rounded-full overflow-hidden border-2 shadow-lg transition-colors ${isSelected ? 'border-rose-500' : 'border-white'}">
-            <img src="${tour.cover_image_url}" alt="${tour.title}" class="w-full h-full object-cover" />
+        `
+      } else if (tour.category_type === 'transport') {
+        markerHTML = `
+          <div class="${innerClass}">
+             <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+              $${tour.price_usd}
+            </div>
+            <div class="w-12 h-12 bg-zinc-900 rounded-full shadow-lg flex items-center justify-center border-2 transition-colors ${isSelected ? 'border-emerald-500' : 'border-white'}">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H5a2 2 0 0 0-2 2v7.55a1 1 0 0 0 1 1h2m14 0a2 2 0 1 1-4 0m4 0a2 2 0 1 0-4 0m-10 0a2 2 0 1 1-4 0m4 0a2 2 0 1 0-4 0"/></svg>
+            </div>
+             <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-emerald-500' : 'bg-zinc-900'}"></div>
           </div>
-          <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-rose-500' : 'bg-white'}"></div>
-        </div>
-      `
+        `
+      } else {
+        // tour style (default)
+        markerHTML = `
+          <div class="${innerClass}">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md transition-colors ${isSelected ? 'bg-rose-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+              $${tour.price_usd}
+            </div>
+            <div class="w-14 h-14 rounded-full overflow-hidden border-2 shadow-lg transition-colors ${isSelected ? 'border-rose-500' : 'border-white'}">
+              <img src="${tour.cover_image_url}" alt="${tour.title}" class="w-full h-full object-cover" />
+            </div>
+            <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-rose-500' : 'bg-white'}"></div>
+          </div>
+        `
+      }
+
+      el.innerHTML = markerHTML
     })
   }, [activeCategory, selectedTour])
 
@@ -165,7 +199,37 @@ export function InteractiveMap({ tours, dynamicCategories = [] }: InteractiveMap
   return (
     <div className="relative w-full h-[calc(100dvh-60px)] md:h-[calc(100vh-80px)] overflow-hidden bg-zinc-900">
       
-      {/* Category Filter Bar (Floating on top) */}
+      {/* Top Level Layer Switcher */}
+      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-40">
+        <div className="flex bg-white/95 backdrop-blur-md p-1 rounded-full shadow-lg">
+          <button 
+            onClick={() => router.push('?vertical=all')}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'all' ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:text-zinc-900'}`}
+          >
+            All
+          </button>
+          <button 
+            onClick={() => router.push('?vertical=tour')}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'tour' ? 'bg-rose-500 text-white' : 'text-zinc-600 hover:text-rose-500'}`}
+          >
+            Tours
+          </button>
+          <button 
+            onClick={() => router.push('?vertical=event')}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'event' ? 'bg-indigo-500 text-white' : 'text-zinc-600 hover:text-indigo-500'}`}
+          >
+            Events
+          </button>
+          <button 
+            onClick={() => router.push('?vertical=transport')}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'transport' ? 'bg-emerald-500 text-white' : 'text-zinc-600 hover:text-emerald-500'}`}
+          >
+            Transport
+          </button>
+        </div>
+      </div>
+
+      {/* Category Filter Bar (Floating on bottom) */}
       <MapFilterBar 
         activeCategory={activeCategory} 
         onCategoryChange={setActiveCategory} 
