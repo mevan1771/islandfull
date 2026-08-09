@@ -29,7 +29,7 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
   }
 
   return (
-    <div className={`absolute bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto z-40 transition-all duration-500 ease-out ${isTourSelected ? 'translate-y-[150%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+    <div className={`absolute bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-max md:max-w-2xl z-40 transition-all duration-500 ease-out ${isTourSelected ? 'translate-y-[150%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
       <div className="flex items-center justify-between md:justify-start w-full md:w-auto gap-0.5 md:gap-1 overflow-x-auto bg-white/95 backdrop-blur-md p-1 rounded-full shadow-lg hide-scrollbar">
         {CATEGORIES.map((cat) => {
           const isActive = !cat.isVertical && activeCategory === cat.id;
