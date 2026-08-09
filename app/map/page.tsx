@@ -28,7 +28,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   // Fetch active tours from the database
   let activitiesQuery = supabase
     .from('activities')
-    .select('*, categories(name, slug), activity_categories(categories(slug)), reviews(rating), users(full_name)')
+    .select('*, categories(name, slug), activity_categories(categories(slug)), reviews(rating)')
     .eq('status', 'published')
     
   if (currentVertical !== 'all') {
@@ -64,7 +64,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
         location: activity.location,
         description: activity.description,
         inclusions: activity.inclusions,
-        hostName: activity.users?.full_name,
+        hostName: activity.provider_name,
         price_usd: activity.price_usd,
         cover_image_url: activity.cover_image_url,
         duration: activity.duration,
