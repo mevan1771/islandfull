@@ -30,7 +30,7 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
 
   return (
     <div className={`absolute bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-auto z-40 transition-all duration-500 ease-out ${isTourSelected ? 'translate-y-[150%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-      <div className="flex items-center gap-1 overflow-x-auto bg-white/95 backdrop-blur-md p-1 rounded-full shadow-lg hide-scrollbar">
+      <div className="flex items-center justify-between md:justify-start w-full md:w-auto gap-0.5 md:gap-1 overflow-x-auto bg-white/95 backdrop-blur-md p-1 rounded-full shadow-lg hide-scrollbar">
         {CATEGORIES.map((cat) => {
           const isActive = !cat.isVertical && activeCategory === cat.id;
           return (
@@ -43,7 +43,7 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
                   onCategoryChange(cat.id)
                 }
               }}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex-shrink-0
+              className={`flex items-center justify-center gap-1.5 px-2.5 md:px-4 py-1.5 rounded-full text-[13px] md:text-sm font-semibold transition-all flex-shrink-0
                 ${isActive 
                   ? "bg-zinc-900 text-white shadow-md" 
                   : "bg-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
