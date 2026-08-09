@@ -48,24 +48,14 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
           
           {/* Cover Image */}
           <div className="relative w-full h-48 md:h-[220px] min-h-[200px] md:min-h-0">
-            {/* Action Buttons Container (Desktop) */}
-            <div className="absolute top-3 right-3 z-20 hidden md:flex items-center gap-2">
-              <FavoriteButton activityId={currentTour.id} className="static w-8 h-8 min-h-0 min-w-0 sm:w-8 sm:h-8 sm:top-auto sm:right-auto bg-white/90 hover:bg-white text-zinc-600 border-none shadow-sm" />
-              <button 
-                onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-zinc-600 rounded-full backdrop-blur-none transition-colors shadow-sm"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Mobile Close Button */}
+            {/* Close Button */}
             <button 
               onClick={onClose}
-              className="absolute top-3 left-3 z-20 p-1.5 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm transition-colors md:hidden"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-zinc-600 rounded-full backdrop-blur-md sm:backdrop-blur-none transition-colors shadow-sm border-transparent sm:border sm:border-zinc-200"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
+
             <Image
               src={currentTour.cover_image_url}
               alt={currentTour.title}
@@ -74,8 +64,8 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
             
-            {/* Mobile Favorite Button */}
-            <FavoriteButton activityId={currentTour.id} className="md:hidden" />
+            {/* Favorite Button spaced to the left of the close button */}
+            <FavoriteButton activityId={currentTour.id} className="right-14 sm:right-[72px]" />
 
             {/* Mobile Title overlay */}
             <div className="absolute bottom-3 left-4 text-white md:hidden">
