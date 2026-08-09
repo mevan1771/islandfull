@@ -9,7 +9,7 @@ interface MapFilterBarProps {
   dynamicCategories?: any[]
 }
 export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected, dynamicCategories = [] }: MapFilterBarProps) {
-  const CATEGORIES = [
+  const CATEGORIES: { id: string, name: string, icon?: any }[] = [
     { id: "all", name: "All", icon: Compass },
     { id: "saved", name: "", icon: Heart },
     ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
