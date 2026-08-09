@@ -156,6 +156,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       // Selection logic
       const isSelected = selectedTour?.id === tour.id
       
+      // Force the root Mapbox marker element to the front if selected
+      el.style.zIndex = isSelected ? '1000' : '1'
+
       // Update DOM safely WITHOUT overwriting mapboxgl-marker root classes
       const innerClass = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-[101]' : 'scale-100 hover:scale-110 z-10'}`
 
