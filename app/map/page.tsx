@@ -77,28 +77,6 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
         tags
       }
     })
-  } else {
-    // Fallback data if DB fetch fails or is empty, perfectly matching our filter bar keys
-    mapData = [
-      {
-        id: '1', title: 'Secret Sunset Surf Lesson', 
-        location: 'Hiriketiya', duration: '2 hours', price_usd: 35.00,
-        cover_image_url: 'https://images.pexels.com/photos/1243337/pexels-photo-1243337.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'surf', category_type: 'tour', rating: 4.9
-      },
-      {
-        id: '2', title: 'Ella Rock Sunrise Hike', 
-        location: 'Ella', duration: '4 hours', price_usd: 45.00,
-        cover_image_url: 'https://images.pexels.com/photos/347141/pexels-photo-347141.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'hiking', category_type: 'tour', rating: 4.8
-      },
-      {
-        id: '3', title: 'Yala Leopard Safari', 
-        location: 'Yala', duration: 'Half-day', price_usd: 85.00,
-        cover_image_url: 'https://images.pexels.com/photos/247376/pexels-photo-247376.jpeg?auto=compress&cs=tinysrgb&w=800',
-        category: 'safaris', category_type: 'tour', rating: 4.9
-      }
-    ]
   }
 
   return (
