@@ -22,6 +22,7 @@ export interface MapTour {
 
 interface InteractiveMapProps {
   tours: MapTour[]
+  dynamicCategories?: any[]
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
