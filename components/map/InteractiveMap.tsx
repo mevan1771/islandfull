@@ -199,35 +199,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   return (
     <div className="relative w-full h-[calc(100dvh-60px)] md:h-[calc(100vh-80px)] overflow-hidden bg-zinc-900">
       
-      {/* Top Level Layer Switcher */}
-      <div className="absolute top-20 md:top-24 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex bg-white/95 backdrop-blur-md p-1 rounded-full shadow-lg">
-          <button 
-            onClick={() => router.push('?vertical=all')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'all' ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:text-zinc-900'}`}
-          >
-            All
-          </button>
-          <button 
-            onClick={() => router.push('?vertical=tour')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'tour' ? 'bg-rose-500 text-white' : 'text-zinc-600 hover:text-rose-500'}`}
-          >
-            Tours
-          </button>
-          <button 
-            onClick={() => router.push('?vertical=event')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'event' ? 'bg-indigo-500 text-white' : 'text-zinc-600 hover:text-indigo-500'}`}
-          >
-            Events
-          </button>
-          <button 
-            onClick={() => router.push('?vertical=transport')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${currentVertical === 'transport' ? 'bg-emerald-500 text-white' : 'text-zinc-600 hover:text-emerald-500'}`}
-          >
-            Transport
-          </button>
-        </div>
-      </div>
+
 
       {/* Category Filter Bar (Floating on bottom) */}
       <MapFilterBar 
@@ -235,6 +207,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         onCategoryChange={setActiveCategory} 
         isTourSelected={!!selectedTour}
         dynamicCategories={dynamicCategories}
+        currentVertical={currentVertical}
+        onVerticalChange={(v) => router.push('?vertical=' + v)}
       />
 
       {/* Strict isolation for Mapbox Canvas */}
