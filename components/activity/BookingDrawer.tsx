@@ -27,6 +27,8 @@ interface BookingDrawerProps {
   minNoticeDays?: number
   bookingType?: 'single_day' | 'multi_day'
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
+  hostAvatar?: string
+  hostName?: string
 }
 
 export function BookingDrawer({
@@ -45,7 +47,9 @@ export function BookingDrawer({
   reviewCount = 0,
   minNoticeDays = 1,
   bookingType = 'single_day',
-  pricingModel = 'per_person'
+  pricingModel = 'per_person',
+  hostAvatar,
+  hostName
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -231,17 +235,21 @@ export function BookingDrawer({
             </div>
             
             {/* Mobile Button: Side-by-side with price */}
-            <div className="flex md:hidden items-center gap-2">
+            <div className="flex md:hidden items-center gap-3">
               <a 
                 href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="relative w-[44px] h-[44px] border border-gray-200 rounded-xl flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform shrink-0"
+                className="relative shrink-0 active:scale-95 transition-transform"
               >
-                <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span></span>
-                <MessageCircle className="w-5 h-5 text-zinc-600" />
+                {hostAvatar ? (
+                  <img src={hostAvatar} alt={hostName || "Host"} className="w-10 h-10 rounded-full object-cover shadow-sm" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
+                )}
+                <span className="absolute -bottom-1 -right-0 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
               </a>
-              <Button onClick={() => setIsOpen(true)} className="w-auto h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
+              <Button onClick={() => setIsOpen(true)} className="flex-1 h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
                 Reserve Now
               </Button>
             </div>
@@ -288,9 +296,24 @@ export function BookingDrawer({
           </div>
 
           {/* Desktop Button: Disabled if no date */}
-          <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} size="lg" className="hidden md:flex w-full shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
-            Reserve Now
-          </Button>
+          <div className="hidden md:flex items-center gap-2 mt-4 w-full">
+            <a 
+              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer transition shrink-0"
+            >
+              {hostAvatar ? (
+                <img src={hostAvatar} alt={hostName || "Host"} className="w-6 h-6 rounded-full object-cover shadow-sm" />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
+              )}
+              <span className="text-sm font-semibold text-gray-800">Chat Now</span>
+            </a>
+            <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} size="lg" className="flex-1 shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+              Reserve Now
+            </Button>
+          </div>
           
           <p className="hidden md:block text-center text-sm font-medium text-zinc-400 mt-1">
             {priceUsd === 0 ? "Complete Reservation" :
