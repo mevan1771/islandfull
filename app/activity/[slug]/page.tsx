@@ -10,6 +10,7 @@ import { ActivityGallery } from "@/components/activity/ActivityGallery"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
+import { ConciergeChat } from "@/components/activity/ConciergeChat"
 import ReactMarkdown from "react-markdown"
 import { incrementActivityView } from "@/app/actions/tracking"
 
@@ -322,6 +323,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               bookingType={activity.booking_type || 'single_day'}
               pricingModel={activity.pricing_model || 'per_person'}
             />
+            
+            <ConciergeChat tourTitle={activity.title} />
           </div>
         </div>
       </div>
