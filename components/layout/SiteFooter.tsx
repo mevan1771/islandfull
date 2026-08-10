@@ -40,13 +40,20 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* Column 4: Legal & Currency */}
+          {/* Column 4: Contact */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Legal</h3>
+            <h3 className="font-bold text-zinc-900 mb-4">Contact</h3>
             <ul className="space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cookie Preferences</Link></li>
+              <li>
+                <a href="mailto:info@islandfull.com" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
+                  <span className="font-medium text-zinc-700">Email:</span> info@islandfull.com
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/447342573235" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
+                  <span className="font-medium text-zinc-700">WhatsApp:</span> +44 7342 573235
+                </a>
+              </li>
             </ul>
           </div>
         </div>
