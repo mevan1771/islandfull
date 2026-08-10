@@ -9,7 +9,14 @@ export default function SiteFooter() {
           
           {/* Brand Column */}
           <div className="space-y-3">
-            <span className="text-lg font-semibold tracking-tight text-gray-900">Islandfull</span>
+            <a href="/" className="flex items-center gap-2 w-fit hover:opacity-90 transition-opacity">
+              <span className="text-xl font-bold tracking-tight text-gray-900">IslandFull</span>
+              <img 
+                src="/circle-3.png" 
+                alt="Islandfull accent" 
+                className="w-2.5 h-2.5 object-contain" 
+              />
+            </a>
             <p className="text-gray-500 text-xs leading-relaxed">
               Your ultimate gateway to seamless experiences and exceptional stays.
             </p>
