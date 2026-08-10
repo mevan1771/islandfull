@@ -236,8 +236,9 @@ export function BookingDrawer({
                 href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-[44px] h-[44px] border border-gray-200 rounded-xl flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform shrink-0"
+                className="relative w-[44px] h-[44px] border border-gray-200 rounded-xl flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform shrink-0"
               >
+                <span className="absolute -top-1 -right-1 flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span></span>
                 <MessageCircle className="w-5 h-5 text-zinc-600" />
               </a>
               <Button onClick={() => setIsOpen(true)} className="w-auto h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
@@ -299,24 +300,6 @@ export function BookingDrawer({
              "Secure checkout with Stripe."}
           </p>
 
-          <div className="hidden md:flex border-t border-gray-100 mt-4 pt-4 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Live Concierge</span>
-            </div>
-            <a 
-              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs font-bold text-zinc-600 hover:text-black hover:underline transition-colors flex items-center gap-1"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              Chat with Local Expert
-            </a>
-          </div>
         </div>
       </div>
 
