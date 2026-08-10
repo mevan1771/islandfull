@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem } from "lucide-react"
+import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import { validatePromoCode } from "@/app/actions/promo"
@@ -231,9 +231,19 @@ export function BookingDrawer({
             </div>
             
             {/* Mobile Button: Side-by-side with price */}
-            <Button onClick={() => setIsOpen(true)} className="flex md:hidden w-auto h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
-              Reserve Now
-            </Button>
+            <div className="flex md:hidden items-center gap-2">
+              <a 
+                href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-[44px] h-[44px] border border-gray-200 rounded-xl flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform shrink-0"
+              >
+                <MessageCircle className="w-5 h-5 text-zinc-600" />
+              </a>
+              <Button onClick={() => setIsOpen(true)} className="w-auto h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
+                Reserve Now
+              </Button>
+            </div>
           </div>
 
           {/* Desktop Only: Inline Calendar */}
@@ -288,6 +298,25 @@ export function BookingDrawer({
              paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
              "Secure checkout with Stripe."}
           </p>
+
+          <div className="hidden md:flex border-t border-gray-100 mt-4 pt-4 items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Live Concierge</span>
+            </div>
+            <a 
+              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-zinc-600 hover:text-black hover:underline transition-colors flex items-center gap-1"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Chat with Local Expert
+            </a>
+          </div>
         </div>
       </div>
 
