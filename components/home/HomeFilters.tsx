@@ -166,15 +166,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
           </div>
 
           {/* Inputs */}
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4">
-            <div ref={dropdownRef} className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4 focus-within:border-rose-500 transition-colors relative">
-              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-3 w-full">
+            <div ref={dropdownRef} className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 relative flex flex-col justify-center">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Location</label>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
                 <input 
                   type="text" 
-                  placeholder="Ella, Sigiriya..." 
-                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
+                  placeholder="Where are you going?" 
+                  className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
                   value={location}
                   onFocus={() => {
                     setIsFocused(true)
@@ -191,16 +190,16 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                     }
                   }}
                 />
-                {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
+                {isFetching && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
               </div>
 
               {/* Autocomplete Dropdown */}
               {isDropdownOpen && suggestions.length > 0 && (
-                <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50">
+                <ul className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
                   {suggestions.map((sug, idx) => (
                     <li 
                       key={idx}
-                      className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
+                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
                       onMouseDown={(e) => {
                         e.preventDefault() // prevent input blur
                         setLocation(sug)
@@ -210,7 +209,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                         router.push(`/?${params.toString()}`, { scroll: false })
                       }}
                     >
-                      <Search className="w-4 h-4 text-zinc-400" />
+                      <MapPin className="w-4 h-4 text-gray-400" />
                       {sug}
                     </li>
                   ))}
@@ -218,38 +217,32 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               )}
             </div>
             
-            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4">
-              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Date (Optional)</label>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
-                <input 
-                  type="date" 
-                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-              </div>
+            <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Date</label>
+              <input 
+                type="date" 
+                className={`w-full outline-none text-xs sm:text-sm font-medium bg-transparent cursor-pointer ${date ? 'text-gray-900' : 'text-gray-400'}`}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
 
-            <div className="flex-1 w-full border border-zinc-200 rounded-xl p-2 px-3 md:p-3 md:px-4">
-              <label className="text-[10px] md:text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers (Optional)</label>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 md:w-5 md:h-5 text-zinc-400" />
-                <input 
-                  type="text" 
-                  placeholder="e.g. 2 Pax" 
-                  className="w-full outline-none text-sm md:text-base text-zinc-900 font-medium bg-transparent"
-                  value={travelers}
-                  onChange={(e) => setTravelers(e.target.value)}
-                />
-              </div>
+            <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Travelers</label>
+              <input 
+                type="text" 
+                placeholder="Add guests" 
+                className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
+                value={travelers}
+                onChange={(e) => setTravelers(e.target.value)}
+              />
             </div>
 
             {/* Actions: Filter & Search */}
-            <div className="w-full md:w-auto flex items-center gap-3">
+            <div className="flex items-center gap-2 w-full md:w-auto h-[60px]">
               {/* Filter / Sort Button */}
-              <div className="relative w-[50px] md:w-[60px] h-[50px] md:h-[60px] flex-shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer hover:bg-zinc-50 transition-colors">
-                <SlidersHorizontal className="w-5 h-5 md:w-6 md:h-6" />
+              <div className="relative h-full aspect-square flex-shrink-0 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
+                <SlidersHorizontal className="w-5 h-5" />
                 <select 
                   value={currentSort}
                   onChange={handleSortChange}
@@ -262,9 +255,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               </div>
 
               {/* Search Button */}
-              <button type="submit" className="flex-1 md:flex-none h-[50px] md:h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-8 md:px-10 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
-                <Search className="w-5 h-5" />
-                Search
+              <button type="submit" className="h-full flex-1 md:flex-none md:w-[120px] bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-rose-500/20 active:scale-95">
+                <Search className="w-4 h-4" />
+                <span className="text-sm">Search</span>
               </button>
             </div>
           </form>

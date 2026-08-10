@@ -23,14 +23,12 @@ export default function SiteHeader() {
               <ArrowLeft className="w-4 h-4" />
             </Link>
           )}
-          <a href="/" className="flex items-center">
-            <Image 
-              src="/logo.png" 
-              alt="IslandFull" 
-              width={140} 
-              height={40} 
-              className="h-10 w-auto object-contain drop-shadow-md"
-              priority
+          <a href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">IslandFull</span>
+            <img 
+              src="/circle-3.png" 
+              alt="Islandfull accent" 
+              className="w-3 h-3 object-contain drop-shadow-md" 
             />
           </a>
         </div>
