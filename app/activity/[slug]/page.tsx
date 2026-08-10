@@ -259,9 +259,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
-            <div className="mt-6 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3 p-4 bg-zinc-50 rounded-2xl w-fit">
-                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden relative shadow-sm border border-zinc-200">
+            <div className="mt-6">
+              <div className="flex items-start gap-3 p-4 bg-zinc-50 rounded-2xl w-fit border border-zinc-100">
+                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden relative shadow-sm border border-zinc-200 shrink-0">
                   {activity.hosts?.image_url ? (
                     <Image src={activity.hosts.image_url} alt={activity.hosts?.name || activity.provider_name} fill className="object-cover" />
                   ) : (
@@ -269,20 +269,20 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-zinc-400 uppercase">Hosted By</span>
-                  <span className="font-bold text-zinc-900">{activity.hosts?.name || activity.provider_name}</span>
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Hosted By</span>
+                  <span className="font-bold text-zinc-900 text-sm md:text-base">{activity.hosts?.name || activity.provider_name}</span>
+                  
+                  <a 
+                    href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + activity.title)}`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hidden md:flex items-center gap-1.5 mt-1 hover:text-gray-900 transition-colors w-fit"
+                  >
+                    <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
+                    <span className="text-xs font-medium text-gray-500 hover:text-gray-900">Chat with Host</span>
+                  </a>
                 </div>
               </div>
-              
-              <a 
-                href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + activity.title)}`}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full hover:border-gray-900 transition bg-white text-sm font-medium text-gray-700"
-              >
-                <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span></span>
-                Chat with Host
-              </a>
             </div>
           </section>
 
