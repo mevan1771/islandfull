@@ -3,70 +3,53 @@ import { Globe } from "lucide-react"
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-zinc-50 border-t border-neutral-200 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 md:gap-8 mb-12">
-          {/* Column 1: Brand & Mission */}
-          <div className="col-span-2 md:col-span-1 space-y-4 mb-2 md:mb-0">
-            <Link href="/" className="text-2xl font-black text-rose-500 tracking-tight">
-              IslandFull
-            </Link>
-            <p className="text-zinc-500 text-sm leading-relaxed max-w-xs">
-              Discovering authentic local experiences and curated tours across the breathtaking landscapes of Sri Lanka.
+    <footer className="bg-white border-t border-gray-100 text-gray-600 text-sm">
+      <div className="max-w-7xl mx-auto px-6 py-12 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-gray-100">
+          
+          {/* Brand Column */}
+          <div className="space-y-3">
+            <span className="text-lg font-semibold tracking-tight text-gray-900">Islandfull</span>
+            <p className="text-gray-500 text-xs leading-relaxed">
+              Your ultimate gateway to seamless experiences and exceptional stays.
             </p>
           </div>
 
-          {/* Column 2: Support */}
+          {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Support</h3>
-            <ul className="space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Help Center</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Safety Information</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cancellation Options</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">COVID-19 Resources</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Contact Us</Link></li>
+            <h3 className="font-semibold text-gray-900 text-xs uppercase tracking-wider mb-4">Navigation</h3>
+            <ul className="space-y-2.5 text-xs">
+              <li><a href="/" className="hover:underline text-gray-600">Home</a></li>
+              <li><a href="/about" className="hover:underline text-gray-600">About Us</a></li>
+              <li><a href="/contact" className="hover:underline text-gray-600">Contact</a></li>
             </ul>
           </div>
 
-          {/* Column 3: Community & Hosting */}
+          {/* Contact & Support */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Community & Hosting</h3>
-            <ul className="space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">List Your Tour</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Host Community</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Responsible Tourism</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Partner Hub</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Community Policies</Link></li>
+            <h3 className="font-semibold text-gray-900 text-xs uppercase tracking-wider mb-4">Get in Touch</h3>
+            <ul className="space-y-2.5 text-xs">
+              <li>
+                <a href="mailto:info@islandfull.com" className="hover:underline text-gray-600 flex items-center gap-2">
+                  <span className="font-medium text-gray-900">Email:</span> info@islandfull.com
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/447342573235" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 flex items-center gap-2">
+                  <span className="font-medium text-gray-900">WhatsApp:</span> +44 7342 573235
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Column 4: Legal & Currency */}
-          <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Legal</h3>
-            <ul className="space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cookie Preferences</Link></li>
-            </ul>
-          </div>
         </div>
 
-        {/* Bottom Bar: Copyright & Settings */}
-        <div className="pt-8 border-t border-zinc-200 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-zinc-500 text-sm">
-            © 2026 IslandFull, Inc. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 text-zinc-700 hover:text-zinc-900 font-medium text-sm transition-colors">
-              <Globe className="w-4 h-4" />
-              English (US)
-            </button>
-            <button className="text-zinc-700 hover:text-zinc-900 font-medium text-sm transition-colors">
-              $ USD
-            </button>
-            <button className="text-zinc-700 hover:text-zinc-900 font-medium text-sm transition-colors">
-              Rs LKR
-            </button>
+        {/* Bottom Bar */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+          <p>© {new Date().getFullYear()} Islandfull. All rights reserved.</p>
+          <div className="flex space-x-6">
+            <a href="/privacy" className="hover:underline">Privacy Policy</a>
+            <a href="/terms" className="hover:underline">Terms of Service</a>
           </div>
         </div>
       </div>
