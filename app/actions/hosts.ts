@@ -27,6 +27,8 @@ export async function createHost(formData: FormData) {
     const payout_notes = formData.get("payout_notes") as string | null
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
+    let avatar_url = formData.get("avatar_url") as string
+    const avatarFile = formData.get("avatar_file") as File
 
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop()
@@ -44,9 +46,25 @@ export async function createHost(formData: FormData) {
       image_url = publicUrlData.publicUrl
     }
 
+    if (avatarFile && avatarFile.size > 0) {
+      const fileExt = avatarFile.name.split('.').pop()
+      const fileName = `avatar_${Math.random()}.${fileExt}`
+      const { data, error } = await supabaseAdmin.storage
+        .from('images')
+        .upload(`hosts/${fileName}`, avatarFile)
+      
+      if (error) throw error
+      
+      const { data: publicUrlData } = supabaseAdmin.storage
+        .from('images')
+        .getPublicUrl(`hosts/${fileName}`)
+        
+      avatar_url = publicUrlData.publicUrl
+    }
+
     const { error } = await supabaseAdmin
       .from('hosts')
-      .insert([{ name, email, phone, contact_name, address, payout_notes, image_url: image_url || null }])
+      .insert([{ name, email, phone, contact_name, address, payout_notes, image_url: image_url || null, avatar_url: avatar_url || null }])
 
     if (error) throw error
 
@@ -68,6 +86,8 @@ export async function updateHost(id: string, formData: FormData) {
     const payout_notes = formData.get("payout_notes") as string | null
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
+    let avatar_url = formData.get("avatar_url") as string
+    const avatarFile = formData.get("avatar_file") as File
 
     if (imageFile && imageFile.size > 0) {
       const fileExt = imageFile.name.split('.').pop()
@@ -85,9 +105,28 @@ export async function updateHost(id: string, formData: FormData) {
       image_url = publicUrlData.publicUrl
     }
 
+    if (avatarFile && avatarFile.size > 0) {
+      const fileExt = avatarFile.name.split('.').pop()
+      const fileName = `avatar_${Math.random()}.${fileExt}`
+      const { data, error } = await supabaseAdmin.storage
+        .from('images')
+        .upload(`hosts/${fileName}`, avatarFile)
+      
+      if (error) throw error
+      
+      const { data: publicUrlData } = supabaseAdmin.storage
+        .from('images')
+        .getPublicUrl(`hosts/${fileName}`)
+        
+      avatar_url = publicUrlData.publicUrl
+    }
+
     const updateData: any = { name, email, phone, contact_name, address, payout_notes }
     if (image_url) {
       updateData.image_url = image_url
+    }
+    if (avatar_url) {
+      updateData.avatar_url = avatar_url
     }
 
     const { error } = await supabaseAdmin

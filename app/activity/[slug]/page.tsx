@@ -333,7 +333,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               minNoticeDays={activity.min_notice_days}
               bookingType={activity.booking_type || 'single_day'}
               pricingModel={activity.pricing_model || 'per_person'}
-              hostAvatar={activity.hosts?.image_url}
+          hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
               hostName={activity.hosts?.name || activity.provider_name}
             />
           </div>
@@ -394,7 +394,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           minNoticeDays={activity.min_notice_days}
           bookingType={activity.booking_type || 'single_day'}
           pricingModel={activity.pricing_model || 'per_person'}
-          hostAvatar={activity.hosts?.image_url}
+          hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
           hostName={activity.hosts?.name || activity.provider_name}
         />
       </div>

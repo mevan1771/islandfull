@@ -18,8 +18,9 @@ export default function HostsPage() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHost, setEditingHost] = useState<any>(null)
-  const [formData, setFormData] = useState({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
+  const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
   useEffect(() => {
     loadHosts()
@@ -38,6 +39,7 @@ export default function HostsPage() {
       setFormData({ 
         name: host.name, 
         image_url: host.image_url || "",
+        avatar_url: host.avatar_url || "",
         contact_name: host.contact_name || "",
         email: host.email || "",
         phone: host.phone || "",
@@ -48,9 +50,10 @@ export default function HostsPage() {
       })
     } else {
       setEditingHost(null)
-      setFormData({ name: "", image_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
+      setFormData({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
     }
     setImageFile(null)
+    setAvatarFile(null)
     setResetPassword("")
     setIsModalOpen(true)
   }
@@ -59,6 +62,7 @@ export default function HostsPage() {
     setIsModalOpen(false)
     setEditingHost(null)
     setImageFile(null)
+    setAvatarFile(null)
     setResetPassword("")
   }
 
@@ -88,6 +92,8 @@ export default function HostsPage() {
     if (formData.payout_notes) data.append("payout_notes", formData.payout_notes)
     if (formData.image_url) data.append("image_url", formData.image_url)
     if (imageFile) data.append("image_file", imageFile)
+    if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
+    if (avatarFile) data.append("avatar_file", avatarFile)
 
     let res;
     if (editingHost) {
@@ -131,6 +137,12 @@ export default function HostsPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0])
+    }
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0])
     }
   }
 
@@ -334,6 +346,32 @@ export default function HostsPage() {
                     <Upload className="w-4 h-4 text-zinc-400" />
                     <span className="text-sm font-medium text-zinc-600 truncate">
                       {imageFile ? imageFile.name : "Or upload an image file..."}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-zinc-800">Host Avatar (Chat Avatar)</label>
+                <input
+                  type="url"
+                  value={formData.avatar_url}
+                  onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                  placeholder="https://example.com/avatar.png"
+                  className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 mb-2"
+                />
+                
+                <div className="relative group cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="w-full h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 flex items-center gap-2 group-hover:border-zinc-300 transition-colors">
+                    <Upload className="w-4 h-4 text-zinc-400" />
+                    <span className="text-sm font-medium text-zinc-600 truncate">
+                      {avatarFile ? avatarFile.name : "Or upload an avatar file..."}
                     </span>
                   </div>
                 </div>
