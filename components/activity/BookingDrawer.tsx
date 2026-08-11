@@ -301,16 +301,16 @@ export function BookingDrawer({
               href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 h-12 cursor-pointer transition shrink-0"
+              className="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 h-[52px] cursor-pointer transition shrink-0"
             >
               {hostAvatar ? (
-                <img src={hostAvatar} alt={hostName || "Host"} className="w-8 h-8 rounded-full object-cover shadow-sm" />
+                <img src={hostAvatar} alt={hostName || "Host"} className="w-10 h-10 rounded-full object-cover shadow-sm" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
+                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
               )}
-              <span className="text-sm font-semibold text-gray-800">Chat Now</span>
+              <span className="text-base font-semibold text-gray-800">Chat Now</span>
             </a>
-            <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} size="lg" className="flex-1 shadow-lg shadow-rose-500/20 py-6 text-lg font-bold">
+            <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} className="flex-1 h-[52px] shadow-lg shadow-rose-500/20 text-lg font-bold">
               Reserve Now
             </Button>
           </div>
