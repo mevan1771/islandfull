@@ -247,7 +247,7 @@ export function BookingDrawer({
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
                 )}
-                <span className="absolute -bottom-1 -right-0 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
               </a>
               <Button onClick={() => setIsOpen(true)} className="flex-1 h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
                 Reserve Now
@@ -301,12 +301,12 @@ export function BookingDrawer({
               href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer transition shrink-0"
+              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 h-12 cursor-pointer transition shrink-0"
             >
               {hostAvatar ? (
-                <img src={hostAvatar} alt={hostName || "Host"} className="w-6 h-6 rounded-full object-cover shadow-sm" />
+                <img src={hostAvatar} alt={hostName || "Host"} className="w-8 h-8 rounded-full object-cover shadow-sm" />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
+                <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
               )}
               <span className="text-sm font-semibold text-gray-800">Chat Now</span>
             </a>
