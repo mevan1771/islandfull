@@ -52,16 +52,40 @@ export async function updateSession(request: NextRequest) {
   
   // If accessing /admin, enforce admin role
   if (isAdminRoute) {
+    // First check the core users table for legacy admin flag
     const { data: profile } = await supabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    // Then check the new user_roles table for granular RBAC
+    const { data: userRole } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    const isSuperAdmin = profile?.role === 'admin'
+    const isRbacAdmin = userRole?.role === 'admin'
+    const isStaff = userRole?.role === 'staff'
+
+    if (!isSuperAdmin && !isRbacAdmin && !isStaff) {
       const url = request.nextUrl.clone()
       url.pathname = '/host'
       return NextResponse.redirect(url)
+    }
+
+    // Staff RBAC Restrictions
+    if (isStaff && !isSuperAdmin && !isRbacAdmin) {
+      const restrictedRoutes = ['/admin/team', '/admin/finances', '/admin/settings']
+      const path = request.nextUrl.pathname
+
+      if (restrictedRoutes.some(route => path.startsWith(route))) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/admin/tours'
+        return NextResponse.redirect(url)
+      }
     }
   }
 
