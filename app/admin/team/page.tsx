@@ -9,7 +9,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function TeamPage({ searchParams }: { searchParams: { staff?: string } }) {
+export default async function TeamPage({ searchParams }: { searchParams: Promise<{ staff?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+
   // Fetch users and their roles
   const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
   
@@ -28,8 +30,8 @@ export default async function TeamPage({ searchParams }: { searchParams: { staff
     .order('created_at', { ascending: false })
     .limit(20)
 
-  if (searchParams?.staff) {
-    query = query.eq('user_id', searchParams.staff)
+  if (resolvedSearchParams?.staff) {
+    query = query.eq('user_id', resolvedSearchParams.staff)
   }
 
   // Fetch recent audit logs (bypassing RLS via Service Role)
