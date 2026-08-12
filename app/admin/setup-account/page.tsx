@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Lock, AlertCircle, CheckCircle2 } from 'lucide-react'
@@ -14,6 +14,24 @@ export default function SetupAccountPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [isSessionReady, setIsSessionReady] = useState(false)
+
+  const [supabase] = useState(() => createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  ))
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setIsSessionReady(true)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) setIsSessionReady(true)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
 
   const handleSetup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,11 +48,6 @@ export default function SetupAccountPage() {
     }
 
     setLoading(true)
-
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
 
     // Update the user's password
     const { error: updateError } = await supabase.auth.updateUser({
@@ -137,10 +150,10 @@ export default function SetupAccountPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading || success}
+                disabled={loading || success || !isSessionReady}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-zinc-900 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Saving...' : 'Save Password & Enter Dashboard'}
+                {!isSessionReady ? 'Verifying link...' : loading ? 'Saving...' : 'Save Password & Enter Dashboard'}
               </button>
             </div>
           </form>
