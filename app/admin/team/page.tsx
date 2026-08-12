@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function TeamPage() {
+export default async function TeamPage({ searchParams }: { searchParams: { staff?: string } }) {
   // Fetch users and their roles
   const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers()
   
@@ -21,12 +21,19 @@ export default async function TeamPage() {
     .from('users')
     .select('id, role')
 
-  // Fetch recent audit logs (bypassing RLS via Service Role)
-  const { data: rawAuditLogs, error: auditError } = await supabaseAdmin
+  // Build the query for recent audit logs
+  let query = supabaseAdmin
     .from('audit_logs')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(20)
+
+  if (searchParams?.staff) {
+    query = query.eq('user_id', searchParams.staff)
+  }
+
+  // Fetch recent audit logs (bypassing RLS via Service Role)
+  const { data: rawAuditLogs, error: auditError } = await query
 
   // Manually attach user emails to avoid cross-schema RLS issues
   const auditLogs = (rawAuditLogs || []).map((log: any) => {

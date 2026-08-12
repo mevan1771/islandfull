@@ -4,6 +4,7 @@ import { useState } from "react"
 import { inviteStaff, revokeAccess } from "@/app/actions/team"
 import { formatDistanceToNow } from "date-fns"
 import { UserPlus, Shield, Activity, XCircle, CheckCircle2 } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function TeamClient({ initialStaff, initialAuditLogs }: { initialStaff: any[], initialAuditLogs: any[] }) {
   const [email, setEmail] = useState('')
@@ -11,6 +12,10 @@ export default function TeamClient({ initialStaff, initialAuditLogs }: { initial
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const currentStaffFilter = searchParams.get('staff') || ''
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,11 +143,33 @@ export default function TeamClient({ initialStaff, initialAuditLogs }: { initial
 
       {/* Audit Logs */}
       <section className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-            <Activity className="w-5 h-5" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <Activity className="w-5 h-5" />
+            </div>
+            <h2 className="text-xl font-bold text-zinc-900">Recent Activity</h2>
           </div>
-          <h2 className="text-xl font-bold text-zinc-900">Recent Activity</h2>
+          <div>
+            <select
+              value={currentStaffFilter}
+              onChange={(e) => {
+                const url = new URL(window.location.href);
+                if (e.target.value) {
+                  url.searchParams.set('staff', e.target.value);
+                } else {
+                  url.searchParams.delete('staff');
+                }
+                router.push(url.pathname + url.search);
+              }}
+              className="bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-zinc-700 w-full sm:w-auto"
+            >
+              <option value="">All Activity</option>
+              {initialStaff.map(s => (
+                <option key={s.id} value={s.id}>{s.email}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="space-y-4">
           {initialAuditLogs.map((log) => (
