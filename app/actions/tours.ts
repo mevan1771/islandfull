@@ -2,6 +2,8 @@
 
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
+import { logActivity } from "@/utils/auditLogger"
+import { createClient } from "@/utils/supabase/server"
 
 // Helper function to generate a URL-friendly slug
 function generateSlug(title: string): string {
@@ -304,6 +306,11 @@ export async function updateTour(id: string, formData: FormData) {
       const { error: joinError } = await supabaseAdmin.from('activity_categories').insert(joinData);
       if (joinError) console.error("Failed to update activity_categories:", joinError);
     }
+
+    // Log Activity
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Updated Tour: ${title}`, 'activities', id)
 
     revalidatePath('/', 'layout')
 
