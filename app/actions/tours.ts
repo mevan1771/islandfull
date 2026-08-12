@@ -259,6 +259,9 @@ export async function updateTour(id: string, formData: FormData) {
 
     // Notice we do NOT update the slug to prevent breaking old links
 
+    // Fetch old tour data for audit logging
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate').eq('id', id).single()
+
     const { error } = await supabaseAdmin.from('activities').update({
       title,
       provider_name,
@@ -310,7 +313,17 @@ export async function updateTour(id: string, formData: FormData) {
     // Log Activity
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    await logActivity(user?.id, `Updated Tour: ${title}`, 'activities', id)
+    
+    let actionStr = `Updated Tour: ${title}`
+    if (oldTour) {
+      if (oldTour.price_usd !== price_usd) {
+        actionStr = `Changed price from $${oldTour.price_usd} to $${price_usd} for Tour: ${title}`
+      } else if (oldTour.commission_rate !== commission_rate) {
+        actionStr = `Updated commission to ${commission_rate}% for Tour: ${title}`
+      }
+    }
+    
+    await logActivity(user?.id, actionStr, 'activities', id)
 
     revalidatePath('/', 'layout')
 

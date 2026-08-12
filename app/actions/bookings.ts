@@ -2,6 +2,8 @@
 
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
+import { logActivity } from "@/utils/auditLogger"
+import { createClient } from "@/utils/supabase/server"
 
 export async function updateStatus(id: string, newStatus: string) {
   if (newStatus === 'cancelled') {
@@ -17,11 +19,21 @@ export async function updateStatus(id: string, newStatus: string) {
   }
 
   await supabaseAdmin.from('bookings').update({ status: newStatus }).eq('id', id);
+  
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  await logActivity(user?.id, `Updated Booking Status to ${newStatus}`, 'bookings', id)
+  
   revalidatePath('/admin');
   revalidatePath('/', 'layout');
 }
 
 export async function archiveBooking(id: string) {
   await supabaseAdmin.from('bookings').update({ is_archived: true }).eq('id', id);
+  
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  await logActivity(user?.id, `Archived Booking`, 'bookings', id)
+  
   revalidatePath('/admin');
 }

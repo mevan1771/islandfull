@@ -2,6 +2,8 @@
 
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
+import { logActivity } from "@/utils/auditLogger"
+import { createClient } from "@/utils/supabase/server"
 
 // Cache the external API fetch heavily to prevent rate limits
 // Since Next.js fetch cache is persistent, this guarantees minimal external hits
@@ -62,6 +64,10 @@ export async function updateSettings(use_live_rate: boolean, manual_usd_lkr_rate
 
     if (error) throw error;
 
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Updated Platform Settings: live_rate=${use_live_rate}, manual_rate=${manual_usd_lkr_rate}`, 'platform_settings', '1')
+
     // Instantly invalidate the whole app to apply the new rate immediately
     revalidatePath('/', 'layout');
     
@@ -84,6 +90,10 @@ export async function updateGlobalSetting(key: string, value: any) {
       
     if (error) throw error
     
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Changed global setting [${key}]`, 'global_settings', key)
+
     // Revalidate paths that might use this setting
     revalidatePath('/', 'layout')
     

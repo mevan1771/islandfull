@@ -1,6 +1,9 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/supabase"
+import { revalidatePath } from "next/cache"
+import { logActivity } from "@/utils/auditLogger"
+import { createClient } from "@/utils/supabase/server"
 
 export async function validatePromoCode(code: string, cartTotalUsd: number) {
   if (!code) {
@@ -39,5 +42,53 @@ export async function validatePromoCode(code: string, cartTotalUsd: number) {
     success: true, 
     discountAmountUsd: Number(promo.discount_amount_usd),
     code: cleanCode
+  }
+}
+
+export async function createPromoCode(data: any) {
+  try {
+    const { error } = await supabaseAdmin.from('promo_codes').insert(data)
+    if (error) throw error
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Created Promo Code: ${data.code}`, 'promo_codes', null)
+
+    revalidatePath('/admin/promos')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function updatePromoCode(id: string, data: any) {
+  try {
+    const { error } = await supabaseAdmin.from('promo_codes').update(data).eq('id', id)
+    if (error) throw error
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Updated Promo Code: ${data.code || id}`, 'promo_codes', id)
+
+    revalidatePath('/admin/promos')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function deletePromoCode(id: string, code: string) {
+  try {
+    const { error } = await supabaseAdmin.from('promo_codes').delete().eq('id', id)
+    if (error) throw error
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    await logActivity(user?.id, `Deleted Promo Code: ${code}`, 'promo_codes', id)
+
+    revalidatePath('/admin/promos')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
   }
 }
