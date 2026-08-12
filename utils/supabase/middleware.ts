@@ -40,8 +40,12 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse;
   }
 
-  // Exempt Setup Page from Auth Bouncer so client can parse the hash token
-  if (request.nextUrl.pathname === '/admin/setup-account') {
+  // Exempt Setup and Password pages from Auth Bouncer so client can parse the hash token
+  if (
+    request.nextUrl.pathname === '/admin/setup-account' ||
+    request.nextUrl.pathname === '/admin/forgot-password' ||
+    request.nextUrl.pathname === '/admin/update-password'
+  ) {
       return supabaseResponse;
   }
 

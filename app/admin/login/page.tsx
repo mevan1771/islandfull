@@ -76,9 +76,14 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-zinc-700">
-                Password
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-bold text-zinc-700">
+                  Password
+                </label>
+                <Link href="/admin/forgot-password" className="text-sm font-semibold text-rose-600 hover:text-rose-500 transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-zinc-400" />
