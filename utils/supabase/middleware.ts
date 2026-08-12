@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Allow access to the login page itself
-  if (request.nextUrl.pathname === '/host/login') {
+  if (request.nextUrl.pathname === '/host/login' || request.nextUrl.pathname === '/admin/login') {
       return supabaseResponse;
   }
 
@@ -51,7 +51,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/host/login'
+    if (isAdminRoute) {
+      url.pathname = '/admin/login'
+    } else {
+      url.pathname = '/host/login'
+    }
     return NextResponse.redirect(url)
   }
   
