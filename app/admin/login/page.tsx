@@ -35,9 +35,8 @@ export default function AdminLoginPage() {
       return
     }
 
-    // On success, redirect to admin dashboard
-    router.push('/admin')
-    router.refresh()
+    // On success, force a full page reload to ensure the middleware reads the new cookie
+    window.location.href = '/admin'
   }
 
   return (
