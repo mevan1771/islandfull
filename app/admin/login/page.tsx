@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     }
 
     // On success, redirect to admin dashboard
-    router.push('/admin/tours')
+    router.push('/admin')
     router.refresh()
   }
 
