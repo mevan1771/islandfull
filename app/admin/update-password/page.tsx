@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { Lock, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function UpdatePasswordPage() {
   const [newPassword, setNewPassword] = useState('')
@@ -64,7 +65,9 @@ export default function UpdatePasswordPage() {
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <Image src="/images/logo.png" alt="Islandfull" width={180} height={40} className="object-contain mb-6" priority />
+        <Link href="/" className="mb-6 text-3xl font-black text-rose-500 tracking-tight">
+          IslandFull
+        </Link>
         <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-zinc-900">
           Update Your Password
         </h2>

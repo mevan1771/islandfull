@@ -38,8 +38,8 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <Link href="/" className="mb-6">
-          <Image src="/images/logo.png" alt="Islandfull" width={180} height={40} className="object-contain" priority />
+        <Link href="/" className="mb-6 text-3xl font-black text-rose-500 tracking-tight">
+          IslandFull
         </Link>
         <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-zinc-900">
           Reset Password

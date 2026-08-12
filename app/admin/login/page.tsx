@@ -42,8 +42,8 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Link href="/" className="flex justify-center mb-6">
-          <Image src="/logo.png" alt="Islandfull" width={180} height={40} className="object-contain" />
+        <Link href="/" className="flex justify-center mb-6 text-3xl font-black text-rose-500 tracking-tight">
+          IslandFull
         </Link>
         <h2 className="mt-2 text-center text-3xl font-extrabold text-zinc-900 tracking-tight">
           Admin & Staff Portal
