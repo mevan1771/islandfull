@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js"
 import TeamClient from "./TeamClient"
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,12 +21,21 @@ export default async function TeamPage() {
     .from('users')
     .select('id, role')
 
-  // Fetch recent audit logs
-  const { data: auditLogs, error: auditError } = await supabaseAdmin
+  // Fetch recent audit logs (bypassing RLS via Service Role)
+  const { data: rawAuditLogs, error: auditError } = await supabaseAdmin
     .from('audit_logs')
-    .select('*, auth_users:user_id(email)')
+    .select('*')
     .order('created_at', { ascending: false })
     .limit(20)
+
+  // Manually attach user emails to avoid cross-schema RLS issues
+  const auditLogs = (rawAuditLogs || []).map((log: any) => {
+    const userMatch = users?.find(u => u.id === log.user_id)
+    return {
+      ...log,
+      auth_users: userMatch ? { email: userMatch.email } : null
+    }
+  })
 
   // Map auth users with their roles
   const staffMembers = (users || []).map(u => {
