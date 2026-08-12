@@ -40,6 +40,11 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse;
   }
 
+  // Exempt Setup Page from Auth Bouncer so client can parse the hash token
+  if (request.nextUrl.pathname === '/admin/setup-account') {
+      return supabaseResponse;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
