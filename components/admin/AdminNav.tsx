@@ -14,7 +14,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Reviews', href: '/admin/reviews' },
     { name: 'Promo Codes', href: '/admin/promos' },
     { name: 'Finances', href: '/admin/finances', adminOnly: true },
-    { name: 'Earnings', href: '/admin/earnings' },
+    { name: 'Earnings', href: '/admin/earnings', adminOnly: true },
     { name: 'Hosts', href: '/admin/hosts' },
     { name: 'Categories', href: '/admin/categories' },
     { name: 'Team / Access Control', href: '/admin/team', adminOnly: true },
