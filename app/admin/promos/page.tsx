@@ -2,9 +2,37 @@ import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import { Tag, CheckCircle2, XCircle } from "lucide-react"
 
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPromosPage() {
+  const cookieStore = await cookies()
+  const supabaseClient = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabaseClient.auth.getUser()
+  if (!user) redirect('/admin/login')
+
+  const { data: profile } = await supabaseClient.from('users').select('role').eq('id', user.id).single()
+  const { data: roleData } = await supabaseClient.from('user_roles').select('role').eq('user_id', user.id).single()
+  const isAdmin = (profile?.role === 'admin') || (roleData?.role === 'admin')
+
+  if (!isAdmin) {
+    redirect('/admin')
+  }
+
   const { data: promos } = await supabase
     .from('promo_codes')
     .select('*')

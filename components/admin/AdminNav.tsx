@@ -12,7 +12,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Hero Carousel', href: '/admin/carousel' },
     { name: 'Spotlight', href: '/admin/spotlight' },
     { name: 'Reviews', href: '/admin/reviews' },
-    { name: 'Promo Codes', href: '/admin/promos' },
+    { name: 'Promo Codes', href: '/admin/promos', adminOnly: true },
     { name: 'Finances', href: '/admin/finances', adminOnly: true },
     { name: 'Earnings', href: '/admin/earnings', adminOnly: true },
     { name: 'Hosts', href: '/admin/hosts' },
