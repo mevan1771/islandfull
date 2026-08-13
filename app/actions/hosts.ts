@@ -19,6 +19,17 @@ export async function getHosts() {
 
 export async function createHost(formData: FormData) {
   try {
+    const { createClient } = await import('@/utils/supabase/server')
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+    
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (!['admin', 'staff'].includes(normalizedRole)) {
+      return { success: false, error: "Unauthorized: Admins and Staff only" }
+    }
+
     const name = formData.get("name") as string
     const email = formData.get("email") as string | null
     const phone = formData.get("phone") as string | null
@@ -78,6 +89,17 @@ export async function createHost(formData: FormData) {
 
 export async function updateHost(id: string, formData: FormData) {
   try {
+    const { createClient } = await import('@/utils/supabase/server')
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+    
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (!['admin', 'staff'].includes(normalizedRole)) {
+      return { success: false, error: "Unauthorized: Admins and Staff only" }
+    }
+
     const name = formData.get("name") as string
     const email = formData.get("email") as string | null
     const phone = formData.get("phone") as string | null

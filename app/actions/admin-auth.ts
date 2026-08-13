@@ -30,7 +30,8 @@ export async function adminCreateHostAccount(formData: FormData) {
       .eq('id', user.id)
       .single()
       
-    if (profile?.role !== 'admin' && profile?.role !== 'staff') {
+    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
 
@@ -139,7 +140,8 @@ export async function adminProvisionLegacyHost(hostId: string, formData: FormDat
     if (!user) return { success: false, error: "Unauthorized" }
     
     const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin' && profile?.role !== 'staff') return { success: false, error: "Unauthorized: Admins and Staff only" }
+    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 
     let email = formData.get('login_email') as string
     const password = formData.get('login_password') as string
@@ -205,7 +207,8 @@ export async function adminResetHostPassword(userId: string, newPassword: string
     if (!user) return { success: false, error: "Unauthorized" }
     
     const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin' && profile?.role !== 'staff') return { success: false, error: "Unauthorized: Admins and Staff only" }
+    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 
     if (!newPassword || newPassword.length < 6) {
       return { success: false, error: "Password must be at least 6 characters" }
