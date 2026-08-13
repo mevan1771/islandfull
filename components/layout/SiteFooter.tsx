@@ -3,7 +3,7 @@ import { Globe } from "lucide-react"
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-zinc-50 border-t border-neutral-200 pt-16 pb-8">
+    <footer className="bg-gray-50 border-t border-neutral-200 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 md:gap-8 mb-12">
           {/* Column 1: Brand & Mission */}
@@ -51,7 +51,7 @@ export default function SiteFooter() {
               </li>
               <li>
                 <a href="https://wa.me/447342573235" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
-                  <span className="font-medium text-zinc-700">WhatsApp:</span> +44 7342 573235
+                  <span className="font-medium text-zinc-700">WhatsApp:</span> <span className="whitespace-nowrap">+44 7342 573235</span>
                 </a>
               </li>
             </ul>
