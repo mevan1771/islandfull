@@ -260,19 +260,24 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               <ReactMarkdown>{activity.description}</ReactMarkdown>
             </div>
             <div className="mt-6">
-              <div className="flex items-start gap-3 p-4 bg-zinc-50 rounded-2xl w-fit border border-zinc-100">
-                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden relative shadow-sm border border-zinc-200 shrink-0">
-                  {activity.hosts?.image_url ? (
-                    <Image src={activity.hosts.image_url} alt={activity.hosts?.name || activity.provider_name} fill className="object-cover" />
-                  ) : (
-                    <span className="font-bold text-zinc-500">{(activity.hosts?.name || activity.provider_name).charAt(0)}</span>
-                  )}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Hosted By</span>
-                  <span className="font-bold text-zinc-900 text-sm md:text-base">{activity.hosts?.name || activity.provider_name}</span>
-                </div>
-              </div>
+              {(() => {
+                const hostName = activity.hosts?.name || activity.provider_name || 'Islandfull Partner';
+                return (
+                  <div className="flex items-start gap-3 p-4 bg-zinc-50 rounded-2xl w-fit border border-zinc-100">
+                    <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center overflow-hidden relative shadow-sm border border-zinc-200 shrink-0">
+                      {activity.hosts?.image_url ? (
+                        <Image src={activity.hosts.image_url} alt={hostName} fill className="object-cover" />
+                      ) : (
+                        <span className="font-bold text-zinc-500">{hostName.charAt(0)}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Hosted By</span>
+                      <span className="font-bold text-zinc-900 text-sm md:text-base">{hostName}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </section>
 

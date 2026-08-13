@@ -146,6 +146,33 @@ export async function updateHost(id: string, formData: FormData) {
 
 export async function deleteHost(id: string) {
   try {
+    // 1. Guard Rail: Check if the host has associated activities
+    const { data: activities, error: activityError } = await supabaseAdmin
+      .from('activities')
+      .select('id')
+      .eq('host_id', id)
+      .limit(1)
+
+    if (activityError && activityError.code !== 'PGRST116') throw activityError
+
+    if (activities && activities.length > 0) {
+      return { success: false, error: 'Cannot delete host while they have associated tours or bookings. Please reassign or remove their tours first.' }
+    }
+
+    // 2. Guard Rail: Check if the host has associated bookings
+    const { data: bookings, error: bookingsError } = await supabaseAdmin
+      .from('bookings')
+      .select('id')
+      .eq('host_id', id)
+      .limit(1)
+
+    if (bookingsError && bookingsError.code !== 'PGRST116') throw bookingsError
+
+    if (bookings && bookings.length > 0) {
+      return { success: false, error: 'Cannot delete host while they have associated tours or bookings. Please reassign or remove their tours first.' }
+    }
+
+    // If no associations, proceed with deletion
     const { error } = await supabaseAdmin
       .from('hosts')
       .delete()

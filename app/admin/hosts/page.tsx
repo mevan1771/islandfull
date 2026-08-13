@@ -127,8 +127,9 @@ export default function HostsPage() {
       const res = await deleteHost(id)
       if (res.success) {
         await loadHosts()
+        toast.success("Host deleted successfully")
       } else {
-        alert("Error deleting host: " + res.error)
+        alert(res.error)
         setIsLoading(false)
       }
     }
