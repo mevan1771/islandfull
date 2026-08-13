@@ -2,6 +2,16 @@
 
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
+import { z } from "zod"
+
+const hostSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email").or(z.literal("")).nullable().optional(),
+  phone: z.string().nullable().optional(),
+  contact_name: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  payout_notes: z.string().nullable().optional(),
+})
 
 export async function getHosts() {
   const { data, error } = await supabaseAdmin
@@ -30,12 +40,20 @@ export async function createHost(formData: FormData) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
 
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string | null
-    const phone = formData.get("phone") as string | null
-    const contact_name = formData.get("contact_name") as string | null
-    const address = formData.get("address") as string | null
-    const payout_notes = formData.get("payout_notes") as string | null
+    const rawData = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string | null,
+      phone: formData.get("phone") as string | null,
+      contact_name: formData.get("contact_name") as string | null,
+      address: formData.get("address") as string | null,
+      payout_notes: formData.get("payout_notes") as string | null,
+    }
+
+    const parsed = hostSchema.safeParse(rawData)
+    if (!parsed.success) {
+      return { success: false, error: "Invalid data payload" }
+    }
+    const { name, email, phone, contact_name, address, payout_notes } = parsed.data
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
     let avatar_url = formData.get("avatar_url") as string
@@ -100,12 +118,20 @@ export async function updateHost(id: string, formData: FormData) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
 
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string | null
-    const phone = formData.get("phone") as string | null
-    const contact_name = formData.get("contact_name") as string | null
-    const address = formData.get("address") as string | null
-    const payout_notes = formData.get("payout_notes") as string | null
+    const rawData = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string | null,
+      phone: formData.get("phone") as string | null,
+      contact_name: formData.get("contact_name") as string | null,
+      address: formData.get("address") as string | null,
+      payout_notes: formData.get("payout_notes") as string | null,
+    }
+
+    const parsed = hostSchema.safeParse(rawData)
+    if (!parsed.success) {
+      return { success: false, error: "Invalid data payload" }
+    }
+    const { name, email, phone, contact_name, address, payout_notes } = parsed.data
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
     let avatar_url = formData.get("avatar_url") as string
