@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/circle-3.png.webp",
+    shortcut: "/circle-3.png.webp",
+    apple: "/circle-3.png.webp",
   },
   appleWebApp: {
     capable: true,
