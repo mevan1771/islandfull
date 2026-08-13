@@ -146,6 +146,14 @@ export async function updateHost(id: string, formData: FormData) {
 
 export async function deleteHost(id: string) {
   try {
+    const { createClient } = await import('@/utils/supabase/server')
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: "Unauthorized" }
+    
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { success: false, error: "Unauthorized: Admins only" }
+
     // 1. Guard Rail: Check if the host has associated activities
     const { data: activities, error: activityError } = await supabaseAdmin
       .from('activities')
