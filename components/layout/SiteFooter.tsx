@@ -3,7 +3,7 @@ import { Globe } from "lucide-react"
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-zinc-100 border-t border-neutral-200 py-5 md:py-12">
+    <footer className="bg-zinc-100 border-t border-neutral-200 pt-10 md:pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 md:gap-y-10 gap-x-4 md:gap-8 mb-10 md:mb-12">
           {/* Column 1: Brand & Mission */}
@@ -11,45 +11,46 @@ export default function SiteFooter() {
             <Link href="/" className="text-2xl font-black text-rose-500 tracking-tight">
               IslandFull
             </Link>
-            <p className="hidden md:block text-zinc-500 text-sm leading-relaxed max-w-xs">
+            <p className="text-zinc-500 text-sm leading-relaxed max-w-xs">
               Discovering authentic local experiences and curated tours across the breathtaking landscapes of Sri Lanka.
             </p>
           </div>
 
           {/* Column 2: Support */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 md:text-sm mb-2 md:mb-4">Support</h3>
-            <ul className="space-y-1 md:space-y-2.5">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Help Center</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Safety Information</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Cancellation Options</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Contact Us</Link></li>
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Support</h3>
+            <ul className="space-y-2 md:space-y-3">
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Help Center</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Safety Information</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cancellation Options</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">COVID-19 Resources</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
           {/* Column 3: Community & Hosting */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 md:text-sm mb-2 md:mb-4">Community & Hosting</h3>
-            <ul className="space-y-1 md:space-y-2.5">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">List Your Tour</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Host Community</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Responsible Tourism</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Partner Hub</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors">Community Policies</Link></li>
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Community & Hosting</h3>
+            <ul className="space-y-2 md:space-y-3">
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">List Your Tour</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Host Community</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Responsible Tourism</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Partner Hub</Link></li>
+              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Community Policies</Link></li>
             </ul>
           </div>
 
           {/* Column 4: Contact */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 md:text-sm mb-2 md:mb-4">Contact</h3>
-            <ul className="space-y-1 md:space-y-2.5">
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Contact</h3>
+            <ul className="space-y-2 md:space-y-3">
               <li>
-                <a href="mailto:info@islandfull.com" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors flex items-center gap-2">
+                <a href="mailto:info@islandfull.com" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
                   <span className="font-medium text-zinc-700">Email:</span> info@islandfull.com
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/447342573235" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-xs md:text-sm transition-colors flex items-center gap-2">
+                <a href="https://wa.me/447342573235" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
                   <span className="font-medium text-zinc-700">WhatsApp:</span> <span className="whitespace-nowrap">+44 7342 573235</span>
                 </a>
               </li>
