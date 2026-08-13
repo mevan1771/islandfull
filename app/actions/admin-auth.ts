@@ -25,9 +25,9 @@ export async function adminCreateHostAccount(formData: FormData) {
     if (!user) return { success: false, error: "Unauthorized" }
     
     const { data: profile } = await supabase
-      .from('users')
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single()
       
     const normalizedRole = profile?.role?.toLowerCase() || '';
@@ -139,7 +139,7 @@ export async function adminProvisionLegacyHost(hostId: string, formData: FormDat
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
     
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
     const normalizedRole = profile?.role?.toLowerCase() || '';
     if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 
@@ -206,7 +206,7 @@ export async function adminResetHostPassword(userId: string, newPassword: string
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
     
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const { data: profile } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
     const normalizedRole = profile?.role?.toLowerCase() || '';
     if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 

@@ -24,8 +24,8 @@ export async function createHost(formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
     
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    const normalizedRole = profile?.role?.toLowerCase() || '';
+    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
+    const normalizedRole = roleData?.role?.toLowerCase() || '';
     if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
@@ -94,8 +94,8 @@ export async function updateHost(id: string, formData: FormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
     
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    const normalizedRole = profile?.role?.toLowerCase() || '';
+    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
+    const normalizedRole = roleData?.role?.toLowerCase() || '';
     if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
@@ -173,8 +173,8 @@ export async function deleteHost(id: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
     
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { success: false, error: "Unauthorized: Admins only" }
+    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
+    if (roleData?.role !== 'admin') return { success: false, error: "Unauthorized: Admins only" }
 
     // 1. Guard Rail: Check if the host has associated activities
     const { data: activities, error: activityError } = await supabaseAdmin
