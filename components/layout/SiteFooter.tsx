@@ -3,11 +3,11 @@ import { Globe } from "lucide-react"
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-zinc-100 border-t border-neutral-200 pt-16 pb-8">
+    <footer className="bg-zinc-100 border-t border-neutral-200 pt-10 md:pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 md:gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 md:gap-y-10 gap-x-4 md:gap-8 mb-10 md:mb-12">
           {/* Column 1: Brand & Mission */}
-          <div className="col-span-2 md:col-span-1 space-y-4 mb-2 md:mb-0">
+          <div className="col-span-2 md:col-span-1 space-y-3 md:space-y-4 mb-2 md:mb-0">
             <Link href="/" className="text-2xl font-black text-rose-500 tracking-tight">
               IslandFull
             </Link>
@@ -18,8 +18,8 @@ export default function SiteFooter() {
 
           {/* Column 2: Support */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Support</h3>
-            <ul className="space-y-3">
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Support</h3>
+            <ul className="space-y-2 md:space-y-3">
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Help Center</Link></li>
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Safety Information</Link></li>
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cancellation Options</Link></li>
@@ -30,8 +30,8 @@ export default function SiteFooter() {
 
           {/* Column 3: Community & Hosting */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Community & Hosting</h3>
-            <ul className="space-y-3">
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Community & Hosting</h3>
+            <ul className="space-y-2 md:space-y-3">
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">List Your Tour</Link></li>
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Host Community</Link></li>
               <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Responsible Tourism</Link></li>
@@ -42,8 +42,8 @@ export default function SiteFooter() {
 
           {/* Column 4: Contact */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-4">Contact</h3>
-            <ul className="space-y-3">
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Contact</h3>
+            <ul className="space-y-2 md:space-y-3">
               <li>
                 <a href="mailto:info@islandfull.com" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors flex items-center gap-2">
                   <span className="font-medium text-zinc-700">Email:</span> info@islandfull.com
