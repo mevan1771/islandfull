@@ -67,7 +67,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
           
           {/* Slide Content */}
-          <div className="absolute bottom-16 md:bottom-24 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
+          <div className="relative md:absolute md:bottom-24 lg:bottom-32 mt-8 md:mt-0 w-full left-0 right-0 z-10 pointer-events-none flex flex-col justify-end md:justify-center h-full pb-32 md:pb-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex">
               {tour.isStatic ? (
                 <div className="flex flex-col items-start text-left gap-1 pointer-events-auto">
