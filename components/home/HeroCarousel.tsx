@@ -44,7 +44,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   }, [carouselSlides.length, currentIndex])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
+    <section className="relative w-full aspect-[4/5] md:aspect-auto pt-24 md:pt-32 pb-40 md:pb-48 text-white md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
         <div 
