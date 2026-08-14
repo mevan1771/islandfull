@@ -161,7 +161,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="relative h-[400px] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
+      <div className="relative h-[35vh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
         {/* Mobile Back Button */}
         <div className="absolute top-4 left-4 z-20 md:hidden">
           <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
@@ -177,7 +177,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           unoptimized={true}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-          className="object-cover object-center pointer-events-none select-none"
+          className="object-cover object-center"
           priority
         />
         <FavoriteButton activityId={activity.id} />
