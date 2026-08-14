@@ -182,7 +182,7 @@ export function MobileSearch() {
               onClick={() => router.push('/map')}
               className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
-              <Map className="w-4 h-4" />
+              <span className="text-[1.1rem]">🌍</span>
             </button>
 
             {/* Filter / Sort Button */}
