@@ -80,7 +80,7 @@ export function MobileSearch() {
   }
 
   return (
-    <div className="sm:hidden mt-4 px-4 relative z-20 w-full mb-6">
+    <div className="sm:hidden px-4 -mt-12 relative z-20 w-full mb-6">
       <div className="bg-white rounded-xl shadow-md p-3">
         {/* Tabs */}
         <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 border-b border-zinc-100 mb-3 pb-1">
