@@ -351,6 +351,27 @@ export default function HostsPage() {
                   placeholder="https://example.com/avatar.png"
                   className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 mb-2"
                 />
+
+                <div className="flex flex-row items-center gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const seed = formData.contact_name || formData.name || "host";
+                      setFormData({ ...formData, avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}` });
+                    }}
+                    className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    🎲 Auto-Generate
+                  </button>
+                  <a
+                    href="https://getavataaars.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    🎨 Create Custom
+                  </a>
+                </div>
                 
                 <div className="relative group cursor-pointer">
                   <input
