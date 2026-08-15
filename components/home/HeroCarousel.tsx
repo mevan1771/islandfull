@@ -24,7 +24,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   const carouselSlides: Tour[] = [
     {
       id: 'static-intro',
-      title: introSlide?.title || 'Your Journey Starts Before You Go',
+      title: introSlide?.title || 'Your Journey in Sri Lanka Begins Here',
       subtitle: introSlide?.subtitle || 'Inspiration, planning, and booking—all in one place.',
       slug: '',
       cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
