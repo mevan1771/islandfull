@@ -72,7 +72,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   </div>
 
                   {/* Images */}
-                  <div className="lg:col-span-7 flex justify-end items-center gap-4 lg:gap-6 w-full px-1">
+                  <div className="lg:col-span-7 flex justify-start items-center gap-4 lg:gap-6 w-full max-w-2xl lg:max-w-3xl lg:pl-8 px-1">
                     <div className="w-1/2 aspect-square relative rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 pointer-events-none transform-gpu">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
@@ -109,8 +109,8 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={index}
                 onClick={() => emblaApi?.scrollTo(index)}
                 className={`transition-all duration-300 ease-out rounded-full ${index === selectedIndex
-                    ? "w-6 h-2.5 bg-rose-500 shadow-sm"
-                    : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
+                  ? "w-6 h-2.5 bg-rose-500 shadow-sm"
+                  : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
                   }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
