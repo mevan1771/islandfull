@@ -173,7 +173,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
             </div>
           ) : (
             <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-300 rounded-full shadow-sm divide-x divide-gray-200 p-1.5 pl-6">
-              <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
+              <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4 py-3">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
                 <div className="flex items-center gap-2">
                   <input
@@ -223,7 +223,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 )}
               </div>
 
-              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
+              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4 py-3">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Date</label>
                 <input
                   type="date"
@@ -233,7 +233,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 />
               </div>
 
-              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
+              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4 py-3">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Travelers</label>
                 <input
                   type="text"
@@ -245,7 +245,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               </div>
 
               {/* Actions: Filter & Search */}
-              <div className="flex items-center gap-2 pl-4">
+              <div className="flex items-center gap-2 pl-4 py-3">
                 {/* Filter / Sort Button */}
                 <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 transition-all duration-300">
                   <SlidersHorizontal className="w-5 h-5" />
