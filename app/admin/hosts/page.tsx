@@ -41,14 +41,22 @@ export default function HostsPage() {
   }
 
   const handleAvatarOptionChange = (key: string, value: string) => {
-    const newOptions = { ...avatarOptions, [key]: [value] }
-    if (value === '') delete newOptions[key]
+    const newOptions = { ...avatarOptions }
+    if (value === '') {
+      delete newOptions[key]
+    } else {
+      newOptions[key] = [value]
+    }
     setAvatarOptions(newOptions)
 
-    const avatar = createAvatar(avataaars, newOptions)
-    const svg = avatar.toString()
-    const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
-    setFormData({ ...formData, avatar_url: dataUri })
+    try {
+      const avatar = createAvatar(avataaars, newOptions)
+      const svg = avatar.toString()
+      const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+      setFormData(prev => ({ ...prev, avatar_url: dataUri }))
+    } catch (err) {
+      toast.error("Invalid avatar combination selected.")
+    }
   }
 
   useEffect(() => {
@@ -382,13 +390,29 @@ export default function HostsPage() {
                       className="w-12 h-12 rounded-full border border-zinc-200 bg-zinc-50 object-cover shrink-0"
                     />
                   )}
-                  <input
-                    type="url"
-                    value={formData.avatar_url}
-                    onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                    placeholder="https://example.com/avatar.png or data:image/svg+xml..."
-                    className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900"
-                  />
+                  {formData.avatar_url.startsWith('data:image/svg+xml') ? (
+                    <div className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 flex items-center justify-between">
+                      <span className="font-medium text-zinc-600">Custom Generated Avatar</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, avatar_url: '' }))
+                          setAvatarOptions({ seed: 'host' })
+                        }}
+                        className="text-xs font-bold text-rose-500 hover:text-rose-600 uppercase tracking-wider"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="url"
+                      value={formData.avatar_url}
+                      onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                      placeholder="https://example.com/avatar.png"
+                      className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900"
+                    />
+                  )}
                 </div>
 
                 <div className="flex flex-row items-center gap-2 mb-2">
@@ -403,7 +427,7 @@ export default function HostsPage() {
                       const avatar = createAvatar(avataaars, newOptions);
                       const svg = avatar.toString();
                       const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-                      setFormData({ ...formData, avatar_url: dataUri });
+                      setFormData(prev => ({ ...prev, avatar_url: dataUri }));
                     }}
                     className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
                   >
