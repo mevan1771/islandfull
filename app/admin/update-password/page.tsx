@@ -19,23 +19,10 @@ export default function UpdatePasswordPage() {
   )
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (typeof window !== 'undefined') {
-        const hash = window.location.hash
-        const search = window.location.search
-        // If handling an invite or recovery, ensure any existing session is cleared first
-        if (hash.includes('type=invite') || hash.includes('type=recovery') || search.includes('type=invite') || search.includes('type=recovery')) {
-          await supabase.auth.signOut()
-        }
-      }
-
-      // Check if we already have a session from the URL hash
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) setIsSessionReady(true)
-      })
-    }
-
-    initializeAuth()
+    // Check if we already have a session from the URL hash
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setIsSessionReady(true)
+    })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {

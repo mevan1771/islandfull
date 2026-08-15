@@ -22,22 +22,9 @@ export default function SetupAccountPage() {
   ))
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (typeof window !== 'undefined') {
-        const hash = window.location.hash
-        const search = window.location.search
-        // If handling an invite or recovery, ensure any existing session is cleared first
-        if (hash.includes('type=invite') || hash.includes('type=recovery') || search.includes('type=invite') || search.includes('type=recovery')) {
-          await supabase.auth.signOut()
-        }
-      }
-
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) setIsSessionReady(true)
-      })
-    }
-
-    initializeAuth()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setIsSessionReady(true)
+    })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) setIsSessionReady(true)
@@ -49,6 +36,11 @@ export default function SetupAccountPage() {
   const handleSetup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!isSessionReady) {
+      setError('Auth session missing! Please ensure you clicked a valid invite link.')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.')

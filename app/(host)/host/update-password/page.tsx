@@ -17,17 +17,7 @@ export default function UpdatePassword() {
   )
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (typeof window !== 'undefined') {
-        const hash = window.location.hash
-        const search = window.location.search
-        // If handling an invite or recovery, ensure any existing session is cleared first
-        if (hash.includes('type=invite') || hash.includes('type=recovery') || search.includes('type=invite') || search.includes('type=recovery')) {
-          await supabase.auth.signOut()
-        }
-      }
-    }
-    initializeAuth()
+    // Only set up auth state listener if needed, otherwise this is fine as empty for now or basic check
   }, [supabase.auth])
 
   const handleSubmit = async (e: React.FormEvent) => {
