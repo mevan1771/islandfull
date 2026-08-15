@@ -87,12 +87,14 @@ export default function HostsPage() {
     setIsModalOpen(true)
   }
 
-  setIsModalOpen(false)
-  setEditingHost(null)
-  setImageFile(null)
-  setAvatarFile(null)
-  setResetPassword("")
-  setIsRefiningAvatar(false)
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setEditingHost(null)
+    setImageFile(null)
+    setAvatarFile(null)
+    setResetPassword("")
+    setIsRefiningAvatar(false)
+  }
 
   const handleResetPassword = async () => {
     if (!editingHost || !editingHost.user_id) return
