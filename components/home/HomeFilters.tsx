@@ -143,9 +143,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     <>
       {/* Floating Search Widget (Desktop only now) */}
       <div className="relative -mt-24 z-20 px-4 hidden sm:block">
-        <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-3 sm:p-6 md:p-8 shadow-2xl">
+        <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
           {/* Tabs */}
-          <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-6">
+          <div className="flex overflow-x-auto scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-3">
             <button
               onClick={() => handleVerticalClick('tour')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
@@ -172,14 +172,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               <TransportHub />
             </div>
           ) : (
-            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center w-full gap-3 md:gap-0 md:bg-white md:border md:border-gray-200 md:rounded-full md:shadow-sm md:divide-x md:divide-gray-200 md:p-2">
-              <div ref={dropdownRef} className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 relative flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+            <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-300 rounded-full shadow-sm divide-x divide-gray-200 p-1.5 pl-6">
+              <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     placeholder="Where are you going?"
-                    className="w-full outline-none text-sm text-gray-600 font-medium bg-transparent placeholder:text-gray-400 truncate"
+                    className="w-full outline-none text-sm text-gray-600 bg-transparent truncate"
                     value={location}
                     onFocus={() => {
                       setIsFocused(true)
@@ -201,7 +201,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
                 {/* Autocomplete Dropdown */}
                 {isDropdownOpen && suggestions.length > 0 && (
-                  <ul className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
+                  <ul className="absolute top-[calc(100%+16px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
                     {suggestions.map((sug, idx) => (
                       <li
                         key={idx}
@@ -223,31 +223,31 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 )}
               </div>
 
-              <div className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Date</label>
                 <input
                   type="date"
-                  className={`w-full outline-none text-sm font-medium bg-transparent cursor-pointer truncate ${date ? 'text-gray-600' : 'text-gray-400'}`}
+                  className={`w-full outline-none text-sm bg-transparent cursor-pointer truncate ${date ? 'text-gray-600' : 'text-gray-400'}`}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
 
-              <div className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
                 <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Travelers</label>
                 <input
                   type="text"
                   placeholder="Add guests"
-                  className="w-full outline-none text-sm text-gray-600 font-medium bg-transparent placeholder:text-gray-400 truncate"
+                  className="w-full outline-none text-sm text-gray-600 bg-transparent truncate"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
                 />
               </div>
 
               {/* Actions: Filter & Search */}
-              <div className="flex items-center gap-2 w-full md:w-auto h-[60px] md:h-auto md:pl-2">
+              <div className="flex items-center gap-2 pl-4">
                 {/* Filter / Sort Button */}
-                <div className="relative h-full md:w-12 md:h-12 aspect-square md:aspect-auto flex-shrink-0 flex items-center justify-center rounded-2xl md:rounded-full bg-white md:bg-transparent border border-gray-200 md:border-none shadow-sm md:shadow-none text-gray-600 cursor-pointer hover:bg-gray-50 md:hover:bg-gray-100 transition-all duration-300">
+                <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 transition-all duration-300">
                   <SlidersHorizontal className="w-5 h-5" />
                   <select
                     value={currentSort}
@@ -264,15 +264,12 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 md:flex-none h-full md:w-12 md:h-12 md:aspect-square flex items-center justify-center rounded-2xl md:rounded-full bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0"
+                  className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isPending ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <>
-                      <Search className="w-5 h-5 md:mr-0 mr-2" />
-                      <span className="md:hidden block">Search</span>
-                    </>
+                    <Search className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -298,8 +295,8 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                     }`}
                 >
                   {Icon && <Icon className={`w-4 h-4 ${cat.id === 'saved'
-                      ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
-                      : (optimisticCategory === cat.id ? "fill-white" : "")
+                    ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
+                    : (optimisticCategory === cat.id ? "fill-white" : "")
                     }`} />}
                   {cat.name}
                 </button>
