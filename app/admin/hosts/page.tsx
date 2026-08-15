@@ -14,7 +14,7 @@ export default function HostsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
   const [resetPassword, setResetPassword] = useState("")
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHost, setEditingHost] = useState<any>(null)
@@ -36,8 +36,8 @@ export default function HostsPage() {
   const openModal = (host?: any) => {
     if (host) {
       setEditingHost(host)
-      setFormData({ 
-        name: host.name, 
+      setFormData({
+        name: host.name,
         image_url: host.image_url || "",
         avatar_url: host.avatar_url || "",
         contact_name: host.contact_name || "",
@@ -172,7 +172,7 @@ export default function HostsPage() {
           </button>
         </div>
 
-        
+
 
         <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
@@ -247,13 +247,13 @@ export default function HostsPage() {
                 {editingHost ? "Edit Host Profile" : "Add New Host"}
               </h2>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
               {(!editingHost || (editingHost && !editingHost.user_id)) && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
                   <h3 className="text-lg font-bold text-zinc-900">Provision Login Account</h3>
                   <p className="text-sm text-zinc-500 mb-4">Set up a secure login account for the tour operator to access the portal.</p>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-zinc-800">Login Email or Phone Number</label>
                     <input
@@ -325,7 +325,7 @@ export default function HostsPage() {
                   placeholder="https://example.com/logo.png"
                   className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 mb-2"
                 />
-                
+
                 <div className="relative group cursor-pointer">
                   <input
                     type="file"
@@ -344,20 +344,30 @@ export default function HostsPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-zinc-800">Host Avatar (Chat Avatar)</label>
-                <input
-                  type="url"
-                  value={formData.avatar_url}
-                  onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                  placeholder="https://example.com/avatar.png"
-                  className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900 mb-2"
-                />
+                <div className="flex items-center gap-3 mb-2">
+                  {formData.avatar_url && (
+                    <img
+                      src={formData.avatar_url}
+                      alt="Avatar Preview"
+                      className="w-12 h-12 rounded-full border border-zinc-200 bg-zinc-50 object-cover shrink-0"
+                    />
+                  )}
+                  <input
+                    type="url"
+                    value={formData.avatar_url}
+                    onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                    placeholder="https://example.com/avatar.png"
+                    className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900"
+                  />
+                </div>
 
                 <div className="flex flex-row items-center gap-2 mb-2">
                   <button
                     type="button"
                     onClick={() => {
-                      const seed = formData.contact_name || formData.name || "host";
-                      setFormData({ ...formData, avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}` });
+                      const baseSeed = formData.contact_name || formData.name || "host";
+                      const randomSuffix = Math.random().toString(36).substring(7);
+                      setFormData({ ...formData, avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(baseSeed + '-' + randomSuffix)}` });
                     }}
                     className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
                   >
@@ -372,7 +382,7 @@ export default function HostsPage() {
                     🎨 Create Custom
                   </a>
                 </div>
-                
+
                 <div className="relative group cursor-pointer">
                   <input
                     type="file"
