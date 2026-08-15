@@ -145,7 +145,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       <div className="relative -mt-24 z-20 px-4 hidden sm:block">
         <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
           {/* Tabs */}
-          <div className="flex overflow-x-auto scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-3">
+          <div className="flex overflow-x-auto scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
             <button
               onClick={() => handleVerticalClick('tour')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
