@@ -14,7 +14,8 @@ export default function SetupAccountPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [isSessionReady, setIsSessionReady] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
+  const [session, setSession] = useState<any>(null)
 
   const [supabase] = useState(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,11 +24,13 @@ export default function SetupAccountPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setIsSessionReady(true)
+      setSession(session)
+      setIsVerifying(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) setIsSessionReady(true)
+      setSession(session)
+      setIsVerifying(false)
     })
 
     return () => subscription.unsubscribe()
@@ -37,7 +40,7 @@ export default function SetupAccountPage() {
     e.preventDefault()
     setError('')
 
-    if (!isSessionReady) {
+    if (!session) {
       setError('Auth session missing! Please ensure you clicked a valid invite link.')
       return
     }
@@ -155,10 +158,10 @@ export default function SetupAccountPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading || success || !isSessionReady}
+                disabled={loading || success || isVerifying}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-zinc-900 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 disabled:opacity-50 transition-colors"
               >
-                {!isSessionReady ? 'Verifying link...' : loading ? 'Saving...' : 'Save Password & Enter Dashboard'}
+                {isVerifying ? 'Verifying link...' : loading ? 'Saving...' : 'Save Password & Enter Dashboard'}
               </button>
             </div>
           </form>
