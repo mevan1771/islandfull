@@ -75,28 +75,28 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
               <div className="flex flex-col justify-end items-start h-[120px] md:h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white text-balance">
+                      {tour.title}
+                    </h1>
                     {tour.subtitle && (
                       <p className="text-white/90 text-sm md:text-base font-medium drop-shadow-md">
                         {tour.subtitle}
                       </p>
                     )}
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight drop-shadow-lg text-white text-balance">
-                      {tour.title}
-                    </h1>
                   </div>
                 ) : (
                   <Link
                     href={`/activity/${tour.slug}`}
                     className="flex flex-col items-start text-left gap-2 cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
                   >
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white line-clamp-2">
+                      {tour.title}
+                    </h1>
                     {tour.location && (
                       <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0">
                         {tour.location.replace(', Sri Lanka', '')}
                       </span>
                     )}
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight drop-shadow-lg text-white line-clamp-2">
-                      {tour.title}
-                    </h1>
                   </Link>
                 )}
               </div>

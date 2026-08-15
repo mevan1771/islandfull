@@ -36,25 +36,25 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
           <div className="flex touch-pan-y">
             {slides.map((slide, index) => (
-              <div 
-                key={slide.id || index} 
+              <div
+                key={slide.id || index}
                 className="flex-[0_0_100%] min-w-0"
               >
                 <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full py-8 md:py-12">
                   {/* Text Content */}
                   <div className="space-y-4 md:space-y-6 px-1">
+                    <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 leading-tight line-clamp-3">
+                      {slide.title}
+                    </h2>
                     {slide.badge_text && (
                       <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
                         {slide.badge_text}
                       </div>
                     )}
-                    <h2 className="text-2xl md:text-5xl font-bold text-zinc-900 leading-tight line-clamp-3">
-                      {slide.title}
-                    </h2>
                     <p className="text-zinc-600 text-sm md:text-lg leading-relaxed max-w-xl line-clamp-4">
                       {slide.description.replace(/<[^>]*>?/gm, '')}
                     </p>
-                    
+
                     {/* Desktop Button */}
                     <div className="hidden md:block">
                       {slide.target_url ? (
@@ -100,7 +100,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
             ))}
           </div>
         </div>
-        
+
         {/* Pagination Dots */}
         {slides.length > 1 && (
           <div className="flex justify-center items-center gap-2 mt-2 md:mt-4 relative z-10">
@@ -108,11 +108,10 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
               <button
                 key={index}
                 onClick={() => emblaApi?.scrollTo(index)}
-                className={`transition-all duration-300 ease-out rounded-full ${
-                  index === selectedIndex 
-                    ? "w-6 h-2.5 bg-rose-500 shadow-sm" 
+                className={`transition-all duration-300 ease-out rounded-full ${index === selectedIndex
+                    ? "w-6 h-2.5 bg-rose-500 shadow-sm"
                     : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
-                }`}
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
