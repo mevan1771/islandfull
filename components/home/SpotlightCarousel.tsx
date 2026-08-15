@@ -40,9 +40,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={slide.id || index}
                 className="flex-[0_0_100%] min-w-0"
               >
-                <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-16 lg:gap-12 items-center w-full py-8 md:py-12 lg:py-16">
+                <div className="grid md:grid-cols-2 gap-8 md:gap-16 lg:gap-12 items-center w-full py-8 md:py-12 lg:py-16">
                   {/* Text Content */}
-                  <div className="space-y-4 md:space-y-6 px-1 lg:col-span-5">
+                  <div className="space-y-4 md:space-y-6 px-1">
                     {slide.badge_text && (
                       <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
                         {slide.badge_text}
@@ -72,7 +72,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   </div>
 
                   {/* Images */}
-                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:items-center lg:justify-end gap-3 md:gap-5 lg:gap-8 px-1 w-full md:max-w-lg lg:max-w-none md:ml-auto lg:col-span-7">
+                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:items-center lg:justify-center gap-3 md:gap-5 lg:gap-8 px-1 w-full md:max-w-lg lg:max-w-none mx-auto">
                     <div className="relative w-full h-48 md:h-80 lg:w-72 lg:h-72 xl:w-80 xl:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 lg:translate-y-12 pointer-events-none transform-gpu shrink-0">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
