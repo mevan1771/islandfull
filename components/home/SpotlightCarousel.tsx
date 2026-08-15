@@ -40,9 +40,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={slide.id || index}
                 className="flex-[0_0_100%] min-w-0"
               >
-                <div className="grid md:grid-cols-2 gap-8 md:gap-16 lg:gap-12 items-center w-full py-8 md:py-12 lg:py-16">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-8 md:gap-16 lg:gap-16 w-full py-8 md:py-12 lg:py-16">
                   {/* Text Content */}
-                  <div className="space-y-4 md:space-y-6 px-1">
+                  <div className="space-y-4 md:space-y-6 px-1 w-full lg:max-w-sm xl:max-w-md shrink-0">
                     {slide.badge_text && (
                       <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
                         {slide.badge_text}
@@ -72,11 +72,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   </div>
 
                   {/* Images */}
-                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:items-center lg:justify-center gap-3 md:gap-5 lg:gap-8 px-1 w-full md:max-w-lg lg:max-w-none mx-auto">
-                    <div className="relative w-full h-48 md:h-80 lg:w-72 lg:h-72 xl:w-80 xl:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 lg:translate-y-12 pointer-events-none transform-gpu shrink-0">
+                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:items-center lg:justify-center gap-3 md:gap-5 lg:gap-6 xl:gap-8 px-1 w-full md:max-w-lg lg:w-auto mx-auto lg:mx-0">
+                    <div className="relative w-full h-48 md:h-80 lg:w-64 lg:h-64 xl:w-72 xl:h-72 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 lg:translate-y-12 pointer-events-none transform-gpu shrink-0">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
-                    <div className="relative w-full h-48 md:h-80 lg:w-72 lg:h-96 xl:w-80 xl:h-[28rem] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 lg:-translate-y-12 pointer-events-none transform-gpu shrink-0">
+                    <div className="relative w-full h-48 md:h-80 lg:w-64 lg:h-80 xl:w-72 xl:h-96 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 lg:-translate-y-12 pointer-events-none transform-gpu shrink-0">
                       <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                   </div>
