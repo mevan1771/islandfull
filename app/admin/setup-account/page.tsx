@@ -40,7 +40,9 @@ export default function SetupAccountPage() {
     e.preventDefault()
     setError('')
 
-    if (!session) {
+    const { data: { session: activeSession } } = await supabase.auth.getSession()
+
+    if (!activeSession) {
       setError('Auth session missing! Please ensure you clicked a valid invite link.')
       return
     }
