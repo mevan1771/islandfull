@@ -44,9 +44,15 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/map" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-            🌍 Explore Map
-          </Link>
+          {pathname === '/map' ? (
+            <Link href="/" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+              <ArrowLeft className="w-4 h-4" /> Back
+            </Link>
+          ) : (
+            <Link href="/map" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+              🌍 Explore Map
+            </Link>
+          )}
           <div className="w-8 h-8 md:w-10 md:h-10 bg-black/20 md:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer md:hover:bg-white/30 transition-colors border-transparent md:border-white/20">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
