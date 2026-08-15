@@ -89,14 +89,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                     href={`/activity/${tour.slug}`}
                     className="flex flex-col items-start text-left gap-2 cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
                   >
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white line-clamp-2">
-                      {tour.title}
-                    </h1>
                     {tour.location && (
                       <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0">
                         {tour.location.replace(', Sri Lanka', '')}
                       </span>
                     )}
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white line-clamp-2">
+                      {tour.title}
+                    </h1>
                   </Link>
                 )}
               </div>
