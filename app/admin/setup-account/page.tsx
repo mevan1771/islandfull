@@ -22,9 +22,22 @@ export default function SetupAccountPage() {
   ))
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setIsSessionReady(true)
-    })
+    const initializeAuth = async () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash
+        const search = window.location.search
+        // If handling an invite or recovery, ensure any existing session is cleared first
+        if (hash.includes('type=invite') || hash.includes('type=recovery') || search.includes('type=invite') || search.includes('type=recovery')) {
+          await supabase.auth.signOut()
+        }
+      }
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) setIsSessionReady(true)
+      })
+    }
+
+    initializeAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) setIsSessionReady(true)

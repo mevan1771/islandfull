@@ -11,15 +11,29 @@ export default function UpdatePassword() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash
+        const search = window.location.search
+        // If handling an invite or recovery, ensure any existing session is cleared first
+        if (hash.includes('type=invite') || hash.includes('type=recovery') || search.includes('type=invite') || search.includes('type=recovery')) {
+          await supabase.auth.signOut()
+        }
+      }
+    }
+    initializeAuth()
+  }, [supabase.auth])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    
     const { error } = await supabase.auth.updateUser({
       password: password
     })
