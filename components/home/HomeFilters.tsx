@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags } from "@/app/actions/search"
+import { TransportHub } from "@/components/transport/TransportHub"
 
 type CategoryType = {
   id: string
@@ -166,101 +167,117 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
           </div>
 
           {/* Inputs */}
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-3 w-full">
-            <div ref={dropdownRef} className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 relative flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Location</label>
-              <div className="flex items-center gap-2">
+          {optimisticVertical === 'transport' ? (
+            <div className="w-full -mt-2">
+              <TransportHub />
+            </div>
+          ) : (
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-3 w-full">
+              <div ref={dropdownRef} className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 relative flex flex-col justify-center">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Location</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Where are you going?" 
+                    className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
+                    value={location}
+                    onFocus={() => {
+                      setIsFocused(true)
+                      if (suggestions.length > 0) setIsDropdownOpen(true)
+                    }}
+                    onBlur={() => setIsFocused(false)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLocation(val);
+                      if (val === "") {
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.delete("location");
+                        router.push(`/?${params.toString()}`, { scroll: false });
+                      }
+                    }}
+                  />
+                  {isFetching && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
+                </div>
+
+                {/* Autocomplete Dropdown */}
+                {isDropdownOpen && suggestions.length > 0 && (
+                  <ul className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
+                    {suggestions.map((sug, idx) => (
+                      <li 
+                        key={idx}
+                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
+                        onMouseDown={(e) => {
+                          e.preventDefault() // prevent input blur
+                          setLocation(sug)
+                          setIsDropdownOpen(false)
+                          const params = new URLSearchParams(searchParams.toString())
+                          params.set("location", sug)
+                          router.push(`/?${params.toString()}`, { scroll: false })
+                        }}
+                      >
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        {sug}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              
+              <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Date</label>
+                <input 
+                  type="date" 
+                  className={`w-full outline-none text-xs sm:text-sm font-medium bg-transparent cursor-pointer ${date ? 'text-gray-900' : 'text-gray-400'}`}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </div>
+
+              <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Travelers</label>
                 <input 
                   type="text" 
-                  placeholder="Where are you going?" 
+                  placeholder="Add guests" 
                   className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
-                  value={location}
-                  onFocus={() => {
-                    setIsFocused(true)
-                    if (suggestions.length > 0) setIsDropdownOpen(true)
-                  }}
-                  onBlur={() => setIsFocused(false)}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setLocation(val);
-                    if (val === "") {
-                      const params = new URLSearchParams(searchParams.toString());
-                      params.delete("location");
-                      router.push(`/?${params.toString()}`, { scroll: false });
-                    }
-                  }}
+                  value={travelers}
+                  onChange={(e) => setTravelers(e.target.value)}
                 />
-                {isFetching && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
               </div>
 
-              {/* Autocomplete Dropdown */}
-              {isDropdownOpen && suggestions.length > 0 && (
-                <ul className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
-                  {suggestions.map((sug, idx) => (
-                    <li 
-                      key={idx}
-                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
-                      onMouseDown={(e) => {
-                        e.preventDefault() // prevent input blur
-                        setLocation(sug)
-                        setIsDropdownOpen(false)
-                        const params = new URLSearchParams(searchParams.toString())
-                        params.set("location", sug)
-                        router.push(`/?${params.toString()}`, { scroll: false })
-                      }}
-                    >
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      {sug}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            
-            <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Date</label>
-              <input 
-                type="date" 
-                className={`w-full outline-none text-xs sm:text-sm font-medium bg-transparent cursor-pointer ${date ? 'text-gray-900' : 'text-gray-400'}`}
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
+              {/* Actions: Filter & Search */}
+              <div className="flex items-center gap-2 w-full md:w-auto h-[60px]">
+                {/* Filter / Sort Button */}
+                <div className="relative h-full aspect-square flex-shrink-0 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
+                  <SlidersHorizontal className="w-5 h-5" />
+                  <select 
+                    value={currentSort}
+                    onChange={handleSortChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  >
+                    <option value="">Sort by...</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="rating_desc">Rating: Highest First</option>
+                  </select>
+                </div>
 
-            <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Travelers</label>
-              <input 
-                type="text" 
-                placeholder="Add guests" 
-                className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
-                value={travelers}
-                onChange={(e) => setTravelers(e.target.value)}
-              />
-            </div>
-
-            {/* Actions: Filter & Search */}
-            <div className="flex items-center gap-2 w-full md:w-auto h-[60px]">
-              {/* Filter / Sort Button */}
-              <div className="relative h-full aspect-square flex-shrink-0 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
-                <SlidersHorizontal className="w-5 h-5" />
-                <select 
-                  value={currentSort}
-                  onChange={handleSortChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 md:flex-none h-full md:aspect-square flex items-center justify-center rounded-2xl bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <option value="">Recommended</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                </select>
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Search className="w-5 h-5 md:mr-0 mr-2" />
+                      <span className="md:hidden block">Search</span>
+                    </>
+                  )}
+                </button>
               </div>
-
-              {/* Search Button */}
-              <button type="submit" className="h-full flex-1 md:flex-none md:w-[120px] bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-rose-500/20 active:scale-95">
-                <Search className="w-4 h-4" />
-                <span className="text-sm">Search</span>
-              </button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
 
