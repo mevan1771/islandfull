@@ -31,7 +31,7 @@ export default function HostsPage() {
   const AVATAR_FEATURES = {
     top: ['shortHairTheCaesar', 'shortHairDreads01', 'shortHairDreads02', 'shortHairFrizzle', 'shortHairShaggyMullet', 'shortHairShortCurly', 'shortHairShortFlat', 'shortHairShortRound', 'shortHairShortWaved', 'shortHairSides', 'shortHairTheCaesarSidePart', 'longHairBigHair', 'longHairBob', 'longHairBun', 'longHairCurly', 'longHairCurvy', 'longHairDreads', 'longHairFrida', 'longHairFro', 'longHairFroBand', 'longHairNotTooLong', 'longHairShavedSides', 'longHairMiaWallace', 'longHairStraight', 'longHairStraight2', 'longHairStraightStrand', 'noHair', 'eyepatch', 'hat', 'hijab', 'turban', 'winterHat1', 'winterHat2', 'winterHat3', 'winterHat4'],
     hairColor: ['auburn', 'black', 'blonde', 'blondeGolden', 'brown', 'brownDark', 'pastelPink', 'platinum', 'red', 'silverGray'],
-    facialHair: ['beardMedium', 'beardLight', 'beardMajestic', 'moustaceMagnum', 'moustacheFancy'],
+    facialHair: ['beardMedium', 'beardLight', 'beardMajestic', 'moustacheMagnum', 'moustacheFancy'],
     clothing: ['blazerAndShirt', 'blazerAndSweater', 'collarAndSweater', 'graphicShirt', 'hoodie', 'overall', 'shirtCrewNeck', 'shirtScoopNeck', 'shirtVNeck'],
     clothingColor: ['black', 'blue01', 'blue02', 'blue03', 'gray01', 'gray02', 'heather', 'pastelBlue', 'pastelGreen', 'pastelOrange', 'pastelRed', 'pastelYellow', 'pink', 'red', 'white'],
     eyes: ['close', 'cry', 'default', 'dizzy', 'eyeRoll', 'happy', 'hearts', 'side', 'squint', 'surprised', 'wink', 'winkWacky'],
@@ -41,20 +41,34 @@ export default function HostsPage() {
   }
 
   const handleAvatarOptionChange = (key: string, value: string) => {
+    // 1. Immutable State Update
     const newOptions = { ...avatarOptions }
-    if (value === '') {
+
+    // 2. Safe Default Handling
+    if (!value || value === '' || value === 'Random / Default') {
       delete newOptions[key]
     } else {
       newOptions[key] = [value]
     }
-    setAvatarOptions(newOptions)
 
+    // 3. Sanitize Data
+    const sanitizedOptions: any = { seed: newOptions.seed || 'host' }
+    Object.keys(AVATAR_FEATURES).forEach(k => {
+      if (newOptions[k] && Array.isArray(newOptions[k]) && newOptions[k].length > 0 && newOptions[k][0]) {
+        sanitizedOptions[k] = newOptions[k]
+      }
+    })
+
+    setAvatarOptions(sanitizedOptions)
+
+    // 4. Generate SVG and update form data
     try {
-      const avatar = createAvatar(avataaars, newOptions)
+      const avatar = createAvatar(avataaars, sanitizedOptions)
       const svg = avatar.toString()
       const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
       setFormData(prev => ({ ...prev, avatar_url: dataUri }))
     } catch (err) {
+      console.error("Avatar generation error:", err)
       toast.error("Invalid avatar combination selected.")
     }
   }
