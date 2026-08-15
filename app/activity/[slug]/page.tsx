@@ -161,7 +161,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-2xl">
+      <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
         {/* Mobile Back Button */}
         <div className="absolute top-4 left-4 z-20 md:hidden">
           <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
