@@ -18,6 +18,8 @@ interface Tour {
 export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
+
   // Merge dynamic intro slide with fetched tours
   const carouselSlides: Tour[] = [
     {
@@ -33,39 +35,40 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
 
   useEffect(() => {
     if (carouselSlides.length <= 1) return;
-    
+
     const waitTime = currentIndex === 0 ? 5000 : 6000;
-    
+
     const timeout = setTimeout(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselSlides.length)
-    }, waitTime); 
-    
+    }, waitTime);
+
     return () => clearTimeout(timeout)
   }, [carouselSlides.length, currentIndex])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none">
+    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
-        <div 
-          key={tour.id} 
+        <div
+          key={tour.id}
           className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
           style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         >
-          <Image 
-            src={tour.cover_image_url || tour.card_image_url || ""} 
-            alt={tour.title} 
-            fill 
-            className="object-cover"
+          <Image
+            src={tour.cover_image_url || tour.card_image_url || ""}
+            alt={tour.title}
+            fill
+            className={`object-cover transition-opacity duration-700 ease-in-out ${loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
             priority={index === 0}
             quality={90}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
             unoptimized={true}
           />
-          
+
           {/* Slide-specific Legibility Mask */}
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
-          
+
           {/* Slide Content */}
           <div className="absolute bottom-16 md:bottom-24 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex">
@@ -81,7 +84,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                   )}
                 </div>
               ) : (
-                <Link 
+                <Link
                   href={`/activity/${tour.slug}`}
                   className="flex flex-row flex-wrap items-center text-left gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto"
                 >
@@ -90,7 +93,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                       {tour.location.replace(', Sri Lanka', '')}
                     </span>
                   )}
-                  
+
                   <h1 className="text-sm font-normal md:text-3xl lg:text-4xl md:font-bold leading-tight drop-shadow-lg text-white line-clamp-2">
                     {tour.title}
                   </h1>
