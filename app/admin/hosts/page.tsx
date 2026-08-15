@@ -392,7 +392,7 @@ export default function HostsPage() {
                   )}
                   {formData.avatar_url.startsWith('data:image/svg+xml') ? (
                     <div className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 bg-zinc-50 flex items-center justify-between">
-                      <span className="font-medium text-zinc-600">Custom Generated Avatar</span>
+                      <span className="font-medium text-zinc-600">Custom profile picture</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -446,21 +446,41 @@ export default function HostsPage() {
                   <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-3 mb-4">
                     <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Avatar Designer</h4>
                     <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(AVATAR_FEATURES).map(([key, options]) => (
-                        <div key={key} className="space-y-1">
-                          <label className="text-xs font-bold text-zinc-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                          <select
-                            value={avatarOptions[key]?.[0] || ''}
-                            onChange={(e) => handleAvatarOptionChange(key, e.target.value)}
-                            className="w-full h-9 px-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-900 bg-white outline-none focus:border-rose-500"
-                          >
-                            <option value="">Random / Default</option>
-                            {options.map(opt => (
-                              <option key={opt} value={opt}>{opt.replace(/([A-Z])/g, ' $1').trim()}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ))}
+                      {Object.entries(AVATAR_FEATURES).map(([key, options]) => {
+                        const isHairColorDisabled = key === 'hairColor' && ['noHair', 'hat', 'hijab', 'turban', 'winterHat1', 'winterHat2', 'winterHat3', 'winterHat4'].includes(avatarOptions.top?.[0] || '');
+
+                        return (
+                          <div key={key} className={`space-y-1 ${isHairColorDisabled ? 'opacity-50' : ''}`}>
+                            <label className="text-xs font-bold text-zinc-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                            <select
+                              value={avatarOptions[key]?.[0] || ''}
+                              onChange={(e) => handleAvatarOptionChange(key, e.target.value)}
+                              disabled={isHairColorDisabled}
+                              className="w-full h-9 px-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-900 bg-white outline-none focus:border-rose-500 disabled:bg-zinc-100 disabled:cursor-not-allowed"
+                            >
+                              <option value="">Random / Default</option>
+                              {key === 'top' ? (
+                                <>
+                                  <optgroup label="Bald / Covered">
+                                    {options.filter(opt => ['noHair', 'hat', 'hijab', 'turban', 'winterHat1', 'winterHat2', 'winterHat3', 'winterHat4'].includes(opt)).map(opt => (
+                                      <option key={opt} value={opt}>{opt.replace(/([A-Z])/g, ' $1').trim()}</option>
+                                    ))}
+                                  </optgroup>
+                                  <optgroup label="Hair Styles">
+                                    {options.filter(opt => !['noHair', 'hat', 'hijab', 'turban', 'winterHat1', 'winterHat2', 'winterHat3', 'winterHat4'].includes(opt)).map(opt => (
+                                      <option key={opt} value={opt}>{opt.replace(/([A-Z])/g, ' $1').trim()}</option>
+                                    ))}
+                                  </optgroup>
+                                </>
+                              ) : (
+                                options.map(opt => (
+                                  <option key={opt} value={opt}>{opt.replace(/([A-Z])/g, ' $1').trim()}</option>
+                                ))
+                              )}
+                            </select>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 )}
