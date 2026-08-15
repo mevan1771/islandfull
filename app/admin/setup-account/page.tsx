@@ -40,13 +40,6 @@ export default function SetupAccountPage() {
     e.preventDefault()
     setError('')
 
-    const { data: { session: activeSession } } = await supabase.auth.getSession()
-
-    if (!activeSession) {
-      setError('Auth session missing! Please ensure you clicked a valid invite link.')
-      return
-    }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match.')
       return
@@ -58,6 +51,23 @@ export default function SetupAccountPage() {
     }
 
     setLoading(true)
+
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.substring(1));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    if (accessToken && refreshToken) {
+      await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    }
+
+    const { data: { session: activeSession } } = await supabase.auth.getSession()
+
+    if (!activeSession) {
+      setError('Auth session missing! Please ensure you clicked a valid invite link.')
+      setLoading(false)
+      return
+    }
 
     // Update the user's password
     const { error: updateError } = await supabase.auth.updateUser({
