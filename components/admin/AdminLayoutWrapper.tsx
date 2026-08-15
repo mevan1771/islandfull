@@ -3,7 +3,8 @@
 import { usePathname } from 'next/navigation'
 import AdminNav from './AdminNav'
 import SignOutButton from '@/components/host/SignOutButton'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 
 interface AdminLayoutWrapperProps {
   children: React.ReactNode
@@ -12,9 +13,56 @@ interface AdminLayoutWrapperProps {
   displayRole: string
 }
 
-export default function AdminLayoutWrapper({ children, isAdmin, userEmail, displayRole }: AdminLayoutWrapperProps) {
+export default function AdminLayoutWrapper({ children, isAdmin, userEmail: serverUserEmail, displayRole: serverDisplayRole }: AdminLayoutWrapperProps) {
   const pathname = usePathname()
-  
+  const [userEmail, setUserEmail] = useState(serverUserEmail)
+  const [displayRole, setDisplayRole] = useState(serverDisplayRole)
+
+  const [supabase] = useState(() => createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  ))
+
+  useEffect(() => {
+    setUserEmail(serverUserEmail)
+    setDisplayRole(serverDisplayRole)
+  }, [serverUserEmail, serverDisplayRole])
+
+  useEffect(() => {
+    const updateUserDetails = async (userId: string, email: string) => {
+      setUserEmail(email)
+      const { data: profile } = await supabase.from('users').select('role').eq('id', userId).single()
+      const { data: userRole } = await supabase.from('user_roles').select('role').eq('user_id', userId).single()
+      const isUserAdmin = (profile?.role === 'admin') || (userRole?.role === 'admin')
+      setDisplayRole(isUserAdmin ? 'admin' : (userRole?.role || 'staff'))
+    }
+
+    const fetchSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        if (!serverUserEmail) {
+          await updateUserDetails(session.user.id, session.user.email || '')
+        }
+      } else {
+        setUserEmail('')
+      }
+    }
+
+    fetchSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        if (!serverUserEmail) {
+          await updateUserDetails(session.user.id, session.user.email || '')
+        }
+      } else {
+        setUserEmail('')
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase, serverUserEmail])
+
   // List of auth pages that should NOT have the admin navigation and identity badge
   const isAuthPage = ['/admin/login', '/admin/setup-account', '/admin/forgot-password', '/admin/update-password'].includes(pathname)
 
@@ -42,13 +90,13 @@ export default function AdminLayoutWrapper({ children, isAdmin, userEmail, displ
           <SignOutButton />
         </div>
       </div>
-      
+
       <div className="w-full bg-zinc-50 pt-24 pb-0 z-10 relative">
         <div className="max-w-7xl mx-auto px-4">
           <AdminNav isAdmin={isAdmin} />
         </div>
       </div>
-      
+
       <div className="-mt-24 relative z-0">
         {children}
       </div>
