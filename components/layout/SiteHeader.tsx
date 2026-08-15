@@ -8,15 +8,15 @@ import { ArrowLeft } from "lucide-react"
 
 export default function SiteHeader() {
   const pathname = usePathname()
-  
+
   // Do not render the main site header on host or admin portals
   if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
     return null
   }
 
   return (
-    <header className="absolute top-0 md:top-6 left-0 right-0 z-40 w-full pt-4">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto">
         <div className="flex items-center gap-2">
           {pathname === '/map' && (
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40">
@@ -24,19 +24,19 @@ export default function SiteHeader() {
             </Link>
           )}
           <a href="/" className="flex items-center">
-            <Image 
-              src="/logo.png" 
-              alt="IslandFull" 
-              width={140} 
-              height={40} 
-              className="h-10 w-auto object-contain drop-shadow-md"
+            <Image
+              src="/logo.png"
+              alt="IslandFull"
+              width={140}
+              height={40}
+              className="h-10 w-auto object-contain drop-shadow-lg"
               priority
             />
           </a>
         </div>
-        
+
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
           <a href="/" className="hover:text-white transition-colors">Home</a>
           <a href="/destinations" className="hover:text-white transition-colors">Destinations</a>
           <a href="/trips" className="hover:text-white transition-colors">Trips</a>
