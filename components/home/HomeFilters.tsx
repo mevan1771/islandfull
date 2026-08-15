@@ -94,12 +94,12 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
   const handleSearch = (e?: FormEvent) => {
     if (e) e.preventDefault()
-    
+
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (location) params.set("location", location)
     else params.delete("location")
-    
+
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -108,10 +108,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const handleCategoryClick = (categoryId: string) => {
     setOptimisticCategory(categoryId) // Optimistic UI update
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
-    
+
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -146,19 +146,19 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
         <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-3 sm:p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
           <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-6">
-            <button 
+            <button
               onClick={() => handleVerticalClick('tour')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Map className="w-4 h-4" /> Tours
             </button>
-            <button 
+            <button
               onClick={() => handleVerticalClick('event')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Calendar className="w-4 h-4" /> Events
             </button>
-            <button 
+            <button
               onClick={() => handleVerticalClick('transport')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
@@ -172,14 +172,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               <TransportHub />
             </div>
           ) : (
-            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-3 w-full">
-              <div ref={dropdownRef} className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 relative flex flex-col justify-center">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Location</label>
+            <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center w-full gap-3 md:gap-0 md:bg-white md:border md:border-gray-200 md:rounded-full md:shadow-sm md:divide-x md:divide-gray-200 md:p-2">
+              <div ref={dropdownRef} className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 relative flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Where are you going?" 
-                    className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
+                  <input
+                    type="text"
+                    placeholder="Where are you going?"
+                    className="w-full outline-none text-sm text-gray-600 font-medium bg-transparent placeholder:text-gray-400 truncate"
                     value={location}
                     onFocus={() => {
                       setIsFocused(true)
@@ -203,7 +203,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 {isDropdownOpen && suggestions.length > 0 && (
                   <ul className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
                     {suggestions.map((sug, idx) => (
-                      <li 
+                      <li
                         key={idx}
                         className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
                         onMouseDown={(e) => {
@@ -222,34 +222,34 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   </ul>
                 )}
               </div>
-              
-              <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Date</label>
-                <input 
-                  type="date" 
-                  className={`w-full outline-none text-xs sm:text-sm font-medium bg-transparent cursor-pointer ${date ? 'text-gray-900' : 'text-gray-400'}`}
+
+              <div className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Date</label>
+                <input
+                  type="date"
+                  className={`w-full outline-none text-sm font-medium bg-transparent cursor-pointer truncate ${date ? 'text-gray-600' : 'text-gray-400'}`}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
 
-              <div className="flex-1 w-full h-[60px] bg-gray-50 border border-gray-200 rounded-2xl p-2 px-4 focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all duration-300 flex flex-col justify-center">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-0.5">Travelers</label>
-                <input 
-                  type="text" 
-                  placeholder="Add guests" 
-                  className="w-full outline-none text-xs sm:text-sm text-gray-900 font-medium bg-transparent placeholder:text-gray-400"
+              <div className="flex-1 w-full h-[60px] md:h-14 bg-gray-50 md:bg-transparent border border-gray-200 md:border-none rounded-2xl md:rounded-full p-2 px-4 md:px-6 focus-within:bg-white md:focus-within:bg-gray-100 focus-within:border-gray-300 md:focus-within:border-transparent focus-within:shadow-sm md:focus-within:shadow-none transition-all duration-300 flex flex-col justify-center cursor-pointer hover:bg-gray-100">
+                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Travelers</label>
+                <input
+                  type="text"
+                  placeholder="Add guests"
+                  className="w-full outline-none text-sm text-gray-600 font-medium bg-transparent placeholder:text-gray-400 truncate"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
                 />
               </div>
 
               {/* Actions: Filter & Search */}
-              <div className="flex items-center gap-2 w-full md:w-auto h-[60px]">
+              <div className="flex items-center gap-2 w-full md:w-auto h-[60px] md:h-auto md:pl-2">
                 {/* Filter / Sort Button */}
-                <div className="relative h-full aspect-square flex-shrink-0 flex items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
+                <div className="relative h-full md:w-12 md:h-12 aspect-square md:aspect-auto flex-shrink-0 flex items-center justify-center rounded-2xl md:rounded-full bg-white md:bg-transparent border border-gray-200 md:border-none shadow-sm md:shadow-none text-gray-600 cursor-pointer hover:bg-gray-50 md:hover:bg-gray-100 transition-all duration-300">
                   <SlidersHorizontal className="w-5 h-5" />
-                  <select 
+                  <select
                     value={currentSort}
                     onChange={handleSortChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -261,10 +261,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   </select>
                 </div>
 
-                <button 
+                <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 md:flex-none h-full md:aspect-square flex items-center justify-center rounded-2xl bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-1 md:flex-none h-full md:w-12 md:h-12 md:aspect-square flex items-center justify-center rounded-2xl md:rounded-full bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0"
                 >
                   {isPending ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -288,22 +288,19 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
-                <button 
+                <button
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${
-                    cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
-                  } ${
-                    optimisticCategory === cat.id 
-                      ? "bg-black text-white border-black shadow-md" 
+                  className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
+                    } ${optimisticCategory === cat.id
+                      ? "bg-black text-white border-black shadow-md"
                       : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900 hover:bg-zinc-100"
-                  }`}
+                    }`}
                 >
-                  {Icon && <Icon className={`w-4 h-4 ${
-                    cat.id === 'saved' 
+                  {Icon && <Icon className={`w-4 h-4 ${cat.id === 'saved'
                       ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
                       : (optimisticCategory === cat.id ? "fill-white" : "")
-                  }`} />}
+                    }`} />}
                   {cat.name}
                 </button>
               );
