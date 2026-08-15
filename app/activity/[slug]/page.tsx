@@ -44,7 +44,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = await params
-  
+
   let activity = null
 
   try {
@@ -61,7 +61,7 @@ export async function generateMetadata(
       // Fire-and-forget the view tracking (doesn't block render)
       incrementActivityView(activity.id)
     }
-  } catch (err) {}
+  } catch (err) { }
 
   if (!activity) {
     activity = MOCK_DETAILS[slug]
@@ -94,7 +94,7 @@ export async function generateMetadata(
 export default async function ActivityPage({ params }: { params: Promise<{ slug: string }> }) {
   let activity = null;
   const { slug } = await params;
-  
+
   // Fetch live or custom exchange rate
   const exchangeRate = await getExchangeRate();
 
@@ -123,7 +123,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   }
 
   const reviewCount = activity.reviews ? activity.reviews.length : 0;
-  const avgRating = reviewCount > 0 
+  const avgRating = reviewCount > 0
     ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
     : undefined;
 
@@ -140,7 +140,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         .eq('is_paused_by_host', false)
         .neq('id', activity.id)
         .limit(4);
-      
+
       if (moreData) {
         moreActivities = moreData;
       }
@@ -150,7 +150,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       .from('activity_blocks')
       .select('blocked_date')
       .eq('activity_id', activity.id);
-    
+
     if (blocks) {
       blockedDates = blocks.map(b => b.blocked_date);
     }
@@ -201,14 +201,14 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
         <div className="flex-1 space-y-6 md:space-y-12">
-          
+
           {/* Quick Info (Mobile Minimalist Row) */}
-          <div className="flex md:hidden items-center justify-between w-full pt-2 pb-4 px-4 border-b border-gray-100">
+          <div className="flex md:hidden items-center justify-between w-full pt-2 pb-4 px-4">
             <div className="flex flex-row items-center gap-1.5">
               <Clock className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
             </div>
-            
+
             <div className="flex flex-row items-center gap-1.5">
               <MapPin className="w-4 h-4 text-rose-500" />
               <span className="text-xs font-semibold text-gray-800 max-w-[120px] truncate">{activity.location}</span>
@@ -231,7 +231,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <span className="text-base font-semibold text-zinc-900">{activity.duration}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100 flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                 <MapPin className="w-5 h-5 text-rose-500" />
@@ -328,7 +328,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               minNoticeDays={activity.min_notice_days}
               bookingType={activity.booking_type || 'single_day'}
               pricingModel={activity.pricing_model || 'per_person'}
-          hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
+              hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
               hostName={activity.hosts?.name || activity.provider_name}
             />
           </div>
@@ -348,7 +348,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 if (d.reviews && d.reviews.length > 0) {
                   rating = d.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / d.reviews.length;
                 }
-                
+
                 return (
                   <ActivityCard
                     key={d.id}
