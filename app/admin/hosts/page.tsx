@@ -7,6 +7,8 @@ import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload } from "lucide-react"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
+import { createAvatar } from '@dicebear/core'
+import { avataaars } from '@dicebear/collection'
 
 export default function HostsPage() {
   const [hosts, setHosts] = useState<any[]>([])
@@ -21,6 +23,33 @@ export default function HostsPage() {
   const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+
+  // Avatar Designer State
+  const [isRefiningAvatar, setIsRefiningAvatar] = useState(false)
+  const [avatarOptions, setAvatarOptions] = useState<any>({ seed: 'host' })
+
+  const AVATAR_FEATURES = {
+    top: ['shortHairTheCaesar', 'shortHairDreads01', 'shortHairDreads02', 'shortHairFrizzle', 'shortHairShaggyMullet', 'shortHairShortCurly', 'shortHairShortFlat', 'shortHairShortRound', 'shortHairShortWaved', 'shortHairSides', 'shortHairTheCaesarSidePart', 'longHairBigHair', 'longHairBob', 'longHairBun', 'longHairCurly', 'longHairCurvy', 'longHairDreads', 'longHairFrida', 'longHairFro', 'longHairFroBand', 'longHairNotTooLong', 'longHairShavedSides', 'longHairMiaWallace', 'longHairStraight', 'longHairStraight2', 'longHairStraightStrand', 'noHair', 'eyepatch', 'hat', 'hijab', 'turban', 'winterHat1', 'winterHat2', 'winterHat3', 'winterHat4'],
+    hairColor: ['auburn', 'black', 'blonde', 'blondeGolden', 'brown', 'brownDark', 'pastelPink', 'platinum', 'red', 'silverGray'],
+    facialHair: ['beardMedium', 'beardLight', 'beardMajestic', 'moustaceMagnum', 'moustacheFancy'],
+    clothing: ['blazerAndShirt', 'blazerAndSweater', 'collarAndSweater', 'graphicShirt', 'hoodie', 'overall', 'shirtCrewNeck', 'shirtScoopNeck', 'shirtVNeck'],
+    clothingColor: ['black', 'blue01', 'blue02', 'blue03', 'gray01', 'gray02', 'heather', 'pastelBlue', 'pastelGreen', 'pastelOrange', 'pastelRed', 'pastelYellow', 'pink', 'red', 'white'],
+    eyes: ['close', 'cry', 'default', 'dizzy', 'eyeRoll', 'happy', 'hearts', 'side', 'squint', 'surprised', 'wink', 'winkWacky'],
+    eyebrows: ['angry', 'angryNatural', 'default', 'defaultNatural', 'flatNatural', 'frownNatural', 'raisedExcited', 'raisedExcitedNatural', 'sadConcerned', 'sadConcernedNatural', 'unibrowNatural', 'upDown', 'upDownNatural'],
+    mouth: ['concerned', 'default', 'disbelief', 'eating', 'grimace', 'sad', 'screamOpen', 'serious', 'smile', 'smirk', 'twinkle', 'vomit'],
+    skinColor: ['tanned', 'yellow', 'pale', 'light', 'brown', 'darkBrown', 'black']
+  }
+
+  const handleAvatarOptionChange = (key: string, value: string) => {
+    const newOptions = { ...avatarOptions, [key]: [value] }
+    if (value === '') delete newOptions[key]
+    setAvatarOptions(newOptions)
+
+    const avatar = createAvatar(avataaars, newOptions)
+    const svg = avatar.toString()
+    const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+    setFormData({ ...formData, avatar_url: dataUri })
+  }
 
   useEffect(() => {
     loadHosts()
@@ -58,13 +87,12 @@ export default function HostsPage() {
     setIsModalOpen(true)
   }
 
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setEditingHost(null)
-    setImageFile(null)
-    setAvatarFile(null)
-    setResetPassword("")
-  }
+  setIsModalOpen(false)
+  setEditingHost(null)
+  setImageFile(null)
+  setAvatarFile(null)
+  setResetPassword("")
+  setIsRefiningAvatar(false)
 
   const handleResetPassword = async () => {
     if (!editingHost || !editingHost.user_id) return
@@ -356,7 +384,7 @@ export default function HostsPage() {
                     type="url"
                     value={formData.avatar_url}
                     onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                    placeholder="https://example.com/avatar.png"
+                    placeholder="https://example.com/avatar.png or data:image/svg+xml..."
                     className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-zinc-900"
                   />
                 </div>
@@ -367,21 +395,49 @@ export default function HostsPage() {
                     onClick={() => {
                       const baseSeed = formData.contact_name || formData.name || "host";
                       const randomSuffix = Math.random().toString(36).substring(7);
-                      setFormData({ ...formData, avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(baseSeed + '-' + randomSuffix)}` });
+                      const newSeed = baseSeed + '-' + randomSuffix;
+                      const newOptions = { seed: newSeed };
+                      setAvatarOptions(newOptions);
+                      const avatar = createAvatar(avataaars, newOptions);
+                      const svg = avatar.toString();
+                      const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+                      setFormData({ ...formData, avatar_url: dataUri });
                     }}
                     className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
                   >
                     🎲 Auto-Generate
                   </button>
-                  <a
-                    href="https://getavataaars.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 h-10 px-3 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-sm font-bold text-zinc-700 flex items-center justify-center gap-2 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => setIsRefiningAvatar(!isRefiningAvatar)}
+                    className={`flex-1 h-10 px-3 rounded-lg border text-sm font-bold flex items-center justify-center gap-2 transition-colors ${isRefiningAvatar ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700'}`}
                   >
-                    🎨 Create Custom
-                  </a>
+                    🎨 Refine Design
+                  </button>
                 </div>
+
+                {isRefiningAvatar && (
+                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-3 mb-4">
+                    <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Avatar Designer</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(AVATAR_FEATURES).map(([key, options]) => (
+                        <div key={key} className="space-y-1">
+                          <label className="text-xs font-bold text-zinc-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
+                          <select
+                            value={avatarOptions[key]?.[0] || ''}
+                            onChange={(e) => handleAvatarOptionChange(key, e.target.value)}
+                            className="w-full h-9 px-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-900 bg-white outline-none focus:border-rose-500"
+                          >
+                            <option value="">Random / Default</option>
+                            {options.map(opt => (
+                              <option key={opt} value={opt}>{opt.replace(/([A-Z])/g, ' $1').trim()}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="relative group cursor-pointer">
                   <input
