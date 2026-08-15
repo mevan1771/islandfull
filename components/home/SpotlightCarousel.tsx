@@ -40,9 +40,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={slide.id || index}
                 className="flex-[0_0_100%] min-w-0"
               >
-                <div className="grid md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center w-full py-8 md:py-12 lg:py-16">
+                <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-16 lg:gap-12 items-center w-full py-8 md:py-12 lg:py-16">
                   {/* Text Content */}
-                  <div className="space-y-4 md:space-y-6 px-1">
+                  <div className="space-y-4 md:space-y-6 px-1 lg:col-span-5">
                     {slide.badge_text && (
                       <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
                         {slide.badge_text}
@@ -72,11 +72,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   </div>
 
                   {/* Images */}
-                  <div className="grid grid-cols-2 gap-3 md:gap-5 lg:gap-8 px-1 w-full md:max-w-lg lg:max-w-2xl md:ml-auto">
-                    <div className="relative w-full h-48 md:h-80 lg:h-auto lg:aspect-[3/4] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 lg:translate-y-12 pointer-events-none transform-gpu">
+                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:items-center lg:justify-end gap-3 md:gap-5 lg:gap-8 px-1 w-full md:max-w-lg lg:max-w-none md:ml-auto lg:col-span-7">
+                    <div className="relative w-full h-48 md:h-80 lg:w-72 lg:h-72 xl:w-80 xl:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 lg:translate-y-12 pointer-events-none transform-gpu shrink-0">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
-                    <div className="relative w-full h-48 md:h-80 lg:h-auto lg:aspect-[3/4] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 lg:-translate-y-12 pointer-events-none transform-gpu">
+                    <div className="relative w-full h-48 md:h-80 lg:w-72 lg:h-96 xl:w-80 xl:h-[28rem] rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 lg:-translate-y-12 pointer-events-none transform-gpu shrink-0">
                       <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                   </div>
@@ -109,8 +109,8 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={index}
                 onClick={() => emblaApi?.scrollTo(index)}
                 className={`transition-all duration-300 ease-out rounded-full ${index === selectedIndex
-                    ? "w-6 h-2.5 bg-rose-500 shadow-sm"
-                    : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
+                  ? "w-6 h-2.5 bg-rose-500 shadow-sm"
+                  : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
                   }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
