@@ -72,11 +72,11 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
           {/* Slide Content */}
           <div className="absolute bottom-8 md:bottom-28 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-              <div className="flex flex-col justify-end items-start h-[120px] md:h-[160px]">
+              <div className="flex flex-col justify-end items-start min-h-[120px] md:min-h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full">
                     <div className="flex flex-col items-start">
-                      <h1 className="text-[clamp(1.2rem,5vw,2.5rem)] leading-tight font-bold text-white drop-shadow-md text-balance line-clamp-2">
+                      <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md text-balance">
                         {tour.title}
                       </h1>
                     </div>
@@ -91,13 +91,13 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                     href={`/activity/${tour.slug}`}
                     className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
                   >
-                    <div className="flex flex-col items-start">
+                    <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
                       {tour.location && (
-                        <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
+                        <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 md:mb-2">
                           {tour.location.replace(', Sri Lanka', '')}
                         </span>
                       )}
-                      <h1 className="text-[clamp(1.2rem,5vw,2.5rem)] leading-tight font-bold text-white drop-shadow-md line-clamp-2">
+                      <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md">
                         {tour.title}
                       </h1>
                     </div>
