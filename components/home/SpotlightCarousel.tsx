@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { SpotlightConfig } from '@/components/admin/SpotlightClient'
 
 interface SpotlightCarouselProps {
@@ -12,11 +13,41 @@ interface SpotlightCarouselProps {
 }
 
 export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
+  const searchParams = useSearchParams()
+  const searchLocation = searchParams.get('location')?.toLowerCase()
+  const searchCategory = searchParams.get('category')
+
+  const filteredSlides = React.useMemo(() => {
+    if (!searchLocation && (!searchCategory || searchCategory === 'all' || searchCategory === 'saved')) {
+      // Default behavior: show slides with no specific location/category
+      const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0))
+      return defaults.length > 0 ? defaults : slides
+    }
+
+    const matches = slides.filter(slide => {
+      const matchesLocation = searchLocation && slide.location?.toLowerCase().includes(searchLocation)
+      const matchesCategory = searchCategory && slide.category_tags?.includes(searchCategory)
+      return matchesLocation || matchesCategory
+    })
+
+    if (matches.length > 0) return matches
+
+    // Fallback to defaults if no match found
+    const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0))
+    return defaults.length > 0 ? defaults : slides
+  }, [slides, searchLocation, searchCategory])
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'start', skipSnaps: false },
     [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })]
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  // Reset index when filtered slides change
+  useEffect(() => {
+    setSelectedIndex(0)
+    if (emblaApi) emblaApi.scrollTo(0)
+  }, [filteredSlides, emblaApi])
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
@@ -35,7 +66,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
       <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
           <div className="flex touch-pan-y">
-            {slides.map((slide, index) => (
+            {filteredSlides.map((slide, index) => (
               <div
                 key={slide.id || index}
                 className="flex-[0_0_100%] min-w-0"
@@ -107,9 +138,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
         </div>
 
         {/* Pagination Dots */}
-        {slides.length > 1 && (
+        {filteredSlides.length > 1 && (
           <div className="flex justify-center items-center gap-2 mt-2 md:mt-4 relative z-10">
-            {slides.map((_, index) => (
+            {filteredSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => emblaApi?.scrollTo(index)}
