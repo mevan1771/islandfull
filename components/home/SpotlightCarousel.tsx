@@ -19,9 +19,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
 
   const filteredSlides = React.useMemo(() => {
     if (!searchLocation && (!searchCategory || searchCategory === 'all' || searchCategory === 'saved')) {
-      // Default behavior: show slides with no specific location/category
-      const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0))
-      return defaults.length > 0 ? defaults : slides
+      // Default behavior: show slides with no specific location/category, capped at 3
+      const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0)).slice(0, 3)
+      return defaults.length > 0 ? defaults : slides.slice(0, 3)
     }
 
     const matches = slides.filter(slide => {
@@ -32,9 +32,9 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
 
     if (matches.length > 0) return matches
 
-    // Fallback to defaults if no match found
-    const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0))
-    return defaults.length > 0 ? defaults : slides
+    // Fallback to defaults if no match found, capped at 3
+    const defaults = slides.filter(s => !s.location && (!s.category_tags || s.category_tags.length === 0)).slice(0, 3)
+    return defaults.length > 0 ? defaults : slides.slice(0, 3)
   }, [slides, searchLocation, searchCategory])
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
