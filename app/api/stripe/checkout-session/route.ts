@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       .select('commission_rate, max_capacity, cover_image_url')
       .eq('id', activityId)
       .single()
-      
+
     const commissionRate = activity?.commission_rate || 15.00
     const maxCapacity = activity?.max_capacity || 10
 
@@ -47,10 +47,10 @@ export async function POST(req: Request) {
         .in('status', ['confirmed', 'pending', 'pending_payment', 'completed'])
         .lte('travel_date', endDate)
         .gte('end_date', date)
-        
+
       if (overlappingBookings && overlappingBookings.length > 0) {
         const dailyCounts: Record<string, number> = {}
-        
+
         for (const b of overlappingBookings) {
           if (!b.travel_date || !b.end_date) continue
           const bDays = eachDayOfInterval({ start: parseISO(b.travel_date), end: parseISO(b.end_date) })
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
             dailyCounts[dStr] = (dailyCounts[dStr] || 0) + b.pax_count
           }
         }
-        
+
         const reqDays = eachDayOfInterval({ start: parseISO(date), end: parseISO(endDate) })
         for (const d of reqDays) {
           const dStr = format(d, 'yyyy-MM-dd')
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
     if (promoCode) {
       const validation = await validatePromoCode(promoCode, totalUsd)
       if (!validation.success) {
-         return new NextResponse(validation.error, { status: 400 })
+        return new NextResponse(validation.error, { status: 400 })
       }
       discountAmountUsd = validation.discountAmountUsd || 0
       appliedPromoCode = validation.code
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
     // If it's totally free, handle it immediately without Stripe
     if (finalTotalUsd === 0) {
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
-      
+
       try {
         const { autoBlockDate } = await import('@/app/actions/tours');
         await autoBlockDate(activityId, date);
@@ -133,10 +133,14 @@ export async function POST(req: Request) {
       }
 
       if (appliedPromoCode) {
-         const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', appliedPromoCode).single()
-         if (currentPromo) {
-             await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', appliedPromoCode)
-         }
+        const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses, partner_commission, total_partner_earnings').eq('code', appliedPromoCode).single()
+        if (currentPromo) {
+          const updates: any = { current_uses: currentPromo.current_uses + 1 }
+          if (currentPromo.partner_commission && currentPromo.partner_commission > 0) {
+            updates.total_partner_earnings = (currentPromo.total_partner_earnings || 0) + currentPromo.partner_commission
+          }
+          await supabaseAdmin.from('promo_codes').update(updates).eq('code', appliedPromoCode)
+        }
       }
 
       return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
@@ -180,13 +184,8 @@ export async function POST(req: Request) {
       } catch (error) {
         console.error("[RESEND_EMAIL_ERROR]", error);
       }
-      
-      if (appliedPromoCode) {
-         const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', appliedPromoCode).single()
-         if (currentPromo) {
-             await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', appliedPromoCode)
-         }
-      }
+
+
 
       // Return local success URL so the guest is NOT forced to pay immediately
       return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
