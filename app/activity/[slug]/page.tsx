@@ -180,7 +180,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           className="object-cover object-center"
           priority
         />
-        <FavoriteButton activityId={activity.id} />
+        <FavoriteButton activityId={activity.id} className="hidden md:flex" />
 
         <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
           <div className="flex items-center gap-2">
