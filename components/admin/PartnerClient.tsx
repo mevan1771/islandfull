@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Users, Plus, Edit, Trash2, X, Upload, Image as ImageIcon } from "lucide-react"
 import { createPartner, updatePartner, deletePartner } from "@/app/actions/partner"
+import { uploadToCloudinary } from "@/app/actions/upload"
 import toast from "react-hot-toast"
 import Image from "next/image"
 
@@ -28,6 +29,7 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingPartner, setEditingPartner] = useState<Partner | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
 
     // Form State
     const [formData, setFormData] = useState({
@@ -73,6 +75,30 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
     const handleCloseModal = () => {
         setIsModalOpen(false)
         setEditingPartner(null)
+        setIsUploading(false)
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsUploading(true)
+        const uploadData = new FormData()
+        uploadData.append('file', file)
+
+        try {
+            const res = await uploadToCloudinary(uploadData)
+            if (res.success && res.secure_url) {
+                setFormData(prev => ({ ...prev, logo_url: res.secure_url }))
+                toast.success("Logo uploaded successfully")
+            } else {
+                toast.error(res.error || "Failed to upload logo")
+            }
+        } catch (err: any) {
+            toast.error(err.message || "An error occurred during upload")
+        } finally {
+            setIsUploading(false)
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -259,21 +285,47 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-zinc-900">Logo URL (Optional)</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="url"
-                                            value={formData.logo_url}
-                                            onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                                            className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                            placeholder="https://example.com/logo.png"
-                                        />
-                                    </div>
-                                    {formData.logo_url && (
-                                        <div className="mt-2 w-16 h-16 rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50">
-                                            <img src={formData.logo_url} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                    <label className="text-sm font-bold text-zinc-900">Logo (Optional)</label>
+                                    <div className="flex items-start gap-4">
+                                        {formData.logo_url ? (
+                                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 flex-shrink-0 group">
+                                                <img src={formData.logo_url} alt="Preview" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, logo_url: "" })}
+                                                        className="p-1.5 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="w-24 h-24 rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50 flex flex-col items-center justify-center text-zinc-400 flex-shrink-0">
+                                                <ImageIcon className="w-6 h-6 mb-1 opacity-50" />
+                                                <span className="text-[10px] font-medium uppercase tracking-wider">No Logo</span>
+                                            </div>
+                                        )}
+                                        <div className="flex-1">
+                                            <label className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${isUploading ? 'border-indigo-300 bg-indigo-50' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-300'}`}>
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    {isUploading ? (
+                                                        <div className="flex flex-col items-center">
+                                                            <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                                                            <p className="text-xs font-semibold text-indigo-600">Uploading...</p>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <Upload className="w-5 h-5 mb-2 text-zinc-400" />
+                                                            <p className="text-sm font-semibold text-zinc-700">Click to upload</p>
+                                                            <p className="text-xs text-zinc-500 mt-1">PNG, JPG up to 5MB</p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
+                                            </label>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
