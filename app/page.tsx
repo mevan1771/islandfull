@@ -40,17 +40,17 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const params = await searchParams;
   let activities = MOCK_ACTIVITIES;
   let featuredSpotlight: any = null;
-
+  
   try {
     const currentVertical = params.vertical || 'tour';
-
+    
     // Fetch the dynamic spotlight settings from global_settings
     const { data: spotlightSetting } = await supabase
       .from('global_settings')
       .select('value')
       .eq('key', 'featured_spotlight')
       .single();
-
+      
     if (spotlightSetting && spotlightSetting.value) {
       featuredSpotlight = spotlightSetting.value;
     }
@@ -59,11 +59,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       .eq('category_type', currentVertical)
       .eq('status', 'published')
       .eq('is_paused_by_host', false);
-
+    
     if (params.location) {
       query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
     }
-
+    
     if (params.category && params.category !== 'saved') {
       query = query.eq('categories.slug', params.category);
     }
@@ -82,15 +82,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
     const fetchLimit = params.category === 'saved' ? 50 : 12;
     const { data, error } = await query.limit(fetchLimit);
-
+    
     if (error) {
       console.error("Supabase query error:", error);
     } else if (data && data.length > 0) {
       activities = data.map(d => {
-        const rating = d.reviews && d.reviews.length > 0
-          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length
+        const rating = d.reviews && d.reviews.length > 0 
+          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length 
           : undefined;
-
+          
         return {
           id: d.id,
           title: d.title,
@@ -123,7 +123,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       .eq('category_type', currentVertical)
       .order('sort_order', { ascending: true })
       .order('name');
-
+      
     if (catData) {
       dynamicCategories = catData;
     }
@@ -141,7 +141,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       .eq('is_featured', true)
       .order('featured_order', { ascending: true })
       .limit(5);
-
+    
     if (data) featuredTours = data;
   } catch (e) {
     console.error("Failed to fetch featured tours:", e);
@@ -162,7 +162,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   return (
     <div className="pb-24">
       {/* Hero Section */}
-      <HeroCarousel tours={featuredTours} />
+      <HeroCarousel tours={featuredTours} introSlide={introSlide} />
 
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>
