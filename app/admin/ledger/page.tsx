@@ -33,8 +33,8 @@ export default async function AdminLedgerPage() {
 
     const { data: partners } = await supabase
         .from('promo_codes')
-        .select('*')
-        .not('partner_name', 'is', null)
+        .select('*, affiliate_partners(name, logo_url)')
+        .not('partner_id', 'is', null)
         .order('total_partner_earnings', { ascending: false });
 
     return (
@@ -67,7 +67,7 @@ export default async function AdminLedgerPage() {
                         <table className="w-full text-left text-sm whitespace-nowrap">
                             <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 uppercase text-[11px] font-bold tracking-wider">
                                 <tr>
-                                    <th className="px-6 py-4">Partner Name</th>
+                                    <th className="px-6 py-4">Partner</th>
                                     <th className="px-6 py-4">Promo Code</th>
                                     <th className="px-6 py-4">Commission Rate</th>
                                     <th className="px-6 py-4">Total Uses</th>
@@ -85,7 +85,18 @@ export default async function AdminLedgerPage() {
                                     partners.map((p: any) => (
                                         <tr key={p.id} className="hover:bg-zinc-50/50 transition-colors">
                                             <td className="px-6 py-4">
-                                                <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{p.partner_name}</span>
+                                                <div className="flex items-center gap-3">
+                                                    {p.affiliate_partners?.logo_url ? (
+                                                        <div className="w-8 h-8 rounded-full overflow-hidden border border-zinc-200 bg-zinc-50 flex-shrink-0">
+                                                            <img src={p.affiliate_partners.logo_url} alt={p.affiliate_partners.name} className="w-full h-full object-cover" />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-500 font-bold text-xs flex-shrink-0">
+                                                            {p.affiliate_partners?.name?.charAt(0) || '?'}
+                                                        </div>
+                                                    )}
+                                                    <span className="font-bold text-indigo-600">{p.affiliate_partners?.name || 'Unknown'}</span>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="font-mono font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded-md">{p.code}</span>

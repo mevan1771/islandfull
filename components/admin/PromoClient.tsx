@@ -14,16 +14,23 @@ interface PromoCode {
     max_uses: number
     expires_at: string
     is_active: boolean
-    partner_name?: string | null
+    partner_id?: string | null
     partner_commission?: number | null
     total_partner_earnings?: number | null
+    affiliate_partners?: { name: string } | null
+}
+
+interface Partner {
+    id: string
+    name: string
 }
 
 interface PromoClientProps {
     initialPromos: PromoCode[]
+    partners: Partner[]
 }
 
-export function PromoClient({ initialPromos }: PromoClientProps) {
+export function PromoClient({ initialPromos, partners }: PromoClientProps) {
     const [promos, setPromos] = useState<PromoCode[]>(initialPromos)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingPromo, setEditingPromo] = useState<PromoCode | null>(null)
@@ -37,7 +44,7 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
         max_uses: 100,
         expires_at: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
         is_active: true,
-        partner_name: "",
+        partner_id: "",
         partner_commission: 0
     })
 
@@ -51,7 +58,7 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
                 max_uses: promo.max_uses,
                 expires_at: new Date(promo.expires_at).toISOString().split('T')[0],
                 is_active: promo.is_active,
-                partner_name: promo.partner_name || "",
+                partner_id: promo.partner_id || "",
                 partner_commission: promo.partner_commission || 0
             })
         } else {
@@ -63,7 +70,7 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
                 max_uses: 100,
                 expires_at: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
                 is_active: true,
-                partner_name: "",
+                partner_id: "",
                 partner_commission: 0
             })
         }
@@ -82,7 +89,7 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
         const payload = {
             ...formData,
             code: formData.code.toUpperCase().trim(),
-            partner_name: formData.partner_name.trim() || null,
+            partner_id: formData.partner_id || null,
             partner_commission: formData.partner_commission > 0 ? formData.partner_commission : null
         }
 
@@ -213,8 +220,8 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
                                                 {new Date(p.expires_at).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4">
-                                                {p.partner_name ? (
-                                                    <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{p.partner_name}</span>
+                                                {p.affiliate_partners?.name ? (
+                                                    <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{p.affiliate_partners.name}</span>
                                                 ) : (
                                                     <span className="text-zinc-400">-</span>
                                                 )}
@@ -227,7 +234,7 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
-                                                {p.partner_name ? (
+                                                {p.affiliate_partners?.name ? (
                                                     <span className="font-bold text-zinc-900">${p.total_partner_earnings || 0}</span>
                                                 ) : (
                                                     <span className="text-zinc-400">-</span>
@@ -351,14 +358,17 @@ export function PromoClient({ initialPromos }: PromoClientProps) {
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-zinc-900">Partner Name</label>
-                                            <input
-                                                type="text"
-                                                value={formData.partner_name}
-                                                onChange={(e) => setFormData({ ...formData, partner_name: e.target.value })}
-                                                className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                                placeholder="e.g. Hotel Sunshine"
-                                            />
+                                            <label className="text-sm font-bold text-zinc-900">Partner</label>
+                                            <select
+                                                value={formData.partner_id}
+                                                onChange={(e) => setFormData({ ...formData, partner_id: e.target.value })}
+                                                className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-white"
+                                            >
+                                                <option value="">None</option>
+                                                {partners.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-zinc-900">Partner Commission (USD)</label>

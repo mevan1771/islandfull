@@ -17,6 +17,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Finances', href: '/admin/finances', adminOnly: true },
     { name: 'Earnings', href: '/admin/earnings', adminOnly: true },
     { name: 'Hosts', href: '/admin/hosts' },
+    { name: 'Partners', href: '/admin/partners', adminOnly: true },
     { name: 'Categories', href: '/admin/categories' },
     { name: 'Team / Access Control', href: '/admin/team', adminOnly: true },
     { name: 'Global Settings', href: '/admin/settings', adminOnly: true },
@@ -34,8 +35,8 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
             key={link.href}
             href={link.href}
             className={`pb-3 border-b-2 px-1 transition-colors ${isActive
-                ? 'border-zinc-900 font-bold text-zinc-900'
-                : 'border-transparent font-bold text-zinc-500 hover:text-zinc-900'
+              ? 'border-zinc-900 font-bold text-zinc-900'
+              : 'border-transparent font-bold text-zinc-500 hover:text-zinc-900'
               }`}
           >
             {link.name}

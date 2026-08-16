@@ -33,13 +33,18 @@ export default async function AdminPromosPage() {
 
   const { data: promos } = await supabase
     .from('promo_codes')
-    .select('*')
+    .select('*, affiliate_partners(name)')
     .order('created_at', { ascending: false });
+
+  const { data: partners } = await supabase
+    .from('affiliate_partners')
+    .select('id, name')
+    .order('name', { ascending: true });
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <PromoClient initialPromos={promos || []} />
+        <PromoClient initialPromos={promos || []} partners={partners || []} />
       </div>
     </div>
   )
