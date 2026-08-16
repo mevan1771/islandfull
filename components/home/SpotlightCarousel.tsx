@@ -62,7 +62,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
   }, [emblaApi, onSelect])
 
   return (
-    <section className="bg-zinc-50 py-10 md:py-24 relative overflow-hidden">
+    <section className="bg-zinc-50 py-4 md:py-24 relative overflow-hidden">
       <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
           <div className="flex touch-pan-y">
