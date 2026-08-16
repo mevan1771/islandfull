@@ -12,7 +12,7 @@ export function MobileSearch() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
-  
+
   const [currentVertical, setCurrentVertical] = useState<'tour' | 'event' | 'transport'>(
     (searchParams.get("vertical") as any) || 'tour'
   )
@@ -61,20 +61,20 @@ export function MobileSearch() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (location) params.set("location", location)
     else params.delete("location")
-    
+
     if (date) params.set("date", date)
     else params.delete("date")
-    
+
     if (travelers) params.set("travelers", travelers)
     else params.delete("travelers")
-    
+
     // Maintain sort if exists
     const sortVal = searchParams.get("sort")
     if (sortVal) params.set("sort", sortVal)
-    
+
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -85,19 +85,19 @@ export function MobileSearch() {
       <div className="bg-white rounded-xl shadow-md p-3">
         {/* Tabs */}
         <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 border-b border-zinc-100 mb-3 pb-1">
-          <button 
+          <button
             onClick={() => handleVerticalClick('tour')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
           >
             <Map className="w-3.5 h-3.5" /> Tours
           </button>
-          <button 
+          <button
             onClick={() => handleVerticalClick('event')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
           >
             <Calendar className="w-3.5 h-3.5" /> Events
           </button>
-          <button 
+          <button
             onClick={() => handleVerticalClick('transport')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
           >
@@ -116,9 +116,9 @@ export function MobileSearch() {
             <div ref={dropdownRef} className="relative">
               <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors">
                 <MapPin className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input 
-                  type="text" 
-                  placeholder="Where to?" 
+                <input
+                  type="text"
+                  placeholder="Where to?"
                   className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
                   value={location}
                   onFocus={() => {
@@ -126,7 +126,18 @@ export function MobileSearch() {
                     if (suggestions.length > 0) setIsDropdownOpen(true)
                   }}
                   onBlur={() => setIsFocused(false)}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setLocation(val)
+                    if (val === "") {
+                      const params = new URLSearchParams(searchParams.toString())
+                      params.delete("location")
+                      params.delete("category")
+                      startTransition(() => {
+                        router.push(`/?${params.toString()}`, { scroll: false })
+                      })
+                    }
+                  }}
                 />
                 {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
               </div>
@@ -135,7 +146,7 @@ export function MobileSearch() {
               {isDropdownOpen && suggestions.length > 0 && (
                 <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50 max-h-60 overflow-y-auto">
                   {suggestions.map((sug, idx) => (
-                    <li 
+                    <li
                       key={idx}
                       className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
                       onMouseDown={(e) => {
@@ -159,8 +170,8 @@ export function MobileSearch() {
               {/* Date */}
               <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
                 <Calendar className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="w-full outline-none text-sm text-zinc-900 bg-transparent"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
@@ -170,9 +181,9 @@ export function MobileSearch() {
               {/* Travelers */}
               <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
                 <Users className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input 
-                  type="text" 
-                  placeholder="Who?" 
+                <input
+                  type="text"
+                  placeholder="Who?"
                   className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
@@ -183,7 +194,7 @@ export function MobileSearch() {
             {/* Actions: Filter & Map & Search */}
             <div className="w-full flex items-center gap-2 mt-1">
               {/* Map Button */}
-              <button 
+              <button
                 type="button"
                 onClick={() => router.push('/map')}
                 className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
@@ -194,7 +205,7 @@ export function MobileSearch() {
               {/* Filter / Sort Button */}
               <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">
                 <SlidersHorizontal className="w-4 h-4" />
-                <select 
+                <select
                   value={searchParams.get("sort") || ""}
                   onChange={(e) => {
                     const params = new URLSearchParams(searchParams.toString())
@@ -211,8 +222,8 @@ export function MobileSearch() {
               </div>
 
               {/* Search Button */}
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
               >
                 <Search className="w-4 h-4" />

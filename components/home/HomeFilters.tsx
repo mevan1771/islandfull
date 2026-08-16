@@ -192,7 +192,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                       if (val === "") {
                         const params = new URLSearchParams(searchParams.toString());
                         params.delete("location");
-                        router.push(`/?${params.toString()}`, { scroll: false });
+                        params.delete("category");
+                        startTransition(() => {
+                          router.push(`/?${params.toString()}`, { scroll: false });
+                        });
                       }
                     }}
                   />
