@@ -181,17 +181,18 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority
         />
         <FavoriteButton activityId={activity.id} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
+        {/* Softened Top Gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 p-6 md:p-16 text-white w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
             <div>
               <div className="hidden md:flex items-center gap-2 mb-4">
-                <span className="px-4 py-1.5 bg-rose-500 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-lg shadow-rose-500/30">
+                <span className="px-4 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
                   {activity.location}
                 </span>
               </div>
-              <h1 className="text-2xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight drop-shadow-md">
+              <h1 className="text-2xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight text-white drop-shadow-md">
                 {activity.title}
               </h1>
             </div>
