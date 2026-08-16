@@ -70,16 +70,16 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
 
           {/* Slide Content */}
-          <div className="absolute bottom-16 md:bottom-24 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
+          <div className="absolute bottom-24 md:bottom-28 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
               <div className="flex flex-col justify-end items-start h-[120px] md:h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white text-balance">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-snug drop-shadow-md text-white text-balance">
                       {tour.title}
                     </h1>
                     {tour.subtitle && (
-                      <p className="text-white/90 text-sm md:text-base font-medium drop-shadow-md">
+                      <p className="text-sm sm:text-base md:text-lg font-medium drop-shadow-md text-white/90">
                         {tour.subtitle}
                       </p>
                     )}
@@ -94,7 +94,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         {tour.location.replace(', Sri Lanka', '')}
                       </span>
                     )}
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight drop-shadow-md text-white line-clamp-2">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-snug drop-shadow-md text-white line-clamp-2">
                       {tour.title}
                     </h1>
                   </Link>
