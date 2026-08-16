@@ -76,11 +76,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
               <div className="flex flex-col justify-end items-start min-h-[120px] md:min-h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full pb-6">
-                    <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
-                      <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 md:mb-2">
+                    <div className="flex flex-col items-start max-w-full overflow-hidden">
+                      <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
                         SRI LANKA
                       </span>
-                      <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md text-balance">
+                      <h1
+                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-md"
+                        style={{ '--char-count': tour.title.length } as React.CSSProperties}
+                      >
                         {tour.title}
                       </h1>
                     </div>
@@ -95,13 +98,16 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                     href={`/activity/${tour.slug}`}
                     className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full pb-6"
                   >
-                    <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
+                    <div className="flex flex-col items-start max-w-full overflow-hidden">
                       {tour.location && (
-                        <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 md:mb-2">
+                        <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
                           {tour.location.replace(', Sri Lanka', '')}
                         </span>
                       )}
-                      <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md">
+                      <h1
+                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-md"
+                        style={{ '--char-count': tour.title.length } as React.CSSProperties}
+                      >
                         {tour.title}
                       </h1>
                     </div>
