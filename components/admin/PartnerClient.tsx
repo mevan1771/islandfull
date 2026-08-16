@@ -10,7 +10,12 @@ interface Partner {
     id: string
     name: string
     logo_url?: string | null
-    details?: string | null
+    partner_type?: string | null
+    company_name?: string | null
+    email?: string | null
+    telephone?: string | null
+    address?: string | null
+    bank_details?: string | null
     created_at: string
 }
 
@@ -28,7 +33,12 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
     const [formData, setFormData] = useState({
         name: "",
         logo_url: "",
-        details: ""
+        partner_type: "Other",
+        company_name: "",
+        email: "",
+        telephone: "",
+        address: "",
+        bank_details: ""
     })
 
     const handleOpenModal = (partner?: Partner) => {
@@ -37,14 +47,24 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
             setFormData({
                 name: partner.name,
                 logo_url: partner.logo_url || "",
-                details: partner.details || ""
+                partner_type: partner.partner_type || "Other",
+                company_name: partner.company_name || "",
+                email: partner.email || "",
+                telephone: partner.telephone || "",
+                address: partner.address || "",
+                bank_details: partner.bank_details || ""
             })
         } else {
             setEditingPartner(null)
             setFormData({
                 name: "",
                 logo_url: "",
-                details: ""
+                partner_type: "Other",
+                company_name: "",
+                email: "",
+                telephone: "",
+                address: "",
+                bank_details: ""
             })
         }
         setIsModalOpen(true)
@@ -62,7 +82,12 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
         const payload = {
             name: formData.name.trim(),
             logo_url: formData.logo_url.trim() || null,
-            details: formData.details.trim() || null
+            partner_type: formData.partner_type,
+            company_name: formData.company_name.trim() || null,
+            email: formData.email.trim() || null,
+            telephone: formData.telephone.trim() || null,
+            address: formData.address.trim() || null,
+            bank_details: formData.bank_details.trim() || null
         }
 
         try {
@@ -137,7 +162,8 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
                             <tr>
                                 <th className="px-6 py-4">Logo</th>
                                 <th className="px-6 py-4">Name</th>
-                                <th className="px-6 py-4">Details</th>
+                                <th className="px-6 py-4">Type</th>
+                                <th className="px-6 py-4">Contact</th>
                                 <th className="px-6 py-4">Created At</th>
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
@@ -167,7 +193,15 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
                                             <span className="font-bold text-zinc-900">{p.name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-zinc-500 truncate max-w-[200px] block">{p.details || "-"}</span>
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                {p.partner_type || 'Other'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-zinc-900 font-medium">{p.email || "-"}</span>
+                                                <span className="text-zinc-500 text-xs">{p.telephone || ""}</span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-zinc-500">
                                             {new Date(p.created_at).toLocaleDateString()}
@@ -242,13 +276,71 @@ export function PartnerClient({ initialPartners }: PartnerClientProps) {
                                     )}
                                 </div>
 
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-zinc-900">Partner Type</label>
+                                        <select
+                                            value={formData.partner_type}
+                                            onChange={(e) => setFormData({ ...formData, partner_type: e.target.value })}
+                                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-white"
+                                        >
+                                            <option value="Hotel/Resort">Hotel/Resort</option>
+                                            <option value="Cafe/Restaurant">Cafe/Restaurant</option>
+                                            <option value="Influencer/Creator">Influencer/Creator</option>
+                                            <option value="Tour Guide">Tour Guide</option>
+                                            <option value="Shop/Retail">Shop/Retail</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-zinc-900">Company Name (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={formData.company_name}
+                                            onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                            placeholder="e.g. Sunshine Holdings"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-zinc-900">Email Address (Optional)</label>
+                                        <input
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                            placeholder="e.g. contact@sunshine.com"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-zinc-900">Telephone (Optional)</label>
+                                        <input
+                                            type="tel"
+                                            value={formData.telephone}
+                                            onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                            placeholder="e.g. +94 77 123 4567"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-zinc-900">Details / Contact Info (Optional)</label>
+                                    <label className="text-sm font-bold text-zinc-900">Address (Optional)</label>
                                     <textarea
-                                        value={formData.details}
-                                        onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                                        className="w-full p-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none h-32"
-                                        placeholder="e.g. Contact: John Doe (john@sunshine.com)"
+                                        value={formData.address}
+                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                        className="w-full p-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none h-24"
+                                        placeholder="e.g. 123 Beach Road, Colombo"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-zinc-900">Bank Details (Optional)</label>
+                                    <textarea
+                                        value={formData.bank_details}
+                                        onChange={(e) => setFormData({ ...formData, bank_details: e.target.value })}
+                                        className="w-full p-4 rounded-xl border border-zinc-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none h-24"
+                                        placeholder="e.g. Bank Name, Account Name, Account Number, Branch"
                                     />
                                 </div>
 
