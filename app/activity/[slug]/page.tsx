@@ -17,23 +17,6 @@ import { Metadata, ResolvingMetadata } from 'next'
 
 export const revalidate = 60;
 
-// Fallback data for the specific slugs if DB is not ready
-const MOCK_DETAILS: Record<string, any> = {
-  'secret-sunset-surf-hiriketiya': {
-    id: '1',
-    title: 'Secret Sunset Surf Lesson',
-    provider_name: 'Hiriketiya Surf School',
-    location: 'Hiriketiya',
-    duration: '2 hours',
-    price_usd: 35.00,
-    price_lkr_approx: 10500.00,
-    max_capacity: 6,
-    description: 'Join our expert local instructors for a magical sunset surf session in the hidden bay of Hiriketiya. Perfect for beginners and intermediates. We provide everything you need to catch your first wave or improve your skills as the sun dips below the Indian Ocean.',
-    inclusions: ['Surfboard rental', '1.5 hours of instruction', 'Rash guard', 'Post-surf king coconut'],
-    cover_image_url: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    gallery_urls: ['https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80']
-  }
-}
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -63,9 +46,6 @@ export async function generateMetadata(
     }
   } catch (err) { }
 
-  if (!activity) {
-    activity = MOCK_DETAILS[slug]
-  }
 
   if (!activity) {
     return {
@@ -114,9 +94,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     // fallback to mock
   }
 
-  if (!activity) {
-    activity = MOCK_DETAILS[slug];
-  }
 
   if (!activity) {
     notFound();
@@ -158,10 +135,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
   const allBlackoutDates = [...(activity?.blackout_dates || []), ...blockedDates];
 
+  const isEvent = activity.category_type === 'event';
+
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
+      <div className={`relative h-[35svh] md:h-[600px] ${isEvent ? 'm-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden' : 'w-full'}`}>
 
         <Image
           src={activity.cover_image_url}
