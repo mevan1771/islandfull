@@ -74,10 +74,10 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   {/* Images */}
                   <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
                     <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
-                      <Image src={slide.image_url_1} alt="Spotlight Image 1" fill className="object-cover rounded-2xl md:rounded-3xl" />
+                      <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={90} sizes="(max-width: 768px) 50vw, 25vw" className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                     <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
-                      <Image src={slide.image_url_2} alt="Spotlight Image 2" fill className="object-cover rounded-2xl md:rounded-3xl" />
+                      <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={90} sizes="(max-width: 768px) 50vw, 25vw" className="object-cover rounded-2xl md:rounded-3xl" />
                     </div>
                   </div>
 
@@ -109,8 +109,8 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 key={index}
                 onClick={() => emblaApi?.scrollTo(index)}
                 className={`transition-all duration-300 ease-out rounded-full ${index === selectedIndex
-                    ? "w-6 h-2.5 bg-rose-500 shadow-sm"
-                    : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
+                  ? "w-6 h-2.5 bg-rose-500 shadow-sm"
+                  : "w-2.5 h-2.5 bg-zinc-300 hover:bg-zinc-400"
                   }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
