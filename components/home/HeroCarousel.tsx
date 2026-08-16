@@ -70,14 +70,16 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
 
           {/* Slide Content */}
-          <div className="absolute bottom-24 md:bottom-28 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
+          <div className="absolute bottom-8 md:bottom-28 lg:bottom-32 w-full left-0 right-0 z-10 pointer-events-none">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
               <div className="flex flex-col justify-end items-start h-[120px] md:h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-snug drop-shadow-md text-white text-balance">
-                      {tour.title}
-                    </h1>
+                    <div className="flex flex-col items-start">
+                      <h1 className="text-[clamp(1.2rem,5vw,2.5rem)] leading-tight font-bold text-white drop-shadow-md text-balance line-clamp-2">
+                        {tour.title}
+                      </h1>
+                    </div>
                     {tour.subtitle && (
                       <p className="text-sm sm:text-base md:text-lg font-medium drop-shadow-md text-white/90">
                         {tour.subtitle}
@@ -87,16 +89,18 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                 ) : (
                   <Link
                     href={`/activity/${tour.slug}`}
-                    className="flex flex-col items-start text-left gap-2 cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
+                    className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
                   >
-                    {tour.location && (
-                      <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0">
-                        {tour.location.replace(', Sri Lanka', '')}
-                      </span>
-                    )}
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-snug drop-shadow-md text-white line-clamp-2">
-                      {tour.title}
-                    </h1>
+                    <div className="flex flex-col items-start">
+                      {tour.location && (
+                        <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
+                          {tour.location.replace(', Sri Lanka', '')}
+                        </span>
+                      )}
+                      <h1 className="text-[clamp(1.2rem,5vw,2.5rem)] leading-tight font-bold text-white drop-shadow-md line-clamp-2">
+                        {tour.title}
+                      </h1>
+                    </div>
                   </Link>
                 )}
               </div>

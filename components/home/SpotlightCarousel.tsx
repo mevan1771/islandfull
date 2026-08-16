@@ -43,14 +43,16 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full py-8 md:py-12">
                   {/* Text Content */}
                   <div className="space-y-4 md:space-y-6 px-1">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-900 leading-tight line-clamp-3">
-                      {slide.title}
-                    </h2>
-                    {slide.badge_text && (
-                      <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider">
-                        {slide.badge_text}
-                      </div>
-                    )}
+                    <div className="flex flex-col items-start">
+                      {slide.badge_text && (
+                        <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider mb-2">
+                          {slide.badge_text}
+                        </div>
+                      )}
+                      <h2 className="text-[clamp(1.2rem,5vw,2.5rem)] leading-tight font-bold text-zinc-900 line-clamp-2">
+                        {slide.title}
+                      </h2>
+                    </div>
                     <p className="text-zinc-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl line-clamp-4">
                       {slide.description.replace(/<[^>]*>?/gm, '')}
                     </p>
