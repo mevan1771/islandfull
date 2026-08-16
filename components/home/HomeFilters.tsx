@@ -13,7 +13,7 @@ const CATEGORIES = [
   { id: "culture-history", name: "Culture & History" },
 ]
 
-export function HomeFilters() {
+export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -27,31 +27,31 @@ export function HomeFilters() {
 
   const handleSearch = (e?: FormEvent) => {
     if (e) e.preventDefault()
-    
+
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (location) params.set("location", location)
     else params.delete("location")
-    
+
     router.push(`/?${params.toString()}`, { scroll: false })
   }
 
   const handleCategoryClick = (categoryId: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
-    
+
     router.push(`/?${params.toString()}`, { scroll: false })
   }
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString())
     const sortVal = e.target.value
-    
+
     if (sortVal) params.set("sort", sortVal)
     else params.delete("sort")
-    
+
     router.push(`/?${params.toString()}`, { scroll: false })
   }
 
@@ -79,9 +79,9 @@ export function HomeFilters() {
               <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-zinc-400" />
-                <input 
-                  type="text" 
-                  placeholder="Ella, Sigiriya..." 
+                <input
+                  type="text"
+                  placeholder="Ella, Sigiriya..."
                   className="w-full outline-none text-zinc-900 font-medium bg-transparent"
                   value={location}
                   onChange={(e) => {
@@ -96,13 +96,13 @@ export function HomeFilters() {
                 />
               </div>
             </div>
-            
+
             <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
               <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Date (Optional)</label>
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-zinc-400" />
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="w-full outline-none text-zinc-900 font-medium bg-transparent"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
@@ -114,9 +114,9 @@ export function HomeFilters() {
               <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers (Optional)</label>
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-zinc-400" />
-                <input 
-                  type="text" 
-                  placeholder="e.g. 2 Pax" 
+                <input
+                  type="text"
+                  placeholder="e.g. 2 Pax"
                   className="w-full outline-none text-zinc-900 font-medium bg-transparent"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
@@ -137,24 +137,22 @@ export function HomeFilters() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             {CATEGORIES.map((cat) => (
-              <button 
+              <button
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all border ${
-                  cat.id === "saved"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all border ${cat.id === "saved"
                     ? currentCategory === cat.id
                       ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"
                       : "bg-rose-500/5 text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 backdrop-blur-sm"
-                    : currentCategory === cat.id 
-                      ? "bg-zinc-900 text-white border-zinc-900 shadow-md" 
+                    : currentCategory === cat.id
+                      ? "bg-zinc-900 text-white border-zinc-900 shadow-md"
                       : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
-                }`}
+                  }`}
               >
-                {cat.icon && <cat.icon className={`w-4 h-4 ${
-                  cat.id === 'saved' 
+                {cat.icon && <cat.icon className={`w-4 h-4 ${cat.id === 'saved'
                     ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
                     : (currentCategory === cat.id ? "fill-white" : "")
-                }`} />}
+                  }`} />}
                 {cat.name}
               </button>
             ))}
@@ -162,7 +160,7 @@ export function HomeFilters() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2 border border-zinc-200 rounded-full bg-white text-sm font-medium text-zinc-700">
               <ArrowDownUp className="w-4 h-4 text-zinc-400" />
-              <select 
+              <select
                 value={currentSort}
                 onChange={handleSortChange}
                 className="bg-transparent outline-none cursor-pointer"
