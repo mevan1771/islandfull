@@ -37,9 +37,10 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
     return defaults.length > 0 ? defaults : slides.slice(0, 3)
   }, [slides, searchLocation, searchCategory])
 
+  const plugins = React.useMemo(() => [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })], [])
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'start', skipSnaps: false },
-    [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })]
+    plugins
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
 
