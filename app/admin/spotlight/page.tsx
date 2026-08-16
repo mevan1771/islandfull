@@ -1,12 +1,13 @@
 import { getGlobalSetting } from "@/app/actions/settings"
 import { SpotlightClient } from "@/components/admin/SpotlightClient"
+import { supabaseAdmin } from "@/lib/supabase"
 import Link from "next/link"
 
 export const dynamic = 'force-dynamic'
 
 export default async function SpotlightManagementPage() {
   let currentConfig = await getGlobalSetting('featured_spotlight')
-  
+
   // Migrate old single object to array if needed
   if (currentConfig && !Array.isArray(currentConfig)) {
     currentConfig = [currentConfig]
@@ -24,10 +25,18 @@ export default async function SpotlightManagementPage() {
     }]
   }
 
+  // Fetch categories
+  const { data: categoriesData } = await supabaseAdmin.from('categories').select('slug, name').order('name');
+  const categories = categoriesData || [];
+
+  // Fetch unique locations from activities
+  const { data: activitiesData } = await supabaseAdmin.from('activities').select('location').eq('status', 'published');
+  const uniqueLocations = Array.from(new Set((activitiesData || []).map(a => a.location).filter(Boolean))).sort();
+
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        
+
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Admin Operations</h1>
@@ -35,9 +44,9 @@ export default async function SpotlightManagementPage() {
           </div>
         </div>
 
-        
 
-        <SpotlightClient initialConfig={currentConfig} />
+
+        <SpotlightClient initialConfig={currentConfig} locations={uniqueLocations} categories={categories} />
       </div>
     </div>
   )

@@ -16,24 +16,26 @@ export interface SpotlightConfig {
   button_text: string;
   target_url: string;
   badge_text?: string;
+  location?: string;
+  category_tags?: string[];
 }
 
-export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightConfig[] }) {
+export function SpotlightClient({ initialConfig, locations = [], categories = [] }: { initialConfig: SpotlightConfig[], locations?: string[], categories?: any[] }) {
   // Ensure we have at least one slide and they all have an ID
   const [configs, setConfigs] = useState<SpotlightConfig[]>(
-    Array.isArray(initialConfig) && initialConfig.length > 0 
-      ? initialConfig.map(c => ({...c, id: c.id || Math.random().toString(36).substring(7)}))
+    Array.isArray(initialConfig) && initialConfig.length > 0
+      ? initialConfig.map(c => ({ ...c, id: c.id || Math.random().toString(36).substring(7) }))
       : [{
-          id: Math.random().toString(36).substring(7),
-          title: "Our Story: Driven By Wanderlust, Powered By Experience",
-          description: "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures.",
-          image_url_1: "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-          image_url_2: "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-          button_text: "Find More",
-          target_url: ""
-        }]
+        id: Math.random().toString(36).substring(7),
+        title: "Our Story: Driven By Wanderlust, Powered By Experience",
+        description: "We believe that travel is more than just visiting a new place—it's about creating lasting memories. From the hidden waterfalls to the breathtaking coastline, we provide exclusive access to authentic Sri Lankan adventures.",
+        image_url_1: "https://images.unsplash.com/photo-1549366021-9f761d450615?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        image_url_2: "https://images.unsplash.com/photo-1588825121118-20d0f7a73155?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        button_text: "Find More",
+        target_url: ""
+      }]
   )
-  
+
   const [activeIndex, setActiveIndex] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading1, setIsUploading1] = useState(false)
@@ -81,15 +83,15 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
 
   const handleImageUpload = async (file: File, imageSlot: 1 | 2) => {
     if (!file) return;
-    
+
     if (imageSlot === 1) setIsUploading1(true)
     else setIsUploading2(true)
-    
+
     try {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('folder', 'spotlight')
-      
+
       const result = await uploadToCloudinary(formData)
       if (result.success && result.secure_url) {
         updateActiveConfig({ [`image_url_${imageSlot}`]: result.secure_url })
@@ -108,14 +110,14 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
 
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-zinc-200 p-8">
-      
+
       {/* Top Bar for Carousel Slide Management */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-zinc-100 pb-4 gap-4">
         <h2 className="text-xl font-bold text-zinc-900">Spotlight Carousel Slides</h2>
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-lg">
-            <button 
+            <button
               onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
               disabled={activeIndex === 0}
               className="p-1 rounded hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"
@@ -125,7 +127,7 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
             <span className="font-semibold text-sm px-2 text-zinc-700">
               Slide {activeIndex + 1} of {configs.length}
             </span>
-            <button 
+            <button
               onClick={() => setActiveIndex(Math.min(configs.length - 1, activeIndex + 1))}
               disabled={activeIndex === configs.length - 1}
               className="p-1 rounded hover:bg-white hover:shadow-sm disabled:opacity-50 transition-all"
@@ -133,15 +135,15 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-          
-          <button 
+
+          <button
             onClick={handleAddSlide}
             className="flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Slide
           </button>
-          
-          <button 
+
+          <button
             onClick={handleRemoveSlide}
             disabled={configs.length <= 1}
             className="flex items-center gap-1 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
@@ -155,19 +157,32 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-sm font-semibold text-zinc-700 mb-2">Location / Badge Text</label>
-              <input 
-                type="text" 
+              <label className="block text-sm font-semibold text-zinc-700 mb-2">Linked Location</label>
+              <select
+                value={activeConfig.location || ""}
+                onChange={(e) => updateActiveConfig({ location: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium bg-white"
+              >
+                <option value="">None (Show everywhere)</option>
+                {locations.map(loc => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-semibold text-zinc-700 mb-2">Badge Text (Optional Override)</label>
+              <input
+                type="text"
                 value={activeConfig.badge_text || ""}
                 onChange={(e) => updateActiveConfig({ badge_text: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium"
-                placeholder="e.g. Dambulla or 🌴 Featured"
+                placeholder="e.g. 🌴 Featured"
               />
             </div>
-            <div className="col-span-2 md:col-span-1">
+            <div className="col-span-2">
               <label className="block text-sm font-semibold text-zinc-700 mb-2">Headline Title</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={activeConfig.title}
                 onChange={(e) => updateActiveConfig({ title: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-medium"
@@ -178,7 +193,7 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
 
           <div>
             <label className="block text-sm font-semibold text-zinc-700 mb-2">Description</label>
-            <textarea 
+            <textarea
               value={activeConfig.description}
               onChange={(e) => updateActiveConfig({ description: e.target.value })}
               rows={4}
@@ -187,11 +202,36 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
             />
           </div>
 
+          <div className="col-span-2">
+            <label className="block text-sm font-semibold text-zinc-700 mb-2">Linked Categories</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => {
+                const isSelected = activeConfig.category_tags?.includes(cat.slug);
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => {
+                      const currentTags = activeConfig.category_tags || [];
+                      const newTags = isSelected
+                        ? currentTags.filter(t => t !== cat.slug)
+                        : [...currentTags, cat.slug];
+                      updateActiveConfig({ category_tags: newTags });
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${isSelected ? 'bg-rose-500 text-white border-rose-500' : 'bg-white text-zinc-600 border-zinc-200 hover:border-rose-500'}`}
+                  >
+                    {cat.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-zinc-700 mb-2">Button Text</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={activeConfig.button_text}
                 onChange={(e) => updateActiveConfig({ button_text: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
@@ -200,8 +240,8 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
             </div>
             <div>
               <label className="block text-sm font-semibold text-zinc-700 mb-2">Target URL</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={activeConfig.target_url}
                 onChange={(e) => updateActiveConfig({ target_url: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
@@ -231,7 +271,7 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
               {activeConfig.image_url_1 ? (
                 <Image src={activeConfig.image_url_1} alt="Image 1" fill className="object-cover" />
               ) : null}
-              
+
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer">
                 {isUploading1 ? (
                   <Loader2 className="w-8 h-8 animate-spin" />
@@ -242,8 +282,8 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
                     <span className="text-xs opacity-70 mt-1">Aspect Ratio 4:3 or Vertical</span>
                   </>
                 )}
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="image/*"
                   onChange={(e) => e.target.files && handleImageUpload(e.target.files[0], 1)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
@@ -257,7 +297,7 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
               {activeConfig.image_url_2 ? (
                 <Image src={activeConfig.image_url_2} alt="Image 2" fill className="object-cover" />
               ) : null}
-              
+
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer">
                 {isUploading2 ? (
                   <Loader2 className="w-8 h-8 animate-spin" />
@@ -268,8 +308,8 @@ export function SpotlightClient({ initialConfig }: { initialConfig: SpotlightCon
                     <span className="text-xs opacity-70 mt-1">Aspect Ratio 4:3 or Vertical</span>
                   </>
                 )}
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="image/*"
                   onChange={(e) => e.target.files && handleImageUpload(e.target.files[0], 2)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
