@@ -12,7 +12,7 @@ export default async function AdminToursDashboard() {
   const { data: tours, error } = await supabase
     .from('activities')
     .select('*, categories(name)')
-    .eq('category_type', 'tour')
+    .eq('category_type', 'event')
     .order('created_at', { ascending: false });
 
   return (
@@ -20,15 +20,15 @@ export default async function AdminToursDashboard() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Tours</h1>
-            <p className="text-zinc-500 mt-1">Manage your tour catalog and onboard new operators.</p>
+            <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Events</h1>
+            <p className="text-zinc-500 mt-1">Manage your event catalog and onboard new organizers.</p>
           </div>
           <Link
             href="/admin/tours/new"
             className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 text-sm"
           >
             <Plus className="w-4 h-4" />
-            Add New Tour
+            Add New Event
           </Link>
         </div>
 
@@ -52,7 +52,7 @@ export default async function AdminToursDashboard() {
                 {!tours || tours.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-zinc-500">
-                      No tours found. Click "Add New Tour" to create one.
+                      No events found. Click "Add New Event" to create one.
                     </td>
                   </tr>
                 ) : (
@@ -100,7 +100,7 @@ export default async function AdminToursDashboard() {
                           <Link
                             href={`/admin/tours/${t.id}/edit`}
                             className="inline-flex items-center justify-center p-2 rounded-xl bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 transition-colors shadow-sm"
-                            title="Edit Tour"
+                            title="Edit Event"
                           >
                             <Pencil className="w-4 h-4" />
                           </Link>

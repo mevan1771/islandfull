@@ -8,7 +8,9 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
 
   const links = [
     { name: 'Bookings', href: '/admin' },
-    { name: 'Tours Database', href: '/admin/tours' },
+    { name: 'Tours', href: '/admin/tours' },
+    { name: 'Events', href: '/admin/events' },
+    { name: 'Transport', href: '/admin/transport' },
     { name: 'Hero Carousel', href: '/admin/carousel' },
     { name: 'Spotlight', href: '/admin/spotlight' },
     { name: 'Reviews', href: '/admin/reviews' },
