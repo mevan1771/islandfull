@@ -191,7 +191,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             </span>
           </div>
           <h1
-            className="text-[clamp(1rem,calc(160vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
+            className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
             style={{ '--char-count': activity.title.length } as React.CSSProperties}
           >
             {activity.title}
