@@ -38,9 +38,17 @@ export async function validatePromoCode(code: string, cartTotalUsd: number) {
     return { success: false, error: `Your subtotal must be at least $${promo.min_order_value_usd} to use this code.` }
   }
 
-  return { 
-    success: true, 
-    discountAmountUsd: Number(promo.discount_amount_usd),
+  let discountAmountUsd = Number(promo.discount_amount_usd);
+  if (promo.discount_type === 'percentage') {
+    discountAmountUsd = (cartTotalUsd * Number(promo.discount_amount_usd)) / 100;
+  }
+
+  // Ensure we don't discount more than the cart total
+  discountAmountUsd = Math.min(discountAmountUsd, cartTotalUsd);
+
+  return {
+    success: true,
+    discountAmountUsd: discountAmountUsd,
     code: cleanCode
   }
 }

@@ -9,6 +9,7 @@ interface PromoCode {
     id: string
     code: string
     discount_amount_usd: number
+    discount_type: 'fixed' | 'percentage'
     min_order_value_usd: number
     current_uses: number
     max_uses: number
@@ -40,6 +41,7 @@ export function PromoClient({ initialPromos, partners }: PromoClientProps) {
     const [formData, setFormData] = useState({
         code: "",
         discount_amount_usd: 0,
+        discount_type: 'fixed' as 'fixed' | 'percentage',
         min_order_value_usd: 0,
         max_uses: 100,
         expires_at: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
@@ -54,6 +56,7 @@ export function PromoClient({ initialPromos, partners }: PromoClientProps) {
             setFormData({
                 code: promo.code,
                 discount_amount_usd: promo.discount_amount_usd,
+                discount_type: promo.discount_type || 'fixed',
                 min_order_value_usd: promo.min_order_value_usd,
                 max_uses: promo.max_uses,
                 expires_at: new Date(promo.expires_at).toISOString().split('T')[0],
@@ -66,6 +69,7 @@ export function PromoClient({ initialPromos, partners }: PromoClientProps) {
             setFormData({
                 code: "",
                 discount_amount_usd: 0,
+                discount_type: 'fixed',
                 min_order_value_usd: 0,
                 max_uses: 100,
                 expires_at: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
@@ -207,7 +211,9 @@ export function PromoClient({ initialPromos, partners }: PromoClientProps) {
                                                 <span className="font-mono font-bold text-zinc-900 bg-zinc-100 px-2 py-1 rounded-md">{p.code}</span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="font-bold text-rose-500">${p.discount_amount_usd}</span>
+                                                <span className="font-bold text-rose-500">
+                                                    {p.discount_type === 'percentage' ? `${p.discount_amount_usd}%` : `$${p.discount_amount_usd}`}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4 text-zinc-500 font-medium">
                                                 ${p.min_order_value_usd}
@@ -294,7 +300,20 @@ export function PromoClient({ initialPromos, partners }: PromoClientProps) {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-zinc-900">Discount Amount (USD)</label>
+                                        <label className="text-sm font-bold text-zinc-900">Discount Type</label>
+                                        <select
+                                            value={formData.discount_type}
+                                            onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as 'fixed' | 'percentage' })}
+                                            className="w-full h-12 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none bg-white"
+                                        >
+                                            <option value="fixed">Fixed Amount ($)</option>
+                                            <option value="percentage">Percentage (%)</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-zinc-900">
+                                            {formData.discount_type === 'percentage' ? 'Discount Percentage (%)' : 'Discount Amount (USD)'}
+                                        </label>
                                         <input
                                             type="number"
                                             min="0"
