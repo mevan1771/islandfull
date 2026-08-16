@@ -192,7 +192,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                   {activity.location}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-4xl leading-tight text-white drop-shadow-md line-clamp-3">
+              <h1 className="text-2xl md:text-6xl font-bold tracking-tight max-w-3xl leading-tight text-white drop-shadow-md">
                 {activity.title}
               </h1>
             </div>
