@@ -181,8 +181,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority
         />
         <FavoriteButton activityId={activity.id} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 p-6 md:p-16 text-white w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
             <div>
