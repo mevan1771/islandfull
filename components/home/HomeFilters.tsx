@@ -1,307 +1,177 @@
 "use client"
 
-import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight } from "lucide-react"
+import { useState, FormEvent } from "react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useDebounce } from "@/hooks/useDebounce"
-import { useOnClickOutside } from "@/hooks/useOnClickOutside"
-import { searchLocationsAndTags } from "@/app/actions/search"
-import { TransportHub } from "@/components/transport/TransportHub"
 
-type CategoryType = {
-  id: string
-  name: string
-  icon?: any
-}
-
-const CATEGORIES: CategoryType[] = [
-  { id: "all", name: "All" },
-  { id: "saved", name: "", icon: Heart },
+const CATEGORIES = [
+  { id: "all", name: "All Places" },
+  { id: "saved", name: "Saved", icon: Heart },
   { id: "surf", name: "Surfing" },
   { id: "wildlife-safaris", name: "Wildlife Safaris" },
   { id: "hiking-treks", name: "Hiking & Treks" },
   { id: "culture-history", name: "Culture & History" },
 ]
 
-export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
+export function HomeFilters() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [isPending, startTransition] = useTransition()
 
-  const currentVertical = searchParams.get("vertical") || "tour"
   const currentCategory = searchParams.get("category") || "all"
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
-
-  const [optimisticCategory, setOptimisticCategory] = useState(currentCategory)
-  const [optimisticVertical, setOptimisticVertical] = useState(currentVertical)
-
-  useEffect(() => {
-    setOptimisticCategory(currentCategory)
-  }, [currentCategory])
-
-  useEffect(() => {
-    setOptimisticVertical(currentVertical)
-  }, [currentVertical])
-
-  useEffect(() => {
-    const grid = document.getElementById('activity-grid-container')
-    if (grid) {
-      grid.style.opacity = isPending ? '0.5' : '1'
-      grid.style.pointerEvents = isPending ? 'none' : 'auto'
-      grid.style.transition = 'opacity 0.2s'
-    }
-  }, [isPending])
 
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
   const [travelers, setTravelers] = useState("")
 
-  const [suggestions, setSuggestions] = useState<string[]>([])
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isFetching, setIsFetching] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  const debouncedLocation = useDebounce(location, 300)
-
-  useOnClickOutside(dropdownRef, () => setIsDropdownOpen(false))
-
-  useEffect(() => {
-    async function fetchSuggestions() {
-      if (!debouncedLocation || debouncedLocation.length < 2) {
-        setSuggestions([])
-        setIsFetching(false)
-        return
-      }
-      setIsFetching(true)
-      const results = await searchLocationsAndTags(debouncedLocation)
-      setSuggestions(results)
-      setIsDropdownOpen(true)
-      setIsFetching(false)
-    }
-
-    if (isFocused) {
-      fetchSuggestions()
-    }
-  }, [debouncedLocation, isFocused])
-
-  const CATEGORIES = [
-    { id: "all", name: "All" },
-    { id: "saved", name: "", icon: Heart },
-    ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
-  ]
-
   const handleSearch = (e?: FormEvent) => {
     if (e) e.preventDefault()
-
+    
     const params = new URLSearchParams(searchParams.toString())
-
+    
     if (location) params.set("location", location)
     else params.delete("location")
-
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
+    
+    router.push(`/?${params.toString()}`, { scroll: false })
   }
 
   const handleCategoryClick = (categoryId: string) => {
-    setOptimisticCategory(categoryId) // Optimistic UI update
     const params = new URLSearchParams(searchParams.toString())
-
+    
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
-
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
-  }
-
-  const handleVerticalClick = (vertical: string) => {
-    setOptimisticVertical(vertical)
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("vertical", vertical)
-    params.delete("category") // Reset category when switching vertical
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
+    
+    router.push(`/?${params.toString()}`, { scroll: false })
   }
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (e.target.value) {
-      params.set("sort", e.target.value)
-    } else {
-      params.delete("sort")
-    }
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
+    const sortVal = e.target.value
+    
+    if (sortVal) params.set("sort", sortVal)
+    else params.delete("sort")
+    
+    router.push(`/?${params.toString()}`, { scroll: false })
   }
 
   return (
     <>
-      {/* Floating Search Widget (Desktop only now) */}
-      <div className="relative -mt-24 z-20 px-4 hidden sm:block">
-        <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
+      {/* Floating Search Widget */}
+      <div className="relative -mt-24 z-20 px-4">
+        <div className="max-w-5xl mx-auto bg-white rounded-3xl p-6 md:p-8 shadow-2xl">
           {/* Tabs */}
-          <div className="flex overflow-x-auto scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
-            <button
-              onClick={() => handleVerticalClick('tour')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Map className="w-4 h-4" /> Tours
+          <div className="flex items-center gap-6 border-b border-zinc-100 pb-4 mb-6 overflow-x-auto hide-scrollbar">
+            <button className="flex items-center gap-2 text-rose-500 font-semibold border-b-2 border-rose-500 pb-4 -mb-[18px] whitespace-nowrap">
+              <Map className="w-4 h-4" /> Tours & Guides
             </button>
-            <button
-              onClick={() => handleVerticalClick('event')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Calendar className="w-4 h-4" /> Events
+            <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
+              Flight
             </button>
-            <button
-              onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Bike className="w-4 h-4" /> Transport
+            <button className="flex items-center gap-2 text-zinc-500 font-medium pb-4 hover:text-zinc-900 transition-colors whitespace-nowrap">
+              Hotel
             </button>
           </div>
 
           {/* Inputs */}
-          {optimisticVertical === 'transport' ? (
-            <div className="w-full -mt-2">
-              <TransportHub />
-            </div>
-          ) : (
-            <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-300 rounded-full shadow-sm divide-x divide-gray-200 p-1.5 pl-6">
-              <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
-                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Where are you going?"
-                    className="w-full outline-none text-sm text-gray-600 bg-transparent truncate"
-                    value={location}
-                    onFocus={() => {
-                      setIsFocused(true)
-                      if (suggestions.length > 0) setIsDropdownOpen(true)
-                    }}
-                    onBlur={() => setIsFocused(false)}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setLocation(val);
-                      if (val === "") {
-                        const params = new URLSearchParams(searchParams.toString());
-                        params.delete("location");
-                        router.push(`/?${params.toString()}`, { scroll: false });
-                      }
-                    }}
-                  />
-                  {isFetching && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
-                </div>
-
-                {/* Autocomplete Dropdown */}
-                {isDropdownOpen && suggestions.length > 0 && (
-                  <ul className="absolute top-[calc(100%+16px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 py-2">
-                    {suggestions.map((sug, idx) => (
-                      <li
-                        key={idx}
-                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
-                        onMouseDown={(e) => {
-                          e.preventDefault() // prevent input blur
-                          setLocation(sug)
-                          setIsDropdownOpen(false)
-                          const params = new URLSearchParams(searchParams.toString())
-                          params.set("location", sug)
-                          router.push(`/?${params.toString()}`, { scroll: false })
-                        }}
-                      >
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        {sug}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4">
+            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4 focus-within:border-rose-500 transition-colors">
+              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Location</label>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="Ella, Sigiriya..." 
+                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
+                  value={location}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLocation(val);
+                    if (val === "") {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.delete("location");
+                      router.push(`/?${params.toString()}`, { scroll: false });
+                    }
+                  }}
+                />
               </div>
-
-              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
-                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Date</label>
-                <input
-                  type="date"
-                  className={`w-full outline-none text-sm bg-transparent cursor-pointer truncate ${date ? 'text-gray-600' : 'text-gray-400'}`}
+            </div>
+            
+            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
+              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Date (Optional)</label>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-zinc-400" />
+                <input 
+                  type="date" 
+                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
               </div>
+            </div>
 
-              <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
-                <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Travelers</label>
-                <input
-                  type="text"
-                  placeholder="Add guests"
-                  className="w-full outline-none text-sm text-gray-600 bg-transparent truncate"
+            <div className="flex-1 w-full border border-zinc-200 rounded-2xl p-3 px-4">
+              <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Travelers (Optional)</label>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="e.g. 2 Pax" 
+                  className="w-full outline-none text-zinc-900 font-medium bg-transparent"
                   value={travelers}
                   onChange={(e) => setTravelers(e.target.value)}
                 />
               </div>
+            </div>
 
-              {/* Actions: Filter & Search */}
-              <div className="flex items-center gap-2 pl-4">
-                {/* Filter / Sort Button */}
-                <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 transition-all duration-300">
-                  <SlidersHorizontal className="w-5 h-5" />
-                  <select
-                    value={currentSort}
-                    onChange={handleSortChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  >
-                    <option value="">Sort by...</option>
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
-                    <option value="rating_desc">Rating: Highest First</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="w-12 h-12 rounded-full shrink-0 flex items-center justify-center bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  {isPending ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Search className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </form>
-          )}
+            <button type="submit" className="w-full md:w-auto h-[60px] bg-rose-500 hover:bg-rose-600 text-white px-10 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-500/30">
+              <Search className="w-5 h-5" />
+              Search
+            </button>
+          </form>
         </div>
       </div>
 
       {/* Activity Grid Header / Filters */}
-      <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900 overflow-hidden md:overflow-visible">
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex w-[calc(100%+2rem)] md:w-auto -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {CATEGORIES.map((cat) => {
-              const Icon = (cat as any).icon || null;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
-                    } ${optimisticCategory === cat.id
-                      ? "bg-black text-white border-black shadow-md"
-                      : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900 hover:bg-zinc-100"
-                    }`}
-                >
-                  {Icon && <Icon className={`w-4 h-4 ${cat.id === 'saved'
-                    ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
-                    : (optimisticCategory === cat.id ? "fill-white" : "")
-                    }`} />}
-                  {cat.name}
-                </button>
-              );
-            })}
+      <div className="max-w-7xl mx-auto px-4 mt-16 mb-8 text-zinc-900">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            {CATEGORIES.map((cat) => (
+              <button 
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all border ${
+                  cat.id === "saved"
+                    ? currentCategory === cat.id
+                      ? "bg-rose-500/20 text-rose-600 border-rose-500/30 shadow-md backdrop-blur-sm"
+                      : "bg-rose-500/5 text-rose-500 border-rose-500/20 hover:bg-rose-500/10 hover:border-rose-500/30 backdrop-blur-sm"
+                    : currentCategory === cat.id 
+                      ? "bg-zinc-900 text-white border-zinc-900 shadow-md" 
+                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
+                }`}
+              >
+                {cat.icon && <cat.icon className={`w-4 h-4 ${
+                  cat.id === 'saved' 
+                    ? (currentCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-rose-500")
+                    : (currentCategory === cat.id ? "fill-white" : "")
+                }`} />}
+                {cat.name}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 border border-zinc-200 rounded-full bg-white text-sm font-medium text-zinc-700">
+              <ArrowDownUp className="w-4 h-4 text-zinc-400" />
+              <select 
+                value={currentSort}
+                onChange={handleSortChange}
+                className="bg-transparent outline-none cursor-pointer"
+              >
+                <option value="">Recommended</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
