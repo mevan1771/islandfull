@@ -80,11 +80,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
                     <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
                       <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={100} sizes="100vw" priority={true} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
                     </div>
                     <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
                       <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={100} sizes="100vw" priority={true} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
                     </div>
                   </div>
 
