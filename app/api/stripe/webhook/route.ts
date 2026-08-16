@@ -35,31 +35,35 @@ export async function POST(req: Request) {
     if (bookingId) {
       // Mark as confirmed
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)
-      
+
       // Look up booking details for email and promo
       const { data: booking } = await supabaseAdmin
         .from('bookings')
         .select('*, activities(title, cover_image_url)')
         .eq('id', bookingId)
         .single()
-        
+
       if (booking) {
-        // Increment promo uses
+        // Increment promo uses and partner earnings
         if (booking.promo_code_applied) {
-           const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses').eq('code', booking.promo_code_applied).single()
-           if (currentPromo) {
-               await supabaseAdmin.from('promo_codes').update({ current_uses: currentPromo.current_uses + 1 }).eq('code', booking.promo_code_applied)
-           }
+          const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses, partner_commission, total_partner_earnings').eq('code', booking.promo_code_applied).single()
+          if (currentPromo) {
+            const updates: any = { current_uses: currentPromo.current_uses + 1 }
+            if (currentPromo.partner_commission && currentPromo.partner_commission > 0) {
+              updates.total_partner_earnings = (currentPromo.total_partner_earnings || 0) + currentPromo.partner_commission
+            }
+            await supabaseAdmin.from('promo_codes').update(updates).eq('code', booking.promo_code_applied)
+          }
         }
-        
+
         // Generate QR Code internally
         const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://islandfull.com';
         const qrCodeUrl = `${appUrl}/api/qr?id=${encodeURIComponent(bookingId)}`
-        
+
         // Send Receipt Email
         const activityTitle = booking.activities?.title || 'Your Activity'
         const tourOption = booking.tour_option ? ` (${booking.tour_option})` : ''
-        
+
         await sendReceiptEmail({
           toEmail: booking.tourist_email,
           touristName: booking.tourist_name,
