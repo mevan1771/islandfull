@@ -9,6 +9,7 @@ import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
+import { FavoriteButton } from "@/components/ui/FavoriteButton"
 
 interface BookingDrawerProps {
   activityId: string
@@ -17,7 +18,7 @@ interface BookingDrawerProps {
   priceLkrApprox: number
   maxCapacity: number
   pricingTiers?: Record<string, number> | null
-  tourOptions?: {title: string, price_modifier: number}[] | null
+  tourOptions?: { title: string, price_modifier: number }[] | null
   paymentStrategy?: 'no_card' | 'deposit_15' | 'manual_hold' | 'full' | string
   hasPickup?: boolean
   blackoutDates?: string[]
@@ -53,7 +54,7 @@ export function BookingDrawer({
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
-  
+
   // Form state
   const [date, setDate] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
@@ -64,7 +65,7 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
-  
+
   // Promo state
   const [promoInput, setPromoInput] = useState("")
   const [promoError, setPromoError] = useState("")
@@ -103,7 +104,7 @@ export function BookingDrawer({
   if (pricingModel === 'per_day') {
     totalUsd = totalUsd * totalDays;
   }
-  
+
   // Add Option Price Modifier (which is applied per person)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
@@ -122,9 +123,9 @@ export function BookingDrawer({
     const finalEndDate = resolvedEndDate ? format(resolvedEndDate, 'yyyy-MM-dd') : "";
 
     if (!finalDate || !whatsapp || !touristName || !touristEmail || (isMulti && !finalEndDate)) return
-    
+
     setStep("processing")
-    
+
     try {
       const res = await fetch('/api/stripe/checkout-session', {
         method: 'POST',
@@ -149,7 +150,7 @@ export function BookingDrawer({
           promoCode: appliedPromo
         })
       })
-      
+
       const text = await res.text()
       let data;
       try {
@@ -157,7 +158,7 @@ export function BookingDrawer({
       } catch (e) {
         throw new Error(text || 'Failed to parse server response')
       }
-      
+
       if (data && data.url) {
         window.location.href = data.url
       } else {
@@ -233,12 +234,12 @@ export function BookingDrawer({
                 </>
               )}
             </div>
-            
+
             {/* Mobile Button: Side-by-side with price */}
             <div className="flex md:hidden items-center gap-3">
-              <a 
+              <a
                 href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="relative shrink-0 active:scale-95 transition-transform"
               >
@@ -249,6 +250,7 @@ export function BookingDrawer({
                 )}
                 <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
               </a>
+              <FavoriteButton activityId={activityId} variant="inline" />
               <Button onClick={() => setIsOpen(true)} className="flex-1 h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
                 Reserve Now
               </Button>
@@ -258,7 +260,7 @@ export function BookingDrawer({
           {/* Desktop Only: Inline Calendar */}
           <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
             {bookingType === 'multi_day' ? (
-              <DayPicker 
+              <DayPicker
                 mode="range"
                 selected={dateRange}
                 onSelect={setDateRange}
@@ -277,7 +279,7 @@ export function BookingDrawer({
                 }}
               />
             ) : (
-              <DayPicker 
+              <DayPicker
                 mode="single"
                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
@@ -297,9 +299,9 @@ export function BookingDrawer({
 
           {/* Desktop Button: Disabled if no date */}
           <div className="hidden md:flex items-center gap-2 mt-4 w-full">
-            <a 
+            <a
               href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
-              target="_blank" 
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 h-[52px] cursor-pointer transition shrink-0"
             >
@@ -314,13 +316,13 @@ export function BookingDrawer({
               Reserve Now
             </Button>
           </div>
-          
+
           <p className="hidden md:block text-center text-sm font-medium text-zinc-400 mt-1">
             {priceUsd === 0 ? "Complete Reservation" :
-             paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
-             paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
-             paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
-             "Secure checkout with Stripe."}
+              paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
+                paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
+                  paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
+                    "Secure checkout with Stripe."}
           </p>
 
         </div>
@@ -328,22 +330,21 @@ export function BookingDrawer({
 
       {/* Drawer Overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-50 transition-opacity" 
+        <div
+          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-50 transition-opacity"
           onClick={resetAndClose}
         />
       )}
 
       {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
-      <div 
-        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${
-          isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
-        }`}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
+          }`}
       >
         <div className="p-6 overflow-y-auto flex-1 overscroll-contain">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
-            <button 
+            <button
               onClick={resetAndClose}
               className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50"
             >
@@ -363,7 +364,7 @@ export function BookingDrawer({
                     {/* Desktop View: Static Readonly Date */}
                     <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
                       <span className="font-medium text-sm text-zinc-900">
-                        {bookingType === 'multi_day' 
+                        {bookingType === 'multi_day'
                           ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
                           : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
                       </span>
@@ -374,10 +375,10 @@ export function BookingDrawer({
                     <div className="md:hidden">
                       <Popover.Root>
                         <Popover.Trigger asChild>
-                          <button 
+                          <button
                             className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                           >
-                            {bookingType === 'multi_day' 
+                            {bookingType === 'multi_day'
                               ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
                               : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
                             <CalendarDays className="w-4 h-4 text-zinc-400" />
@@ -386,7 +387,7 @@ export function BookingDrawer({
                         <Popover.Portal>
                           <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
                             {bookingType === 'multi_day' ? (
-                              <DayPicker 
+                              <DayPicker
                                 mode="range"
                                 selected={dateRange}
                                 onSelect={setDateRange}
@@ -405,7 +406,7 @@ export function BookingDrawer({
                                 }}
                               />
                             ) : (
-                              <DayPicker 
+                              <DayPicker
                                 mode="single"
                                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
@@ -432,7 +433,7 @@ export function BookingDrawer({
                       <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                         Timeslot / Package
                       </label>
-                      <select 
+                      <select
                         value={selectedOption}
                         onChange={(e) => setSelectedOption(e.target.value)}
                         className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white"
@@ -454,7 +455,7 @@ export function BookingDrawer({
                         {bookingType === 'multi_day' ? 'Quantity' : 'Guests'}
                       </label>
                       <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
-                        <button 
+                        <button
                           onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
                           className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
                           disabled={guests <= 1}
@@ -462,7 +463,7 @@ export function BookingDrawer({
                           -
                         </button>
                         <span className="w-8 text-center font-bold text-base">{guests}</span>
-                        <button 
+                        <button
                           onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
                           className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
                           disabled={guests >= maxCapacity}
@@ -476,8 +477,8 @@ export function BookingDrawer({
                       <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                         Full Name
                       </label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={touristName}
                         onChange={(e) => setTouristName(e.target.value)}
                         placeholder="John Doe"
@@ -493,8 +494,8 @@ export function BookingDrawer({
                     <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       Email Address
                     </label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       value={touristEmail}
                       onChange={(e) => setTouristEmail(e.target.value)}
                       placeholder="john@example.com"
@@ -508,8 +509,8 @@ export function BookingDrawer({
                       <Phone className="w-3.5 h-3.5 text-rose-500" />
                       Phone Number
                     </label>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
                       placeholder="+1 (555) 000-0000"
@@ -525,8 +526,8 @@ export function BookingDrawer({
                       <MapPin className="w-3.5 h-3.5 text-rose-500" />
                       Pickup Hotel / Location (Optional)
                     </label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={pickupLocation}
                       onChange={(e) => setPickupLocation(e.target.value)}
                       placeholder="e.g. Hotel name, Address or Landmark"
@@ -543,7 +544,7 @@ export function BookingDrawer({
                     <FileText className="w-3.5 h-3.5 text-rose-500" />
                     Special Requests / Notes (Optional)
                   </label>
-                  <textarea 
+                  <textarea
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     rows={2}
@@ -555,8 +556,8 @@ export function BookingDrawer({
               {priceUsd > 0 && (
                 <div className="space-y-3 mt-4">
                   <div className="flex gap-2">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={promoInput}
                       onChange={(e) => {
                         setPromoInput(e.target.value.toUpperCase())
@@ -568,8 +569,8 @@ export function BookingDrawer({
                       disabled={!!appliedPromo}
                     />
                     {appliedPromo ? (
-                      <Button 
-                        type="button" 
+                      <Button
+                        type="button"
                         variant="outline"
                         className="h-10 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-200"
                         onClick={() => {
@@ -582,8 +583,8 @@ export function BookingDrawer({
                         Remove
                       </Button>
                     ) : (
-                      <Button 
-                        type="button" 
+                      <Button
+                        type="button"
                         variant="outline"
                         className="h-10"
                         disabled={!promoInput || isApplyingPromo}
@@ -643,13 +644,13 @@ export function BookingDrawer({
                 </div>
               )}
 
-              <Button 
-                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }} 
+              <Button
+                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
                 disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
                 className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
               >
-                {priceUsd === 0 
-                  ? "Complete Reservation" 
+                {priceUsd === 0
+                  ? "Complete Reservation"
                   : "Proceed to Payment"}
               </Button>
             </div>

@@ -97,16 +97,16 @@ export function ActivityCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           )}
-          <FavoriteButton activityId={id} />
+          <FavoriteButton activityId={id} className="hidden md:flex" />
         </div>
-        
+
         {/* Content Details */}
         <div className="flex flex-col flex-1 pb-1 mt-1.5 px-1 sm:px-0">
 
           <h3 className="text-xs sm:text-sm md:text-base font-semibold text-zinc-900 mb-1 leading-tight w-full line-clamp-2 group-hover:text-rose-500 transition-colors">
             {title}
           </h3>
-          
+
           <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-500 truncate mb-1">
             {(rating || isHiddenGem || reviewCount === 0) && (
               <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -129,11 +129,11 @@ export function ActivityCard({
                 )}
               </div>
             )}
-            
+
             {(rating || isHiddenGem || reviewCount === 0) && (
               <span className="text-gray-300 flex-shrink-0">•</span>
             )}
-            
+
             <span className="truncate">{displayLocation}</span>
           </div>
 
