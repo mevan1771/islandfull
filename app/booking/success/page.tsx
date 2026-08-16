@@ -34,18 +34,18 @@ export default async function BookingSuccess({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl text-center space-y-6">
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 pt-32 pb-12">
+      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl text-center space-y-6">
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-2">
           <CheckCircle2 className="w-12 h-12 text-green-500" />
         </div>
-        
+
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 tracking-tight mb-2">
             {params.session_id?.startsWith("no_card_") ? "Booking Request Received!" : "Booking Confirmed!"}
           </h1>
           <p className="text-zinc-500 font-medium">
-            {params.session_id?.startsWith("no_card_") 
+            {params.session_id?.startsWith("no_card_")
               ? "Your request has been successfully submitted. We have sent a confirmation to your email. Please keep an eye out for your invoice—your official digital ticket will be issued once payment is completed."
               : "Your payment was successful and your reservation is locked in. A confirmation email containing your booking details and QR code ticket has been sent to your inbox."}
           </p>
@@ -59,8 +59,8 @@ export default async function BookingSuccess({
             </h3>
             <div className="bg-white p-4 rounded-xl shadow-sm inline-block mx-auto mb-3">
               {/* Using the internal QR generator API route */}
-              <img 
-                src={`/api/qr?id=${encodeURIComponent(bookingId)}`} 
+              <img
+                src={`/api/qr?id=${encodeURIComponent(bookingId)}`}
                 alt="QR Code Ticket"
                 className="w-48 h-48 mx-auto"
               />
@@ -78,8 +78,8 @@ export default async function BookingSuccess({
           </div>
         )}
 
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="block w-full py-4 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-bold transition-all shadow-lg shadow-rose-500/30 mt-6"
         >
           Return to Home
