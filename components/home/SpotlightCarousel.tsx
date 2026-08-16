@@ -75,11 +75,18 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                   {/* Text Content */}
                   <div className="space-y-4 md:space-y-6 px-1 pb-6">
                     <div className="flex flex-col items-start max-w-full overflow-hidden">
-                      {slide.badge_text && (
-                        <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider mb-2">
-                          {slide.badge_text}
-                        </div>
-                      )}
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        {(slide.badge_text || slide.location) && (
+                          <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full shadow-sm tracking-wider">
+                            {slide.badge_text || slide.location}
+                          </div>
+                        )}
+                        {slide.category_tags && slide.category_tags.length > 0 && slide.category_tags.map(tag => (
+                          <div key={tag} className="inline-block bg-zinc-200 text-zinc-700 text-[10px] md:text-xs font-semibold px-2 py-1 rounded-full shadow-sm capitalize">
+                            {tag.replace(/-/g, ' ')}
+                          </div>
+                        ))}
+                      </div>
                       <h2
                         className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-zinc-900"
                         style={{ '--char-count': slide.title.length } as React.CSSProperties}
