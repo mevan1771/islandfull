@@ -74,14 +74,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
               <div className="flex flex-col justify-end items-start min-h-[120px] md:min-h-[160px]">
                 {tour.isStatic ? (
-                  <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full">
+                  <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full pb-6">
                     <div className="flex flex-col items-start">
                       <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md text-balance">
                         {tour.title}
                       </h1>
                     </div>
                     {tour.subtitle && (
-                      <p className="text-sm sm:text-base md:text-lg font-medium drop-shadow-md text-white/90">
+                      <p className="block md:block text-sm sm:text-base md:text-lg font-medium drop-shadow-md text-white/90">
                         {tour.subtitle}
                       </p>
                     )}
@@ -89,7 +89,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                 ) : (
                   <Link
                     href={`/activity/${tour.slug}`}
-                    className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full"
+                    className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full pb-6"
                   >
                     <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
                       {tour.location && (

@@ -42,7 +42,7 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
               >
                 <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center w-full py-8 md:py-12">
                   {/* Text Content */}
-                  <div className="space-y-4 md:space-y-6 px-1">
+                  <div className="space-y-4 md:space-y-6 px-1 pb-6">
                     <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
                       {slide.badge_text && (
                         <div className="inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2 md:px-3 py-1 rounded-full shadow-sm tracking-wider md:mb-2">
