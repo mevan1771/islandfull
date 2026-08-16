@@ -183,7 +183,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <FavoriteButton activityId={activity.id} />
         <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
         {/* Softened Top Gradient */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-x-0 top-0 h-16 md:h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10"></div>
         <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
