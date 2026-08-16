@@ -75,7 +75,10 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
               <div className="flex flex-col justify-end items-start min-h-[120px] md:min-h-[160px]">
                 {tour.isStatic ? (
                   <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full pb-6">
-                    <div className="flex flex-col items-start">
+                    <div className="flex flex-row flex-wrap items-center gap-2 md:flex-col md:items-start md:gap-0">
+                      <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 md:mb-2">
+                        SRI LANKA
+                      </span>
                       <h1 className="text-2xl md:text-4xl leading-tight font-bold text-white drop-shadow-md text-balance">
                         {tour.title}
                       </h1>
