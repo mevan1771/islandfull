@@ -138,10 +138,10 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   const isEvent = activity.category_type === 'event';
 
   return (
-    <div className="bg-white min-h-screen pb-32 md:pb-12 pt-4 md:pt-6">
+    <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative h-[35svh] md:h-[600px] w-full rounded-3xl overflow-hidden">
+      <div className="w-full px-2 pt-2 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
+        <div className="relative h-[40svh] md:h-[600px] w-full rounded-3xl overflow-hidden">
 
           <Image
             src={activity.cover_image_url}
