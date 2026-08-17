@@ -138,36 +138,38 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   const isEvent = activity.category_type === 'event';
 
   return (
-    <div className="bg-white min-h-screen pb-32 md:pb-12">
+    <div className="bg-white min-h-screen pb-32 md:pb-12 pt-4 md:pt-6">
       {/* Hero Image */}
-      <div className={`relative h-[35svh] md:h-[600px] ${isEvent ? 'm-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden' : 'w-full'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative h-[35svh] md:h-[600px] w-full rounded-3xl overflow-hidden">
 
-        <Image
-          src={activity.cover_image_url}
-          alt={activity.title}
-          fill
-          sizes="100vw"
-          quality={100}
-          unoptimized={true}
-          placeholder="blur"
-          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-          className="object-cover object-center"
-          priority
-        />
-        <FavoriteButton activityId={activity.id} className="hidden md:flex" />
+          <Image
+            src={activity.cover_image_url}
+            alt={activity.title}
+            fill
+            sizes="100vw"
+            quality={100}
+            unoptimized={true}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
+            className="object-cover object-center"
+            priority
+          />
+          <FavoriteButton activityId={activity.id} className="hidden md:flex" />
 
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
-              {activity.location}
-            </span>
+          <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
+                {activity.location}
+              </span>
+            </div>
+            <h1
+              className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
+              style={{ '--char-count': activity.title.length } as React.CSSProperties}
+            >
+              {activity.title}
+            </h1>
           </div>
-          <h1
-            className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
-            style={{ '--char-count': activity.title.length } as React.CSSProperties}
-          >
-            {activity.title}
-          </h1>
         </div>
       </div>
 
