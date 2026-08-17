@@ -6,7 +6,7 @@ import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike 
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags } from "@/app/actions/search"
-import { TransportHub } from "@/components/transport/TransportHub"
+
 
 export function MobileSearch() {
   const router = useRouter()
@@ -106,132 +106,126 @@ export function MobileSearch() {
         </div>
 
         {/* Inputs */}
-        {currentVertical === 'transport' ? (
-          <div className="w-full mt-2">
-            <TransportHub />
-          </div>
-        ) : (
-          <form onSubmit={handleSearch} className="flex flex-col gap-2">
-            {/* Location */}
-            <div ref={dropdownRef} className="relative">
-              <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors">
-                <MapPin className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Where to?"
-                  className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
-                  value={location}
-                  onFocus={() => {
-                    setIsFocused(true)
-                    if (suggestions.length > 0) setIsDropdownOpen(true)
-                  }}
-                  onBlur={() => setIsFocused(false)}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setLocation(val)
-                    if (val === "") {
-                      const params = new URLSearchParams(searchParams.toString())
-                      params.delete("location")
-                      params.delete("category")
-                      startTransition(() => {
-                        router.push(`/?${params.toString()}`, { scroll: false })
-                      })
-                    }
-                  }}
-                />
-                {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
-              </div>
-
-              {/* Autocomplete Dropdown */}
-              {isDropdownOpen && suggestions.length > 0 && (
-                <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50 max-h-60 overflow-y-auto">
-                  {suggestions.map((sug, idx) => (
-                    <li
-                      key={idx}
-                      className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
-                      onMouseDown={(e) => {
-                        e.preventDefault() // prevent input blur
-                        setLocation(sug)
-                        setIsDropdownOpen(false)
-                        const params = new URLSearchParams(searchParams.toString())
-                        params.set("location", sug)
-                        router.push(`/?${params.toString()}`, { scroll: false })
-                      }}
-                    >
-                      <Search className="w-4 h-4 text-zinc-400" />
-                      {sug}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              {/* Date */}
-              <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
-                <Calendar className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input
-                  type="date"
-                  className="w-full outline-none text-sm text-zinc-900 bg-transparent"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-              </div>
-
-              {/* Travelers */}
-              <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
-                <Users className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Who?"
-                  className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
-                  value={travelers}
-                  onChange={(e) => setTravelers(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Actions: Filter & Map & Search */}
-            <div className="w-full flex items-center gap-2 mt-1">
-              {/* Map Button */}
-              <button
-                type="button"
-                onClick={() => router.push('/map')}
-                className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
-              >
-                <span className="text-[1.1rem]">🌍</span>
-              </button>
-
-              {/* Filter / Sort Button */}
-              <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">
-                <SlidersHorizontal className="w-4 h-4" />
-                <select
-                  value={searchParams.get("sort") || ""}
-                  onChange={(e) => {
+        <form onSubmit={handleSearch} className="flex flex-col gap-2">
+          {/* Location */}
+          <div ref={dropdownRef} className="relative">
+            <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors">
+              <MapPin className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Where to?"
+                className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
+                value={location}
+                onFocus={() => {
+                  setIsFocused(true)
+                  if (suggestions.length > 0) setIsDropdownOpen(true)
+                }}
+                onBlur={() => setIsFocused(false)}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setLocation(val)
+                  if (val === "") {
                     const params = new URLSearchParams(searchParams.toString())
-                    if (e.target.value) params.set("sort", e.target.value)
-                    else params.delete("sort")
-                    router.push(`/?${params.toString()}`, { scroll: false })
-                  }}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                >
-                  <option value="">Recommended</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                </select>
-              </div>
-
-              {/* Search Button */}
-              <button
-                type="submit"
-                className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
-              >
-                <Search className="w-4 h-4" />
-                Search
-              </button>
+                    params.delete("location")
+                    params.delete("category")
+                    startTransition(() => {
+                      router.push(`/?${params.toString()}`, { scroll: false })
+                    })
+                  }
+                }}
+              />
+              {isFetching && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />}
             </div>
-          </form>
-        )}
+
+            {/* Autocomplete Dropdown */}
+            {isDropdownOpen && suggestions.length > 0 && (
+              <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50 max-h-60 overflow-y-auto">
+                {suggestions.map((sug, idx) => (
+                  <li
+                    key={idx}
+                    className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
+                    onMouseDown={(e) => {
+                      e.preventDefault() // prevent input blur
+                      setLocation(sug)
+                      setIsDropdownOpen(false)
+                      const params = new URLSearchParams(searchParams.toString())
+                      params.set("location", sug)
+                      router.push(`/?${params.toString()}`, { scroll: false })
+                    }}
+                  >
+                    <Search className="w-4 h-4 text-zinc-400" />
+                    {sug}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            {/* Date */}
+            <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
+              <Calendar className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
+              <input
+                type="date"
+                className="w-full outline-none text-sm text-zinc-900 bg-transparent"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+
+            {/* Travelers */}
+            <div className="flex items-center h-10 border border-zinc-200 rounded-lg px-3 focus-within:border-rose-500 transition-colors flex-1 min-w-0">
+              <Users className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Who?"
+                className="w-full outline-none text-sm text-zinc-900 bg-transparent placeholder-zinc-400"
+                value={travelers}
+                onChange={(e) => setTravelers(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Actions: Filter & Map & Search */}
+          <div className="w-full flex items-center gap-2 mt-1">
+            {/* Map Button */}
+            <button
+              type="button"
+              onClick={() => router.push('/map')}
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+            >
+              <span className="text-[1.1rem]">🌍</span>
+            </button>
+
+            {/* Filter / Sort Button */}
+            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">
+              <SlidersHorizontal className="w-4 h-4" />
+              <select
+                value={searchParams.get("sort") || ""}
+                onChange={(e) => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  if (e.target.value) params.set("sort", e.target.value)
+                  else params.delete("sort")
+                  router.push(`/?${params.toString()}`, { scroll: false })
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              >
+                <option value="">Recommended</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+              </select>
+            </div>
+
+            {/* Search Button */}
+            <button
+              type="submit"
+              className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+            >
+              <Search className="w-4 h-4" />
+              Search
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

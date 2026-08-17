@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { activityId, title, priceUsd, date, endDate, bookingType, pricingModel, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, paymentStrategy, promoCode } = body
+    const { activityId, title, priceUsd, date, endDate, bookingType, pricingModel, guests, whatsapp, touristName, touristEmail, selectedOption, totalUsd, pickupLocation, specialRequests, fromLocation, toLocation, paymentStrategy, promoCode } = body
 
     // 0. Fetch Commission Rate and Capacity
     const { data: activity } = await supabaseAdmin
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
         end_date: endDate || null,
         total_usd: finalTotalUsd,
         tour_option: selectedOption || null,
-        pickup_location: pickupLocation || null,
+        pickup_location: bookingType === 'point_to_point' ? `From: ${fromLocation} To: ${toLocation}` : (pickupLocation || null),
         special_requests: specialRequests || null,
         status: ['no_card', 'pay_later'].includes(paymentStrategy) ? 'pending_payment' : 'pending',
         payment_status: 'unpaid',

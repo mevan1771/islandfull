@@ -26,7 +26,7 @@ interface BookingDrawerProps {
   rating?: number
   reviewCount?: number
   minNoticeDays?: number
-  bookingType?: 'single_day' | 'multi_day'
+  bookingType?: 'single_day' | 'multi_day' | 'point_to_point'
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   hostAvatar?: string
   hostName?: string
@@ -65,6 +65,8 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
+  const [fromLocation, setFromLocation] = useState("")
+  const [toLocation, setToLocation] = useState("")
 
   // Promo state
   const [promoInput, setPromoInput] = useState("")
@@ -146,6 +148,8 @@ export function BookingDrawer({
           totalUsd,
           pickupLocation,
           specialRequests,
+          fromLocation,
+          toLocation,
           paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy,
           promoCode: appliedPromo
         })
@@ -181,6 +185,8 @@ export function BookingDrawer({
       setWhatsapp("")
       setPickupLocation("")
       setSpecialRequests("")
+      setFromLocation("")
+      setToLocation("")
       setPromoInput("")
       setPromoError("")
       setPromoSuccess("")
@@ -427,6 +433,39 @@ export function BookingDrawer({
                       </Popover.Root>
                     </div>
                   </div>
+
+                  {bookingType === 'point_to_point' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 col-span-1 md:col-span-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                          From Location
+                        </label>
+                        <input
+                          type="text"
+                          value={fromLocation}
+                          onChange={(e) => setFromLocation(e.target.value)}
+                          placeholder="e.g. Colombo Airport"
+                          className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                          To Location
+                        </label>
+                        <input
+                          type="text"
+                          value={toLocation}
+                          onChange={(e) => setToLocation(e.target.value)}
+                          placeholder="e.g. Ella Hotel"
+                          className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {tourOptions && tourOptions.length > 0 && (
                     <div className="space-y-1 col-span-1 md:col-span-2">
@@ -690,6 +729,18 @@ export function BookingDrawer({
                       <span className="text-zinc-500 font-medium">Option</span>
                       <span className="font-bold text-zinc-900">{selectedOption}</span>
                     </div>
+                  )}
+                  {bookingType === 'point_to_point' && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500 font-medium">From</span>
+                        <span className="font-bold text-zinc-900">{fromLocation}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500 font-medium">To</span>
+                        <span className="font-bold text-zinc-900">{toLocation}</span>
+                      </div>
+                    </>
                   )}
                   <div className="flex justify-between">
                     <span className="text-zinc-500 font-medium">Guests</span>

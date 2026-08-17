@@ -19,14 +19,14 @@ const TOTAL_STEPS = 4;
 export default function TourForm({ categories, initialData }: { categories: any[], initialData?: any }) {
   const router = useRouter()
   const isEditing = !!initialData
-  
+
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   const [previewImage, setPreviewImage] = useState(initialData?.cover_image_url || "")
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData?.gallery_urls || [])
-  
+
   // Commission & Category State
   const [categoryType, setCategoryType] = useState<string>(initialData?.category_type || "tour")
   const [commissionRate, setCommissionRate] = useState<string>(initialData?.commission_rate?.toString() || "15")
@@ -43,7 +43,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
           rates[s.category_name] = s.default_rate
         })
         setGlobalSettings(rates)
-        
+
         // If creating a new tour and no custom rate set yet, use the global default for 'tour'
         if (!initialData && rates["tour"]) {
           setCommissionRate(rates["tour"].toString())
@@ -61,7 +61,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newCategory = e.target.value
     setCategoryType(newCategory)
-    
+
     // Auto-fill commission rate if it's not custom
     if (!isCustomCommission && globalSettings[newCategory]) {
       setCommissionRate(globalSettings[newCategory].toString())
@@ -81,8 +81,8 @@ export default function TourForm({ categories, initialData }: { categories: any[
   }
 
   const [blackoutDates, setBlackoutDates] = useState<Date[]>(
-    initialData?.blackout_dates 
-      ? initialData.blackout_dates.map((d: string) => parse(d, 'yyyy-MM-dd', new Date())) 
+    initialData?.blackout_dates
+      ? initialData.blackout_dates.map((d: string) => parse(d, 'yyyy-MM-dd', new Date()))
       : []
   )
 
@@ -96,7 +96,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [cardImage, setCardImage] = useState<string>(initialData?.card_image_url || "")
 
   // Tiered Pricing State (array of {guests, price} for easy rendering)
-  const [tiers, setTiers] = useState<{guests: string, price: string}[]>(() => {
+  const [tiers, setTiers] = useState<{ guests: string, price: string }[]>(() => {
     if (initialData?.pricing_tiers) {
       return Object.entries(initialData.pricing_tiers).map(([guests, price]) => ({
         guests,
@@ -115,7 +115,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   }
 
   // Tour Options State (array of {title, price_modifier})
-  const [options, setOptions] = useState<{title: string, price_modifier: string}[]>(() => {
+  const [options, setOptions] = useState<{ title: string, price_modifier: string }[]>(() => {
     if (initialData?.tour_options && Array.isArray(initialData.tour_options)) {
       return initialData.tour_options.map((opt: any) => ({
         title: opt.title || "",
@@ -154,7 +154,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
     setError(null)
 
     const formData = new FormData(e.currentTarget)
-    
+
     let result;
     if (isEditing) {
       result = await updateTour(initialData.id, formData)
@@ -173,7 +173,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
   async function handleImageUpload(file: File) {
     if (!file) return;
-    
+
     // Optional client-side check for 5MB limit
     if (file.size > 5 * 1024 * 1024) {
       alert("File size exceeds 5MB limit");
@@ -224,7 +224,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
       const formData = new FormData();
       formData.append("file", compressedFile);
       const result = await uploadToCloudinary(formData);
-      
+
       if (result.success && result.secure_url) {
         setPreviewImage(result.secure_url);
         setCropImageSrc(null); // Close modal on success
@@ -234,13 +234,13 @@ export default function TourForm({ categories, initialData }: { categories: any[
     } catch (err: any) {
       alert(err.message || "Failed to upload image");
     }
-    
+
     setIsUploadingImage(false);
   }
 
   async function handleGalleryUpload(files: FileList) {
     if (!files || files.length === 0) return;
-    
+
     // Check limit
     if (galleryImages.length + files.length > 8) {
       alert("You can only upload a maximum of 8 gallery images.");
@@ -272,14 +272,14 @@ export default function TourForm({ categories, initialData }: { categories: any[
     } catch (err: any) {
       alert(err.message || "Failed to upload some images");
     }
-    
+
     setIsUploadingGallery(false);
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleImageUpload(e.dataTransfer.files[0]);
     }
@@ -288,7 +288,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
   function handleGalleryDrop(e: React.DragEvent) {
     e.preventDefault();
     setIsGalleryDragOver(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleGalleryUpload(e.dataTransfer.files);
     }
@@ -312,8 +312,8 @@ export default function TourForm({ categories, initialData }: { categories: any[
     <div className="max-w-3xl mx-auto">
       {/* Header & Progress Indicator */}
       <div className="flex items-center gap-4 mb-8">
-        <Link 
-          href="/admin/tours" 
+        <Link
+          href="/admin/tours"
           className="p-3 bg-white border border-zinc-200 rounded-2xl hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm group"
         >
           <ArrowLeft className="w-5 h-5 text-zinc-500 group-hover:text-zinc-900 transition-colors" />
@@ -326,7 +326,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
             <span className="text-sm font-bold text-zinc-400 tracking-wider uppercase">Step {step} of {TOTAL_STEPS}</span>
           </div>
           <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-rose-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
             />
@@ -349,16 +349,16 @@ export default function TourForm({ categories, initialData }: { categories: any[
               <h2 className="text-xl font-bold text-zinc-900">The Basics</h2>
               <p className="text-zinc-500 text-sm mt-1">Start with the core identity of the experience.</p>
             </div>
-            
+
             <div className="space-y-8">
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <Compass className="w-4 h-4 text-rose-500" />
                   Activity Title
                 </label>
-                <input 
+                <input
                   name="title"
-                  type="text" 
+                  type="text"
                   defaultValue={initialData?.title}
                   placeholder="e.g. Secret Sunset Surf Lesson"
                   className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
@@ -368,9 +368,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-4 border-2 border-rose-100 bg-rose-50 rounded-2xl cursor-pointer hover:bg-rose-100/50 transition-colors">
-                  <input 
-                    type="checkbox" 
-                    name="is_featured" 
+                  <input
+                    type="checkbox"
+                    name="is_featured"
                     defaultChecked={initialData?.is_featured || false}
                     className="w-5 h-5 text-rose-500 rounded focus:ring-rose-500 cursor-pointer"
                   />
@@ -386,7 +386,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <Briefcase className="w-4 h-4 text-rose-500" />
                   Hosted By (Provider)
                 </label>
-                <select 
+                <select
                   name="host_id"
                   value={hostId}
                   onChange={(e) => setHostId(e.target.value)}
@@ -406,7 +406,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <List className="w-4 h-4 text-rose-500" />
                     MAIN VERTICAL
                   </label>
-                  <select 
+                  <select
                     name="category_type"
                     value={categoryType}
                     onChange={handleCategoryChange}
@@ -425,9 +425,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     Commission Rate (%)
                   </label>
                   <div className="relative">
-                    <input 
+                    <input
                       name="commission_rate"
-                      type="number" 
+                      type="number"
                       step="0.01"
                       value={commissionRate}
                       onChange={handleCommissionChange}
@@ -454,7 +454,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <List className="w-4 h-4 text-rose-500" />
                     Booking Type
                   </label>
-                  <select 
+                  <select
                     name="booking_type"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.booking_type || "single_day"}
@@ -462,6 +462,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   >
                     <option value="single_day">Single Day (Activity)</option>
                     <option value="multi_day">Multi-Day (Rental)</option>
+                    <option value="point_to_point">Point-to-Point (Transfer)</option>
                   </select>
                 </div>
 
@@ -473,7 +474,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <MapPin className="w-4 h-4 text-rose-500" />
                     Location
                   </label>
-                  <input 
+                  <input
                     type="text"
                     name="location"
                     list="location-suggestions"
@@ -541,7 +542,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <MapPin className="w-4 h-4 text-rose-500" />
                     Rough Latitude
                   </label>
-                  <input 
+                  <input
                     type="number"
                     step="any"
                     name="approx_lat"
@@ -556,7 +557,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <MapPin className="w-4 h-4 text-rose-500" />
                     Rough Longitude
                   </label>
-                  <input 
+                  <input
                     type="number"
                     step="any"
                     name="approx_lng"
@@ -572,7 +573,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <MapPin className="w-4 h-4 text-rose-500" />
                   Secret Meeting Instructions - Only shown after payment
                 </label>
-                <textarea 
+                <textarea
                   name="private_meeting_instructions"
                   rows={3}
                   className="w-full p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300 resize-none"
@@ -597,9 +598,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <Clock className="w-4 h-4 text-rose-500" />
                     Duration
                   </label>
-                  <input 
+                  <input
                     name="duration"
-                    type="text" 
+                    type="text"
                     defaultValue={initialData?.duration}
                     placeholder="e.g. 2 Hours, Half Day"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
@@ -612,9 +613,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <Users className="w-4 h-4 text-rose-500" />
                     Max Guests
                   </label>
-                  <input 
+                  <input
                     name="max_capacity"
-                    type="number" 
+                    type="number"
                     min="1"
                     defaultValue={initialData?.max_capacity || 10}
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
@@ -627,7 +628,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <CalendarDays className="w-4 h-4 text-rose-500" />
                     Lead Time
                   </label>
-                  <select 
+                  <select
                     name="min_notice_days"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.min_notice_days !== undefined ? initialData.min_notice_days : 1}
@@ -649,9 +650,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   </label>
                   <div className="relative group">
                     <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-rose-500 font-bold text-lg transition-colors">$</span>
-                    <input 
+                    <input
                       name="price_usd"
-                      type="number" 
+                      type="number"
                       step="0.01"
                       defaultValue={initialData?.price_usd}
                       placeholder="35.00"
@@ -666,9 +667,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <DollarSign className="w-4 h-4 text-rose-500" />
                     Price Suffix
                   </label>
-                  <input 
+                  <input
                     name="price_suffix"
-                    type="text" 
+                    type="text"
                     defaultValue={initialData?.price_suffix}
                     placeholder="/ person"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 placeholder:text-zinc-300 bg-white"
@@ -680,7 +681,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <Users className="w-4 h-4 text-rose-500" />
                     Pricing Model
                   </label>
-                  <select 
+                  <select
                     name="pricing_model"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.pricing_model || "per_person"}
@@ -696,7 +697,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     <DollarSign className="w-4 h-4 text-rose-500" />
                     Payment Strategy
                   </label>
-                  <select 
+                  <select
                     name="payment_strategy"
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.payment_strategy || "full"}
@@ -716,11 +717,11 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     Pickup Options
                   </label>
                   <label className="flex items-center gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer hover:border-rose-500 transition-colors group">
-                    <input 
-                      type="checkbox" 
-                      name="has_pickup" 
+                    <input
+                      type="checkbox"
+                      name="has_pickup"
                       defaultChecked={initialData?.has_pickup || false}
-                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer" 
+                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
                     />
                     <div>
                       <div className="font-bold text-zinc-900">Provide Hotel Pickup</div>
@@ -735,11 +736,11 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     Hidden Gem Status
                   </label>
                   <label className="flex items-center gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer hover:border-rose-500 transition-colors group">
-                    <input 
-                      type="checkbox" 
-                      name="is_hidden_gem" 
+                    <input
+                      type="checkbox"
+                      name="is_hidden_gem"
                       defaultChecked={initialData?.is_hidden_gem || false}
-                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer" 
+                      className="w-5 h-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500 cursor-pointer"
                     />
                     <div>
                       <div className="font-bold text-rose-500">Mark as Gem</div>
@@ -754,9 +755,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     Availability & Blackout Dates
                   </label>
                   <p className="text-xs font-medium text-zinc-500 mb-2">Select dates when this tour is unavailable or fully booked.</p>
-                  
+
                   <div className="p-4 bg-white border border-zinc-200 rounded-2xl w-fit shadow-sm">
-                    <DayPicker 
+                    <DayPicker
                       mode="multiple"
                       selected={blackoutDates}
                       onSelect={(dates) => setBlackoutDates(dates || [])}
@@ -792,9 +793,9 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 </div>
 
                 {/* Hidden input to store serialized JSON */}
-                <input 
-                  type="hidden" 
-                  name="pricing_tiers" 
+                <input
+                  type="hidden"
+                  name="pricing_tiers"
                   value={JSON.stringify(
                     tiers.reduce((acc, tier) => {
                       if (tier.guests && tier.price) {
@@ -802,7 +803,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                       }
                       return acc;
                     }, {} as Record<string, number>)
-                  )} 
+                  )}
                 />
 
                 {tiers.length > 0 ? (
@@ -859,15 +860,15 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 </div>
 
                 {/* Hidden input for JSON */}
-                <input 
-                  type="hidden" 
-                  name="tour_options" 
+                <input
+                  type="hidden"
+                  name="tour_options"
                   value={JSON.stringify(
                     options.filter(o => o.title.trim() !== "").map(o => ({
                       title: o.title,
                       price_modifier: parseFloat(o.price_modifier) || 0
                     }))
-                  )} 
+                  )}
                 />
 
                 {options.length > 0 ? (
@@ -911,7 +912,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
           {/* STEP 3: STORYTELLING */}
           <div id="step-3" className={step === 3 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
-             <div className="mb-8">
+            <div className="mb-8">
               <h2 className="text-xl font-bold text-zinc-900">Storytelling</h2>
               <p className="text-zinc-500 text-sm mt-1">Sell the experience. What makes it special?</p>
             </div>
@@ -922,7 +923,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <Text className="w-4 h-4 text-rose-500" />
                   Full Description
                 </label>
-                <textarea 
+                <textarea
                   name="description"
                   defaultValue={initialData?.description}
                   placeholder="Describe the amazing experience..."
@@ -937,7 +938,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <CheckSquare className="w-4 h-4 text-rose-500" />
                   Inclusions (One per line)
                 </label>
-                <textarea 
+                <textarea
                   name="inclusions"
                   defaultValue={initialData?.inclusions?.join('\n')}
                   placeholder="Surfboard Rental&#10;Rash Guard&#10;2 Hour Lesson"
@@ -961,17 +962,17 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <ImageIcon className="w-4 h-4 text-rose-500" />
                   Cover Image / Video URL
                 </label>
-                
+
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={previewImage}
                     onChange={(e) => setPreviewImage(e.target.value)}
                     placeholder="Paste Cloudinary URL (.jpg or .mp4) here..."
                     className="flex-1 h-12 px-4 rounded-xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-sm text-zinc-900 placeholder:text-zinc-400"
                   />
                   {previewImage && (
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setPreviewImage("")}
                       className="px-4 py-2 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900 rounded-xl font-bold transition-colors text-sm"
@@ -1002,22 +1003,21 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Media Dropzone Illusion */}
-                <label 
+                <label
                   onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                   onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
                   onDrop={handleDrop}
-                  className={`mt-6 w-full aspect-[2/1] rounded-3xl border-2 overflow-hidden relative flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                    isDragOver ? 'border-rose-500 bg-rose-50' : 
-                    previewImage ? 'border-transparent shadow-xl shadow-zinc-200/50 bg-zinc-900' : 
-                    'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
-                  }`}
+                  className={`mt-6 w-full aspect-[2/1] rounded-3xl border-2 overflow-hidden relative flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${isDragOver ? 'border-rose-500 bg-rose-50' :
+                      previewImage ? 'border-transparent shadow-xl shadow-zinc-200/50 bg-zinc-900' :
+                        'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
+                    }`}
                 >
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
                     onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
                   />
 
@@ -1028,11 +1028,11 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     </div>
                   ) : previewImage ? (
                     <>
-                      <Image 
-                        src={previewImage} 
-                        alt="Preview" 
-                        fill 
-                        className="object-cover animate-in fade-in duration-700" 
+                      <Image
+                        src={previewImage}
+                        alt="Preview"
+                        fill
+                        className="object-cover animate-in fade-in duration-700"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
@@ -1064,18 +1064,18 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   </span>
                   <span className="text-xs text-zinc-400">{galleryImages.length} / 8</span>
                 </label>
-                
+
                 {galleryImages.map((url, idx) => (
                   <input key={`gallery-${idx}`} type="hidden" name="gallery_urls" value={url} />
                 ))}
-                
+
                 {galleryImages.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                     {galleryImages.map((url, idx) => (
                       <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-200 group">
                         <Image src={url} alt={`Gallery ${idx + 1}`} fill className="object-cover" />
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           onClick={() => removeGalleryImage(idx)}
                           className="absolute top-2 right-2 bg-black/60 hover:bg-rose-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all z-10"
                         >
@@ -1087,20 +1087,19 @@ export default function TourForm({ categories, initialData }: { categories: any[
                 )}
 
                 {galleryImages.length < 8 && (
-                  <label 
+                  <label
                     onDragOver={(e) => { e.preventDefault(); setIsGalleryDragOver(true); }}
                     onDragLeave={(e) => { e.preventDefault(); setIsGalleryDragOver(false); }}
                     onDrop={handleGalleryDrop}
-                    className={`w-full h-32 rounded-3xl border-2 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${
-                      isGalleryDragOver ? 'border-rose-500 bg-rose-50' : 
-                      'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
-                    }`}
+                    className={`w-full h-32 rounded-3xl border-2 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${isGalleryDragOver ? 'border-rose-500 bg-rose-50' :
+                        'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
+                      }`}
                   >
-                    <input 
-                      type="file" 
-                      accept="image/*" 
+                    <input
+                      type="file"
+                      accept="image/*"
                       multiple
-                      className="hidden" 
+                      className="hidden"
                       onChange={(e) => e.target.files && handleGalleryUpload(e.target.files)}
                     />
                     {isUploadingGallery ? (
@@ -1123,7 +1122,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   <Eye className="w-4 h-4 text-rose-500" />
                   Visibility Status
                 </label>
-                <select 
+                <select
                   name="status"
                   className="w-full sm:w-1/2 h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                   defaultValue={initialData?.status || "published"}
@@ -1138,7 +1137,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
 
         {/* Footer Navigation */}
         <div className="mt-12 pt-8 border-t border-zinc-100 flex items-center justify-between">
-          <button 
+          <button
             type="button"
             onClick={prevStep}
             className={`px-6 py-3.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition-colors ${step === 1 ? 'invisible' : 'visible'}`}
@@ -1147,20 +1146,20 @@ export default function TourForm({ categories, initialData }: { categories: any[
           </button>
 
           {step < TOTAL_STEPS && (
-            <button 
+            <button
               key="continue-btn"
-              type="button" 
+              type="button"
               onClick={nextStep}
               className="px-8 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-bold shadow-lg shadow-zinc-900/20 transition-all active:scale-95"
             >
               Continue
             </button>
           )}
-          
+
           {step === TOTAL_STEPS && (
-            <button 
+            <button
               key="submit-btn"
-              type="submit" 
+              type="submit"
               disabled={isSubmitting}
               className="flex items-center gap-2 px-10 py-3.5 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:active:scale-100 text-white rounded-xl font-bold shadow-xl shadow-rose-500/20 transition-all active:scale-95"
             >
