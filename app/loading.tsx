@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div className="w-full min-h-screen bg-white flex flex-col">
       {/* Hero Skeleton */}
-      <div className="w-full h-[35svh] md:h-[600px] bg-zinc-900 animate-pulse flex flex-col items-center justify-center text-white relative">
+      <div className="w-full relative pt-24 md:pt-32 pb-40 md:pb-48 min-h-[50svh] md:min-h-[85vh] bg-zinc-900 animate-pulse flex flex-col items-center justify-center text-white rounded-b-xl md:rounded-none">
         <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
         <p className="text-sm font-medium mt-4 text-zinc-400">Loading experiences...</p>
       </div>
