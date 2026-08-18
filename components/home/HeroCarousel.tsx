@@ -46,7 +46,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   }, [carouselSlides.length, currentIndex])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900">
+    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
         <div
@@ -64,6 +64,8 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             quality={100}
             sizes="100vw"
             unoptimized={true}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           />
 
           {/* Slide-specific Legibility Mask */}
