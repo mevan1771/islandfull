@@ -156,7 +156,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           className="object-cover object-center"
-          priority
+          priority={true}
+          fetchPriority="high"
         />
         <FavoriteButton activityId={activity.id} />
         <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
