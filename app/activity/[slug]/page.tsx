@@ -159,18 +159,20 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority
         />
         <FavoriteButton activityId={activity.id} />
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
-              {activity.location}
-            </span>
+        <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
+                {activity.location}
+              </span>
+            </div>
+            <h1
+              className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
+              style={{ '--char-count': activity.title.length } as React.CSSProperties}
+            >
+              {activity.title}
+            </h1>
           </div>
-          <h1
-            className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
-            style={{ '--char-count': activity.title.length } as React.CSSProperties}
-          >
-            {activity.title}
-          </h1>
         </div>
       </div>
 
