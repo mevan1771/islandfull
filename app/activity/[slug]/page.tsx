@@ -153,16 +153,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           fill
           sizes="100vw"
           quality={100}
-          unoptimized={true}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           className="object-cover object-center"
           priority
         />
         <FavoriteButton activityId={activity.id} />
-        <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
-        {/* Softened Top Gradient */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
         <div className="absolute inset-0 flex flex-col justify-end p-4 pb-6 md:p-8 md:pb-10 text-white w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto w-full">
             <div className="max-w-full overflow-hidden">
