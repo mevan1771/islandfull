@@ -23,7 +23,7 @@ export default function SiteHeader() {
               <ArrowLeft className="w-4 h-4" />
             </Link>
           )}
-          <a href="/" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <Image
               src="/logo.png"
               alt="IslandFull"
@@ -32,15 +32,15 @@ export default function SiteHeader() {
               className="h-10 w-auto object-contain drop-shadow-lg"
               priority
             />
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
-          <a href="/" className="hover:text-white transition-colors">Home</a>
-          <a href="/destinations" className="hover:text-white transition-colors">Destinations</a>
-          <a href="/trips" className="hover:text-white transition-colors">Trips</a>
-          <a href="/about-us" className="hover:text-white transition-colors">About Us</a>
+          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <Link href="/destinations" className="hover:text-white transition-colors">Destinations</Link>
+          <Link href="/trips" className="hover:text-white transition-colors">Trips</Link>
+          <Link href="/about-us" className="hover:text-white transition-colors">About Us</Link>
         </nav>
 
         <div className="flex items-center gap-4">

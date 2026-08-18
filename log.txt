@@ -1,0 +1,20 @@
+﻿118f356 fix: restore activity detail page layout from backup
+ead090a fix: reset hero image layout on activity page
+79d343c fix(ui): use explicit heights for hero image on activity detail page
+74b4266 fix(ui): adjust mobile hero aspect ratio to 4/3 on activity detail page
+de66820 fix(ui): force mobile hero aspect ratio on activity detail page
+4239be3 fix(ui): increase mobile hero height on activity detail page
+f4c0c52 fix(ui): expand hero image width to fix header layout on activity detail page
+7743392 fix(ui): restore rounded corners and eliminate grey gap on activity detail page
+581edb4 Migrate Mock Events to Supabase: Remove hardcoded mocks and align template
+ad3894b Fix mobile back button on activity pages by moving it to SiteHeader
+6df7314 Hide overlay favorite button on mobile activity detail page
+1af188f Remove all dark overlays and gradients from activity hero image
+5555a21 Fix activity hero image: remove dark overlays and minimize gradients for maximum brightness
+9949b2a Make top gradient overlay responsive on Activity page to prevent darkening mobile images
+f25d8db Reduce mobile max font size for Activity hero title
+6e4e7b5 Override Activity page hero text alignment with strict absolute bottom coordinates
+df09e20 Finalize Activity page hero text layout and mobile typography
+d665e7d Restrict top gradient overlay to h-32 to prevent darkening hero images
+257e201 Force maximum resolution for hero cover images across the application
+fa6aa11 Fix blurry Activity cover image by enforcing high-quality Next.js optimization

@@ -154,7 +154,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Activity Grid */}
       <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-        <ActivityGrid activities={activities} currentCategory={currentCategory} />
+        <Suspense fallback={<ActivitySkeleton />}>
+          <ActivityGrid activities={activities} currentCategory={currentCategory} />
+        </Suspense>
       </section>
 
       {/* Featured Tour Spotlight Carousel */}
@@ -165,3 +167,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     </div>
   )
 }
+
+const ActivitySkeleton = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {[...Array(8)].map((_, i) => (
+      <div key={i} className="flex flex-col gap-3">
+        <div className="w-full aspect-[4/3] bg-zinc-100 rounded-2xl animate-pulse"></div>
+        <div className="w-3/4 h-4 bg-zinc-100 rounded animate-pulse"></div>
+        <div className="w-1/2 h-4 bg-zinc-100 rounded animate-pulse"></div>
+      </div>
+    ))}
+  </div>
+);
