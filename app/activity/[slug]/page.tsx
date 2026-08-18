@@ -141,7 +141,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
       <div className="w-full px-2 pt-2 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
-        <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[500px] w-full rounded-3xl overflow-hidden">
+        <div className="relative h-[400px] md:h-[550px] w-full rounded-3xl overflow-hidden">
 
           <Image
             src={activity.cover_image_url}
