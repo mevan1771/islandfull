@@ -140,8 +140,13 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
-      <div className={`relative h-[35svh] md:h-[600px] ${isEvent ? 'm-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden' : 'w-full'}`}>
-
+      <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
+        {/* Mobile Back Button */}
+        <div className="absolute top-4 left-4 z-20 md:hidden">
+          <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
+            <ArrowLeft className="w-4 h-4 text-white" />
+          </Link>
+        </div>
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -154,20 +159,26 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           className="object-cover object-center"
           priority
         />
-        <FavoriteButton activityId={activity.id} className="hidden md:flex" />
-
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col items-start gap-2 md:bottom-8 md:left-8 md:right-8">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
-              {activity.location}
-            </span>
+        <FavoriteButton activityId={activity.id} />
+        <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
+        {/* Softened Top Gradient */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 flex flex-col justify-end p-4 pb-6 md:p-8 md:pb-10 text-white w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto w-full">
+            <div className="max-w-full overflow-hidden">
+              <div className="flex items-center gap-2 mb-2 md:mb-4">
+                <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
+                  {activity.location}
+                </span>
+              </div>
+              <h1
+                className="text-[clamp(1rem,calc(160vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
+                style={{ '--char-count': activity.title.length } as React.CSSProperties}
+              >
+                {activity.title}
+              </h1>
+            </div>
           </div>
-          <h1
-            className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
-            style={{ '--char-count': activity.title.length } as React.CSSProperties}
-          >
-            {activity.title}
-          </h1>
         </div>
       </div>
 
