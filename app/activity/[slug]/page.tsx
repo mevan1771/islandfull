@@ -162,7 +162,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         <FavoriteButton activityId={activity.id} className="hidden md:flex" />
         <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
           <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
                 {activity.location}
               </span>
@@ -183,14 +183,15 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
           {/* Quick Info (Mobile Minimalist Row) */}
           <div className="flex md:hidden items-center justify-between w-full pt-2 pb-4 px-4">
-            <div className="flex flex-row items-center gap-1.5">
-              <Clock className="w-4 h-4 text-rose-500" />
-              <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm drop-shadow-md">
+                {activity.location}
+              </span>
             </div>
 
             <div className="flex flex-row items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-rose-500" />
-              <span className="text-xs font-semibold text-gray-800 max-w-[120px] truncate">{activity.location}</span>
+              <Clock className="w-4 h-4 text-rose-500" />
+              <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
             </div>
 
             <div className="flex flex-row items-center gap-1.5">
