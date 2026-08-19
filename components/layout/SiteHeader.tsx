@@ -23,7 +23,7 @@ export default function SiteHeader() {
               <ArrowLeft className="w-4 h-4" />
             </Link>
           )}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className={`flex items-center ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''}`}>
             <Image
               src="/logo.png"
               alt="IslandFull"
@@ -53,7 +53,7 @@ export default function SiteHeader() {
               🌍 Explore Map
             </Link>
           )}
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-black/20 md:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer md:hover:bg-white/30 transition-colors border-transparent md:border-white/20">
+          <div className={`w-8 h-8 md:w-10 md:h-10 bg-black/20 md:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer md:hover:bg-white/30 transition-colors border-transparent md:border-white/20 ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''}`}>
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />

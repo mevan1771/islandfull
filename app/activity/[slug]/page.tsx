@@ -141,12 +141,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
       <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
-        {/* Mobile Back Button */}
-        <div className="absolute top-4 left-4 z-20 md:hidden">
-          <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
-            <ArrowLeft className="w-4 h-4 text-white" />
-          </Link>
-        </div>
         <Image
           src={activity.cover_image_url}
           alt={activity.title}
@@ -159,7 +153,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority={true}
           fetchPriority="high"
         />
-        <FavoriteButton activityId={activity.id} />
+        <FavoriteButton activityId={activity.id} className="hidden md:flex" />
         <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
           <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
             <div className="flex items-center gap-2">
