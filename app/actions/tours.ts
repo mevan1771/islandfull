@@ -28,7 +28,7 @@ async function generateSKU(category_type: string): Promise<string> {
     .from('activities')
     .select('reference_code')
     .eq('category_type', category_type)
-    .not('reference_code', 'is', null)
+    .neq('reference_code', null)
     .order('reference_code', { ascending: false })
     .limit(1);
 
