@@ -180,7 +180,7 @@ export async function createTour(formData: FormData) {
     };
 
     // Insert into Supabase
-    const { data: activity, error } = await supabaseAdmin.from('activities').insert(activityData).select('id').single()
+    const { data: activity, error } = await supabaseAdmin.from('activities').insert(activityData).select('id, created_at').single()
 
     if (error || !activity) {
       console.error("Supabase Error:", error)
@@ -215,6 +215,7 @@ export async function createTour(formData: FormData) {
         Title: title,
         Price: price_usd,
         Category: category_type,
+        created_at: activity?.created_at,
         ...activityData
       }
     });
@@ -318,7 +319,7 @@ export async function updateTour(id: string, formData: FormData) {
     // Notice we do NOT update the slug to prevent breaking old links
 
     // Fetch old tour data for audit logging
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate, reference_code').eq('id', id).single()
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate, reference_code, created_at').eq('id', id).single()
 
     const updateData = {
       title,
@@ -402,6 +403,7 @@ export async function updateTour(id: string, formData: FormData) {
         Title: title,
         Price: price_usd,
         Category: category_type,
+        created_at: oldTour?.created_at,
         ...updateData
       }
     });
@@ -501,7 +503,7 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
 
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('category_type, title, price_usd, reference_code')
+      .select('category_type, title, price_usd, reference_code, created_at')
       .eq('id', activityId)
       .single()
 
@@ -530,7 +532,8 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
           Title: activity.title,
           Price: activity.price_usd,
           Category: activity.category_type,
-          status: newStatus
+          status: newStatus,
+          created_at: activity.created_at
         }
       });
     }
@@ -547,7 +550,7 @@ export async function deleteTour(activityId: string) {
   try {
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('category_type, title, price_usd, reference_code')
+      .select('category_type, title, price_usd, reference_code, created_at')
       .eq('id', activityId)
       .single()
 
@@ -575,7 +578,8 @@ export async function deleteTour(activityId: string) {
         data: {
           Title: activity.title,
           Price: activity.price_usd,
-          Category: activity.category_type
+          Category: activity.category_type,
+          created_at: activity.created_at
         }
       });
     }
@@ -716,7 +720,8 @@ export async function backfillAndSyncAll() {
           IsHiddenGem: activity.is_hidden_gem,
           MinNoticeDays: activity.min_notice_days,
           ApproxLat: activity.approx_lat,
-          ApproxLng: activity.approx_lng
+          ApproxLng: activity.approx_lng,
+          created_at: activity.created_at
         }
       });
     }
