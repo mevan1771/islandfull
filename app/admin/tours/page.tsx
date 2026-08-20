@@ -6,10 +6,33 @@ import { StatusToggle } from "@/components/admin/StatusToggle"
 import { FeaturedToggle } from "@/components/admin/FeaturedToggle"
 import { DeleteTourButton } from "@/components/admin/DeleteTourButton"
 import { SyncAllButton } from "@/components/admin/SyncAllButton"
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminToursDashboard() {
+  const cookieStore = await cookies()
+  const supabaseAuth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabaseAuth.auth.getUser()
+
+  let isAdmin = false
+  if (user) {
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const { data: userRole } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
+    isAdmin = (profile?.role === 'admin') || (userRole?.role === 'admin')
+  }
   const { data: tours, error } = await supabase
     .from('activities')
     .select('*, categories(name)')
@@ -25,7 +48,7 @@ export default async function AdminToursDashboard() {
             <p className="text-zinc-500 mt-1">Manage your tour catalog and onboard new operators.</p>
           </div>
           <div className="flex items-center gap-3">
-            <SyncAllButton />
+            {isAdmin && <SyncAllButton />}
             <Link
               href="/admin/tours/new"
               className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 text-sm"
