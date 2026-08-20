@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "@/utils/auditLogger"
 import { createClient } from "@/utils/supabase/server"
+import { sendWebhook } from "@/utils/webhook"
 
 // Helper function to generate a URL-friendly slug
 function generateSlug(title: string): string {
@@ -26,7 +27,7 @@ export async function createTour(formData: FormData) {
     const price_suffix = formData.get("price_suffix") as string || ""
     const price_lkr_approx = 0 // Automatically calculated via global rate now
     const is_featured = formData.get("is_featured") === "on"
-    
+
     // Commission & Category
     const category_type = formData.get("category_type") as string || "tour"
     const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
@@ -51,7 +52,7 @@ export async function createTour(formData: FormData) {
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
-    
+
     let blackout_dates = [];
     try {
       if (blackout_dates_raw) {
@@ -60,7 +61,7 @@ export async function createTour(formData: FormData) {
     } catch (e) {
       console.warn("Failed to parse blackout_dates:", e);
     }
-    
+
     let tour_options = null;
     try {
       if (tour_options_raw) {
@@ -70,7 +71,7 @@ export async function createTour(formData: FormData) {
     } catch (e) {
       console.warn("Failed to parse tour_options:", e);
     }
-    
+
     let pricing_tiers = null;
     try {
       if (pricing_tiers_raw) {
@@ -106,8 +107,7 @@ export async function createTour(formData: FormData) {
 
     const slug = generateSlug(title)
 
-    // Insert into Supabase
-    const { data: activity, error } = await supabaseAdmin.from('activities').insert({
+    const activityData = {
       title,
       slug,
       provider_name,
@@ -141,7 +141,10 @@ export async function createTour(formData: FormData) {
       approx_lat,
       approx_lng,
       private_meeting_instructions
-    }).select('id').single()
+    };
+
+    // Insert into Supabase
+    const { data: activity, error } = await supabaseAdmin.from('activities').insert(activityData).select('id').single()
 
     if (error || !activity) {
       console.error("Supabase Error:", error)
@@ -160,6 +163,25 @@ export async function createTour(formData: FormData) {
 
     // Revalidate paths so the new tour appears instantly
     revalidatePath('/', 'layout')
+
+    const typeMap: Record<string, string> = {
+      tour: "Tours",
+      event: "Events",
+      transport: "Transport"
+    };
+    const webhookType = typeMap[category_type] || "Tours";
+
+    sendWebhook({
+      type: webhookType,
+      action: "create",
+      id: activity.id,
+      data: {
+        Title: title,
+        Price: price_usd,
+        Category: category_type,
+        ...activityData
+      }
+    });
 
     return { success: true }
   } catch (err: any) {
@@ -181,7 +203,7 @@ export async function updateTour(id: string, formData: FormData) {
     const price_suffix = formData.get("price_suffix") as string || ""
     const price_lkr_approx = 0 // Automatically calculated via global rate now
     const is_featured = formData.get("is_featured") === "on"
-    
+
     // Commission & Category
     const category_type = formData.get("category_type") as string || "tour"
     const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
@@ -206,7 +228,7 @@ export async function updateTour(id: string, formData: FormData) {
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
-    
+
     let blackout_dates = [];
     try {
       if (blackout_dates_raw) {
@@ -215,7 +237,7 @@ export async function updateTour(id: string, formData: FormData) {
     } catch (e) {
       console.warn("Failed to parse blackout_dates:", e);
     }
-    
+
     let tour_options = null;
     try {
       if (tour_options_raw) {
@@ -225,7 +247,7 @@ export async function updateTour(id: string, formData: FormData) {
     } catch (e) {
       console.warn("Failed to parse tour_options:", e);
     }
-    
+
     let pricing_tiers = null;
     try {
       if (pricing_tiers_raw) {
@@ -262,7 +284,7 @@ export async function updateTour(id: string, formData: FormData) {
     // Fetch old tour data for audit logging
     const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate').eq('id', id).single()
 
-    const { error } = await supabaseAdmin.from('activities').update({
+    const updateData = {
       title,
       provider_name,
       host_id,
@@ -295,7 +317,9 @@ export async function updateTour(id: string, formData: FormData) {
       approx_lat,
       approx_lng,
       private_meeting_instructions
-    }).eq('id', id)
+    };
+
+    const { error } = await supabaseAdmin.from('activities').update(updateData).eq('id', id)
 
     if (error) {
       console.error("Supabase Error:", error)
@@ -313,7 +337,7 @@ export async function updateTour(id: string, formData: FormData) {
     // Log Activity
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     let actionStr = `Updated Tour: ${title}`
     if (oldTour) {
       if (oldTour.price_usd !== price_usd) {
@@ -322,10 +346,29 @@ export async function updateTour(id: string, formData: FormData) {
         actionStr = `Updated commission to ${commission_rate}% for Tour: ${title}`
       }
     }
-    
+
     await logActivity(user?.id, actionStr, 'activities', id)
 
     revalidatePath('/', 'layout')
+
+    const typeMap: Record<string, string> = {
+      tour: "Tours",
+      event: "Events",
+      transport: "Transport"
+    };
+    const webhookType = typeMap[category_type] || "Tours";
+
+    sendWebhook({
+      type: webhookType,
+      action: "update",
+      id: id,
+      data: {
+        Title: title,
+        Price: price_usd,
+        Category: category_type,
+        ...updateData
+      }
+    });
 
     return { success: true }
   } catch (err: any) {
@@ -349,11 +392,11 @@ export async function autoBlockDate(activityId: string, dateString: string) {
 
     if (activity.inventory_type === 'private') {
       const currentBlackoutDates = activity.blackout_dates || []
-      
+
       // Only block if not already blocked
       if (!currentBlackoutDates.includes(dateString)) {
         const newBlackoutDates = [...currentBlackoutDates, dateString]
-        
+
         const { error: updateError } = await supabaseAdmin
           .from('activities')
           .update({ blackout_dates: newBlackoutDates })
@@ -367,7 +410,7 @@ export async function autoBlockDate(activityId: string, dateString: string) {
         revalidatePath('/', 'layout')
       }
     }
-    
+
     return { success: true }
   } catch (err: any) {
     console.error("Auto-block date error:", err)
@@ -390,11 +433,11 @@ export async function autoUnblockDate(activityId: string, dateString: string) {
 
     if (activity.inventory_type === 'private') {
       const currentBlackoutDates = activity.blackout_dates || []
-      
+
       // Only unblock if it is currently blocked
       if (currentBlackoutDates.includes(dateString)) {
         const newBlackoutDates = currentBlackoutDates.filter((d: string) => d !== dateString)
-        
+
         const { error: updateError } = await supabaseAdmin
           .from('activities')
           .update({ blackout_dates: newBlackoutDates })
@@ -408,7 +451,7 @@ export async function autoUnblockDate(activityId: string, dateString: string) {
         revalidatePath('/', 'layout')
       }
     }
-    
+
     return { success: true }
   } catch (err: any) {
     console.error("Auto-unblock date error:", err)
@@ -419,7 +462,13 @@ export async function autoUnblockDate(activityId: string, dateString: string) {
 export async function toggleTourStatus(activityId: string, currentStatus: string) {
   try {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published'
-    
+
+    const { data: activity } = await supabaseAdmin
+      .from('activities')
+      .select('category_type, title, price_usd')
+      .eq('id', activityId)
+      .single()
+
     const { error } = await supabaseAdmin
       .from('activities')
       .update({ status: newStatus })
@@ -428,6 +477,26 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
     if (error) {
       console.error("Failed to toggle status:", error)
       return { success: false, error: "Failed to update status" }
+    }
+
+    if (activity) {
+      const typeMap: Record<string, string> = {
+        tour: "Tours",
+        event: "Events",
+        transport: "Transport"
+      };
+      const webhookType = typeMap[activity.category_type] || "Tours";
+      sendWebhook({
+        type: webhookType,
+        action: newStatus === 'draft' ? 'draft' : 'update',
+        id: activityId,
+        data: {
+          Title: activity.title,
+          Price: activity.price_usd,
+          Category: activity.category_type,
+          status: newStatus
+        }
+      });
     }
 
     revalidatePath('/', 'layout')
@@ -440,6 +509,12 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
 
 export async function deleteTour(activityId: string) {
   try {
+    const { data: activity } = await supabaseAdmin
+      .from('activities')
+      .select('category_type, title, price_usd')
+      .eq('id', activityId)
+      .single()
+
     const { error } = await supabaseAdmin
       .from('activities')
       .delete()
@@ -448,6 +523,25 @@ export async function deleteTour(activityId: string) {
     if (error) {
       console.error("Failed to delete tour:", error)
       return { success: false, error: "Failed to delete tour from database" }
+    }
+
+    if (activity) {
+      const typeMap: Record<string, string> = {
+        tour: "Tours",
+        event: "Events",
+        transport: "Transport"
+      };
+      const webhookType = typeMap[activity.category_type] || "Tours";
+      sendWebhook({
+        type: webhookType,
+        action: "delete",
+        id: activityId,
+        data: {
+          Title: activity.title,
+          Price: activity.price_usd,
+          Category: activity.category_type
+        }
+      });
     }
 
     revalidatePath('/', 'layout')
@@ -485,9 +579,9 @@ export async function toggleActivityPauseState(activityId: string, isPaused: boo
     // For the public host to do this, we should actually verify auth. But the prompt just asked to put the function back.
     // In my previous version, I imported `createClient` from `@/utils/supabase/server`.
     // I will dynamically import it inside the function or use a separate file, but the prompt says to restore it in `tours.ts`.
-    
+
     // I'll implement a secure version using supabaseAdmin for simplicity or use the one I wrote before.
-    
+
     const { error } = await supabaseAdmin
       .from('activities')
       .update({ is_paused_by_host: isPaused })
