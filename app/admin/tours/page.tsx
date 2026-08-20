@@ -5,6 +5,7 @@ import { Plus, Eye, EyeOff, Pencil } from "lucide-react"
 import { StatusToggle } from "@/components/admin/StatusToggle"
 import { FeaturedToggle } from "@/components/admin/FeaturedToggle"
 import { DeleteTourButton } from "@/components/admin/DeleteTourButton"
+import { SyncAllButton } from "@/components/admin/SyncAllButton"
 
 export const dynamic = 'force-dynamic';
 
@@ -23,13 +24,16 @@ export default async function AdminToursDashboard() {
             <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Tours</h1>
             <p className="text-zinc-500 mt-1">Manage your tour catalog and onboard new operators.</p>
           </div>
-          <Link
-            href="/admin/tours/new"
-            className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add New Tour
-          </Link>
+          <div className="flex items-center gap-3">
+            <SyncAllButton />
+            <Link
+              href="/admin/tours/new"
+              className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add New Tour
+            </Link>
+          </div>
         </div>
 
 
@@ -76,6 +80,11 @@ export default async function AdminToursDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 mb-0.5">
                           <div className="font-bold text-zinc-900 max-w-[230px] truncate">{t.title}</div>
+                          {t.reference_code && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-500 border border-zinc-200">
+                              {t.reference_code}
+                            </span>
+                          )}
                           <FeaturedToggle id={t.id} initialStatus={t.is_featured} />
                         </div>
                         <div className="text-zinc-500 text-xs">{t.location}</div>

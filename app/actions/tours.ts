@@ -14,6 +14,40 @@ function generateSlug(title: string): string {
     .replace(/(^-|-$)+/g, '')    // Remove leading and trailing hyphens
 }
 
+// Helper function to generate SKU
+async function generateSKU(category_type: string): Promise<string> {
+  const prefixMap: Record<string, string> = {
+    tour: 'T',
+    event: 'E',
+    transport: 'TR'
+  };
+  const prefix = prefixMap[category_type] || 'A';
+
+  // Find the highest reference_code for this category
+  const { data, error } = await supabaseAdmin
+    .from('activities')
+    .select('reference_code')
+    .eq('category_type', category_type)
+    .not('reference_code', 'is', null)
+    .order('reference_code', { ascending: false })
+    .limit(1);
+
+  if (error) {
+    console.error("Error fetching latest SKU:", error);
+  }
+
+  let nextNumber = 1;
+  if (data && data.length > 0 && data[0].reference_code) {
+    const latestCode = data[0].reference_code;
+    const match = latestCode.match(/\d+$/);
+    if (match) {
+      nextNumber = parseInt(match[0], 10) + 1;
+    }
+  }
+
+  return `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+}
+
 export async function createTour(formData: FormData) {
   try {
     const title = formData.get("title") as string
@@ -106,10 +140,12 @@ export async function createTour(formData: FormData) {
     }
 
     const slug = generateSlug(title)
+    const reference_code = await generateSKU(category_type)
 
     const activityData = {
       title,
       slug,
+      reference_code,
       provider_name,
       host_id,
       location,
@@ -174,7 +210,7 @@ export async function createTour(formData: FormData) {
     sendWebhook({
       type: webhookType,
       action: "create",
-      id: activity.id,
+      id: reference_code,
       data: {
         Title: title,
         Price: price_usd,
@@ -282,7 +318,7 @@ export async function updateTour(id: string, formData: FormData) {
     // Notice we do NOT update the slug to prevent breaking old links
 
     // Fetch old tour data for audit logging
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate').eq('id', id).single()
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate, reference_code').eq('id', id).single()
 
     const updateData = {
       title,
@@ -361,7 +397,7 @@ export async function updateTour(id: string, formData: FormData) {
     sendWebhook({
       type: webhookType,
       action: "update",
-      id: id,
+      id: oldTour?.reference_code || id,
       data: {
         Title: title,
         Price: price_usd,
@@ -465,7 +501,7 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
 
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('category_type, title, price_usd')
+      .select('category_type, title, price_usd, reference_code')
       .eq('id', activityId)
       .single()
 
@@ -489,7 +525,7 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
       sendWebhook({
         type: webhookType,
         action: newStatus === 'draft' ? 'draft' : 'update',
-        id: activityId,
+        id: activity.reference_code || activityId,
         data: {
           Title: activity.title,
           Price: activity.price_usd,
@@ -511,7 +547,7 @@ export async function deleteTour(activityId: string) {
   try {
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('category_type, title, price_usd')
+      .select('category_type, title, price_usd, reference_code')
       .eq('id', activityId)
       .single()
 
@@ -535,7 +571,7 @@ export async function deleteTour(activityId: string) {
       sendWebhook({
         type: webhookType,
         action: "delete",
-        id: activityId,
+        id: activity.reference_code || activityId,
         data: {
           Title: activity.title,
           Price: activity.price_usd,
@@ -598,6 +634,98 @@ export async function toggleActivityPauseState(activityId: string, isPaused: boo
   } catch (err: any) {
     console.error("Toggle pause error:", err)
     return { success: false, error: err.message }
+  }
+}
+
+export async function backfillAndSyncAll() {
+  try {
+    // 1. Fetch all activities ordered by created_at
+    const { data: activities, error } = await supabaseAdmin
+      .from('activities')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error || !activities) {
+      throw new Error("Failed to fetch activities");
+    }
+
+    // 2. Group by category to assign sequential SKUs
+    const counters: Record<string, number> = {
+      tour: 1,
+      event: 1,
+      transport: 1
+    };
+    const prefixMap: Record<string, string> = {
+      tour: 'T',
+      event: 'E',
+      transport: 'TR'
+    };
+
+    for (const activity of activities) {
+      const cat = activity.category_type || 'tour';
+      const prefix = prefixMap[cat] || 'A';
+
+      let refCode = activity.reference_code;
+      if (!refCode) {
+        refCode = `${prefix}${counters[cat].toString().padStart(4, '0')}`;
+        counters[cat]++;
+
+        // Update in DB
+        await supabaseAdmin
+          .from('activities')
+          .update({ reference_code: refCode })
+          .eq('id', activity.id);
+      } else {
+        // If it already has a ref code, update the counter so we don't overlap
+        const match = refCode.match(/\d+$/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (num >= counters[cat]) {
+            counters[cat] = num + 1;
+          }
+        }
+      }
+
+      // 3. Fire webhook for each
+      const typeMap: Record<string, string> = {
+        tour: "Tours",
+        event: "Events",
+        transport: "Transport"
+      };
+      const webhookType = typeMap[cat] || "Tours";
+
+      sendWebhook({
+        type: webhookType,
+        action: "sync",
+        id: refCode,
+        data: {
+          Title: activity.title,
+          Price: activity.price_usd,
+          Category: activity.category_type,
+          Provider: activity.provider_name,
+          Location: activity.location,
+          Duration: activity.duration,
+          Status: activity.status,
+          CommissionRate: activity.commission_rate,
+          MaxCapacity: activity.max_capacity,
+          PaymentStrategy: activity.payment_strategy,
+          InventoryType: activity.inventory_type,
+          BookingType: activity.booking_type,
+          PricingModel: activity.pricing_model,
+          HasPickup: activity.has_pickup,
+          IsHiddenGem: activity.is_hidden_gem,
+          MinNoticeDays: activity.min_notice_days,
+          ApproxLat: activity.approx_lat,
+          ApproxLng: activity.approx_lng
+        }
+      });
+    }
+
+    revalidatePath('/', 'layout');
+    return { success: true, count: activities.length };
+  } catch (err: any) {
+    console.error("Failed to backfill and sync:", err);
+    return { success: false, error: err.message };
   }
 }
 

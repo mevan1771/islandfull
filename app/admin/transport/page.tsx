@@ -76,6 +76,11 @@ export default async function AdminToursDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2 mb-0.5">
                           <div className="font-bold text-zinc-900 max-w-[230px] truncate">{t.title}</div>
+                          {t.reference_code && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-500 border border-zinc-200">
+                              {t.reference_code}
+                            </span>
+                          )}
                           <FeaturedToggle id={t.id} initialStatus={t.is_featured} />
                         </div>
                         <div className="text-zinc-500 text-xs">{t.location}</div>
