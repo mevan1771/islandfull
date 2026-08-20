@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import AdminNav from './AdminNav'
-import SignOutButton from '@/components/host/SignOutButton'
+import AdminSignOutButton from '@/components/admin/AdminSignOutButton'
 import React, { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 
@@ -87,7 +87,7 @@ export default function AdminLayoutWrapper({ children, isAdmin, userEmail: serve
           </div>
         )}
         <div className="pointer-events-auto">
-          <SignOutButton />
+          <AdminSignOutButton />
         </div>
       </div>
 
