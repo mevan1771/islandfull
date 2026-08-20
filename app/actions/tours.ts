@@ -28,7 +28,7 @@ async function generateSKU(category_type: string): Promise<string> {
     .from('activities')
     .select('reference_code')
     .eq('category_type', category_type)
-    .neq('reference_code', null)
+    .not('reference_code', 'is', 'null')
     .order('reference_code', { ascending: false })
     .limit(1);
 
@@ -406,7 +406,11 @@ export async function updateTour(id: string, formData: FormData) {
     let reference_code = oldTour?.reference_code;
     if (!reference_code) {
       reference_code = await generateSKU(category_type);
-      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', id);
+      const { error: refError } = await supabaseAdmin.from('activities').update({ reference_code }).eq('id', id);
+      if (refError) {
+        console.error("Failed to save generated SKU:", refError);
+        throw new Error("Failed to save generated SKU. Please try again.");
+      }
     }
 
     const net_rate = price_usd * (1 - (commission_rate / 100));
@@ -542,7 +546,11 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
     let reference_code = activity?.reference_code;
     if (activity && !reference_code) {
       reference_code = await generateSKU(activity.category_type);
-      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+      const { error: refError } = await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+      if (refError) {
+        console.error("Failed to save generated SKU:", refError);
+        return { success: false, error: "Failed to save generated SKU" };
+      }
     }
 
     if (activity) {
@@ -595,7 +603,11 @@ export async function deleteTour(activityId: string) {
     let reference_code = activity?.reference_code;
     if (activity && !reference_code) {
       reference_code = await generateSKU(activity.category_type);
-      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+      const { error: refError } = await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+      if (refError) {
+        console.error("Failed to save generated SKU:", refError);
+        return { success: false, error: "Failed to save generated SKU" };
+      }
     }
 
     if (activity) {
