@@ -237,6 +237,9 @@ export async function createTour(formData: FormData) {
 
 export async function updateTour(id: string, formData: FormData) {
   try {
+    // Fetch old tour data for audit logging and defaults
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('category_type, price_usd, commission_rate, reference_code, created_at').eq('id', id).single()
+
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
     const provider_name = formData.get("provider_name") as string || "IslandFull Official"
@@ -250,7 +253,7 @@ export async function updateTour(id: string, formData: FormData) {
     const is_featured = formData.get("is_featured") === "on"
 
     // Commission & Category
-    const category_type = formData.get("category_type") as string || "tour"
+    const category_type = formData.get("category_type") as string || oldTour?.category_type || "tour"
     const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
@@ -325,9 +328,6 @@ export async function updateTour(id: string, formData: FormData) {
     }
 
     // Notice we do NOT update the slug to prevent breaking old links
-
-    // Fetch old tour data for audit logging
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('price_usd, commission_rate, reference_code, created_at').eq('id', id).single()
 
     const updateData = {
       title,
