@@ -207,6 +207,8 @@ export async function createTour(formData: FormData) {
     };
     const webhookType = typeMap[category_type] || "Tours";
 
+    const net_rate = price_usd * (1 - (commission_rate / 100));
+
     sendWebhook({
       type: webhookType,
       action: "create",
@@ -216,7 +218,13 @@ export async function createTour(formData: FormData) {
         Price: price_usd,
         Category: category_type,
         created_at: activity?.created_at,
-        ...activityData
+        ...activityData,
+        description,
+        inclusions: inclusions.join('\n'),
+        capacity: max_capacity,
+        duration,
+        commission: commission_rate,
+        net_rate
       }
     });
 
@@ -395,16 +403,30 @@ export async function updateTour(id: string, formData: FormData) {
     };
     const webhookType = typeMap[category_type] || "Tours";
 
+    let reference_code = oldTour?.reference_code;
+    if (!reference_code) {
+      reference_code = await generateSKU(category_type);
+      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', id);
+    }
+
+    const net_rate = price_usd * (1 - (commission_rate / 100));
+
     sendWebhook({
       type: webhookType,
       action: "update",
-      id: oldTour?.reference_code || id,
+      id: reference_code,
       data: {
         Title: title,
         Price: price_usd,
         Category: category_type,
         created_at: oldTour?.created_at,
-        ...updateData
+        ...updateData,
+        description,
+        inclusions: inclusions.join('\n'),
+        capacity: max_capacity,
+        duration,
+        commission: commission_rate,
+        net_rate
       }
     });
 
@@ -517,6 +539,12 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
       return { success: false, error: "Failed to update status" }
     }
 
+    let reference_code = activity?.reference_code;
+    if (activity && !reference_code) {
+      reference_code = await generateSKU(activity.category_type);
+      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+    }
+
     if (activity) {
       const typeMap: Record<string, string> = {
         tour: "Tours",
@@ -527,7 +555,7 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
       sendWebhook({
         type: webhookType,
         action: newStatus === 'draft' ? 'draft' : 'update',
-        id: activity.reference_code || activityId,
+        id: reference_code,
         data: {
           Title: activity.title,
           Price: activity.price_usd,
@@ -564,6 +592,12 @@ export async function deleteTour(activityId: string) {
       return { success: false, error: "Failed to delete tour from database" }
     }
 
+    let reference_code = activity?.reference_code;
+    if (activity && !reference_code) {
+      reference_code = await generateSKU(activity.category_type);
+      await supabaseAdmin.from('activities').update({ reference_code }).eq('id', activityId);
+    }
+
     if (activity) {
       const typeMap: Record<string, string> = {
         tour: "Tours",
@@ -574,7 +608,7 @@ export async function deleteTour(activityId: string) {
       sendWebhook({
         type: webhookType,
         action: "delete",
-        id: activity.reference_code || activityId,
+        id: reference_code,
         data: {
           Title: activity.title,
           Price: activity.price_usd,
@@ -698,6 +732,8 @@ export async function backfillAndSyncAll() {
       };
       const webhookType = typeMap[cat] || "Tours";
 
+      const net_rate = activity.price_usd * (1 - (activity.commission_rate / 100));
+
       sendWebhook({
         type: webhookType,
         action: "sync",
@@ -721,7 +757,13 @@ export async function backfillAndSyncAll() {
           MinNoticeDays: activity.min_notice_days,
           ApproxLat: activity.approx_lat,
           ApproxLng: activity.approx_lng,
-          created_at: activity.created_at
+          created_at: activity.created_at,
+          description: activity.description,
+          inclusions: Array.isArray(activity.inclusions) ? activity.inclusions.join('\n') : activity.inclusions,
+          capacity: activity.max_capacity,
+          duration: activity.duration,
+          commission: activity.commission_rate,
+          net_rate
         }
       });
     }
