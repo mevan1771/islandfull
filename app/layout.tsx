@@ -43,11 +43,11 @@ export default function RootLayout({
       <body className={`${inter.className} bg-white min-h-screen flex flex-col overflow-x-hidden`}>
         <Toaster position="top-center" />
         <SiteHeader />
-        
-        <main className="flex-1">
+
+        <main className="flex-1 flex flex-col w-full">
           {children}
         </main>
-        
+
         <SiteFooter />
       </body>
     </html>
