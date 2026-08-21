@@ -17,7 +17,6 @@ interface Tour {
 
 export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [previousIndex, setPreviousIndex] = useState(-1)
 
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
@@ -40,7 +39,6 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
     const waitTime = currentIndex === 0 ? 5000 : 6000;
 
     const timeout = setTimeout(() => {
-      setPreviousIndex(currentIndex)
       setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselSlides.length)
     }, waitTime);
 
@@ -53,11 +51,9 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
       {carouselSlides.map((tour, index) => (
         <div
           key={tour.id}
-          className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${index === currentIndex
-              ? 'opacity-100 z-20'
-              : index === previousIndex
-                ? 'opacity-100 z-10 pointer-events-none'
-                : 'opacity-0 z-0 pointer-events-none'
+          className={`absolute inset-0 ease-in-out ${index === currentIndex
+              ? 'opacity-100 z-20 transition-opacity duration-[1200ms]'
+              : 'opacity-0 z-10 pointer-events-none transition-opacity duration-[1200ms] delay-[1200ms]'
             }`}
           style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         >
@@ -67,7 +63,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             fill
             className={`object-cover transition-opacity duration-700 ease-in-out ${loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
-            priority={index === currentIndex || index === (currentIndex + 1) % carouselSlides.length}
+            priority={index <= 1}
             quality={100}
             sizes="100vw"
             unoptimized={true}
