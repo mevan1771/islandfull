@@ -39,12 +39,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="h-full antialiased">
       <body className={`${inter.className} bg-white min-h-screen flex flex-col overflow-x-hidden`}>
         <Toaster position="top-center" />
         <SiteHeader />
 
-        <main className="flex-1 flex flex-col w-full">
+        <main className="flex-grow">
           {children}
         </main>
 
