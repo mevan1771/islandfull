@@ -256,9 +256,6 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         ref={mapContainer}
         className="w-full h-full"
         style={{
-          transform: 'translate3d(0, 0, 0)',
-          WebkitTransform: 'translate3d(0, 0, 0)',
-          willChange: 'transform',
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent'
         }}
