@@ -14,7 +14,7 @@ export default function Loading() {
     if (!show) return null
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+        <div className="flex-1 flex items-center justify-center min-h-[75vh] pointer-events-none">
             <Loader2 className="w-10 h-10 animate-spin text-rose-500" />
         </div>
     )
