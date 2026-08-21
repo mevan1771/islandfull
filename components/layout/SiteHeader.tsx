@@ -2,12 +2,13 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 import { ArrowLeft } from "lucide-react"
 
 export default function SiteHeader() {
   const pathname = usePathname()
+  const router = useRouter()
 
   // Do not render the main site header on host or admin portals
   if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
@@ -23,7 +24,14 @@ export default function SiteHeader() {
               <ArrowLeft className="w-4 h-4" />
             </Link>
           )}
-          <Link href="/" className={`flex items-center ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''}`}>
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault()
+              router.back()
+            }}
+            className={`flex items-center ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''} cursor-pointer`}
+          >
             <Image
               src="/logo.png"
               alt="IslandFull"
@@ -32,12 +40,21 @@ export default function SiteHeader() {
               className="h-10 w-auto object-contain drop-shadow-lg"
               priority
             />
-          </Link>
+          </a>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault()
+              router.back()
+            }}
+            className="hover:text-white transition-colors cursor-pointer"
+          >
+            Home
+          </a>
           <Link href="/destinations" className="hover:text-white transition-colors">Destinations</Link>
           <Link href="/trips" className="hover:text-white transition-colors">Trips</Link>
           <Link href="/about-us" className="hover:text-white transition-colors">About Us</Link>
