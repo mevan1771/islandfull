@@ -46,7 +46,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   }, [carouselSlides.length, currentIndex])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-800 animate-in fade-in duration-700 ease-in-out">
+    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
         <div
@@ -71,8 +71,9 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           />
 
-          {/* Slide-specific Legibility Mask (Removed gradients as requested) */}
-          <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+          {/* Slide-specific Legibility Mask */}
+          <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/70 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none"></div>
 
           {/* Slide Content */}
           <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-10 pointer-events-none">
