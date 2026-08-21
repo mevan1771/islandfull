@@ -143,7 +143,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
       <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
         {/* Mobile Back Button */}
         <div className="absolute top-4 left-4 z-50 md:hidden">
-          <Link href="/" prefetch={true} className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
+          <Link href="/" className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm">
             <ArrowLeft className="w-4 h-4 text-white" />
           </Link>
         </div>

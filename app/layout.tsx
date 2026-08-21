@@ -40,14 +40,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className={`${inter.className} bg-white min-h-screen flex flex-col overflow-x-hidden`}>
+      <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-hidden`}>
         <Toaster position="top-center" />
         <SiteHeader />
-        
+
         <main className="flex-1">
           {children}
         </main>
-        
+
         <SiteFooter />
       </body>
     </html>
