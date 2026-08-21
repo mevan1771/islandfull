@@ -48,16 +48,16 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   }, [carouselSlides.length, currentIndex])
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
+    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50vh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
         <div
           key={tour.id}
           className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${index === currentIndex
-              ? 'opacity-100 z-20'
-              : index === previousIndex
-                ? 'opacity-100 z-10 pointer-events-none'
-                : 'opacity-0 z-0 pointer-events-none'
+            ? 'opacity-100 z-20'
+            : index === previousIndex
+              ? 'opacity-100 z-10 pointer-events-none'
+              : 'opacity-0 z-0 pointer-events-none'
             }`}
           style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         >

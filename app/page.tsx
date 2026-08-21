@@ -139,7 +139,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   }
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 min-h-[100dvh]">
       {/* Hero Section */}
       <HeroCarousel tours={featuredTours} introSlide={introSlide} />
 
