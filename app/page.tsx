@@ -16,13 +16,11 @@ export const revalidate = 3600; // Cache for 1 hour to improve FCP
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
-  let activities: any[] = [];
+  const currentVertical = params.vertical || 'tour';
+  const currentCategory = params.category || 'all';
+
   let featuredSpotlight: any = null;
-
   try {
-    const currentVertical = params.vertical || 'tour';
-
-    // Fetch the dynamic spotlight settings from global_settings
     const { data: spotlightSetting } = await supabase
       .from('global_settings')
       .select('value')
@@ -32,66 +30,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     if (spotlightSetting && spotlightSetting.value) {
       featuredSpotlight = spotlightSetting.value;
     }
-
-    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
-      .eq('category_type', currentVertical)
-      .eq('status', 'published')
-      .eq('is_paused_by_host', false);
-
-    if (params.location) {
-      query = query.or(`title.ilike.%${params.location}%,location.ilike.%${params.location}%`);
-    }
-
-    if (params.category && params.category !== 'saved') {
-      query = query.eq('categories.slug', params.category);
-    }
-    // Always prioritize featured tours, then sort by newest first
-    query = query.order('is_featured', { ascending: false, nullsFirst: false });
-
-    if (params.sort === 'price_asc') {
-      query = query.order('price_usd', { ascending: true });
-    } else if (params.sort === 'price_desc') {
-      query = query.order('price_usd', { ascending: false });
-    } else {
-      // Default sort for maximum visibility of new tours
-      query = query.order('created_at', { ascending: false });
-    }
-
-    // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
-    const fetchLimit = params.category === 'saved' ? 50 : 12;
-    const { data, error } = await query.limit(fetchLimit);
-
-    if (error) {
-      console.error("Supabase query error:", error);
-    } else if (data && data.length > 0) {
-      activities = data.map(d => {
-        const rating = d.reviews && d.reviews.length > 0
-          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length
-          : undefined;
-
-        return {
-          id: d.id,
-          title: d.title,
-          slug: d.slug,
-          location: d.location,
-          duration: d.duration,
-          priceUsd: d.price_usd,
-          price_suffix: d.price_suffix,
-          coverImage: d.card_image_url || d.cover_image_url,
-          isHiddenGem: d.is_hidden_gem,
-          rating: rating,
-          reviewCount: d.reviews ? d.reviews.length : 0,
-          pricingModel: d.pricing_model,
-          maxGuests: d.max_capacity
-        };
-      });
-    }
   } catch (e) {
-    console.error("Failed to fetch activities:", e);
+    console.error("Failed to fetch featured spotlight:", e);
   }
 
-  const currentVertical = params.vertical || 'tour';
-  const currentCategory = params.category || 'all';
+
 
   let dynamicCategories: any[] = [];
   try {
@@ -155,7 +98,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       {/* Activity Grid */}
       <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         <Suspense fallback={<ActivitySkeleton />}>
-          <ActivityGrid activities={activities} currentCategory={currentCategory} />
+          <ActivityGridServer searchParams={params} currentCategory={currentCategory} />
         </Suspense>
       </section>
 
@@ -179,3 +122,67 @@ const ActivitySkeleton = () => (
     ))}
   </div>
 );
+
+async function ActivityGridServer({ searchParams, currentCategory }: { searchParams: any, currentCategory: string }) {
+  let activities: any[] = [];
+  try {
+    const currentVertical = searchParams.vertical || 'tour';
+    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
+      .eq('category_type', currentVertical)
+      .eq('status', 'published')
+      .eq('is_paused_by_host', false);
+
+    if (searchParams.location) {
+      query = query.or(`title.ilike.%${searchParams.location}%,location.ilike.%${searchParams.location}%`);
+    }
+
+    if (searchParams.category && searchParams.category !== 'saved') {
+      query = query.eq('categories.slug', searchParams.category);
+    }
+    // Always prioritize featured tours, then sort by newest first
+    query = query.order('is_featured', { ascending: false, nullsFirst: false });
+
+    if (searchParams.sort === 'price_asc') {
+      query = query.order('price_usd', { ascending: true });
+    } else if (searchParams.sort === 'price_desc') {
+      query = query.order('price_usd', { ascending: false });
+    } else {
+      // Default sort for maximum visibility of new tours
+      query = query.order('created_at', { ascending: false });
+    }
+
+    // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
+    const fetchLimit = searchParams.category === 'saved' ? 50 : 12;
+    const { data, error } = await query.limit(fetchLimit);
+
+    if (error) {
+      console.error("Supabase query error:", error);
+    } else if (data && data.length > 0) {
+      activities = data.map(d => {
+        const rating = d.reviews && d.reviews.length > 0
+          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length
+          : undefined;
+
+        return {
+          id: d.id,
+          title: d.title,
+          slug: d.slug,
+          location: d.location,
+          duration: d.duration,
+          priceUsd: d.price_usd,
+          price_suffix: d.price_suffix,
+          coverImage: d.card_image_url || d.cover_image_url,
+          isHiddenGem: d.is_hidden_gem,
+          rating: rating,
+          reviewCount: d.reviews ? d.reviews.length : 0,
+          pricingModel: d.pricing_model,
+          maxGuests: d.max_capacity
+        };
+      });
+    }
+  } catch (e) {
+    console.error("Failed to fetch activities:", e);
+  }
+
+  return <ActivityGrid activities={activities} currentCategory={currentCategory} />;
+}
