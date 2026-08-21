@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import Image from "next/image"
 import Link from "next/link"
+import { Loader2 } from "lucide-react"
 
 
 
@@ -143,12 +144,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       <HeroCarousel tours={featuredTours} introSlide={introSlide} />
 
       {/* Mobile Search Inline Card */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-16 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-rose-500" /></div>}>
         <MobileSearch />
       </Suspense>
 
       {/* Dynamic Filters UI */}
-      <Suspense fallback={<div className="h-40"></div>}>
+      <Suspense fallback={<div className="h-40 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-rose-500" /></div>}>
         <HomeFilters dynamicCategories={dynamicCategories} />
       </Suspense>
 
