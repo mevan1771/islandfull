@@ -113,9 +113,19 @@ export default async function AdminToursDashboard() {
                         <div className="text-zinc-500 text-xs">{t.location}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-600">
-                          {t.categories?.name || 'Uncategorized'}
-                        </span>
+                        {t.categories && t.categories.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {t.categories.map((c: any, i: number) => (
+                              <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-600 border border-zinc-200">
+                                {c.name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-600">
+                            Uncategorized
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-zinc-600 font-medium">
                         {t.duration}

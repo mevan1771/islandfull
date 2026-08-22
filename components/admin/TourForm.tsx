@@ -95,6 +95,14 @@ export default function TourForm({ categories, initialData }: { categories: any[
   const [originalCoverFile, setOriginalCoverFile] = useState<File | null>(null)
   const [cardImage, setCardImage] = useState<string>(initialData?.card_image_url || "")
 
+  // Selected Categories State
+  const [selectedCategories, setSelectedCategories] = useState<any[]>(() => {
+    if (initialData?.categories) {
+      return initialData.categories.map((c: any) => ({ label: c.name, value: c.name }))
+    }
+    return []
+  })
+
   // Tiered Pricing State (array of {guests, price} for easy rendering)
   const [tiers, setTiers] = useState<{ guests: string, price: string }[]>(() => {
     if (initialData?.pricing_tiers) {
@@ -154,6 +162,13 @@ export default function TourForm({ categories, initialData }: { categories: any[
     setError(null)
 
     const formData = new FormData(e.currentTarget)
+
+    // Remove the default react-select hidden input
+    formData.delete("category_ids")
+    // Manually append each selected category
+    selectedCategories.forEach(cat => {
+      formData.append("category_ids", cat.value)
+    })
 
     let result;
     if (isEditing) {
@@ -505,11 +520,8 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     name="category_ids"
                     placeholder="Select or type a new tag..."
                     options={categories.filter(c => !c.category_type || c.category_type === categoryType).map(c => ({ label: c.name, value: c.name }))}
-                    defaultValue={
-                      initialData?.categories
-                        ? initialData.categories.map((c: any) => ({ label: c.name, value: c.name }))
-                        : []
-                    }
+                    value={selectedCategories}
+                    onChange={(newValue) => setSelectedCategories(newValue as any[])}
                     className="react-select-container font-medium text-lg text-zinc-900"
                     classNamePrefix="react-select"
                     styles={{
@@ -1010,8 +1022,8 @@ export default function TourForm({ categories, initialData }: { categories: any[
                   onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
                   onDrop={handleDrop}
                   className={`mt-6 w-full aspect-[2/1] rounded-3xl border-2 overflow-hidden relative flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${isDragOver ? 'border-rose-500 bg-rose-50' :
-                      previewImage ? 'border-transparent shadow-xl shadow-zinc-200/50 bg-zinc-900' :
-                        'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
+                    previewImage ? 'border-transparent shadow-xl shadow-zinc-200/50 bg-zinc-900' :
+                      'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
                     }`}
                 >
                   <input
@@ -1092,7 +1104,7 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     onDragLeave={(e) => { e.preventDefault(); setIsGalleryDragOver(false); }}
                     onDrop={handleGalleryDrop}
                     className={`w-full h-32 rounded-3xl border-2 flex flex-col items-center justify-center transition-all duration-300 cursor-pointer ${isGalleryDragOver ? 'border-rose-500 bg-rose-50' :
-                        'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
+                      'border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400'
                       }`}
                   >
                     <input
