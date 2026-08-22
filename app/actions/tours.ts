@@ -52,7 +52,7 @@ export async function createTour(formData: FormData) {
   try {
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
-    const provider_name = formData.get("provider_name") as string || "IslandFull Official"
+    const provider_name = formData.get("provider_name") as string || ""
     const host_id = formData.get("host_id") as string
     const location = formData.get("location") as string
     const description = formData.get("description") as string
@@ -209,6 +209,12 @@ export async function createTour(formData: FormData) {
 
     const net_rate = price_usd * (1 - (commission_rate / 100));
 
+    let hostName = provider_name;
+    if (host_id) {
+      const { data: hostData } = await supabaseAdmin.from('hosts').select('name').eq('id', host_id).single();
+      if (hostData) hostName = hostData.name;
+    }
+
     sendWebhook({
       type: webhookType,
       action: "create",
@@ -217,6 +223,7 @@ export async function createTour(formData: FormData) {
         Title: title,
         Price: price_usd,
         Category: category_type,
+        Provider: hostName,
         created_at: activity?.created_at,
         ...activityData,
         description,
@@ -242,7 +249,7 @@ export async function updateTour(id: string, formData: FormData) {
 
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
-    const provider_name = formData.get("provider_name") as string || "IslandFull Official"
+    const provider_name = formData.get("provider_name") as string || ""
     const host_id = formData.get("host_id") as string
     const location = formData.get("location") as string
     const description = formData.get("description") as string
@@ -415,6 +422,12 @@ export async function updateTour(id: string, formData: FormData) {
 
     const net_rate = price_usd * (1 - (commission_rate / 100));
 
+    let hostName = provider_name;
+    if (host_id) {
+      const { data: hostData } = await supabaseAdmin.from('hosts').select('name').eq('id', host_id).single();
+      if (hostData) hostName = hostData.name;
+    }
+
     sendWebhook({
       type: webhookType,
       action: "update",
@@ -423,6 +436,7 @@ export async function updateTour(id: string, formData: FormData) {
         Title: title,
         Price: price_usd,
         Category: category_type,
+        Provider: hostName,
         created_at: oldTour?.created_at,
         ...updateData,
         description,
@@ -692,7 +706,7 @@ export async function backfillAndSyncAll() {
     // 1. Fetch all activities ordered by created_at
     const { data: activities, error } = await supabaseAdmin
       .from('activities')
-      .select('*')
+      .select('*, hosts(name)')
       .order('created_at', { ascending: true });
 
     if (error || !activities) {
@@ -754,7 +768,7 @@ export async function backfillAndSyncAll() {
           Title: activity.title,
           Price: activity.price_usd,
           Category: activity.category_type,
-          Provider: activity.provider_name,
+          Provider: activity.hosts?.name || activity.provider_name || "",
           Location: activity.location,
           Duration: activity.duration,
           Status: activity.status,
