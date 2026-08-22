@@ -101,6 +101,9 @@ export default function HostsPage() {
         data.append("login_email", formData.login_email)
         data.append("login_password", formData.login_password)
         res = await adminProvisionLegacyHost(editingHost.id, data)
+        if (res.success) {
+          res = await updateHost(editingHost.id, data)
+        }
       } else {
         res = await updateHost(editingHost.id, data)
       }

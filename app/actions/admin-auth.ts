@@ -96,6 +96,8 @@ export async function adminCreateHostAccount(formData: FormData) {
     const payout_notes = formData.get('payout_notes') as string
     let image_url = formData.get('image_url') as string
     const image_file = formData.get('image_file') as File
+    let avatar_url = formData.get('avatar_url') as string
+    const avatar_file = formData.get('avatar_file') as File
 
     if (image_file && image_file.size > 0) {
       const fileExt = image_file.name.split('.').pop()
@@ -112,6 +114,21 @@ export async function adminCreateHostAccount(formData: FormData) {
       }
     }
 
+    if (avatar_file && avatar_file.size > 0) {
+      const fileExt = avatar_file.name.split('.').pop()
+      const fileName = `avatar_${Math.random()}.${fileExt}`
+      const { error: uploadError, data } = await supabaseAdmin.storage
+        .from('images')
+        .upload(`hosts/${fileName}`, avatar_file)
+
+      if (!uploadError && data) {
+        const { data: { publicUrl } } = supabaseAdmin.storage
+          .from('images')
+          .getPublicUrl(`hosts/${fileName}`)
+        avatar_url = publicUrl
+      }
+    }
+
     // 6. Insert into `hosts` table
     const { error: hostError } = await supabaseAdmin
       .from('hosts')
@@ -123,7 +140,8 @@ export async function adminCreateHostAccount(formData: FormData) {
         phone,
         address,
         payout_notes,
-        image_url
+        image_url,
+        avatar_url
       })
 
     if (hostError) {
