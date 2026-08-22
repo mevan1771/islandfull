@@ -701,7 +701,7 @@ export async function toggleActivityPauseState(activityId: string, isPaused: boo
   }
 }
 
-export async function backfillAndSyncAll() {
+export async function backfillAndSyncAll(actionType: 'SYNC' | 'FORCE_SYNC' = 'SYNC') {
   try {
     // 1. Fetch all activities ordered by created_at
     const { data: activities, error } = await supabaseAdmin
@@ -762,7 +762,7 @@ export async function backfillAndSyncAll() {
 
       sendWebhook({
         type: webhookType,
-        action: "sync",
+        action: actionType,
         id: refCode,
         data: {
           Title: activity.title,
