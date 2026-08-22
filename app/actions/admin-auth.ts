@@ -21,16 +21,25 @@ export async function adminCreateHostAccount(formData: FormData) {
     // 1. Verify the caller is an admin
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: profile } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single()
-      
-    const normalizedRole = profile?.role?.toLowerCase() || '';
+
+    if (profile?.role) {
+      normalizedRole = profile.role.toLowerCase();
+    } else {
+      const { data: userProfile } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (userProfile?.role) {
+        normalizedRole = userProfile.role.toLowerCase();
+      }
+    }
+
     if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
@@ -39,7 +48,7 @@ export async function adminCreateHostAccount(formData: FormData) {
     let email = formData.get('login_email') as string
     const password = formData.get('login_password') as string
     const name = formData.get('name') as string
-    
+
     if (!email || !password || !name) {
       return { success: false, error: "Missing required login credentials or host name" }
     }
@@ -94,7 +103,7 @@ export async function adminCreateHostAccount(formData: FormData) {
       const { error: uploadError, data } = await supabaseAdmin.storage
         .from('images')
         .upload(`hosts/${fileName}`, image_file)
-        
+
       if (!uploadError && data) {
         const { data: { publicUrl } } = supabaseAdmin.storage
           .from('images')
@@ -126,7 +135,7 @@ export async function adminCreateHostAccount(formData: FormData) {
 
     revalidatePath('/admin/hosts')
     return { success: true }
-    
+
   } catch (error: any) {
     console.error("Admin Host Creation Error:", error)
     return { success: false, error: error.message || "An unexpected error occurred" }
@@ -138,15 +147,24 @@ export async function adminProvisionLegacyHost(hostId: string, formData: FormDat
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: profile } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
-    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (profile?.role) {
+      normalizedRole = profile.role.toLowerCase();
+    } else {
+      const { data: userProfile } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (userProfile?.role) {
+        normalizedRole = userProfile.role.toLowerCase();
+      }
+    }
+
     if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 
     let email = formData.get('login_email') as string
     const password = formData.get('login_password') as string
     const name = formData.get('name') as string
-    
+
     if (!email || !password) {
       return { success: false, error: "Missing required login credentials" }
     }
@@ -205,9 +223,18 @@ export async function adminResetHostPassword(userId: string, newPassword: string
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: profile } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
-    const normalizedRole = profile?.role?.toLowerCase() || '';
+    if (profile?.role) {
+      normalizedRole = profile.role.toLowerCase();
+    } else {
+      const { data: userProfile } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (userProfile?.role) {
+        normalizedRole = userProfile.role.toLowerCase();
+      }
+    }
+
     if (!['admin', 'staff'].includes(normalizedRole)) return { success: false, error: "Unauthorized: Admins and Staff only" }
 
     if (!newPassword || newPassword.length < 6) {

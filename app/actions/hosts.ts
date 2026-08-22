@@ -33,9 +33,18 @@ export async function createHost(formData: FormData) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
-    const normalizedRole = roleData?.role?.toLowerCase() || '';
+    if (roleData?.role) {
+      normalizedRole = roleData.role.toLowerCase();
+    } else {
+      const { data: profileData } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (profileData?.role) {
+        normalizedRole = profileData.role.toLowerCase();
+      }
+    }
+
     if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
@@ -65,13 +74,13 @@ export async function createHost(formData: FormData) {
       const { data, error } = await supabaseAdmin.storage
         .from('images') // fallback bucket
         .upload(`hosts/${fileName}`, imageFile)
-      
+
       if (error) throw error
-      
+
       const { data: publicUrlData } = supabaseAdmin.storage
         .from('images')
         .getPublicUrl(`hosts/${fileName}`)
-        
+
       image_url = publicUrlData.publicUrl
     }
 
@@ -81,13 +90,13 @@ export async function createHost(formData: FormData) {
       const { data, error } = await supabaseAdmin.storage
         .from('images')
         .upload(`hosts/${fileName}`, avatarFile)
-      
+
       if (error) throw error
-      
+
       const { data: publicUrlData } = supabaseAdmin.storage
         .from('images')
         .getPublicUrl(`hosts/${fileName}`)
-        
+
       avatar_url = publicUrlData.publicUrl
     }
 
@@ -111,9 +120,18 @@ export async function updateHost(id: string, formData: FormData) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
-    const normalizedRole = roleData?.role?.toLowerCase() || '';
+    if (roleData?.role) {
+      normalizedRole = roleData.role.toLowerCase();
+    } else {
+      const { data: profileData } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (profileData?.role) {
+        normalizedRole = profileData.role.toLowerCase();
+      }
+    }
+
     if (!['admin', 'staff'].includes(normalizedRole)) {
       return { success: false, error: "Unauthorized: Admins and Staff only" }
     }
@@ -143,13 +161,13 @@ export async function updateHost(id: string, formData: FormData) {
       const { data, error } = await supabaseAdmin.storage
         .from('images')
         .upload(`hosts/${fileName}`, imageFile)
-      
+
       if (error) throw error
-      
+
       const { data: publicUrlData } = supabaseAdmin.storage
         .from('images')
         .getPublicUrl(`hosts/${fileName}`)
-        
+
       image_url = publicUrlData.publicUrl
     }
 
@@ -159,13 +177,13 @@ export async function updateHost(id: string, formData: FormData) {
       const { data, error } = await supabaseAdmin.storage
         .from('images')
         .upload(`hosts/${fileName}`, avatarFile)
-      
+
       if (error) throw error
-      
+
       const { data: publicUrlData } = supabaseAdmin.storage
         .from('images')
         .getPublicUrl(`hosts/${fileName}`)
-        
+
       avatar_url = publicUrlData.publicUrl
     }
 
@@ -198,9 +216,19 @@ export async function deleteHost(id: string) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: "Unauthorized" }
-    
+
+    let normalizedRole = '';
     const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single()
-    if (roleData?.role !== 'admin') return { success: false, error: "Unauthorized: Admins only" }
+    if (roleData?.role) {
+      normalizedRole = roleData.role.toLowerCase();
+    } else {
+      const { data: profileData } = await supabase.from('users').select('role').eq('id', user.id).single()
+      if (profileData?.role) {
+        normalizedRole = profileData.role.toLowerCase();
+      }
+    }
+
+    if (normalizedRole !== 'admin') return { success: false, error: "Unauthorized: Admins only" }
 
     // 1. Guard Rail: Check if the host has associated activities
     const { data: activities, error: activityError } = await supabaseAdmin
