@@ -725,6 +725,23 @@ export default function TourForm({ categories, initialData }: { categories: any[
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <CheckSquare className="w-4 h-4 text-rose-500" />
+                    Cancellation Tier
+                  </label>
+                  <select
+                    name="cancellation_tier"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
+                    defaultValue={initialData?.cancellation_tier || "MODERATE"}
+                  >
+                    <option value="FLEXIBLE">Flexible (Full refund 24h prior)</option>
+                    <option value="MODERATE">Moderate (Full refund 7 days prior)</option>
+                    <option value="STRICT">Strict (Full refund 14 days prior)</option>
+                    <option value="NON_REFUNDABLE">Non-Refundable (No refunds)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <Car className="w-4 h-4 text-rose-500" />
                     Pickup Options
                   </label>

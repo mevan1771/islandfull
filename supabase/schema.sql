@@ -45,6 +45,7 @@ CREATE TABLE activities (
   status TEXT DEFAULT 'published' CHECK (status IN ('published', 'draft')),
   booking_type TEXT DEFAULT 'single_day' CHECK (booking_type IN ('single_day', 'multi_day', 'point_to_point')),
   pricing_model TEXT DEFAULT 'per_person' CHECK (pricing_model IN ('per_person', 'per_day', 'flat_rate')),
+  cancellation_tier TEXT DEFAULT 'MODERATE' CHECK (cancellation_tier IN ('FLEXIBLE', 'MODERATE', 'STRICT', 'NON_REFUNDABLE')),
   is_featured BOOLEAN DEFAULT false,
   featured_order INTEGER DEFAULT 0,
   is_paused_by_host BOOLEAN DEFAULT false,

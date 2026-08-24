@@ -10,6 +10,7 @@ import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { getCancellationPolicyText } from "@/utils/cancellation"
 
 interface BookingDrawerProps {
   activityId: string
@@ -30,6 +31,7 @@ interface BookingDrawerProps {
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   hostAvatar?: string
   hostName?: string
+  cancellationTier?: string
 }
 
 export function BookingDrawer({
@@ -50,7 +52,8 @@ export function BookingDrawer({
   bookingType = 'single_day',
   pricingModel = 'per_person',
   hostAvatar,
-  hostName
+  hostName,
+  cancellationTier = 'MODERATE'
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -117,6 +120,9 @@ export function BookingDrawer({
   }
 
   let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
+
+  const selectedDateForPolicy = bookingType === 'multi_day' ? dateRange?.from : (date ? parse(date, 'yyyy-MM-dd', new Date()) : null);
+  const cancellationPolicy = selectedDateForPolicy ? getCancellationPolicyText(selectedDateForPolicy, cancellationTier) : null;
 
   const handleStripeCheckout = async () => {
     const isMulti = bookingType === 'multi_day';
@@ -680,6 +686,13 @@ export function BookingDrawer({
                       <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
                     )}
                   </div>
+                </div>
+              )}
+
+              {cancellationPolicy && (
+                <div className="bg-rose-50 p-3 rounded-xl border border-rose-100 mt-4 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
+                  <p className="text-xs font-medium text-rose-700">{cancellationPolicy}</p>
                 </div>
               )}
 

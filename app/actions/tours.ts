@@ -78,6 +78,7 @@ export async function createTour(formData: FormData) {
     const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
+    const cancellation_tier = formData.get("cancellation_tier") as string || "MODERATE"
     const approx_lat_str = formData.get("approx_lat") as string
     const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
     const approx_lng_str = formData.get("approx_lng") as string
@@ -171,6 +172,7 @@ export async function createTour(formData: FormData) {
       pricing_model,
       has_pickup,
       is_hidden_gem,
+      cancellation_tier,
       blackout_dates,
       status,
       min_notice_days,
@@ -245,7 +247,7 @@ export async function createTour(formData: FormData) {
 export async function updateTour(id: string, formData: FormData) {
   try {
     // Fetch old tour data for audit logging and defaults
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('category_type, price_usd, commission_rate, reference_code, created_at').eq('id', id).single()
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('category_type, price_usd, commission_rate, reference_code, created_at, cancellation_tier').eq('id', id).single()
 
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
@@ -275,6 +277,7 @@ export async function updateTour(id: string, formData: FormData) {
     const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
+    const cancellation_tier = formData.get("cancellation_tier") as string || oldTour?.cancellation_tier || "MODERATE"
     const approx_lat_str = formData.get("approx_lat") as string
     const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
     const approx_lng_str = formData.get("approx_lng") as string
@@ -363,6 +366,7 @@ export async function updateTour(id: string, formData: FormData) {
       pricing_model,
       has_pickup,
       is_hidden_gem,
+      cancellation_tier,
       blackout_dates,
       status,
       min_notice_days,

@@ -309,6 +309,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               pricingModel={activity.pricing_model || 'per_person'}
               hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
               hostName={activity.hosts?.name || activity.provider_name}
+              cancellationTier={activity.cancellation_tier}
             />
           </div>
         </div>
@@ -370,6 +371,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           pricingModel={activity.pricing_model || 'per_person'}
           hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
           hostName={activity.hosts?.name || activity.provider_name}
+          cancellationTier={activity.cancellation_tier}
         />
       </div>
     </div>
