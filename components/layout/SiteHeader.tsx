@@ -24,12 +24,8 @@ export default function SiteHeader() {
               <ArrowLeft className="w-4 h-4" />
             </Link>
           )}
-          <a
+          <Link
             href="/"
-            onClick={(e) => {
-              e.preventDefault()
-              router.back()
-            }}
             className={`flex items-center ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''} cursor-pointer`}
           >
             <Image
@@ -40,21 +36,17 @@ export default function SiteHeader() {
               className="h-10 w-auto object-contain drop-shadow-lg"
               priority
             />
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
-          <a
+          <Link
             href="/"
-            onClick={(e) => {
-              e.preventDefault()
-              router.back()
-            }}
             className="hover:text-white transition-colors cursor-pointer"
           >
             Home
-          </a>
+          </Link>
           <Link href="/destinations" className="hover:text-white transition-colors">Destinations</Link>
           <Link href="/trips" className="hover:text-white transition-colors">Trips</Link>
           <Link href="/about-us" className="hover:text-white transition-colors">About Us</Link>
