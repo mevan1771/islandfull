@@ -27,10 +27,15 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
     .order('sort_order', { ascending: true })
     .order('name');
 
+  const { data: cancellationTiers } = await supabase
+    .from('cancellation_tiers')
+    .select('*')
+    .order('cutoff_hours', { ascending: true });
+
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <TourForm categories={categories || []} initialData={tour} />
+        <TourForm categories={categories || []} initialData={tour} cancellationTiers={cancellationTiers || []} />
       </div>
     </div>
   )

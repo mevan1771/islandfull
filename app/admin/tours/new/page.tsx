@@ -11,10 +11,15 @@ export default async function NewTourPage() {
     .order('sort_order', { ascending: true })
     .order('name');
 
+  const { data: cancellationTiers } = await supabase
+    .from('cancellation_tiers')
+    .select('*')
+    .order('cutoff_hours', { ascending: true });
+
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <TourForm categories={categories || []} />
+        <TourForm categories={categories || []} cancellationTiers={cancellationTiers || []} />
       </div>
     </div>
   )

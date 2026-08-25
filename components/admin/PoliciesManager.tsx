@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Loader2, Plus, Trash2, Save, FileText, AlertCircle } from 'lucide-react'
 
-export default function PoliciesManager() {
+export default function PoliciesManager({ initialTiers = [] }: { initialTiers?: any[] }) {
     const [operatorAgreement, setOperatorAgreement] = useState('')
     const [operatorVersion, setOperatorVersion] = useState(0)
     const [touristTerms, setTouristTerms] = useState('')
     const [touristVersion, setTouristVersion] = useState(0)
 
-    const [tiers, setTiers] = useState<any[]>([])
+    const [tiers, setTiers] = useState<any[]>(initialTiers)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState({ text: '', type: '' })

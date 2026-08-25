@@ -144,6 +144,7 @@ export async function saveCancellationTier(tier: any) {
     }
 
     revalidatePath('/admin/policies')
+    revalidatePath('/admin/tours')
     return { success: true, data: result.data }
 }
 
@@ -172,5 +173,6 @@ export async function deleteCancellationTier(id: string) {
     }
 
     revalidatePath('/admin/policies')
+    revalidatePath('/admin/tours')
     return { success: true }
 }

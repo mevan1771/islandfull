@@ -30,6 +30,11 @@ export default async function AdminPoliciesPage() {
         redirect('/admin')
     }
 
+    const { data: cancellationTiers } = await supabase
+        .from('cancellation_tiers')
+        .select('*')
+        .order('cutoff_hours', { ascending: true })
+
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="mb-8">
@@ -37,7 +42,7 @@ export default async function AdminPoliciesPage() {
                 <p className="text-zinc-500 mt-2 font-medium">Manage global platform policies and cancellation tiers.</p>
             </div>
 
-            <PoliciesManager />
+            <PoliciesManager initialTiers={cancellationTiers || []} />
         </div>
     )
 }

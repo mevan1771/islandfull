@@ -16,7 +16,7 @@ import imageCompression from 'browser-image-compression'
 
 const TOTAL_STEPS = 4;
 
-export default function TourForm({ categories, initialData }: { categories: any[], initialData?: any }) {
+export default function TourForm({ categories, initialData, cancellationTiers = [] }: { categories: any[], initialData?: any, cancellationTiers?: any[] }) {
   const router = useRouter()
   const isEditing = !!initialData
 
@@ -733,10 +733,14 @@ export default function TourForm({ categories, initialData }: { categories: any[
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
                     defaultValue={initialData?.cancellation_tier || "MODERATE"}
                   >
-                    <option value="FLEXIBLE">Flexible (Full refund 24h prior)</option>
-                    <option value="MODERATE">Moderate (Full refund 7 days prior)</option>
-                    <option value="STRICT">Strict (Full refund 14 days prior)</option>
-                    <option value="NON_REFUNDABLE">Non-Refundable (No refunds)</option>
+                    {cancellationTiers.map((tier) => (
+                      <option key={tier.id} value={tier.id}>
+                        {tier.name} ({tier.cutoff_hours === 0 ? 'No refunds' : `Full refund ${tier.cutoff_hours}h prior`})
+                      </option>
+                    ))}
+                    {cancellationTiers.length === 0 && (
+                      <option value="MODERATE">Moderate (Full refund 7 days prior)</option>
+                    )}
                   </select>
                 </div>
 
