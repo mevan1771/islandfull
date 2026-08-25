@@ -10,7 +10,8 @@ import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
-import { getCancellationPolicyText } from "@/utils/cancellation"
+import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface BookingDrawerProps {
   activityId: string
@@ -31,7 +32,7 @@ interface BookingDrawerProps {
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   hostAvatar?: string
   hostName?: string
-  cancellationTier?: string
+  cancellationTierData?: CancellationTierData | null
 }
 
 export function BookingDrawer({
@@ -53,7 +54,7 @@ export function BookingDrawer({
   pricingModel = 'per_person',
   hostAvatar,
   hostName,
-  cancellationTier = 'MODERATE'
+  cancellationTierData
 }: BookingDrawerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -78,6 +79,9 @@ export function BookingDrawer({
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
   const [discountUsd, setDiscountUsd] = useState(0)
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
+
+  // Policy Agreement State
+  const [agreedToPolicies, setAgreedToPolicies] = useState(false)
 
   const getPricingLabel = () => {
     if (pricingTiers && Object.keys(pricingTiers).length > 0) return "starting price"
@@ -122,7 +126,7 @@ export function BookingDrawer({
   let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
 
   const selectedDateForPolicy = bookingType === 'multi_day' ? dateRange?.from : (date ? parse(date, 'yyyy-MM-dd', new Date()) : null);
-  const cancellationPolicy = selectedDateForPolicy ? getCancellationPolicyText(selectedDateForPolicy, cancellationTier) : null;
+  const cancellationPolicy = selectedDateForPolicy ? getCancellationPolicyText(selectedDateForPolicy, cancellationTierData || null) : null;
 
   const handleStripeCheckout = async () => {
     const isMulti = bookingType === 'multi_day';
@@ -131,6 +135,10 @@ export function BookingDrawer({
     const finalEndDate = resolvedEndDate ? format(resolvedEndDate, 'yyyy-MM-dd') : "";
 
     if (!finalDate || !whatsapp || !touristName || !touristEmail || (isMulti && !finalEndDate)) return
+    if (!agreedToPolicies) {
+      alert("You must agree to the Global Terms and Cancellation Policy to proceed.")
+      return
+    }
 
     setStep("processing")
 

@@ -24,6 +24,22 @@ CREATE TABLE categories (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Hosts Table
+CREATE TABLE hosts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  contact_name TEXT,
+  address TEXT,
+  payout_notes TEXT,
+  image_url TEXT,
+  avatar_url TEXT,
+  agreed_policy_version INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Activities Table
 CREATE TABLE activities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -134,3 +150,22 @@ WITH CHECK (
     SELECT id FROM hosts WHERE user_id = auth.uid()
   )
 );
+
+-- Platform Policies Table
+CREATE TABLE platform_policies (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    type TEXT NOT NULL UNIQUE, -- 'operator_agreement', 'global_terms', 'privacy_policy'
+    version INTEGER NOT NULL DEFAULT 1,
+    content TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Cancellation Tiers Table
+CREATE TABLE cancellation_tiers (
+    id TEXT PRIMARY KEY, -- 'FLEXIBLE', 'MODERATE', 'STRICT', 'NON_REFUNDABLE'
+    name TEXT NOT NULL,
+    cutoff_hours INTEGER NOT NULL,
+    refund_percentage INTEGER NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+

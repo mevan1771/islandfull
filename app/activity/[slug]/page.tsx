@@ -100,6 +100,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
+  let cancellationTierData = null;
+  if (activity.cancellation_tier) {
+    const { data } = await supabase.from('cancellation_tiers').select('*').eq('id', activity.cancellation_tier).single();
+    if (data) cancellationTierData = data;
+  }
+
   const reviewCount = activity.reviews ? activity.reviews.length : 0;
   const avgRating = reviewCount > 0
     ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
@@ -312,7 +318,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               pricingModel={activity.pricing_model || 'per_person'}
               hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
               hostName={activity.hosts?.name || activity.provider_name}
-              cancellationTier={activity.cancellation_tier}
+              cancellationTierData={cancellationTierData}
             />
           </div>
         </div>
@@ -374,7 +380,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           pricingModel={activity.pricing_model || 'per_person'}
           hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
           hostName={activity.hosts?.name || activity.provider_name}
-          cancellationTier={activity.cancellation_tier}
+          cancellationTierData={cancellationTierData}
         />
       </div>
     </div>

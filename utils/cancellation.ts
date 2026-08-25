@@ -1,43 +1,36 @@
-export type CancellationTier = 'FLEXIBLE' | 'MODERATE' | 'STRICT' | 'NON_REFUNDABLE';
+export interface CancellationTierData {
+    id: string;
+    name: string;
+    cutoff_hours: number;
+    refund_percentage: number;
+}
 
 /**
- * Calculates the exact cutoff date for a full refund based on the start date and cancellation tier.
+ * Calculates the exact cutoff date for a full refund based on the start date and cancellation tier data.
  * @param startDate The date of the activity/tour.
- * @param tier The cancellation tier.
+ * @param tierData The cancellation tier data from the database.
  * @returns The cutoff date for a full refund, or null if non-refundable.
  */
-export function calculateRefundCutoffDate(startDate: Date | string, tier: CancellationTier | string): Date | null {
-    const date = new Date(startDate);
-
-    switch (tier) {
-        case 'FLEXIBLE':
-            // 24 hours prior
-            date.setHours(date.getHours() - 24);
-            return date;
-        case 'MODERATE':
-            // 7 days prior
-            date.setDate(date.getDate() - 7);
-            return date;
-        case 'STRICT':
-            // 14 days prior
-            date.setDate(date.getDate() - 14);
-            return date;
-        case 'NON_REFUNDABLE':
-        default:
-            return null;
+export function calculateRefundCutoffDate(startDate: Date | string, tierData: CancellationTierData | null): Date | null {
+    if (!tierData || tierData.id === 'NON_REFUNDABLE' || tierData.refund_percentage === 0) {
+        return null;
     }
+
+    const date = new Date(startDate);
+    date.setHours(date.getHours() - tierData.cutoff_hours);
+    return date;
 }
 
 /**
  * Returns a user-friendly string explaining the cancellation policy.
  * @param startDate The date of the activity/tour.
- * @param tier The cancellation tier.
+ * @param tierData The cancellation tier data from the database.
  * @returns A user-friendly string.
  */
-export function getCancellationPolicyText(startDate: Date | string, tier: CancellationTier | string): string {
-    const cutoffDate = calculateRefundCutoffDate(startDate, tier);
+export function getCancellationPolicyText(startDate: Date | string, tierData: CancellationTierData | null): string {
+    const cutoffDate = calculateRefundCutoffDate(startDate, tierData);
 
-    if (!cutoffDate || tier === 'NON_REFUNDABLE') {
+    if (!cutoffDate || !tierData || tierData.id === 'NON_REFUNDABLE' || tierData.refund_percentage === 0) {
         return 'Non-refundable. No refunds will be issued for cancellations.';
     }
 
@@ -47,5 +40,5 @@ export function getCancellationPolicyText(startDate: Date | string, tier: Cancel
         year: 'numeric',
     });
 
-    return `Cancel before ${formattedDate} for a full refund.`;
+    return `Cancel before ${formattedDate} for a ${tierData.refund_percentage}% refund.`;
 }
