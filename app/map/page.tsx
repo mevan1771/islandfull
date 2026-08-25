@@ -1,5 +1,8 @@
-import { InteractiveMap, MapTour } from "@/components/map/InteractiveMap"
+import dynamic from 'next/dynamic'
+import type { MapTour } from "@/components/map/InteractiveMap"
 import { supabase } from "@/lib/supabase"
+
+const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap').then(mod => mod.InteractiveMap), { ssr: false })
 
 export const revalidate = 0 // Opt out of caching for now to always show fresh tours
 
@@ -14,13 +17,13 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
     .select('name, slug, category_type')
     .order('sort_order', { ascending: true })
     .order('name')
-    
+
   if (currentVertical !== 'all') {
     catQuery = catQuery.eq('category_type', currentVertical)
   }
 
   const { data: catData, error: catError } = await catQuery
-    
+
   if (!catError && catData) {
     dynamicCategories = catData
   }
@@ -28,22 +31,22 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   // Fetch active tours from the database
   let activitiesQuery = supabase
     .from('activities')
-    .select('*, categories(name, slug), activity_categories(categories(slug)), reviews(rating)')
+    .select('id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, categories(name, slug), activity_categories(categories(slug)), reviews(rating)')
     .eq('status', 'published')
-    
+
   if (currentVertical !== 'all') {
     activitiesQuery = activitiesQuery.eq('category_type', currentVertical)
   }
 
   const { data: activities, error } = await activitiesQuery
-    
+
   if (error) {
     console.error("Error fetching map tours:", error)
   }
 
   // Format data for the map
   let mapData: MapTour[] = []
-  
+
   if (activities && activities.length > 0) {
     mapData = activities.map((activity: any) => {
       let rating = 4.9;
@@ -53,8 +56,8 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
         reviewCount = activity.reviews.length;
       }
 
-      const tags = Array.isArray(activity.categories) 
-        ? activity.categories.map((c: any) => c.slug) 
+      const tags = Array.isArray(activity.categories)
+        ? activity.categories.map((c: any) => c.slug)
         : (activity.categories?.slug ? [activity.categories.slug] : []);
 
       return {
