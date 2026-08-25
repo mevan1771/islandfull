@@ -33,14 +33,14 @@ export default function SiteHeader() {
               alt="IslandFull"
               width={140}
               height={40}
-              className="h-10 w-auto object-contain drop-shadow-lg"
+              className="h-10 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
               priority
             />
           </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
           <Link
             href="/"
             className="hover:text-white transition-colors cursor-pointer"

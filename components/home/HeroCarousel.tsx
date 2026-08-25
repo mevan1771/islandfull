@@ -73,7 +73,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
 
           {/* Slide-specific Legibility Mask */}
           <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none"></div>
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none"></div>
 
           {/* Slide Content */}
           <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-10 pointer-events-none">
