@@ -38,6 +38,11 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
 
+  // Drag state
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
+
   const handleScroll = React.useCallback(() => {
     if (!scrollContainerRef.current) return
     const scrollLeft = scrollContainerRef.current.scrollLeft
@@ -83,12 +88,52 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
     }
   }, [filteredSlides])
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return
+    setIsDragging(true)
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft)
+    setScrollLeft(scrollContainerRef.current.scrollLeft)
+    scrollContainerRef.current.style.cursor = 'grabbing'
+    scrollContainerRef.current.style.scrollSnapType = 'none'
+    scrollContainerRef.current.style.scrollBehavior = 'auto'
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.style.cursor = 'grab'
+      scrollContainerRef.current.style.scrollSnapType = 'x mandatory'
+      scrollContainerRef.current.style.scrollBehavior = 'smooth'
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.style.cursor = 'grab'
+      scrollContainerRef.current.style.scrollSnapType = 'x mandatory'
+      scrollContainerRef.current.style.scrollBehavior = 'smooth'
+    }
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return
+    e.preventDefault()
+    const x = e.pageX - scrollContainerRef.current.offsetLeft
+    const walk = (x - startX) * 1.5
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk
+  }
+
   return (
     <section className="bg-zinc-50 py-4 md:py-24 relative overflow-hidden">
       <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
         <div
           ref={scrollContainerRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab active:cursor-grabbing"
         >
           {filteredSlides.map((slide, index) => (
             <div
