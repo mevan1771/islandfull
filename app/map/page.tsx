@@ -1,8 +1,6 @@
-import dynamic from 'next/dynamic'
+import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
 import { supabase } from "@/lib/supabase"
-
-const InteractiveMap = dynamic(() => import('@/components/map/InteractiveMap').then(mod => mod.InteractiveMap), { ssr: false })
 
 export const revalidate = 0 // Opt out of caching for now to always show fresh tours
 
@@ -84,7 +82,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
 
   return (
     <div className="w-full">
-      <InteractiveMap tours={mapData} dynamicCategories={dynamicCategories} currentVertical={currentVertical} />
+      <MapClientWrapper tours={mapData} dynamicCategories={dynamicCategories} currentVertical={currentVertical} />
     </div>
   )
 }
