@@ -125,9 +125,11 @@ export async function saveCancellationTier(tier: any) {
             .select()
             .single()
     } else {
+        const newId = tier.name.toUpperCase().replace(/[^A-Z0-9]/g, '_');
         result = await supabase
             .from('cancellation_tiers')
             .insert({
+                id: newId,
                 name: tier.name,
                 cutoff_hours: tier.cutoff_hours,
                 refund_percentage: tier.refund_percentage
