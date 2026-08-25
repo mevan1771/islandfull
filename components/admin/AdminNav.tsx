@@ -23,6 +23,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Categories', href: '/admin/categories' },
     { name: 'Team / Access Control', href: '/admin/team', adminOnly: true },
     { name: 'Global Settings', href: '/admin/settings', adminOnly: true },
+    { name: 'Policies & Contracts', href: '/admin/policies', adminOnly: true },
   ]
 
   return (

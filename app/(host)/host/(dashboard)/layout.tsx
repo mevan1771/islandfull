@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import SignOutButton from '@/components/host/SignOutButton'
 import HostNavigation from '@/components/host/HostNavigation'
+import HostGatekeeper from '@/components/host/HostGatekeeper'
 
 export default async function HostLayout({
   children,
@@ -11,9 +12,9 @@ export default async function HostLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     redirect('/host/login')
   }
@@ -30,9 +31,20 @@ export default async function HostLayout({
 
   const { data: host } = await supabase
     .from('hosts')
-    .select('id, name, image_url')
+    .select('id, name, image_url, agreed_policy_version')
     .eq('user_id', user.id)
     .single()
+
+  // Fetch latest operator agreement
+  const { data: latestPolicy } = await supabase
+    .from('platform_policies')
+    .select('*')
+    .eq('type', 'operator_agreement')
+    .order('version', { ascending: false })
+    .limit(1)
+    .single()
+
+  const needsToAcceptPolicy = latestPolicy && host && (!host.agreed_policy_version || host.agreed_policy_version < latestPolicy.version)
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
@@ -57,11 +69,16 @@ export default async function HostLayout({
         </div>
       </header>
 
-      <HostNavigation />
-
-      <div className="flex-1">
-        {children}
-      </div>
+      {needsToAcceptPolicy ? (
+        <HostGatekeeper latestPolicy={latestPolicy} hostId={host.id} />
+      ) : (
+        <>
+          <HostNavigation />
+          <div className="flex-1">
+            {children}
+          </div>
+        </>
+      )}
       <Toaster position="top-center" />
     </div>
   )

@@ -12,6 +12,7 @@ export default function HostNavigation() {
     { name: "My Tours", href: "/host/tours" },
     { name: "Earnings", href: "/host/earnings" },
     { name: "Calendar", href: "/host/calendar" },
+    { name: "Contracts", href: "/host/contracts" },
   ]
 
   return (
@@ -24,11 +25,10 @@ export default function HostNavigation() {
               key={tab.name}
               href={tab.href}
               prefetch={true}
-              className={`whitespace-nowrap py-4 px-6 font-semibold text-sm transition-colors border-b-2 ${
-                isActive
+              className={`whitespace-nowrap py-4 px-6 font-semibold text-sm transition-colors border-b-2 ${isActive
                   ? "border-black text-black"
                   : "border-transparent text-zinc-500 hover:text-zinc-800"
-              }`}
+                }`}
             >
               {tab.name}
             </Link>
