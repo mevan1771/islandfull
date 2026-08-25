@@ -158,6 +158,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority={true}
           fetchPriority="high"
         />
+        {/* Top Gradient for Header Legibility */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none z-10"></div>
+
         <FavoriteButton activityId={activity.id} className="hidden md:flex" />
         <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
           <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
