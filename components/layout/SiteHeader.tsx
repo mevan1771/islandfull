@@ -57,11 +57,11 @@ export default function SiteHeader() {
 
         <div className="flex items-center gap-4 drop-shadow-md">
           {pathname === '/map' ? (
-            <Link href="/" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+            <Link href="/" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
               <ArrowLeft className="w-4 h-4" /> Back
             </Link>
           ) : (
-            <Link href="/map" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-md border border-white/20 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+            <Link href="/map" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
               🌍 Explore Map
             </Link>
           )}
