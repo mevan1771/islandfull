@@ -22,7 +22,7 @@ export function FavoriteButton({ activityId, className, variant = 'overlay' }: F
   if (!isHydrated) {
     return (
       <button className={twMerge(defaultClasses, "opacity-50 cursor-default", className)}>
-        <Heart className={twMerge("w-4 h-4 sm:w-5 sm:h-5", variant === 'overlay' ? "drop-shadow-md text-white/90" : "text-zinc-900")} />
+        <Heart className={twMerge("w-4 h-4 sm:w-5 sm:h-5", variant === 'overlay' ? "drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-white/90" : "text-zinc-900")} />
       </button>
     )
   }
@@ -55,7 +55,7 @@ export function FavoriteButton({ activityId, className, variant = 'overlay' }: F
       <Heart
         className={twMerge(
           "w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300",
-          variant === 'overlay' ? "drop-shadow-md" : "",
+          variant === 'overlay' ? "drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" : "",
           variant === 'overlay' ? (
             isSaved ? "fill-rose-500 text-rose-500 sm:fill-white sm:text-white" : "text-white/90 hover:text-white"
           ) : (

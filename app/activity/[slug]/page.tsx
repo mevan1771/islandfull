@@ -180,8 +180,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           priority={true}
           fetchPriority="high"
         />
-        {/* Top Gradient for Header Legibility */}
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent pointer-events-none z-10"></div>
+        {/* Top Gradient for Header Legibility Removed */}
 
         <FavoriteButton activityId={activity.id} className="hidden md:flex" />
         <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
@@ -192,7 +191,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               </span>
             </div>
             <h1
-              className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-md"
+              className="text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
               style={{ '--char-count': activity.title.length } as React.CSSProperties}
             >
               {activity.title}
