@@ -4,17 +4,29 @@ const path = require('path');
 const filePath = path.join(__dirname, 'components', 'home', 'HeroCarousel.tsx');
 let content = fs.readFileSync(filePath, 'utf8');
 
-// Remove the overlay
+// Update Tour interface
 content = content.replace(
-    '{/* Slide-specific Legibility Mask */}\n          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none z-10"></div>',
-    ''
+    'isStatic?: boolean\n}',
+    'isStatic?: boolean\n  use_dark_text?: boolean\n}'
 );
 
-// Add text shadows to title
+// Update h1 class for static slide
 content = content.replace(
-    /drop-shadow-md/g,
-    'drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]'
+    'className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white "',
+    'className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text ? \'text-zinc-900\' : \'text-white\'}`}'
+);
+
+// Update h1 class for dynamic slide
+content = content.replace(
+    'className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white "',
+    'className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text ? \'text-zinc-900\' : \'text-white\'}`}'
+);
+
+// Update subtitle class
+content = content.replace(
+    'className="block md:block text-sm sm:text-base md:text-lg font-medium text-white/90"',
+    'className={`block md:block text-sm sm:text-base md:text-lg font-medium ${tour.use_dark_text ? \'text-zinc-800\' : \'text-white/90\'}`}'
 );
 
 fs.writeFileSync(filePath, content, 'utf8');
-console.log('Successfully updated HeroCarousel.tsx');
+console.log('Successfully updated HeroCarousel');
