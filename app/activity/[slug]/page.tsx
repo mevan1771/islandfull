@@ -144,6 +144,21 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
   const isEvent = activity.category_type === 'event';
 
+  const upgradeUnsplashUrl = (url: string) => {
+    if (!url) return "";
+    if (url.includes('images.unsplash.com')) {
+      try {
+        const urlObj = new URL(url);
+        urlObj.searchParams.set('w', '2500');
+        urlObj.searchParams.set('q', '90');
+        return urlObj.toString();
+      } catch (e) {
+        return url;
+      }
+    }
+    return url;
+  }
+
   return (
     <div className="bg-white min-h-screen pb-32 md:pb-12">
       {/* Hero Image */}
@@ -153,7 +168,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           <MobileBackButton />
         </div>
         <Image
-          src={activity.cover_image_url}
+          src={upgradeUnsplashUrl(activity.cover_image_url)}
           alt={activity.title}
           fill
           sizes="100vw"
