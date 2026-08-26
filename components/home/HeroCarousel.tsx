@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 
 interface Tour {
     id: string
@@ -18,6 +19,9 @@ interface Tour {
 
 export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
     const [currentIndex, setCurrentIndex] = useState(0)
+
+    const currentTour = tours[currentIndex] || introSlide
+    const useDarkText = currentTour?.use_dark_text || false
 
     const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
@@ -63,6 +67,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
 
     return (
         <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-100 animate-in fade-in duration-700 ease-in-out">
+            <HeaderThemeSetter useDarkText={useDarkText} />
             {/* Slides */}
             {carouselSlides.map((tour, index) => (
                 <div

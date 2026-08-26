@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { MapPin, Clock, Users, ArrowLeft, Check } from "lucide-react"
@@ -161,6 +162,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
  return (
  <div className="bg-white min-h-screen pb-32 md:pb-12">
+      <HeaderThemeSetter useDarkText={activity.use_dark_text} />
  {/* Hero Image */}
  <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
  {/* Mobile Back Button */}
