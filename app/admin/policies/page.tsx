@@ -44,9 +44,6 @@ export default async function AdminPoliciesPage() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
-            <pre className="bg-gray-900 text-green-400 p-4 mb-4 text-xs overflow-auto">
-                {JSON.stringify({ error, tiers }, null, 2)}
-            </pre>
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Policies & Contracts</h1>
                 <p className="text-zinc-500 mt-2 font-medium">Manage global platform policies and cancellation tiers.</p>

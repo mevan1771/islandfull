@@ -21,13 +21,16 @@ export default function PoliciesManager({ initialTiers = [] }: { initialTiers?: 
         loadData()
     }, [])
 
+    useEffect(() => {
+        setTiers(initialTiers)
+    }, [initialTiers])
+
     const loadData = async () => {
         setLoading(true)
         try {
-            const [opPolicy, touristPolicy, tiersData] = await Promise.all([
+            const [opPolicy, touristPolicy] = await Promise.all([
                 getLatestPolicy('operator_agreement'),
-                getLatestPolicy('tourist_terms'),
-                getCancellationTiers()
+                getLatestPolicy('tourist_terms')
             ])
 
             if (opPolicy) {
@@ -37,9 +40,6 @@ export default function PoliciesManager({ initialTiers = [] }: { initialTiers?: 
             if (touristPolicy) {
                 setTouristTerms(touristPolicy.content)
                 setTouristVersion(touristPolicy.version)
-            }
-            if (tiersData) {
-                setTiers(tiersData)
             }
         } catch (error) {
             console.error('Error loading policies:', error)
