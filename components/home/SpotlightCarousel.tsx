@@ -150,13 +150,13 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                       </div>
                     )}
                     <h2
-                      className="flex-1 min-w-0 text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.125rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-zinc-900"
+                      className="flex-1 min-w-0 text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.125rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-slate-700/80"
                       style={{ '--char-count': slide.title.length } as React.CSSProperties}
                     >
                       {slide.title}
                     </h2>
                   </div>
-                  <p className="text-zinc-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
+                  <p className="text-slate-600/80 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
                     {slide.description.replace(/<[^>]*>?/gm, '')}
                   </p>
 

@@ -191,7 +191,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </span>
  </div>
  <h1
- className={`text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${activity.use_dark_text ? 'text-zinc-900' : 'text-white'}`}
+ className={`text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${activity.use_dark_text ? 'text-slate-700/80' : 'text-white'}`}
  style={{ '--char-count': activity.title.length } as React.CSSProperties}
  >
  {activity.title}
@@ -231,7 +231,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-bold text-zinc-400 uppercase">Duration</span>
- <span className="text-base font-semibold text-zinc-900">{activity.duration}</span>
+ <span className="text-base font-semibold text-slate-700/80">{activity.duration}</span>
  </div>
  </div>
 
@@ -241,7 +241,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-bold text-zinc-400 uppercase">Location</span>
- <span className="text-base font-semibold text-zinc-900">{activity.location}</span>
+ <span className="text-base font-semibold text-slate-700/80">{activity.location}</span>
  </div>
  </div>
 
@@ -251,7 +251,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-bold text-zinc-400 uppercase">Capacity</span>
- <span className="text-base font-semibold text-zinc-900">Up to {activity.max_capacity}</span>
+ <span className="text-base font-semibold text-slate-700/80">Up to {activity.max_capacity}</span>
  </div>
  </div>
  </div>
@@ -259,7 +259,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  {/* Description */}
  <section>
  <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">About this experience</h2>
- <div className="text-zinc-600 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-zinc-900 [&>strong]:font-bold [&>p]:mb-2">
+ <div className="text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-slate-700/80 [&>strong]:font-bold [&>p]:mb-2">
  <ReactMarkdown>{activity.description}</ReactMarkdown>
  </div>
  <div className="mt-6">
@@ -276,7 +276,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-bold text-zinc-400 uppercase tracking-wide">Hosted By</span>
- <span className="font-bold text-zinc-900 text-sm md:text-base">{hostName}</span>
+ <span className="font-bold text-slate-700/80 text-sm md:text-base">{hostName}</span>
  </div>
  </div>
  );
