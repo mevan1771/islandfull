@@ -179,10 +179,10 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
                 {/* Images */}
                 <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
                   <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-4 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
-                    <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={90} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} className="object-cover rounded-2xl md:rounded-3xl" />
+                    <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
                   </div>
                   <div className="relative w-full h-48 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-4 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
-                    <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={90} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} className="object-cover rounded-2xl md:rounded-3xl" />
+                    <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
                   </div>
                 </div>
 
