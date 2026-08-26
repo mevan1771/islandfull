@@ -3,6 +3,9 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import PoliciesManager from '@/components/admin/PoliciesManager'
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminPoliciesPage() {
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -30,10 +33,12 @@ export default async function AdminPoliciesPage() {
         redirect('/admin')
     }
 
-    const { data: cancellationTiers } = await supabase
+    const { data: cancellationTiers, error } = await supabase
         .from('cancellation_tiers')
         .select('*')
         .order('cutoff_hours', { ascending: true })
+
+    console.log('Fetched Tiers:', cancellationTiers, error)
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
