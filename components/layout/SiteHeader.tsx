@@ -18,9 +18,7 @@ export default function SiteHeader() {
   return (
     <header className="absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none">
       {/* Localized dark gradient for header legibility on bright images */}
-      {pathname === '/' && (
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black/50 to-transparent pointer-events-none -z-10"></div>
-      )}
+      {/* Removed as per request to rely on text shadows */}
 
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto">
         <div className="flex items-center gap-2">

@@ -100,14 +100,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         SRI LANKA
                       </span>
                       <h1
-                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-md"
+                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                         style={{ '--char-count': tour.title.length } as React.CSSProperties}
                       >
                         {tour.title}
                       </h1>
                     </div>
                     {tour.subtitle && (
-                      <p className="block md:block text-sm sm:text-base md:text-lg font-medium drop-shadow-md text-white/90">
+                      <p className="block md:block text-sm sm:text-base md:text-lg font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-white/90">
                         {tour.subtitle}
                       </p>
                     )}
@@ -124,7 +124,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         </span>
                       )}
                       <h1
-                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-md"
+                        className="text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                         style={{ '--char-count': tour.title.length } as React.CSSProperties}
                       >
                         {tour.title}
