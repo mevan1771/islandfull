@@ -61,7 +61,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
   }
 
   return (
-    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
+    <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-100 animate-in fade-in duration-700 ease-in-out">
       {/* Slides */}
       {carouselSlides.map((tour, index) => (
         <div
@@ -86,8 +86,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           />
 
-          {/* Slide-specific Legibility Mask */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none z-10"></div>
+          {/* Slide-specific Legibility Mask Removed */}
 
           {/* Slide Content */}
           <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-10 pointer-events-none">
