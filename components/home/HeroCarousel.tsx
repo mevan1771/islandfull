@@ -66,13 +66,13 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             priority={index === 0}
             quality={95}
             sizes="100vw"
+            unoptimized={true}
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           />
 
           {/* Slide-specific Legibility Mask */}
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-10"></div>
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none z-10"></div>
 
           {/* Slide Content */}
           <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-10 pointer-events-none">
