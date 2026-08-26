@@ -698,9 +698,9 @@ export function BookingDrawer({
               )}
 
               {cancellationPolicy && (
-                <div className="bg-rose-50 p-3 rounded-xl border border-rose-100 mt-4 flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
-                  <p className="text-xs font-medium text-rose-700">{cancellationPolicy}</p>
+                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 mt-4 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                  <p className="text-xs font-medium text-emerald-700">{cancellationPolicy}</p>
                 </div>
               )}
 
