@@ -20,8 +20,7 @@ interface Tour {
 export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
     const [currentIndex, setCurrentIndex] = useState(0)
 
-    const currentTour = tours[currentIndex] || introSlide
-    const useDarkText = currentTour?.use_dark_text || false
+
 
     const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
@@ -33,10 +32,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             subtitle: introSlide?.subtitle || 'Inspiration, planning, and booking—all in one place.',
             slug: '',
             cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-            isStatic: true
+            isStatic: true,
+            use_dark_text: introSlide?.use_dark_text || false
         },
         ...tours
     ]
+
+    const currentTour = carouselSlides[currentIndex]
+    const useDarkText = currentTour?.use_dark_text || false
 
     useEffect(() => {
         if (carouselSlides.length <= 1) return;
