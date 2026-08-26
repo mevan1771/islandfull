@@ -64,7 +64,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             className={`object-cover transition-opacity duration-700 ease-in-out ${loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
             priority={index === 0}
-            quality={90}
+            quality={95}
             sizes="100vw"
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
