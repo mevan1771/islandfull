@@ -157,7 +157,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           alt={activity.title}
           fill
           sizes="100vw"
-          quality={90}
+          quality={95}
+          unoptimized={true}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
           className="object-cover object-center"

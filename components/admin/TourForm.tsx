@@ -216,8 +216,9 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
 
     try {
       const compressionOptions = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: 3,
+        maxWidthOrHeight: 2500,
+        initialQuality: 0.95,
         useWebWorker: true,
       };
 
@@ -267,8 +268,9 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
 
     const uploadPromises = Array.from(files).map(async (file) => {
       const compressionOptions = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: 3,
+        maxWidthOrHeight: 2500,
+        initialQuality: 0.95,
         useWebWorker: true,
       };
       const compressedFile = await imageCompression(file, compressionOptions);
