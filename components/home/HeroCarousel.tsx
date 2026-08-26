@@ -45,6 +45,21 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
     return () => clearTimeout(timeout)
   }, [carouselSlides.length, currentIndex])
 
+  const upgradeUnsplashUrl = (url: string) => {
+    if (!url) return "";
+    if (url.includes('images.unsplash.com')) {
+      try {
+        const urlObj = new URL(url);
+        urlObj.searchParams.set('w', '2500');
+        urlObj.searchParams.set('q', '90');
+        return urlObj.toString();
+      } catch (e) {
+        return url;
+      }
+    }
+    return url;
+  }
+
   return (
     <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-900 animate-in fade-in duration-700 ease-in-out">
       {/* Slides */}
@@ -58,7 +73,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
           style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         >
           <Image
-            src={tour.cover_image_url || tour.card_image_url || ""}
+            src={upgradeUnsplashUrl(tour.cover_image_url || tour.card_image_url || "")}
             alt={tour.title}
             fill
             className={`object-cover transition-opacity duration-700 ease-in-out ${loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
