@@ -162,12 +162,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
  return (
  <div className="bg-white min-h-screen pb-32 md:pb-12">
-      <HeaderThemeSetter useDarkText={activity.use_dark_text} />
+      <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
  {/* Hero Image */}
  <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
  {/* Mobile Back Button */}
  <div className="absolute top-4 left-4 z-50 md:hidden">
- <MobileBackButton useDarkText={activity.use_dark_text} />
+ <MobileBackButton useDarkTextMobile={activity.use_dark_text_mobile} />
  </div>
  <Image
  src={upgradeUnsplashUrl(activity.cover_image_url)}
@@ -184,7 +184,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  />
  {/* Top Gradient for Header Legibility Removed */}
 
- <FavoriteButton activityId={activity.id} className="hidden md:flex" useDarkText={activity.use_dark_text} />
+            <FavoriteButton activityId={activity.id} className="hidden md:flex" useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
  <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
  <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
  <div className="hidden md:flex items-center gap-2">
@@ -193,7 +193,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  </span>
  </div>
  <h1
- className={`text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${activity.use_dark_text ? 'text-slate-700/80' : 'text-white'}`}
+                                className={`text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${activity.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${activity.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
  style={{ '--char-count': activity.title.length } as React.CSSProperties}
  >
  {activity.title}

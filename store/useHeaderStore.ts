@@ -1,11 +1,15 @@
 import { create } from 'zustand'
 
 interface HeaderState {
-    useDarkText: boolean
-    setUseDarkText: (value: boolean) => void
+    useDarkTextDesktop: boolean
+    useDarkTextMobile: boolean
+    setUseDarkTextDesktop: (value: boolean) => void
+    setUseDarkTextMobile: (value: boolean) => void
 }
 
 export const useHeaderStore = create<HeaderState>((set) => ({
-    useDarkText: false,
-    setUseDarkText: (value) => set({ useDarkText: value }),
+    useDarkTextDesktop: false,
+    useDarkTextMobile: false,
+    setUseDarkTextDesktop: (value) => set({ useDarkTextDesktop: value }),
+    setUseDarkTextMobile: (value) => set({ useDarkTextMobile: value }),
 }))

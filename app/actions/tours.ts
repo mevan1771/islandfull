@@ -78,7 +78,8 @@ export async function createTour(formData: FormData) {
     const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
-    const use_dark_text = formData.get("use_dark_text") === "true"
+    const use_dark_text_desktop = formData.get("use_dark_text_desktop") === "true"
+    const use_dark_text_mobile = formData.get("use_dark_text_mobile") === "true"
     const cancellation_tier = formData.get("cancellation_tier") as string || "MODERATE"
     const approx_lat_str = formData.get("approx_lat") as string
     const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
@@ -173,7 +174,8 @@ export async function createTour(formData: FormData) {
       pricing_model,
       has_pickup,
       is_hidden_gem,
-      use_dark_text,
+      use_dark_text_desktop,
+      use_dark_text_mobile,
       cancellation_tier,
       blackout_dates,
       status,
@@ -279,7 +281,8 @@ export async function updateTour(id: string, formData: FormData) {
     const pricing_model = formData.get("pricing_model") as string || "per_person"
     const has_pickup = formData.get("has_pickup") === "on"
     const is_hidden_gem = formData.get("is_hidden_gem") === "on"
-    const use_dark_text = formData.get("use_dark_text") === "true"
+    const use_dark_text_desktop = formData.get("use_dark_text_desktop") === "true"
+    const use_dark_text_mobile = formData.get("use_dark_text_mobile") === "true"
     const cancellation_tier = formData.get("cancellation_tier") as string || oldTour?.cancellation_tier || "MODERATE"
     const approx_lat_str = formData.get("approx_lat") as string
     const approx_lat = approx_lat_str ? parseFloat(approx_lat_str) : null
@@ -369,7 +372,8 @@ export async function updateTour(id: string, formData: FormData) {
       pricing_model,
       has_pickup,
       is_hidden_gem,
-      use_dark_text,
+      use_dark_text_desktop,
+      use_dark_text_mobile,
       cancellation_tier,
       blackout_dates,
       status,

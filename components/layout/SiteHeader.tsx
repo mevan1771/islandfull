@@ -10,19 +10,20 @@ import { ArrowLeft } from "lucide-react"
 export default function SiteHeader() {
     const pathname = usePathname()
     const router = useRouter()
-    const { useDarkText } = useHeaderStore()
+    const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
 
     // Do not render the main site header on host or admin portals
     if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
         return null
     }
 
-    const textColor = useDarkText ? 'text-slate-700/80' : 'text-white/90'
-    const hoverColor = useDarkText ? 'hover:text-slate-900' : 'hover:text-white'
-    const iconColor = useDarkText ? 'stroke-slate-700/80' : 'stroke-white'
-    const iconBg = useDarkText ? 'bg-black/5 md:bg-black/5' : 'bg-black/20 md:bg-white/20'
-    const iconBorder = useDarkText ? 'md:border-black/10' : 'md:border-white/20'
-    const iconHoverBg = useDarkText ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'
+    const textColor = `${useDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
+    const hoverColor = `${useDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${useDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
+    const iconColor = `${useDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${useDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
+    const iconBg = `${useDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${useDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
+    const iconBorder = `${useDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${useDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`
+    const iconHoverBg = `${useDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${useDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
+    const logoFilter = `${useDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${useDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
     return (
         <header className="absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none">
@@ -42,7 +43,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`h-10 w-auto object-contain ${useDarkText ? 'brightness-0 opacity-80' : ''}`}
+                            className={`h-10 w-auto object-contain ${logoFilter}`}
                             priority
                         />
                     </Link>
@@ -71,7 +72,7 @@ export default function SiteHeader() {
                             🌍 Explore Map
                         </Link>
                     )}
-                    <div className={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors border-transparent ${iconBorder} ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''}`}>
+                    <div className={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors ${iconBorder} ${pathname?.startsWith('/activity') ? 'hidden md:flex' : ''}`}>
                         <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}>
                             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                             <circle cx="12" cy="7" r="4" />

@@ -1,7 +1,5 @@
 "use client"
 
-"use client"
-
 import { Heart } from "lucide-react"
 import { useFavorites } from "@/hooks/useFavorites"
 
@@ -11,10 +9,11 @@ interface FavoriteButtonProps {
     activityId: string
     className?: string
     variant?: 'overlay' | 'inline'
-    useDarkText?: boolean
+    useDarkTextDesktop?: boolean
+    useDarkTextMobile?: boolean
 }
 
-export function FavoriteButton({ activityId, className, variant = 'overlay', useDarkText = false }: FavoriteButtonProps) {
+export function FavoriteButton({ activityId, className, variant = 'overlay', useDarkTextDesktop = false, useDarkTextMobile = false }: FavoriteButtonProps) {
     const { favorites, toggleFavorite, isHydrated } = useFavorites()
 
     const overlayClasses = "absolute top-4 right-4 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-black/20 sm:bg-white/10 border-transparent sm:border sm:border-white/20 backdrop-blur-md sm:backdrop-blur-sm shadow-sm sm:shadow-xl z-10"
@@ -22,10 +21,12 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
 
     const defaultClasses = variant === 'inline' ? inlineClasses : overlayClasses
 
+    const iconColor = `${useDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
+
     if (!isHydrated) {
         return (
             <button className={twMerge(defaultClasses, "opacity-50 cursor-default", className)}>
-                <Heart className={twMerge("w-4 h-4 sm:w-5 sm:h-5", variant === 'overlay' ? (useDarkText ? "text-slate-700/80" : "text-white/90") : "text-slate-700/80")} />
+                <Heart className={twMerge("w-4 h-4 sm:w-5 sm:h-5", variant === 'overlay' ? iconColor : "text-slate-700/80")} />
             </button>
         )
     }
@@ -60,7 +61,7 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
                     "w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300",
                     variant === 'overlay' ? "" : "",
                     variant === 'overlay' ? (
-                        isSaved ? "fill-rose-500 text-rose-500 sm:fill-white sm:text-white" : (useDarkText ? "text-slate-700/80 hover:text-black" : "text-white/90 hover:text-white")
+                        isSaved ? "fill-rose-500 text-rose-500 sm:fill-white sm:text-white" : `${iconColor} hover:text-black`
                     ) : (
                         isSaved ? "fill-rose-500 text-rose-500" : "text-slate-700/80 hover:text-zinc-700"
                     )

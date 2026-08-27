@@ -94,7 +94,8 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
   const [useOriginalForCard, setUseOriginalForCard] = useState(true)
   const [originalCoverFile, setOriginalCoverFile] = useState<File | null>(null)
   const [cardImage, setCardImage] = useState<string>(initialData?.card_image_url || "")
-  const [useDarkText, setUseDarkText] = useState<boolean>(initialData?.use_dark_text || false)
+  const [useDarkTextDesktop, setUseDarkTextDesktop] = useState<boolean>(initialData?.use_dark_text_desktop || false)
+  const [useDarkTextMobile, setUseDarkTextMobile] = useState<boolean>(initialData?.use_dark_text_mobile || false)
 
   // Selected Categories State
   const [selectedCategories, setSelectedCategories] = useState<any[]>(() => {
@@ -1021,7 +1022,8 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                 {/* Hidden input to pass the secure_url string to the form submission action */}
                 <input type="hidden" name="cover_image_url" value={previewImage} />
                 <input type="hidden" name="card_image_url" value={cardImage} />
-                <input type="hidden" name="use_dark_text" value={useDarkText ? "true" : "false"} />
+                <input type="hidden" name="use_dark_text_desktop" value={useDarkTextDesktop ? "true" : "false"} />
+                <input type="hidden" name="use_dark_text_mobile" value={useDarkTextMobile ? "true" : "false"} />
 
                 <div className="flex items-center gap-3 mt-4 bg-zinc-50 p-4 rounded-xl border border-zinc-100">
                   <input
@@ -1044,17 +1046,35 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                 <div className="flex items-center gap-3 mt-4 bg-zinc-50 p-4 rounded-xl border border-zinc-100">
                   <input
                     type="checkbox"
-                    id="useDarkText"
-                    checked={useDarkText}
-                    onChange={(e) => setUseDarkText(e.target.checked)}
+                    id="useDarkTextDesktop"
+                    checked={useDarkTextDesktop}
+                    onChange={(e) => setUseDarkTextDesktop(e.target.checked)}
                     className="w-5 h-5 accent-rose-500 rounded cursor-pointer"
                   />
                   <div className="flex flex-col">
-                    <label htmlFor="useDarkText" className="text-sm font-bold text-zinc-900 cursor-pointer">
-                      Use Dark Text on Cover Image
+                    <label htmlFor="useDarkTextDesktop" className="text-sm font-bold text-zinc-900 cursor-pointer">
+                      Use Dark Text on Desktop
                     </label>
                     <p className="text-xs text-zinc-500">
-                      Enable this if your cover photo is very bright, to ensure text legibility.
+                      Enable this if your cover photo is very bright on desktop screens, to ensure text legibility.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 mt-4 bg-zinc-50 p-4 rounded-xl border border-zinc-100">
+                  <input
+                    type="checkbox"
+                    id="useDarkTextMobile"
+                    checked={useDarkTextMobile}
+                    onChange={(e) => setUseDarkTextMobile(e.target.checked)}
+                    className="w-5 h-5 accent-rose-500 rounded cursor-pointer"
+                  />
+                  <div className="flex flex-col">
+                    <label htmlFor="useDarkTextMobile" className="text-sm font-bold text-zinc-900 cursor-pointer">
+                      Use Dark Text on Mobile
+                    </label>
+                    <p className="text-xs text-zinc-500">
+                      Enable this if your cover photo is very bright on mobile screens, to ensure text legibility.
                     </p>
                   </div>
                 </div>

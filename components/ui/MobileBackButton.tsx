@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
-export function MobileBackButton({ useDarkText = false }: { useDarkText?: boolean }) {
+export function MobileBackButton({ useDarkTextMobile = false }: { useDarkTextMobile?: boolean }) {
     const router = useRouter()
 
     return (
@@ -14,7 +14,7 @@ export function MobileBackButton({ useDarkText = false }: { useDarkText?: boolea
             }}
             className="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center shadow-sm border-none outline-none cursor-pointer"
         >
-            <ArrowLeft className={`w-4 h-4 ${useDarkText ? 'text-slate-700/80' : 'text-white'}`} />
+            <ArrowLeft className={`w-4 h-4 ${useDarkTextMobile ? 'text-slate-700/80' : 'text-white'}`} />
         </button>
     )
 }

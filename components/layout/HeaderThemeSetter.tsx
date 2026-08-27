@@ -3,15 +3,19 @@
 import { useEffect } from "react"
 import { useHeaderStore } from "@/store/useHeaderStore"
 
-export function HeaderThemeSetter({ useDarkText }: { useDarkText: boolean }) {
-    const { setUseDarkText } = useHeaderStore()
+export function HeaderThemeSetter({ useDarkTextDesktop, useDarkTextMobile }: { useDarkTextDesktop: boolean, useDarkTextMobile: boolean }) {
+    const { setUseDarkTextDesktop, setUseDarkTextMobile } = useHeaderStore()
 
     useEffect(() => {
-        setUseDarkText(useDarkText)
+        setUseDarkTextDesktop(useDarkTextDesktop)
+        setUseDarkTextMobile(useDarkTextMobile)
 
         // Reset on unmount
-        return () => setUseDarkText(false)
-    }, [useDarkText, setUseDarkText])
+        return () => {
+            setUseDarkTextDesktop(false)
+            setUseDarkTextMobile(false)
+        }
+    }, [useDarkTextDesktop, useDarkTextMobile, setUseDarkTextDesktop, setUseDarkTextMobile])
 
     return null
 }

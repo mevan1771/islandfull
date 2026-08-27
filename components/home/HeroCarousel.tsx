@@ -14,7 +14,8 @@ interface Tour {
     cover_image_url?: string
     card_image_url?: string
     isStatic?: boolean
-    use_dark_text?: boolean
+    use_dark_text_desktop?: boolean
+    use_dark_text_mobile?: boolean
 }
 
 export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?: any }) {
@@ -33,13 +34,15 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             slug: '',
             cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
             isStatic: true,
-            use_dark_text: introSlide?.use_dark_text || false
+            use_dark_text_desktop: introSlide?.use_dark_text_desktop || false,
+            use_dark_text_mobile: introSlide?.use_dark_text_mobile || false
         },
         ...tours
     ]
 
     const currentTour = carouselSlides[currentIndex]
-    const useDarkText = currentTour?.use_dark_text || false
+    const useDarkTextDesktop = currentTour?.use_dark_text_desktop || false
+    const useDarkTextMobile = currentTour?.use_dark_text_mobile || false
 
     useEffect(() => {
         if (carouselSlides.length <= 1) return;
@@ -70,7 +73,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
 
     return (
         <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-100 animate-in fade-in duration-700 ease-in-out">
-            <HeaderThemeSetter useDarkText={useDarkText} />
+            <HeaderThemeSetter useDarkTextDesktop={useDarkTextDesktop} useDarkTextMobile={useDarkTextMobile} />
             {/* Slides */}
             {carouselSlides.map((tour, index) => (
                 <div
@@ -108,14 +111,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                                                 SRI LANKA
                                             </span>
                                             <h1
-                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text ? 'text-slate-700/80' : 'text-white'}`}
+                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
                                                 style={{ '--char-count': tour.title.length } as React.CSSProperties}
                                             >
                                                 {tour.title}
                                             </h1>
                                         </div>
                                         {tour.subtitle && (
-                                            <p className={`block md:block text-sm sm:text-base md:text-lg font-medium ${tour.use_dark_text ? 'text-slate-600/80' : 'text-white/90'}`}>
+                                            <p className={`block md:block text-sm sm:text-base md:text-lg font-medium ${tour.use_dark_text_mobile ? 'text-slate-600/80' : 'text-white/90'} ${tour.use_dark_text_desktop ? 'md:text-slate-600/80' : 'md:text-white/90'}`}>
                                                 {tour.subtitle}
                                             </p>
                                         )}
@@ -132,7 +135,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                                                 </span>
                                             )}
                                             <h1
-                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text ? 'text-slate-700/80' : 'text-white'}`}
+                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
                                                 style={{ '--char-count': tour.title.length } as React.CSSProperties}
                                             >
                                                 {tour.title}
