@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
+import { GlobalHeader } from "@/components/layout/GlobalHeader"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { MapPin, Clock, Users, ArrowLeft, Check } from "lucide-react"
@@ -162,13 +163,11 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
  return (
  <div className="bg-white min-h-screen pb-32 md:pb-12">
-      <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
+            <GlobalHeader />
+      
  {/* Hero Image */}
- <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
- {/* Mobile Back Button */}
- <div className="absolute top-4 left-4 z-50 md:hidden">
- <MobileBackButton useDarkTextMobile={activity.use_dark_text_mobile} />
- </div>
+ <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
+ 
  <Image
  src={upgradeUnsplashUrl(activity.cover_image_url)}
  alt={activity.title}
@@ -184,7 +183,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
  />
  {/* Top Gradient for Header Legibility Removed */}
 
-            <FavoriteButton activityId={activity.id} className="hidden md:flex" useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
+            
  <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
  <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
  <div className="hidden md:flex items-center gap-2">

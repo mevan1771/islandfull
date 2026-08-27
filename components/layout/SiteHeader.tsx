@@ -12,8 +12,8 @@ export default function SiteHeader() {
     const router = useRouter()
     const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
 
-    // Do not render the main site header on host or admin portals
-    if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
+    // Do not render the main site header on host, admin, or activity portals
+    if (pathname?.startsWith('/host') || pathname?.startsWith('/admin') || pathname?.startsWith('/activity')) {
         return null
     }
 
