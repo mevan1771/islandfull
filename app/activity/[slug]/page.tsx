@@ -166,7 +166,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <GlobalHeader />
       
  {/* Hero Image */}
- <div className="relative h-[35svh] md:h-[600px] m-3 sm:m-0 md:mx-auto md:w-full max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
+ <div className="relative h-[35svh] md:h-[600px] w-full md:mx-auto md:mt-6 max-w-[1400px] rounded-none sm:rounded-3xl overflow-hidden">
  
  <Image
  src={upgradeUnsplashUrl(activity.cover_image_url)}
