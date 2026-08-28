@@ -42,7 +42,7 @@ export default function SiteHeader() {
 
     return (
         <header className={headerClasses}>
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto">
+            <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-2">
                     {pathname === '/map' && (
                         <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40">
@@ -58,7 +58,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`block md:hidden h-10 w-auto object-contain`}
+                            className={`block md:hidden h-6 w-auto object-contain`}
                             priority
                         />
                         <Image
@@ -66,7 +66,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`hidden md:block h-10 w-auto object-contain`}
+                            className={`hidden md:block h-12 w-auto object-contain`}
                             priority
                         />
                     </Link>
