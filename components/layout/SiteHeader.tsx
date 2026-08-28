@@ -67,7 +67,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`block md:hidden h-8 w-auto object-contain`}
+                            className={`block md:hidden h-6 w-auto object-contain`}
                             priority
                         />
                         <Image
