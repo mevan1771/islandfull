@@ -88,9 +88,10 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         src={upgradeUnsplashUrl(tour.cover_image_url || tour.card_image_url || "")}
                         alt={tour.title}
                         fill
-                        className={`object-cover transition-opacity duration-700 ease-in-out ${loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
+                        className={`object-cover transition-opacity duration-700 ease-in-out ${index === 0 || loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
                         onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
                         priority={true}
+                        fetchPriority={index === 0 ? "high" : "auto"}
                         quality={95}
                         sizes="100vw"
                         unoptimized={true}
