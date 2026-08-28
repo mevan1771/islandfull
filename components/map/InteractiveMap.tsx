@@ -161,8 +161,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       const hasImage = !!tour.cover_image_url;
 
       if (hasImage) {
-        // Use Next.js image optimization endpoint for tiny thumbnails
-        const optimizedImageUrl = `/_next/image?url=${encodeURIComponent(tour.cover_image_url)}&w=256&q=100`;
+        // Bypass Next.js image optimization for tiny thumbnails to prevent blurriness
+        const optimizedImageUrl = tour.cover_image_url;
 
         markerHTML = `
           <div class="${innerClass}">
@@ -170,7 +170,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
               $${tour.price_usd}
             </div>
             <div class="w-14 h-14 rounded-full overflow-hidden border-2 transition-colors ${isSelected ? 'border-' + themeColor : 'border-white'}">
-              <img src="${optimizedImageUrl}" alt="${tour.title}" class="w-full h-full object-cover" loading="lazy" width="150" height="150" />
+              <img src="${optimizedImageUrl}" alt="${tour.title}" class="w-full h-full object-cover" loading="lazy" width="56" height="56" />
             </div>
             <div class="w-3 h-3 absolute -bottom-1 left-1/2 -translate-x-1/2 rotate-45 transition-colors ${isSelected ? 'bg-' + themeColor : 'bg-white'}"></div>
           </div>
