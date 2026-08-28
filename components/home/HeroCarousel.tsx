@@ -72,13 +72,13 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
     }
 
     return (
-        <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white min-h-[50svh] md:min-h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-zinc-100 animate-in fade-in duration-700 ease-in-out">
+        <section className="relative pt-24 md:pt-32 pb-40 md:pb-48 text-white h-[50svh] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900 animate-in fade-in duration-700 ease-in-out">
             <HeaderThemeSetter useDarkTextDesktop={useDarkTextDesktop} useDarkTextMobile={useDarkTextMobile} />
             {/* Slides */}
             {carouselSlides.map((tour, index) => (
                 <div
                     key={tour.id}
-                    className={`absolute inset-0 bg-slate-900 ease-in-out ${index === currentIndex
+                    className={`absolute inset-0 ease-in-out ${index === currentIndex
                         ? 'opacity-100 z-20 transition-opacity duration-[1200ms]'
                         : 'opacity-0 z-10 pointer-events-none transition-opacity duration-[1200ms] delay-[1200ms]'
                         }`}
