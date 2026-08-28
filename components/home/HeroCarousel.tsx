@@ -78,7 +78,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             {carouselSlides.map((tour, index) => (
                 <div
                     key={tour.id}
-                    className={`absolute inset-0 ease-in-out ${index === currentIndex
+                    className={`absolute inset-0 bg-slate-800 ease-in-out ${index === currentIndex
                         ? 'opacity-100 z-20 transition-opacity duration-[1200ms]'
                         : 'opacity-0 z-10 pointer-events-none transition-opacity duration-[1200ms] delay-[1200ms]'
                         }`}
