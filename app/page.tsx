@@ -81,33 +81,36 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   }
 
   return (
-    <div className="pb-24">
+    <main className="pb-24 bg-slate-900">
       {/* Hero Section */}
       <HeroCarousel tours={featuredTours} introSlide={introSlide} />
 
-      {/* Mobile Search Inline Card */}
-      <Suspense fallback={null}>
-        <MobileSearch />
-      </Suspense>
+      <div className="bg-zinc-50">
 
-      {/* Dynamic Filters UI */}
-      <Suspense fallback={<div className="h-40"></div>}>
-        <HomeFilters dynamicCategories={dynamicCategories} />
-      </Suspense>
-
-      {/* Activity Grid */}
-      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-        <Suspense fallback={<ActivitySkeleton />}>
-          <ActivityGridServer searchParams={params} currentCategory={currentCategory} />
+        {/* Mobile Search Inline Card */}
+        <Suspense fallback={null}>
+          <MobileSearch />
         </Suspense>
-      </section>
 
-      {/* Featured Tour Spotlight Carousel */}
-      {featuredSpotlight && (
-        <SpotlightCarousel slides={Array.isArray(featuredSpotlight) ? featuredSpotlight : [featuredSpotlight]} />
-      )}
+        {/* Dynamic Filters UI */}
+        <Suspense fallback={<div className="h-40"></div>}>
+          <HomeFilters dynamicCategories={dynamicCategories} />
+        </Suspense>
 
-    </div>
+        {/* Activity Grid */}
+        <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+          <Suspense fallback={<ActivitySkeleton />}>
+            <ActivityGridServer searchParams={params} currentCategory={currentCategory} />
+          </Suspense>
+        </section>
+
+        {/* Featured Tour Spotlight Carousel */}
+        {featuredSpotlight && (
+          <SpotlightCarousel slides={Array.isArray(featuredSpotlight) ? featuredSpotlight : [featuredSpotlight]} />
+        )}
+
+      </div>
+    </main>
   )
 }
 
