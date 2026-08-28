@@ -37,8 +37,8 @@ export default function SiteHeader() {
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
     const headerClasses = isActivityPage
-        ? "block md:absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-2 md:pb-12 pointer-events-none bg-transparent md:bg-transparent"
-        : "absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none"
+        ? "relative md:absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none bg-transparent"
+        : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
         <header className={headerClasses}>
@@ -58,7 +58,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`block md:hidden h-8 w-auto object-contain`}
+                            className={`block md:hidden h-10 w-auto object-contain`}
                             priority
                         />
                         <Image
@@ -66,7 +66,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`hidden md:block h-8 w-auto object-contain`}
+                            className={`hidden md:block h-10 w-auto object-contain`}
                             priority
                         />
                     </Link>
