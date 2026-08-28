@@ -22,11 +22,13 @@ export default function SiteHeader() {
     const isDestinationsPage = pathname?.startsWith('/destinations')
     const isTripsPage = pathname?.startsWith('/trips')
 
-    // If it's a standard page (not home, activity, destinations, trips), default to dark text
-    const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage
+    const isMapPage = pathname === '/map'
 
-    const effectiveDarkTextDesktop = isStandardPage ? true : useDarkTextDesktop
-    const effectiveDarkTextMobile = isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile)
+    // If it's a standard page (not home, activity, destinations, trips, map), default to dark text
+    const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
+
+    const effectiveDarkTextDesktop = isMapPage ? false : (isStandardPage ? true : useDarkTextDesktop)
+    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
     const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
