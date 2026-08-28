@@ -17,19 +17,27 @@ export default function SiteHeader() {
         return null
     }
 
+    const isHomePage = pathname === '/'
     const isActivityPage = pathname?.startsWith('/activity')
-    const effectiveDarkTextMobile = isActivityPage || useDarkTextMobile
+    const isDestinationsPage = pathname?.startsWith('/destinations')
+    const isTripsPage = pathname?.startsWith('/trips')
 
-    const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
-    const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${useDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
-    const iconColor = `${effectiveDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${useDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
-    const iconBg = `${effectiveDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${useDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
-    const iconBorder = `${effectiveDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${useDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`
-    const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${useDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
-    const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${useDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
+    // If it's a standard page (not home, activity, destinations, trips), default to dark text
+    const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage
+
+    const effectiveDarkTextDesktop = isStandardPage ? true : useDarkTextDesktop
+    const effectiveDarkTextMobile = isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile)
+
+    const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
+    const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
+    const iconColor = `${effectiveDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${effectiveDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
+    const iconBg = `${effectiveDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${effectiveDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
+    const iconBorder = `${effectiveDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${effectiveDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`
+    const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
+    const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
     const headerClasses = isActivityPage
-        ? "block md:absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-2 md:pb-12 pointer-events-none bg-white md:bg-transparent"
+        ? "block md:absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-2 md:pb-12 pointer-events-none bg-transparent md:bg-transparent"
         : "absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none"
 
     return (
@@ -46,11 +54,19 @@ export default function SiteHeader() {
                         className={`flex items-center cursor-pointer`}
                     >
                         <Image
-                            src="/logo.png"
+                            src={effectiveDarkTextMobile ? '/logo_dark.png' : '/logo_light.png'}
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`h-10 w-auto object-contain ${logoFilter}`}
+                            className={`block md:hidden h-8 w-auto object-contain`}
+                            priority
+                        />
+                        <Image
+                            src={effectiveDarkTextDesktop ? '/logo_dark.png' : '/logo_light.png'}
+                            alt="IslandFull"
+                            width={140}
+                            height={40}
+                            className={`hidden md:block h-8 w-auto object-contain`}
                             priority
                         />
                     </Link>
