@@ -95,8 +95,6 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         quality={95}
                         sizes="100vw"
                         unoptimized={true}
-                        placeholder="blur"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
                     />
 
                     {/* Slide-specific Legibility Mask Removed */}
