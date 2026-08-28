@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ChevronLeft } from "lucide-react"
 
 export default function SiteHeader() {
     const pathname = usePathname()
@@ -42,8 +42,17 @@ export default function SiteHeader() {
 
     return (
         <header className={headerClasses}>
-            <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between pointer-events-auto w-full">
-                <div className="flex items-center gap-2">
+            <div className="max-w-7xl mx-auto px-4 h-12 md:h-16 flex items-center justify-between pointer-events-auto w-full">
+                <div className="flex items-center gap-3">
+                    {isActivityPage && (
+                        <button
+                            onClick={() => router.back()}
+                            className="md:hidden flex items-center justify-center"
+                            aria-label="Go back"
+                        >
+                            <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
+                        </button>
+                    )}
                     {pathname === '/map' && (
                         <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40">
                             <ArrowLeft className="w-4 h-4" />
