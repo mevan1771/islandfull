@@ -28,8 +28,8 @@ export default function SiteHeader() {
     const effectiveDarkTextDesktop = isStandardPage ? true : useDarkTextDesktop
     const effectiveDarkTextMobile = isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile)
 
-    const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
-    const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
+    const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
+    const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
     const iconColor = `${effectiveDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${effectiveDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
     const iconBg = `${effectiveDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${effectiveDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
     const iconBorder = `${effectiveDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${effectiveDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`

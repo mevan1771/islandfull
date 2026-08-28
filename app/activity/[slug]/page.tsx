@@ -163,6 +163,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
     return (
         <div className="bg-white min-h-screen pb-32 md:pb-12">
+            <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
             {/* Hero Image */}
             <div className="relative h-[35svh] md:h-[600px] mx-4 mt-0 md:mx-auto md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
