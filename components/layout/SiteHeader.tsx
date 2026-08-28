@@ -42,7 +42,7 @@ export default function SiteHeader() {
 
     return (
         <header className={headerClasses}>
-            <div className="max-w-7xl mx-auto px-4 h-12 md:h-16 flex items-center justify-between pointer-events-auto w-full">
+            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-3">
                     {isActivityPage && (
                         <button
@@ -67,7 +67,7 @@ export default function SiteHeader() {
                             alt="IslandFull"
                             width={140}
                             height={40}
-                            className={`block md:hidden h-6 w-auto object-contain`}
+                            className={`block md:hidden h-8 w-auto object-contain`}
                             priority
                         />
                         <Image
