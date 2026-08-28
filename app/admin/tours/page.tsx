@@ -91,9 +91,10 @@ export default async function AdminToursDashboard() {
                             <Image
                               src={t.cover_image_url}
                               alt={t.title}
-                              fill
-                              className="object-cover"
-                              sizes="48px"
+                              width={120}
+                              height={120}
+                              className="w-full h-full object-cover"
+                              quality={100}
                             />
                           ) : (
                             <div className="w-full h-full bg-zinc-200" />
