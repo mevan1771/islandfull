@@ -17,16 +17,23 @@ export default function SiteHeader() {
         return null
     }
 
-    const textColor = `${useDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
-    const hoverColor = `${useDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${useDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
-    const iconColor = `${useDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${useDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
-    const iconBg = `${useDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${useDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
-    const iconBorder = `${useDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${useDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`
-    const iconHoverBg = `${useDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${useDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
-    const logoFilter = `${useDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${useDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
+    const isActivityPage = pathname?.startsWith('/activity')
+    const effectiveDarkTextMobile = isActivityPage || useDarkTextMobile
+
+    const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
+    const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${useDarkTextDesktop ? 'md:hover:text-slate-900' : 'md:hover:text-white'}`
+    const iconColor = `${effectiveDarkTextMobile ? 'stroke-slate-700/80' : 'stroke-white'} ${useDarkTextDesktop ? 'md:stroke-slate-700/80' : 'md:stroke-white'}`
+    const iconBg = `${effectiveDarkTextMobile ? 'bg-black/5' : 'bg-black/20'} ${useDarkTextDesktop ? 'md:bg-black/5' : 'md:bg-white/20'}`
+    const iconBorder = `${effectiveDarkTextMobile ? 'border-black/10' : 'border-transparent'} ${useDarkTextDesktop ? 'md:border-black/10' : 'md:border-white/20'}`
+    const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${useDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
+    const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${useDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
+
+    const headerClasses = isActivityPage
+        ? "block md:absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-2 md:pb-12 pointer-events-none bg-white md:bg-transparent"
+        : "absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none"
 
     return (
-        <header className="absolute top-0 left-0 right-0 z-40 w-full pt-4 md:pt-10 pb-12 pointer-events-none">
+        <header className={headerClasses}>
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto">
                 <div className="flex items-center gap-2">
                     {pathname === '/map' && (
