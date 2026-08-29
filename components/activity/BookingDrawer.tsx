@@ -365,7 +365,7 @@ export function BookingDrawer({
 
       {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
       <div
-        className={`flex flex-col fixed inset-x-0 bottom-0 max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
+        className={`flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
       >
         <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
