@@ -1,4 +1,9 @@
-"use client"
+const fs = require('fs');
+const path = require('path');
+
+const galleryPath = path.join(__dirname, 'components', 'activity', 'ActivityGallery.tsx');
+
+const newContent = `"use client"
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
@@ -75,7 +80,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
               >
                 <Image
                   src={url}
-                  alt={`Gallery image ${i + 1}`}
+                  alt={\`Gallery image \${i + 1}\`}
                   fill
                   priority={i < 2}
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
@@ -122,7 +127,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
               <div key={i} className="w-full h-full shrink-0 snap-center relative flex items-center justify-center">
                 <img
                   src={url}
-                  alt={`Fullscreen gallery view ${i + 1}`}
+                  alt={\`Fullscreen gallery view \${i + 1}\`}
                   className="w-auto h-auto max-w-[100vw] max-h-[100vh] object-contain select-none rounded-none"
                   draggable="false"
                   loading={i === 0 ? undefined : "lazy"}
@@ -163,3 +168,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
     </>
   )
 }
+`;
+
+fs.writeFileSync(galleryPath, newContent, 'utf8');
+console.log('Successfully replaced ActivityGallery.tsx');
