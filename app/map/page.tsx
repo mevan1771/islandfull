@@ -29,7 +29,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   // Fetch active tours from the database
   let activitiesQuery = supabase
     .from('activities')
-    .select('id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, categories(name, slug), activity_categories(categories(slug)), reviews(rating)')
+    .select('id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(name, slug), activity_categories(categories(slug)), reviews(rating)')
     .eq('status', 'published')
 
   if (currentVertical !== 'all') {
@@ -71,8 +71,8 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
         duration: activity.duration,
         category: activity.categories?.slug || tags[0] || 'all', // Fallback to first tag or all
         category_type: activity.category_type || 'tour',
-        latitude: null, // Relies on location string fallback lookup
-        longitude: null,
+        latitude: activity.approx_lat ? parseFloat(activity.approx_lat) : null,
+        longitude: activity.approx_lng ? parseFloat(activity.approx_lng) : null,
         rating: Number(rating.toFixed(1)),
         reviewCount,
         tags
