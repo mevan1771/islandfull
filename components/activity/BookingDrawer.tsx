@@ -361,15 +361,16 @@ export function BookingDrawer({
         className={`fixed inset-x-0 bottom-0 z-[9999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
+        <button
+          type="button"
+          onClick={resetAndClose}
+          className="absolute top-3 right-3 z-[99999] p-2 rounded-full bg-white hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-center text-zinc-500"
+        >
+          <X className="w-5 h-5 pointer-events-none" />
+        </button>
+
         <div className="flex items-center justify-between w-full px-6 pt-6 pb-4 mb-4 border-b border-zinc-100 shrink-0">
           <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
-          <button
-            type="button"
-            onClick={resetAndClose}
-            className="relative z-50 p-2 ml-auto cursor-pointer hover:bg-gray-100 rounded-full text-zinc-500 transition-colors"
-          >
-            <X className="w-5 h-5 pointer-events-none" />
-          </button>
         </div>
 
         <div className="px-6 py-4 overflow-y-auto flex-1 overscroll-contain">
