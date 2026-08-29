@@ -286,7 +286,8 @@ export function BookingDrawer({
           <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
             {bookingType === 'multi_day' ? (
               <DayPicker
-                mode="range"
+                                className="mx-auto w-full max-w-[300px] flex justify-center"
+                                mode="range"
                 selected={dateRange}
                 onSelect={setDateRange}
                 disabled={(d) => {
@@ -305,7 +306,8 @@ export function BookingDrawer({
               />
             ) : (
               <DayPicker
-                mode="single"
+                                className="mx-auto w-full max-w-[300px] flex justify-center"
+                                mode="single"
                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
                 disabled={(d) => {
@@ -414,9 +416,10 @@ export function BookingDrawer({
                           </button>
                         </Popover.Trigger>
                         <Popover.Portal>
-                          <Popover.Content align="start" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
+                          <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center">
                             {bookingType === 'multi_day' ? (
                               <DayPicker
+                                className="mx-auto w-full max-w-[300px] flex justify-center"
                                 mode="range"
                                 selected={dateRange}
                                 onSelect={setDateRange}
@@ -436,6 +439,7 @@ export function BookingDrawer({
                               />
                             ) : (
                               <DayPicker
+                                className="mx-auto w-full max-w-[300px] flex justify-center"
                                 mode="single"
                                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
