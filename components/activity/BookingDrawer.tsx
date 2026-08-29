@@ -361,19 +361,20 @@ export function BookingDrawer({
         className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
-        <div className="p-6 overflow-y-auto flex-1 overscroll-contain">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
-            <button
-              onClick={resetAndClose}
-              className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-zinc-100 shrink-0">
+          <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
+          <button
+            onClick={resetAndClose}
+            className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50 cursor-pointer relative z-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-4 overflow-y-auto flex-1 overscroll-contain">
 
           {step === "details" && (
-            <div className="space-y-5">
+            <div className="space-y-3">
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-1 col-span-1 md:col-span-2">
@@ -671,7 +672,7 @@ export function BookingDrawer({
               )}
 
               {priceUsd > 0 && (
-                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 mt-4">
+                <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-3">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-zinc-600 font-medium">
                       Subtotal {pricingModel === 'per_day' && totalDays > 0 ? <span className="text-xs text-zinc-400 ml-1">({totalDays} {totalDays === 1 ? 'day' : 'days'})</span> : ''}
@@ -684,11 +685,11 @@ export function BookingDrawer({
                       <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-zinc-200">
+                  <div className="flex justify-between items-center mt-1 pt-1 border-t border-zinc-200">
                     <span className="text-zinc-800 font-bold">Total (USD)</span>
                     <span className="font-black text-2xl text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-1">
+                  <div className="flex justify-between items-center mt-0.5">
                     <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
                     {paymentStrategy === 'deposit_15' && (
                       <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
@@ -698,22 +699,13 @@ export function BookingDrawer({
               )}
 
               {cancellationPolicy && (
-                <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 mt-4 flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                  <p className="text-xs font-medium text-emerald-700">{cancellationPolicy}</p>
+                <div className="bg-emerald-50 py-1.5 px-3 rounded-xl border border-emerald-200 mt-3 flex items-start gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                  <p className="text-[11px] font-medium text-emerald-700 leading-tight">{cancellationPolicy}</p>
                 </div>
               )}
 
-              <Button
-                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
-                disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
-                className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
-              >
-                {priceUsd === 0
-                  ? "Complete Reservation"
-                  : "Proceed to Payment"}
-              </Button>
-            </div>
+              </div>
           )}
 
           {step === "processing" && (
@@ -769,10 +761,27 @@ export function BookingDrawer({
                   </div>
                 </div>
               </div>
-              <Button onClick={resetAndClose} className="w-full h-16 rounded-2xl font-bold text-lg" variant="outline">
-                Back to Activity
-              </Button>
-            </div>
+              </div>
+          )}
+        </div>
+        
+        {/* Sticky Footer */}
+        <div className="px-6 py-4 border-t border-zinc-100 bg-white shrink-0">
+          {step === "details" && (
+            <Button
+              onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
+              disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
+              className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
+            >
+              {priceUsd === 0
+                ? "Complete Reservation"
+                : "Proceed to Payment"}
+            </Button>
+          )}
+          {step === "success" && (
+            <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
+              Back to Activity
+            </Button>
           )}
         </div>
       </div>
