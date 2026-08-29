@@ -378,11 +378,11 @@ export function BookingDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
 
           {step === "details" && (
-            <div className="space-y-3">
-              <div className="space-y-3">
+            <div className="space-y-2">
+              <div className="space-y-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-1 col-span-1 md:col-span-2">
                     <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
@@ -404,6 +404,7 @@ export function BookingDrawer({
                       <Popover.Root>
                         <Popover.Trigger asChild>
                           <button
+                            type="button"
                             className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                           >
                             {bookingType === 'multi_day'
@@ -413,7 +414,7 @@ export function BookingDrawer({
                           </button>
                         </Popover.Trigger>
                         <Popover.Portal>
-                          <Popover.Content align="start" className="z-[60] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
+                          <Popover.Content align="start" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none">
                             {bookingType === 'multi_day' ? (
                               <DayPicker
                                 mode="range"
@@ -679,22 +680,16 @@ export function BookingDrawer({
               )}
 
               {priceUsd > 0 && (
-                <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-500 font-normal">
-                      Subtotal {pricingModel === 'per_day' && totalDays > 0 ? <span className="text-xs text-zinc-400 ml-1">({totalDays} {totalDays === 1 ? 'day' : 'days'})</span> : ''}
-                    </span>
-                    <span className="font-medium text-lg text-zinc-900">{formatUSD(totalUsd)}</span>
-                  </div>
+                <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-2">
                   {discountUsd > 0 && (
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-emerald-600 font-bold">Promo Discount</span>
                       <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center mt-1 pt-1 border-t border-zinc-200">
+                  <div className="flex justify-between items-center">
                     <span className="text-zinc-800 font-bold">Total (USD)</span>
-                    <span className="font-black text-2xl text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
+                    <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
                   </div>
                   <div className="flex justify-between items-center mt-0.5">
                     <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
