@@ -777,7 +777,11 @@ export function BookingDrawer({
               >
                 {priceUsd === 0
                   ? "Complete Reservation"
-                  : "Proceed to Payment"}
+                  : paymentStrategy === 'no_card' || paymentStrategy === 'manual_hold'
+                    ? "Confirm Reservation"
+                    : paymentStrategy === 'deposit_15'
+                      ? "Proceed to Deposit"
+                      : "Proceed to Payment"}
               </Button>
             </div>
           )}
