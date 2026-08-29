@@ -10,9 +10,10 @@ interface ActivityGalleryProps {
 
 export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  
+
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [hasInteracted, setHasInteracted] = useState(false)
   const minSwipeDistance = 50
 
   const handleNext = useCallback(() => {
@@ -50,6 +51,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
     setTouchStart(e.targetTouches[0].clientX)
+    setHasInteracted(true)
   }
 
   const onTouchMove = (e: React.TouchEvent) => {
@@ -72,20 +74,20 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
         <div className="grid grid-cols-2 gap-1 sm:gap-2 w-full auto-rows-[130px] sm:auto-rows-[175px] md:auto-rows-[250px]">
           {galleryUrls.map((url: string, i: number) => {
             return (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="relative group cursor-pointer hover:opacity-90 transition-opacity rounded-2xl overflow-hidden bg-gray-100"
                 onClick={() => setSelectedIndex(i)}
               >
-                <Image 
-                  src={url} 
-                  alt={`Gallery image ${i + 1}`} 
-                  fill 
+                <Image
+                  src={url}
+                  alt={`Gallery image ${i + 1}`}
+                  fill
                   priority={i < 2}
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
-                  placeholder="blur" 
-                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                  placeholder="blur"
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
             )
@@ -95,8 +97,8 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
 
       {/* Lightbox Overlay */}
       {selectedIndex !== null && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-0 transition-opacity"
+        <div
+          className="fixed inset-0 z-[100] w-screen h-[100dvh] bg-black flex flex-col items-center justify-center p-0 transition-opacity"
           onClick={() => setSelectedIndex(null)}
         >
           <style>{`
@@ -116,7 +118,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
             <div className="text-white font-medium text-sm tracking-widest bg-black/30 px-3 py-1 rounded-full backdrop-blur-md">
               {selectedIndex + 1} OF {galleryUrls.length}
             </div>
-            <button 
+            <button
               className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white backdrop-blur-md"
               onClick={(e) => {
                 e.stopPropagation()
@@ -126,24 +128,24 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
               <X className="w-6 h-6" />
             </button>
           </div>
-          
+
           {/* Main Image Container */}
-          <div 
-            className="relative flex items-center justify-center w-full h-full"
+          <div
+            className="relative flex items-center justify-center w-full h-full transform-gpu"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEndHandler}
           >
             {/* Left Nav (Desktop) */}
-            <button 
+            <button
               className="hidden md:flex absolute left-8 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white z-50 backdrop-blur-md"
               onClick={handlePrev}
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
 
-            <img 
+            <img
               src={galleryUrls[selectedIndex]}
               alt={`Fullscreen gallery view ${selectedIndex + 1}`}
               className="w-auto h-auto max-w-[100vw] max-h-[100vh] object-contain select-none rounded-none"
@@ -151,14 +153,16 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
             />
 
             {/* Swipe Indicator (Mobile Only) */}
-            <div className="md:hidden absolute inset-0 pointer-events-none flex items-center justify-center opacity-70">
-              <div className="animate-swipe flex flex-col items-center gap-2 drop-shadow-xl">
-                <Hand className="w-10 h-10 text-white/90 drop-shadow-lg rotate-12" />
+            {!hasInteracted && (
+              <div className="md:hidden absolute inset-0 pointer-events-none flex items-center justify-center opacity-70">
+                <div className="animate-swipe flex flex-col items-center gap-2 drop-shadow-xl">
+                  <Hand className="w-10 h-10 text-white/90 drop-shadow-lg rotate-12" />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Right Nav (Desktop) */}
-            <button 
+            <button
               className="hidden md:flex absolute right-8 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white z-50 backdrop-blur-md"
               onClick={handleNext}
             >
