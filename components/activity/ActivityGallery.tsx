@@ -28,7 +28,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
       window.addEventListener('keydown', handleKeyDown)
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden'
-      
+
       // Scroll to initial index instantly when opened
       if (scrollContainerRef.current) {
         const container = scrollContainerRef.current
@@ -114,7 +114,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
           {/* Main Image Container (Native Scroll) */}
           <div
             ref={scrollContainerRef}
-            className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="flex w-full h-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             onScroll={handleScroll}
             onClick={(e) => e.stopPropagation()}
           >
