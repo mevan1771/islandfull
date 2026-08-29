@@ -351,21 +351,22 @@ export function BookingDrawer({
       {/* Drawer Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-50 transition-opacity"
+          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[9999] transition-opacity"
           onClick={resetAndClose}
         />
       )}
 
       {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
+        className={`fixed inset-x-0 bottom-0 z-[9999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
         <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-zinc-100 shrink-0">
           <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
           <button
+            type="button"
             onClick={resetAndClose}
-            className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors bg-zinc-50 cursor-pointer relative z-50"
+            className="relative z-50 p-2 ml-auto cursor-pointer hover:bg-gray-100 rounded-full text-zinc-500 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -768,15 +769,22 @@ export function BookingDrawer({
         {/* Sticky Footer */}
         <div className="px-6 py-4 border-t border-zinc-100 bg-white shrink-0">
           {step === "details" && (
-            <Button
-              onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
-              disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
-              className={`w-full h-14 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
-            >
-              {priceUsd === 0
-                ? "Complete Reservation"
-                : "Proceed to Payment"}
-            </Button>
+            <div className="flex flex-row items-center justify-between gap-4">
+              {cancellationPolicy && (
+                <p className="text-xs text-green-600 flex-1 text-left leading-tight">
+                  {cancellationPolicy}
+                </p>
+              )}
+              <Button
+                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
+                disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
+                className={`w-auto shrink-0 px-6 py-2.5 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
+              >
+                {priceUsd === 0
+                  ? "Complete Reservation"
+                  : "Proceed to Payment"}
+              </Button>
+            </div>
           )}
           {step === "success" && (
             <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
