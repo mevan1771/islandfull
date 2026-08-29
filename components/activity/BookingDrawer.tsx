@@ -365,7 +365,7 @@ export function BookingDrawer({
 
       {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-[99999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
+        className={`fixed inset-x-0 bottom-0 z-[99999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[85dvh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
         <button
@@ -380,7 +380,7 @@ export function BookingDrawer({
           <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
         </div>
 
-        <div className="px-6 py-4 overflow-y-auto flex-1 overscroll-contain">
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
 
           {step === "details" && (
             <div className="space-y-3">
@@ -683,7 +683,7 @@ export function BookingDrawer({
               {priceUsd > 0 && (
                 <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-3">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-zinc-500 font-normal">
+                    <span className="text-sm text-gray-500 font-normal">
                       Subtotal {pricingModel === 'per_day' && totalDays > 0 ? <span className="text-xs text-zinc-400 ml-1">({totalDays} {totalDays === 1 ? 'day' : 'days'})</span> : ''}
                     </span>
                     <span className="font-medium text-lg text-zinc-900">{formatUSD(totalUsd)}</span>
@@ -770,11 +770,11 @@ export function BookingDrawer({
         </div>
 
         {/* Sticky Footer */}
-        <div className="px-6 pt-4 pb-8 md:pb-4 border-t border-zinc-100 bg-white shrink-0">
+        <div className="shrink-0 p-4 bg-white border-t border-gray-100 flex flex-col-reverse md:flex-row items-center justify-between gap-3">
           {step === "details" && (
-            <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 w-full">
+            <>
               {cancellationPolicy && (
-                <p className="text-center md:text-left text-xs text-green-600 w-full leading-tight">
+                <p className="text-xs text-center md:text-left text-green-600 w-full">
                   {cancellationPolicy}
                 </p>
               )}
@@ -791,7 +791,7 @@ export function BookingDrawer({
                       ? "Proceed to Deposit"
                       : "Proceed to Payment"}
               </Button>
-            </div>
+            </>
           )}
           {step === "success" && (
             <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
