@@ -184,7 +184,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 {/* Top Gradient for Header Legibility Removed */}
 
 
-                <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8 z-10">
+                <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8">
                     <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
                         <div className="hidden md:flex items-center gap-2">
                             <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm ">

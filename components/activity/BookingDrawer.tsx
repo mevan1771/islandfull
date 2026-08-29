@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
@@ -56,6 +57,10 @@ export function BookingDrawer({
   hostName,
   cancellationTierData
 }: BookingDrawerProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
 
@@ -348,10 +353,12 @@ export function BookingDrawer({
         </div>
       </div>
 
-      {/* Drawer Overlay */}
+      {mounted && createPortal(
+        <>
+          {/* Drawer Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999] transition-opacity"
+          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999] transition-opacity pointer-events-auto"
           onClick={resetAndClose}
         />
       )}
@@ -793,6 +800,9 @@ export function BookingDrawer({
           )}
         </div>
       </div>
+        </>,
+        document.body
+      )}
     </>
   )
 }
