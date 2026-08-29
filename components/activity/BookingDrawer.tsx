@@ -683,7 +683,7 @@ export function BookingDrawer({
               {priceUsd > 0 && (
                 <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-3">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-zinc-600 font-medium">
+                    <span className="text-sm text-zinc-500 font-normal">
                       Subtotal {pricingModel === 'per_day' && totalDays > 0 ? <span className="text-xs text-zinc-400 ml-1">({totalDays} {totalDays === 1 ? 'day' : 'days'})</span> : ''}
                     </span>
                     <span className="font-medium text-lg text-zinc-900">{formatUSD(totalUsd)}</span>
@@ -770,18 +770,18 @@ export function BookingDrawer({
         </div>
 
         {/* Sticky Footer */}
-        <div className="px-6 py-4 border-t border-zinc-100 bg-white shrink-0">
+        <div className="px-6 pt-4 pb-8 md:pb-4 border-t border-zinc-100 bg-white shrink-0">
           {step === "details" && (
-            <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 w-full">
               {cancellationPolicy && (
-                <p className="text-xs text-green-600 flex-1 text-left leading-tight">
+                <p className="text-center md:text-left text-xs text-green-600 w-full leading-tight">
                   {cancellationPolicy}
                 </p>
               )}
               <Button
                 onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
                 disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
-                className={`w-auto shrink-0 px-6 py-2.5 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
+                className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
               >
                 {priceUsd === 0
                   ? "Complete Reservation"
