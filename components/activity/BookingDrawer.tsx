@@ -368,7 +368,7 @@ export function BookingDrawer({
             onClick={resetAndClose}
             className="relative z-50 p-2 ml-auto cursor-pointer hover:bg-gray-100 rounded-full text-zinc-500 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 pointer-events-none" />
           </button>
         </div>
 
@@ -699,9 +699,9 @@ export function BookingDrawer({
                 </div>
               )}
 
-              
 
-              </div>
+
+            </div>
           )}
 
           {step === "processing" && (
@@ -757,10 +757,10 @@ export function BookingDrawer({
                   </div>
                 </div>
               </div>
-              </div>
+            </div>
           )}
         </div>
-        
+
         {/* Sticky Footer */}
         <div className="px-6 py-4 border-t border-zinc-100 bg-white shrink-0">
           {step === "details" && (
