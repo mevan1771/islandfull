@@ -351,14 +351,14 @@ export function BookingDrawer({
       {/* Drawer Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[9999] transition-opacity"
+          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999] transition-opacity"
           onClick={resetAndClose}
         />
       )}
 
       {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-[9999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
+        className={`fixed inset-x-0 bottom-0 z-[99999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
         <button
