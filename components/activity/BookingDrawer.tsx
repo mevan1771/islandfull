@@ -361,7 +361,7 @@ export function BookingDrawer({
         className={`fixed inset-x-0 bottom-0 z-[9999] bg-white rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:h-auto max-h-[90vh] overflow-hidden ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"
           }`}
       >
-        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-zinc-100 shrink-0">
+        <div className="flex items-center justify-between w-full px-6 pt-6 pb-4 mb-4 border-b border-zinc-100 shrink-0">
           <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
           <button
             type="button"
@@ -699,12 +699,7 @@ export function BookingDrawer({
                 </div>
               )}
 
-              {cancellationPolicy && (
-                <div className="bg-emerald-50 py-1.5 px-3 rounded-xl border border-emerald-200 mt-3 flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
-                  <p className="text-[11px] font-medium text-emerald-700 leading-tight">{cancellationPolicy}</p>
-                </div>
-              )}
+              
 
               </div>
           )}
