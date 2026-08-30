@@ -101,6 +101,15 @@ export async function createTour(formData: FormData) {
       console.warn("Failed to parse blackout_dates:", e);
     }
 
+    let faqs = [];
+    try {
+      if (faqs_raw) {
+        faqs = JSON.parse(faqs_raw);
+      }
+    } catch (e) {
+      console.warn("Failed to parse faqs:", e);
+    }
+
     let tour_options = null;
     try {
       if (tour_options_raw) {
@@ -181,6 +190,7 @@ export async function createTour(formData: FormData) {
       use_dark_text_mobile,
       cancellation_tier,
       blackout_dates,
+      faqs,
       status,
       min_notice_days,
       approx_lat,
@@ -307,6 +317,15 @@ export async function updateTour(id: string, formData: FormData) {
       console.warn("Failed to parse blackout_dates:", e);
     }
 
+    let faqs = [];
+    try {
+      if (faqs_raw) {
+        faqs = JSON.parse(faqs_raw);
+      }
+    } catch (e) {
+      console.warn("Failed to parse faqs:", e);
+    }
+
     let tour_options = null;
     try {
       if (tour_options_raw) {
@@ -382,6 +401,7 @@ export async function updateTour(id: string, formData: FormData) {
       use_dark_text_mobile,
       cancellation_tier,
       blackout_dates,
+      faqs,
       status,
       min_notice_days,
       approx_lat,
