@@ -104,13 +104,32 @@ export function BookingDrawer({
   })();
 
   let totalUsd = 0;
-  if (pricingTiers && pricingTiers[guests.toString()]) {
-    // The tier price IS the flat total price for this specific group size
-    totalUsd = pricingTiers[guests.toString()];
+  let appliedTierPrice: number | null = null;
+
+  if (pricingTiers && Object.keys(pricingTiers).length > 0) {
+    // 1. Strict Descending Sort
+    const sortedTiers = Object.entries(pricingTiers)
+      .map(([guestCountStr, price]) => ({
+        guestCount: parseInt(guestCountStr, 10),
+        price: price as number
+      }))
+      .sort((a, b) => b.guestCount - a.guestCount);
+
+    // 2. Find the Highest Applicable Tier
+    const activeTier = sortedTiers.find(tier => guests >= tier.guestCount);
+
+    // 3. Apply Value
+    if (activeTier) {
+      appliedTierPrice = activeTier.price;
+    }
+  }
+
+  // 4. Fallback
+  if (appliedTierPrice !== null) {
+    totalUsd = appliedTierPrice;
   } else if (pricingModel === 'flat_rate') {
     totalUsd = priceUsd;
   } else {
-    // Default fallback: base price * number of guests
     totalUsd = priceUsd * guests;
   }
 
@@ -286,8 +305,8 @@ export function BookingDrawer({
           <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
             {bookingType === 'multi_day' ? (
               <DayPicker
-                                className="mx-auto w-full max-w-[300px] flex justify-center"
-                                mode="range"
+                className="mx-auto w-full max-w-[300px] flex justify-center"
+                mode="range"
                 selected={dateRange}
                 onSelect={setDateRange}
                 disabled={(d) => {
@@ -306,8 +325,8 @@ export function BookingDrawer({
               />
             ) : (
               <DayPicker
-                                className="mx-auto w-full max-w-[300px] flex justify-center"
-                                mode="single"
+                className="mx-auto w-full max-w-[300px] flex justify-center"
+                mode="single"
                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
                 disabled={(d) => {
@@ -358,445 +377,445 @@ export function BookingDrawer({
       {mounted && createPortal(
         <>
           {/* Drawer Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999] transition-opacity pointer-events-auto"
-          onClick={resetAndClose}
-        />
-      )}
+          {isOpen && (
+            <div
+              className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999] transition-opacity pointer-events-auto"
+              onClick={resetAndClose}
+            />
+          )}
 
-      {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
-      <div
-        className={`flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
-      >
-        <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
-          <button
-            type="button"
-            onClick={resetAndClose}
-            className="p-2 rounded-full hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-center text-zinc-500"
+          {/* Mobile Drawer (Bottom on mobile, Center modal on desktop) */}
+          <div
+            className={`flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
           >
-            <X className="w-5 h-5 pointer-events-none" />
-          </button>
-        </div>
+            <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
+              <button
+                type="button"
+                onClick={resetAndClose}
+                className="p-2 rounded-full hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-center text-zinc-500"
+              >
+                <X className="w-5 h-5 pointer-events-none" />
+              </button>
+            </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
 
-          {step === "details" && (
-            <div className="space-y-2">
-              <div className="space-y-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1 col-span-1 md:col-span-2">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
-                      Travel Date
-                    </label>
-                    {/* Desktop View: Static Readonly Date */}
-                    <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
-                      <span className="font-medium text-sm text-zinc-900">
-                        {bookingType === 'multi_day'
-                          ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
-                          : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
-                      </span>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    </div>
-
-                    {/* Mobile View: Interactive Popover Calendar */}
-                    <div className="md:hidden">
-                      <Popover.Root>
-                        <Popover.Trigger asChild>
-                          <button
-                            type="button"
-                            className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
-                          >
+              {step === "details" && (
+                <div className="space-y-2">
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1 col-span-1 md:col-span-2">
+                        <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                          <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
+                          Travel Date
+                        </label>
+                        {/* Desktop View: Static Readonly Date */}
+                        <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
+                          <span className="font-medium text-sm text-zinc-900">
                             {bookingType === 'multi_day'
-                              ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
-                              : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
-                            <CalendarDays className="w-4 h-4 text-zinc-400" />
-                          </button>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                          <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center">
-                            {bookingType === 'multi_day' ? (
-                              <DayPicker
-                                className="mx-auto w-full max-w-[300px] flex justify-center"
-                                mode="range"
-                                selected={dateRange}
-                                onSelect={setDateRange}
-                                disabled={(d) => {
-                                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
-                                  if (isBefore(d, minDate)) return true;
-                                  const dateString = format(d, 'yyyy-MM-dd');
-                                  return blackoutDates.includes(dateString);
-                                }}
-                                modifiersClassNames={{
-                                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
-                                  today: 'text-rose-500 font-bold',
-                                  range_start: 'bg-rose-500 text-white font-bold rounded-l-md rounded-r-none',
-                                  range_end: 'bg-rose-500 text-white font-bold rounded-r-md rounded-l-none',
-                                  range_middle: 'bg-rose-100 text-rose-900 rounded-none hover:bg-rose-200'
-                                }}
-                              />
-                            ) : (
-                              <DayPicker
-                                className="mx-auto w-full max-w-[300px] flex justify-center"
-                                mode="single"
-                                selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
-                                onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
-                                disabled={(d) => {
-                                  const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
-                                  if (isBefore(d, minDate)) return true;
-                                  const dateString = format(d, 'yyyy-MM-dd');
-                                  return blackoutDates.includes(dateString);
-                                }}
-                                modifiersClassNames={{
-                                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
-                                  today: 'text-rose-500 font-bold'
-                                }}
-                              />
-                            )}
-                          </Popover.Content>
-                        </Popover.Portal>
-                      </Popover.Root>
-                    </div>
-                  </div>
+                              ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
+                              : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
+                          </span>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </div>
 
-                  {bookingType === 'point_to_point' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 col-span-1 md:col-span-2">
+                        {/* Mobile View: Interactive Popover Calendar */}
+                        <div className="md:hidden">
+                          <Popover.Root>
+                            <Popover.Trigger asChild>
+                              <button
+                                type="button"
+                                className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
+                              >
+                                {bookingType === 'multi_day'
+                                  ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
+                                  : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
+                                <CalendarDays className="w-4 h-4 text-zinc-400" />
+                              </button>
+                            </Popover.Trigger>
+                            <Popover.Portal>
+                              <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center">
+                                {bookingType === 'multi_day' ? (
+                                  <DayPicker
+                                    className="mx-auto w-full max-w-[300px] flex justify-center"
+                                    mode="range"
+                                    selected={dateRange}
+                                    onSelect={setDateRange}
+                                    disabled={(d) => {
+                                      const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                                      if (isBefore(d, minDate)) return true;
+                                      const dateString = format(d, 'yyyy-MM-dd');
+                                      return blackoutDates.includes(dateString);
+                                    }}
+                                    modifiersClassNames={{
+                                      selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                      today: 'text-rose-500 font-bold',
+                                      range_start: 'bg-rose-500 text-white font-bold rounded-l-md rounded-r-none',
+                                      range_end: 'bg-rose-500 text-white font-bold rounded-r-md rounded-l-none',
+                                      range_middle: 'bg-rose-100 text-rose-900 rounded-none hover:bg-rose-200'
+                                    }}
+                                  />
+                                ) : (
+                                  <DayPicker
+                                    className="mx-auto w-full max-w-[300px] flex justify-center"
+                                    mode="single"
+                                    selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                                    onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
+                                    disabled={(d) => {
+                                      const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
+                                      if (isBefore(d, minDate)) return true;
+                                      const dateString = format(d, 'yyyy-MM-dd');
+                                      return blackoutDates.includes(dateString);
+                                    }}
+                                    modifiersClassNames={{
+                                      selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                      today: 'text-rose-500 font-bold'
+                                    }}
+                                  />
+                                )}
+                              </Popover.Content>
+                            </Popover.Portal>
+                          </Popover.Root>
+                        </div>
+                      </div>
+
+                      {bookingType === 'point_to_point' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 col-span-1 md:col-span-2">
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                              <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                              From Location
+                            </label>
+                            <input
+                              type="text"
+                              value={fromLocation}
+                              onChange={(e) => setFromLocation(e.target.value)}
+                              placeholder="e.g. Colombo Airport"
+                              className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                              <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                              To Location
+                            </label>
+                            <input
+                              type="text"
+                              value={toLocation}
+                              onChange={(e) => setToLocation(e.target.value)}
+                              placeholder="e.g. Ella Hotel"
+                              className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {tourOptions && tourOptions.length > 0 && (
+                        <div className="space-y-1 col-span-1 md:col-span-2">
+                          <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                            Timeslot / Package
+                          </label>
+                          <select
+                            value={selectedOption}
+                            onChange={(e) => setSelectedOption(e.target.value)}
+                            className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white"
+                            required
+                          >
+                            {tourOptions.map((opt, idx) => (
+                              <option key={idx} value={opt.title}>
+                                {opt.title} {opt.price_modifier > 0 ? `(+$${opt.price_modifier} pp)` : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-[115px_1fr] gap-3 col-span-1 md:col-span-2">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                            <Users className="w-3.5 h-3.5 text-rose-500" />
+                            {bookingType === 'multi_day' ? 'Quantity' : 'Guests'}
+                          </label>
+                          <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
+                            <button
+                              onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
+                              className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                              disabled={guests <= 1}
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-bold text-base">{guests}</span>
+                            <button
+                              onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
+                              className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                              disabled={guests >= maxCapacity}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            value={touristName}
+                            onChange={(e) => setTouristName(e.target.value)}
+                            placeholder="John Doe"
+                            className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                          From Location
+                          Email Address
                         </label>
                         <input
-                          type="text"
-                          value={fromLocation}
-                          onChange={(e) => setFromLocation(e.target.value)}
-                          placeholder="e.g. Colombo Airport"
+                          type="email"
+                          value={touristEmail}
+                          onChange={(e) => setTouristEmail(e.target.value)}
+                          placeholder="john@example.com"
                           className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                           required
                         />
                       </div>
+
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                          To Location
+                          <Phone className="w-3.5 h-3.5 text-rose-500" />
+                          Phone Number
                         </label>
                         <input
-                          type="text"
-                          value={toLocation}
-                          onChange={(e) => setToLocation(e.target.value)}
-                          placeholder="e.g. Ella Hotel"
+                          type="tel"
+                          value={whatsapp}
+                          onChange={(e) => setWhatsapp(e.target.value)}
+                          placeholder="+1 (555) 000-0000"
                           className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
                           required
                         />
                       </div>
                     </div>
-                  )}
 
-                  {tourOptions && tourOptions.length > 0 && (
-                    <div className="space-y-1 col-span-1 md:col-span-2">
-                      <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                        Timeslot / Package
-                      </label>
-                      <select
-                        value={selectedOption}
-                        onChange={(e) => setSelectedOption(e.target.value)}
-                        className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white"
-                        required
-                      >
-                        {tourOptions.map((opt, idx) => (
-                          <option key={idx} value={opt.title}>
-                            {opt.title} {opt.price_modifier > 0 ? `(+$${opt.price_modifier} pp)` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-[115px_1fr] gap-3 col-span-1 md:col-span-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                        <Users className="w-3.5 h-3.5 text-rose-500" />
-                        {bookingType === 'multi_day' ? 'Quantity' : 'Guests'}
-                      </label>
-                      <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
-                        <button
-                          onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
-                          className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                          disabled={guests <= 1}
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center font-bold text-base">{guests}</span>
-                        <button
-                          onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
-                          className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                          disabled={guests >= maxCapacity}
-                        >
-                          +
-                        </button>
+                    {hasPickup && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                          Pickup Hotel / Location (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={pickupLocation}
+                          onChange={(e) => setPickupLocation(e.target.value)}
+                          placeholder="e.g. Hotel name, Address or Landmark"
+                          className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
+                        />
+                        <p className="text-[0.8rem] text-zinc-500 font-medium leading-relaxed">
+                          If your activity includes pickup, please provide your hotel name or specific location. We will confirm details via WhatsApp.
+                        </p>
                       </div>
-                    </div>
+                    )}
 
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                        Full Name
+                        <FileText className="w-3.5 h-3.5 text-rose-500" />
+                        Special Requests / Notes (Optional)
                       </label>
-                      <input
-                        type="text"
-                        value={touristName}
-                        onChange={(e) => setTouristName(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                        required
+                      <textarea
+                        value={specialRequests}
+                        onChange={(e) => setSpecialRequests(e.target.value)}
+                        rows={2}
+                        className="w-full h-auto p-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 resize-none"
                       />
                     </div>
                   </div>
+
+                  {priceUsd > 0 && (
+                    <div className="space-y-3 mt-4">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => {
+                            setPromoInput(e.target.value.toUpperCase())
+                            setPromoError("")
+                            setPromoSuccess("")
+                          }}
+                          placeholder="Have a promo code?"
+                          className="flex-1 h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-sm text-zinc-900 uppercase placeholder:normal-case"
+                          disabled={!!appliedPromo}
+                        />
+                        {appliedPromo ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-200"
+                            onClick={() => {
+                              setAppliedPromo(null)
+                              setDiscountUsd(0)
+                              setPromoInput("")
+                              setPromoSuccess("")
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10"
+                            disabled={!promoInput || isApplyingPromo}
+                            onClick={async (e) => {
+                              e.preventDefault()
+                              setIsApplyingPromo(true)
+                              setPromoError("")
+                              setPromoSuccess("")
+                              try {
+                                const res = await validatePromoCode(promoInput, totalUsd)
+                                if (res.success) {
+                                  setAppliedPromo(res.code || null)
+                                  setDiscountUsd(res.discountAmountUsd || 0)
+                                  setPromoSuccess(`-$${res.discountAmountUsd || 0} discount applied!`)
+                                } else {
+                                  setPromoError(res.error || "Failed to apply promo")
+                                }
+                              } catch (err: any) {
+                                setPromoError("Failed to validate promo code.")
+                              }
+                              setIsApplyingPromo(false)
+                            }}
+                          >
+                            {isApplyingPromo ? "..." : "Apply"}
+                          </Button>
+                        )}
+                      </div>
+                      {promoError && <p className="text-xs text-rose-500 font-bold">{promoError}</p>}
+                      {promoSuccess && <p className="text-xs text-emerald-500 font-bold">{promoSuccess}</p>}
+                    </div>
+                  )}
+
+                  {priceUsd > 0 && (
+                    <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-2">
+                      {discountUsd > 0 && (
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-emerald-600 font-bold">Promo Discount</span>
+                          <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-zinc-800 font-bold">Total (USD)</span>
+                        <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-0.5">
+                        <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
+                        {paymentStrategy === 'deposit_15' && (
+                          <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+
+
                 </div>
+              )}
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={touristEmail}
-                      onChange={(e) => setTouristEmail(e.target.value)}
-                      placeholder="john@example.com"
-                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      <Phone className="w-3.5 h-3.5 text-rose-500" />
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="+1 (555) 000-0000"
-                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                      required
-                    />
+              {step === "processing" && (
+                <div className="flex flex-col items-center justify-center py-16 space-y-8">
+                  <div className="w-20 h-20 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin"></div>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-zinc-900 mb-2">Secure Checkout</h3>
+                    <p className="text-zinc-500 font-medium">Connecting to Stripe securely...</p>
                   </div>
                 </div>
+              )}
 
-                {hasPickup && (
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                      Pickup Hotel / Location (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={pickupLocation}
-                      onChange={(e) => setPickupLocation(e.target.value)}
-                      placeholder="e.g. Hotel name, Address or Landmark"
-                      className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900"
-                    />
-                    <p className="text-[0.8rem] text-zinc-500 font-medium leading-relaxed">
-                      If your activity includes pickup, please provide your hotel name or specific location. We will confirm details via WhatsApp.
+              {step === "success" && (
+                <div className="flex flex-col items-center text-center py-12 space-y-8">
+                  <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-2">
+                    <CheckCircle2 className="w-12 h-12 text-rose-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-bold text-zinc-900 mb-3 tracking-tight">Confirmed!</h3>
+                    <p className="text-zinc-500 mb-8 font-medium px-4">
+                      Your reservation is locked in. We've sent the details to your WhatsApp.
                     </p>
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                    <FileText className="w-3.5 h-3.5 text-rose-500" />
-                    Special Requests / Notes (Optional)
-                  </label>
-                  <textarea
-                    value={specialRequests}
-                    onChange={(e) => setSpecialRequests(e.target.value)}
-                    rows={2}
-                    className="w-full h-auto p-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 resize-none"
-                  />
-                </div>
-              </div>
-
-              {priceUsd > 0 && (
-                <div className="space-y-3 mt-4">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={promoInput}
-                      onChange={(e) => {
-                        setPromoInput(e.target.value.toUpperCase())
-                        setPromoError("")
-                        setPromoSuccess("")
-                      }}
-                      placeholder="Have a promo code?"
-                      className="flex-1 h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-sm text-zinc-900 uppercase placeholder:normal-case"
-                      disabled={!!appliedPromo}
-                    />
-                    {appliedPromo ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-10 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border-rose-200"
-                        onClick={() => {
-                          setAppliedPromo(null)
-                          setDiscountUsd(0)
-                          setPromoInput("")
-                          setPromoSuccess("")
-                        }}
-                      >
-                        Remove
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-10"
-                        disabled={!promoInput || isApplyingPromo}
-                        onClick={async (e) => {
-                          e.preventDefault()
-                          setIsApplyingPromo(true)
-                          setPromoError("")
-                          setPromoSuccess("")
-                          try {
-                            const res = await validatePromoCode(promoInput, totalUsd)
-                            if (res.success) {
-                              setAppliedPromo(res.code || null)
-                              setDiscountUsd(res.discountAmountUsd || 0)
-                              setPromoSuccess(`-$${res.discountAmountUsd || 0} discount applied!`)
-                            } else {
-                              setPromoError(res.error || "Failed to apply promo")
-                            }
-                          } catch (err: any) {
-                            setPromoError("Failed to validate promo code.")
-                          }
-                          setIsApplyingPromo(false)
-                        }}
-                      >
-                        {isApplyingPromo ? "..." : "Apply"}
-                      </Button>
-                    )}
-                  </div>
-                  {promoError && <p className="text-xs text-rose-500 font-bold">{promoError}</p>}
-                  {promoSuccess && <p className="text-xs text-emerald-500 font-bold">{promoSuccess}</p>}
-                </div>
-              )}
-
-              {priceUsd > 0 && (
-                <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-2">
-                  {discountUsd > 0 && (
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-emerald-600 font-bold">Promo Discount</span>
-                      <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-800 font-bold">Total (USD)</span>
-                    <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
-                  </div>
-                  <div className="flex justify-between items-center mt-0.5">
-                    <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
-                    {paymentStrategy === 'deposit_15' && (
-                      <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-
-
-            </div>
-          )}
-
-          {step === "processing" && (
-            <div className="flex flex-col items-center justify-center py-16 space-y-8">
-              <div className="w-20 h-20 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin"></div>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-zinc-900 mb-2">Secure Checkout</h3>
-                <p className="text-zinc-500 font-medium">Connecting to Stripe securely...</p>
-              </div>
-            </div>
-          )}
-
-          {step === "success" && (
-            <div className="flex flex-col items-center text-center py-12 space-y-8">
-              <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-2">
-                <CheckCircle2 className="w-12 h-12 text-rose-500" />
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold text-zinc-900 mb-3 tracking-tight">Confirmed!</h3>
-                <p className="text-zinc-500 mb-8 font-medium px-4">
-                  Your reservation is locked in. We've sent the details to your WhatsApp.
-                </p>
-                <div className="bg-zinc-50 rounded-3xl p-6 w-full max-w-sm mx-auto text-left space-y-4 border border-zinc-100">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500 font-medium">Booking ID</span>
-                    <span className="font-bold text-zinc-900">#IF-{Math.floor(Math.random() * 10000)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500 font-medium">Date</span>
-                    <span className="font-bold text-zinc-900">{date}</span>
-                  </div>
-                  {selectedOption && (
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500 font-medium">Option</span>
-                      <span className="font-bold text-zinc-900">{selectedOption}</span>
-                    </div>
-                  )}
-                  {bookingType === 'point_to_point' && (
-                    <>
+                    <div className="bg-zinc-50 rounded-3xl p-6 w-full max-w-sm mx-auto text-left space-y-4 border border-zinc-100">
                       <div className="flex justify-between">
-                        <span className="text-zinc-500 font-medium">From</span>
-                        <span className="font-bold text-zinc-900">{fromLocation}</span>
+                        <span className="text-zinc-500 font-medium">Booking ID</span>
+                        <span className="font-bold text-zinc-900">#IF-{Math.floor(Math.random() * 10000)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-zinc-500 font-medium">To</span>
-                        <span className="font-bold text-zinc-900">{toLocation}</span>
+                        <span className="text-zinc-500 font-medium">Date</span>
+                        <span className="font-bold text-zinc-900">{date}</span>
                       </div>
-                    </>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500 font-medium">Guests</span>
-                    <span className="font-bold text-zinc-900">{guests}</span>
+                      {selectedOption && (
+                        <div className="flex justify-between">
+                          <span className="text-zinc-500 font-medium">Option</span>
+                          <span className="font-bold text-zinc-900">{selectedOption}</span>
+                        </div>
+                      )}
+                      {bookingType === 'point_to_point' && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-zinc-500 font-medium">From</span>
+                            <span className="font-bold text-zinc-900">{fromLocation}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-zinc-500 font-medium">To</span>
+                            <span className="font-bold text-zinc-900">{toLocation}</span>
+                          </div>
+                        </>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500 font-medium">Guests</span>
+                        <span className="font-bold text-zinc-900">{guests}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Sticky Footer */}
-        <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col-reverse md:flex-row gap-4 items-center justify-between pb-safe">
-          {step === "details" && (
-            <>
-              {cancellationPolicy && (
-                <p className="text-xs text-center md:text-left text-green-600 w-full">
-                  {cancellationPolicy}
-                </p>
               )}
-              <Button
-                onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
-                disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
-                className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
-              >
-                {priceUsd === 0
-                  ? "Complete Reservation"
-                  : paymentStrategy === 'no_card' || paymentStrategy === 'manual_hold'
-                    ? "Confirm Reservation"
-                    : paymentStrategy === 'deposit_15'
-                      ? "Proceed to Deposit"
-                      : "Proceed to Payment"}
-              </Button>
-            </>
-          )}
-          {step === "success" && (
-            <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
-              Back to Activity
-            </Button>
-          )}
-        </div>
-      </div>
+            </div>
+
+            {/* Sticky Footer */}
+            <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col-reverse md:flex-row gap-4 items-center justify-between pb-safe">
+              {step === "details" && (
+                <>
+                  {cancellationPolicy && (
+                    <p className="text-xs text-center md:text-left text-green-600 w-full">
+                      {cancellationPolicy}
+                    </p>
+                  )}
+                  <Button
+                    onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
+                    disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
+                    className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
+                  >
+                    {priceUsd === 0
+                      ? "Complete Reservation"
+                      : paymentStrategy === 'no_card' || paymentStrategy === 'manual_hold'
+                        ? "Confirm Reservation"
+                        : paymentStrategy === 'deposit_15'
+                          ? "Proceed to Deposit"
+                          : "Proceed to Payment"}
+                  </Button>
+                </>
+              )}
+              {step === "success" && (
+                <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
+                  Back to Activity
+                </Button>
+              )}
+            </div>
+          </div>
         </>,
         document.body
       )}
