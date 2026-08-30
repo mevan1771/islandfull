@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import Image from "next/image"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -9,6 +10,8 @@ interface ActivityGalleryProps {
 }
 
 export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const [isOpen, setIsOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -107,7 +110,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
       </section>
 
       {/* Lightbox Overlay */}
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <div
           className="fixed inset-0 z-[999999] bg-black touch-none flex flex-col justify-between select-none"
           onClick={() => setIsOpen(false)}
@@ -177,7 +180,8 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
           >
             <ChevronRight className="w-8 h-8" />
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
