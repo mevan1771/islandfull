@@ -20,6 +20,7 @@ interface BookingDrawerProps {
   priceUsd: number
   priceLkrApprox: number
   maxCapacity: number
+  minGuests?: number
   pricingTiers?: Record<string, number> | null
   tourOptions?: { title: string, price_modifier: number }[] | null
   paymentStrategy?: 'no_card' | 'deposit_15' | 'manual_hold' | 'full' | string
@@ -42,6 +43,7 @@ export function BookingDrawer({
   priceUsd,
   priceLkrApprox,
   maxCapacity,
+  minGuests = 1,
   pricingTiers,
   tourOptions,
   paymentStrategy = 'full',
@@ -67,7 +69,7 @@ export function BookingDrawer({
   // Form state
   const [date, setDate] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const [guests, setGuests] = useState(1)
+  const [guests, setGuests] = useState(minGuests)
   const [whatsapp, setWhatsapp] = useState("")
   const [touristName, setTouristName] = useState("")
   const [touristEmail, setTouristEmail] = useState("")
@@ -219,7 +221,7 @@ export function BookingDrawer({
       setStep("details")
       setDate("")
       setDateRange(undefined)
-      setGuests(1)
+      setGuests(minGuests)
       setWhatsapp("")
       setPickupLocation("")
       setSpecialRequests("")
@@ -541,9 +543,9 @@ export function BookingDrawer({
                           </label>
                           <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                             <button
-                              onClick={(e) => { e.preventDefault(); setGuests(Math.max(1, guests - 1)); }}
+                              onClick={(e) => { e.preventDefault(); setGuests(Math.max(minGuests, guests - 1)); }}
                               className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                              disabled={guests <= 1}
+                              disabled={guests <= minGuests}
                             >
                               -
                             </button>

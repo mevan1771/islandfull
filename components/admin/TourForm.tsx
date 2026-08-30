@@ -608,7 +608,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
             </div>
 
             <div className="space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                     <Clock className="w-4 h-4 text-rose-500" />
@@ -619,6 +619,21 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                     type="text"
                     defaultValue={initialData?.duration}
                     placeholder="e.g. 2 Hours, Half Day"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <Users className="w-4 h-4 text-rose-500" />
+                    Min Guests
+                  </label>
+                  <input
+                    name="min_guests"
+                    type="number"
+                    min="1"
+                    defaultValue={initialData?.min_guests || 1}
                     className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
                     required
                   />

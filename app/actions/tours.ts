@@ -70,6 +70,7 @@ export async function createTour(formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const card_image_url = formData.get("card_image_url") as string || null
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
+    const min_guests = parseInt(formData.get("min_guests") as string || "1", 10)
     const status = formData.get("status") as string || "published"
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
@@ -166,6 +167,7 @@ export async function createTour(formData: FormData) {
       card_image_url,
       gallery_urls,
       max_capacity,
+      min_guests,
       pricing_tiers,
       tour_options,
       payment_strategy,
@@ -273,6 +275,7 @@ export async function updateTour(id: string, formData: FormData) {
     const cover_image_url = formData.get("cover_image_url") as string
     const card_image_url = formData.get("card_image_url") as string || null
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
+    const min_guests = parseInt(formData.get("min_guests") as string || "1", 10)
     const status = formData.get("status") as string || "published"
     const min_notice_days = parseInt(formData.get("min_notice_days") as string || "1", 10)
     const payment_strategy = formData.get("payment_strategy") as string || "full"
@@ -364,6 +367,7 @@ export async function updateTour(id: string, formData: FormData) {
       card_image_url,
       gallery_urls,
       max_capacity,
+      min_guests,
       pricing_tiers,
       tour_options,
       payment_strategy,
