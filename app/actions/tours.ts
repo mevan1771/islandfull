@@ -90,6 +90,7 @@ export async function createTour(formData: FormData) {
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
+    const faqs_raw = formData.get("faqs") as string
 
     let blackout_dates = [];
     try {
@@ -295,6 +296,7 @@ export async function updateTour(id: string, formData: FormData) {
     const pricing_tiers_raw = formData.get("pricing_tiers") as string
     const tour_options_raw = formData.get("tour_options") as string
     const blackout_dates_raw = formData.get("blackout_dates") as string
+    const faqs_raw = formData.get("faqs") as string
 
     let blackout_dates = [];
     try {

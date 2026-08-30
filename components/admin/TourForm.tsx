@@ -14,7 +14,7 @@ import CreatableSelect from "react-select/creatable"
 import { ImageCropperModal } from "./ImageCropperModal"
 import imageCompression from 'browser-image-compression'
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 export default function TourForm({ categories, initialData, cancellationTiers = [] }: { categories: any[], initialData?: any, cancellationTiers?: any[] }) {
   const router = useRouter()
