@@ -83,45 +83,50 @@ export default function HostsPage() {
     e.preventDefault()
     setIsSaving(true)
 
-    const data = new FormData()
-    data.append("name", formData.name)
-    if (formData.contact_name) data.append("contact_name", formData.contact_name)
-    if (formData.email) data.append("email", formData.email)
-    if (formData.phone) data.append("phone", formData.phone)
-    if (formData.address) data.append("address", formData.address)
-    if (formData.payout_notes) data.append("payout_notes", formData.payout_notes)
-    if (formData.image_url) data.append("image_url", formData.image_url)
-    if (imageFile) data.append("image_file", imageFile)
-    if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
-    if (avatarFile) data.append("avatar_file", avatarFile)
+    try {
+      const data = new FormData()
+      data.append("name", formData.name)
+      if (formData.contact_name) data.append("contact_name", formData.contact_name)
+      if (formData.email) data.append("email", formData.email)
+      if (formData.phone) data.append("phone", formData.phone)
+      if (formData.address) data.append("address", formData.address)
+      if (formData.payout_notes) data.append("payout_notes", formData.payout_notes)
+      if (formData.image_url) data.append("image_url", formData.image_url)
+      if (imageFile) data.append("image_file", imageFile)
+      if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
+      if (avatarFile) data.append("avatar_file", avatarFile)
 
-    let res;
-    if (editingHost) {
-      if (!editingHost.user_id && formData.login_email && formData.login_password) {
-        data.append("login_email", formData.login_email)
-        data.append("login_password", formData.login_password)
-        res = await adminProvisionLegacyHost(editingHost.id, data)
-        if (res.success) {
+      let res;
+      if (editingHost) {
+        if (!editingHost.user_id && formData.login_email && formData.login_password) {
+          data.append("login_email", formData.login_email)
+          data.append("login_password", formData.login_password)
+          res = await adminProvisionLegacyHost(editingHost.id, data)
+          if (res.success) {
+            res = await updateHost(editingHost.id, data)
+          }
+        } else {
           res = await updateHost(editingHost.id, data)
         }
       } else {
-        res = await updateHost(editingHost.id, data)
+        // It's a new host, append the login details for provisioning
+        data.append("login_email", formData.login_email)
+        data.append("login_password", formData.login_password)
+        res = await adminCreateHostAccount(data)
       }
-    } else {
-      // It's a new host, append the login details for provisioning
-      data.append("login_email", formData.login_email)
-      data.append("login_password", formData.login_password)
-      res = await adminCreateHostAccount(data)
-    }
 
-    if (res.success) {
-      toast.success(editingHost ? "Host updated successfully!" : "Host account created successfully!")
-      closeModal()
-      await loadHosts()
-    } else {
-      toast.error("Error saving host: " + res.error)
+      if (res && res.success) {
+        toast.success(editingHost ? "Host updated successfully!" : "Host account created successfully!")
+        closeModal()
+        await loadHosts()
+      } else {
+        toast.error("Error saving host: " + (res?.error || "Unknown error"))
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An unexpected error occurred")
+    } finally {
+      setIsSaving(false)
     }
-    setIsSaving(false)
   }
 
   const handleDelete = async (id: string) => {
