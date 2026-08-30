@@ -220,7 +220,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
                         <div className="flex flex-row items-center gap-1.5">
                             <Users className="w-4 h-4 text-rose-500" />
-                            <span className="text-xs font-semibold text-gray-800">Up to {activity.max_capacity}</span>
+                            <span className="text-xs font-semibold text-gray-800">
+                                {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests} - ${activity.max_capacity} Guests` : `Up to ${activity.max_capacity}`}
+                            </span>
                         </div>
                     </div>
 
@@ -252,7 +254,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-xs font-bold text-zinc-400 uppercase">Capacity</span>
-                                <span className="text-base font-semibold text-slate-700/80">Up to {activity.max_capacity}</span>
+                                <span className="text-base font-semibold text-slate-700/80">
+                                    {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests} - ${activity.max_capacity} Guests` : `Up to ${activity.max_capacity}`}
+                                </span>
                             </div>
                         </div>
                     </div>
