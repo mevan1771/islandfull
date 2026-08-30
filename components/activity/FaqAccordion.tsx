@@ -8,30 +8,30 @@ interface FaqAccordionProps {
 }
 
 export function FaqAccordion({ faqs }: FaqAccordionProps) {
-    const [activeIndex, setActiveIndex] = useState<number | null>(null)
+    const [openIndex, setOpenIndex] = useState<number | null>(null)
 
     if (!faqs || faqs.length === 0) return null
-
-    const toggleItem = (index: number) => {
-        setActiveIndex(activeIndex === index ? null : index)
-    }
 
     return (
         <section>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             <div className="space-y-3">
-                {faqs.map((faq, i) => {
-                    const isActive = activeIndex === i
+                {faqs.map((faq, index) => {
+                    const isActive = openIndex === index
                     return (
-                        <div
-                            key={i}
-                            className={`rounded-2xl overflow-hidden transition-all duration-300 ${isActive
-                                    ? "bg-slate-50 border-2 border-slate-200 shadow-md"
-                                    : "bg-white border border-zinc-100 hover:border-zinc-200"
+                        <details
+                            key={index}
+                            open={isActive}
+                            className={`group rounded-2xl overflow-hidden transition-all duration-300 [&_summary::-webkit-details-marker]:hidden ${isActive
+                                ? "bg-slate-50 border-2 border-slate-200 shadow-md"
+                                : "bg-white border border-zinc-100 hover:border-zinc-200"
                                 }`}
                         >
-                            <button
-                                onClick={() => toggleItem(i)}
+                            <summary
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setOpenIndex(openIndex === index ? null : index);
+                                }}
                                 className="w-full flex items-center justify-between p-4 cursor-pointer font-bold text-slate-700/80 select-none text-left"
                             >
                                 <span>{faq.question}</span>
@@ -41,22 +41,15 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
                                 >
                                     <ChevronDown className="w-5 h-5" />
                                 </span>
-                            </button>
+                            </summary>
 
-                            <div
-                                className={`grid transition-all duration-300 ease-in-out ${isActive ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                                    }`}
-                            >
-                                <div className="overflow-hidden">
-                                    <div className="px-4 pb-4 text-sm font-medium text-slate-600/80 leading-relaxed">
-                                        {faq.answer}
-                                    </div>
-                                </div>
+                            <div className="px-4 pb-4 text-sm font-medium text-slate-600/80 leading-relaxed">
+                                {faq.answer}
                             </div>
-                        </div >
+                        </details>
                     )
                 })}
-            </div >
-        </section >
+            </div>
+        </section>
     )
 }
