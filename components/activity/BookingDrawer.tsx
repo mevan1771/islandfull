@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle } from "lucide-react"
+import {  CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle , CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import { validatePromoCode } from "@/app/actions/promo"
@@ -147,9 +147,9 @@ export function BookingDrawer({
   if (appliedTierPrice !== null) {
     totalUsd = appliedTierPrice;
   } else if (pricingModel === 'flat_rate') {
-    totalUsd = priceUsd;
+    totalUsd = effectivePriceUsd;
   } else {
-    totalUsd = priceUsd * guests;
+    totalUsd = effectivePriceUsd * guests;
   }
 
   // Multiply by days if it's a rental (per_day model)
