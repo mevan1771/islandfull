@@ -12,7 +12,7 @@ import Link from "next/link"
 
 
 
-export const revalidate = 3600; // Cache for 1 hour to improve FCP
+export const revalidate = 0; // Opt out of static caching to ensure Flash Deals are always up-to-date
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
