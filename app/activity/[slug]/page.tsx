@@ -211,7 +211,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     {/* Quick Info (Mobile Minimalist Row) */}
-                    <div className="flex md:hidden flex-nowrap items-center justify-start gap-3 w-full overflow-x-auto hide-scrollbar pt-2 pb-4 px-4">
+                    <div className="flex md:hidden flex-nowrap items-center justify-start gap-3 w-full overflow-x-auto hide-scrollbar pt-2 pb-4">
                         <div className="flex items-center shrink-0">
                             <span className="bg-[#fa385f] text-white text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full whitespace-nowrap">
                                 {activity.location}
