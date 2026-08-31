@@ -79,8 +79,8 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                 <div
                     key={tour.id}
                     className={`absolute inset-0 ease-in-out ${index === currentIndex
-                        ? 'opacity-100 z-20 transition-opacity duration-[1200ms]'
-                        : 'opacity-0 z-10 pointer-events-none transition-opacity duration-[1200ms] delay-[1200ms]'
+                        ? 'opacity-100 z-20 transition-opacity duration-700'
+                        : 'opacity-0 z-10 pointer-events-none transition-opacity duration-700 delay-700'
                         }`}
                     style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
                 >
@@ -91,7 +91,7 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
                         fetchPriority={index === 0 ? "high" : "auto"}
                         decoding={index === 0 ? "sync" : "async"}
-                        loading={index === 0 ? "eager" : "lazy"}
+                        loading={index <= 1 ? "eager" : "lazy"}
                     />
 
                     {/* Slide-specific Legibility Mask Removed */}
