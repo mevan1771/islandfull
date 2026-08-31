@@ -211,28 +211,29 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     {/* Quick Info (Mobile Minimalist Row) */}
-                    <div className="flex md:hidden items-center justify-between flex-wrap gap-x-3 gap-y-2 w-full pt-2 pb-4 px-4">
-                        <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm ">
+                    <div className="flex md:hidden flex-nowrap items-center justify-between w-full text-[11px] sm:text-xs overflow-x-auto hide-scrollbar gap-2 pt-2 pb-4 px-4">
+                        <div className="flex items-center gap-1 shrink-0">
+                            <MapPin className="w-3 h-3 text-red-500" />
+                            <span className="text-gray-600 font-semibold uppercase tracking-wider">
                                 {activity.location}
                             </span>
                         </div>
 
-                        <div className="flex flex-row items-center gap-1.5">
-                            <Clock className="w-4 h-4 text-rose-500" />
-                            <span className="text-xs font-semibold text-gray-800">{activity.duration}</span>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <Clock className="w-3 h-3 text-red-500" />
+                            <span className="text-gray-600 font-semibold">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
                         </div>
 
-                        <div className="flex flex-row items-center gap-1.5">
-                            <Users className="w-4 h-4 text-rose-500" />
-                            <span className="text-xs font-semibold text-gray-800">
-                                {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests} - ${activity.max_capacity} Guests` : `Up to ${activity.max_capacity}`}
+                        <div className="flex items-center gap-1 shrink-0">
+                            <Users className="w-3 h-3 text-red-500" />
+                            <span className="text-gray-600 font-semibold">
+                                {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                             </span>
                         </div>
 
                         {activity.discount_price && activity.deal_end_date && new Date(activity.deal_end_date) > new Date() && (
-                            <div className="flex md:hidden items-center text-xs font-medium text-red-500 gap-1">
-                                <CountdownTimer targetDate={activity.deal_end_date} />
+                            <div className="flex items-center gap-1 shrink-0">
+                                <CountdownTimer targetDate={activity.deal_end_date} compact={true} />
                             </div>
                         )}
                     </div>
