@@ -314,7 +314,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                         </section>
                     )}
 
-                    
+
                     {/* FAQs */}
                     <FaqAccordion faqs={activity.faqs} />
 
@@ -349,8 +349,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
                             hostName={activity.hosts?.name || activity.provider_name}
                             cancellationTierData={cancellationTierData}
-        discountPrice={activity.discount_price}
-        dealEndDate={activity.deal_end_date}
+                            discountPrice={activity.discount_price}
+                            dealEndDate={activity.deal_end_date}
                         />
                     </div>
                 </div>
@@ -399,7 +399,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     priceUsd={activity.price_usd}
                     priceLkrApprox={Math.round(activity.price_usd * exchangeRate)}
                     maxCapacity={activity.max_capacity}
-                            minGuests={activity.min_guests}
+                    minGuests={activity.min_guests}
                     pricingTiers={activity.pricing_tiers}
                     tourOptions={activity.tour_options}
                     paymentStrategy={activity.payment_strategy}
@@ -414,6 +414,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
                     hostName={activity.hosts?.name || activity.provider_name}
                     cancellationTierData={cancellationTierData}
+                    discountPrice={activity.discount_price}
+                    dealEndDate={activity.deal_end_date}
                 />
             </div>
         </div>
