@@ -114,7 +114,7 @@ export function ActivityCard({
             {title}
           </h3>
 
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-500 truncate mb-1">
+          <div className="flex items-center gap-1.5 text-sm text-gray-500 truncate mb-1">
             {(rating || isHiddenGem || reviewCount === 0) && (
               <div className="flex items-center gap-0.5 flex-shrink-0">
                 {isHiddenGem ? (
@@ -153,16 +153,16 @@ export function ActivityCard({
                   <>
                     {isDealActive && discountPrice ? (
                       <>
-                        <del className="text-xs text-gray-400">${priceUsd}</del>
+                        <del className="text-sm text-red-500">${priceUsd}</del>
                         <span className="font-bold text-lg text-gray-900">${discountPrice}</span>
-                        <span className="text-[10px] sm:text-xs font-normal text-gray-500">
+                        <span className="text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
                       </>
                     ) : (
                       <>
                         <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
-                        <span className="text-[10px] sm:text-xs font-normal text-gray-500">
+                        <span className="text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
                       </>
@@ -170,8 +170,8 @@ export function ActivityCard({
                   </>
                 )}
               </div>
-              <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
-              <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
+              <span className="text-gray-300 text-sm flex-shrink-0">•</span>
+              <span className="text-sm font-normal text-gray-500 truncate">{duration}</span>
             </div>
 
           </div>
