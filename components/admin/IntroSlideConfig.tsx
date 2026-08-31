@@ -10,7 +10,8 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
     title: initialData?.title || "",
     subtitle: initialData?.subtitle || "",
-    cover_image_url: initialData?.cover_image_url || ""
+    cover_image_url: initialData?.cover_image_url || "",
+    useDarkText: initialData?.useDarkText || false
   })
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -54,8 +55,8 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-zinc-700 uppercase">Title</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={data.title}
             onChange={(e) => setData({ ...data, title: e.target.value })}
             className="w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -64,8 +65,8 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
         </div>
         <div className="space-y-1">
           <label className="text-xs font-semibold text-zinc-700 uppercase">Subtitle</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={data.subtitle}
             onChange={(e) => setData({ ...data, subtitle: e.target.value })}
             className="w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -75,22 +76,22 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
         <div className="space-y-1 md:col-span-2">
           <label className="text-xs font-semibold text-zinc-700 uppercase">Background Image URL</label>
           <div className="flex gap-2">
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={data.cover_image_url}
               onChange={(e) => setData({ ...data, cover_image_url: e.target.value })}
               className="flex-1 p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-500 font-mono text-sm"
               placeholder="https://images.unsplash.com/photo-..."
             />
             <div className="relative">
-              <input 
-                type="file" 
+              <input
+                type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 disabled={uploading}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
               />
-              <button 
+              <button
                 type="button"
                 disabled={uploading}
                 className="h-full px-4 bg-zinc-100 border border-zinc-300 rounded-lg text-zinc-700 font-medium hover:bg-zinc-200 flex items-center gap-2 disabled:opacity-50"
@@ -107,10 +108,21 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
             </div>
           )}
         </div>
+        <div className="space-y-1 md:col-span-2 pt-2">
+          <label className="flex items-center gap-2 cursor-pointer w-fit">
+            <input
+              type="checkbox"
+              checked={data.useDarkText}
+              onChange={(e) => setData({ ...data, useDarkText: e.target.checked })}
+              className="w-4 h-4 text-rose-500 rounded border-zinc-300 focus:ring-rose-500"
+            />
+            <span className="text-sm font-semibold text-zinc-700">Use Dark Text (for bright background images)</span>
+          </label>
+        </div>
       </div>
 
       <div className="pt-2 flex justify-end">
-        <button 
+        <button
           onClick={handleSave}
           disabled={saving}
           className="bg-zinc-900 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-zinc-800 disabled:opacity-50 flex items-center gap-2"

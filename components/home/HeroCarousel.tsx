@@ -34,8 +34,8 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
             slug: '',
             cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
             isStatic: true,
-            use_dark_text_desktop: introSlide?.use_dark_text_desktop || false,
-            use_dark_text_mobile: introSlide?.use_dark_text_mobile || false
+            use_dark_text_desktop: introSlide?.use_dark_text_desktop || introSlide?.useDarkText || false,
+            use_dark_text_mobile: introSlide?.use_dark_text_mobile || introSlide?.useDarkText || false
         },
         ...tours
     ]
