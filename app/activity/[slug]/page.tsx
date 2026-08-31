@@ -12,6 +12,7 @@ import { ActivityGallery } from "@/components/activity/ActivityGallery"
 import { FaqAccordion } from "@/components/activity/FaqAccordion"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MobileBackButton } from "@/components/ui/MobileBackButton"
+import { DesktopBackButton } from "@/components/ui/DesktopBackButton"
 import { MobilePaddingSetter } from "@/components/activity/MobilePaddingSetter"
 import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
@@ -231,6 +232,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
                     {/* Quick Info (Desktop Balloons) */}
                     <div className="hidden md:flex flex-wrap gap-4 w-full py-2">
+                        <DesktopBackButton />
                         <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100 flex-shrink-0">
                             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                                 <Clock className="w-5 h-5 text-rose-500" />
