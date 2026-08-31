@@ -161,6 +161,8 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
       query = query.order('price_usd', { ascending: true });
     } else if (searchParams.sort === 'price_desc') {
       query = query.order('price_usd', { ascending: false });
+    } else if (searchParams.sort === 'deals') {
+      query = query.order('discount_price', { ascending: true, nullsFirst: false });
     } else {
       // Default sort for maximum visibility of new tours
       query = query.order('created_at', { ascending: false });

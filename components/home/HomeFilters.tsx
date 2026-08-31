@@ -253,6 +253,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 >
                   <option value="">Sort by...</option>
+                  <option value="deals">Best Deals</option>
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
                   <option value="rating_desc">Rating: Highest First</option>
