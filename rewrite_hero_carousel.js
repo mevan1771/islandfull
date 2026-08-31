@@ -1,4 +1,9 @@
-"use client"
+const fs = require('fs');
+const path = require('path');
+
+const filePath = path.join(__dirname, 'components', 'home', 'HeroCarousel.tsx');
+
+const newContent = `"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -59,10 +64,10 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
             {carouselSlides.map((tour, index) => (
                 <div
                     key={tour.id}
-                    className={`absolute inset-0 ease-in-out ${index === currentIndex
+                    className={\`absolute inset-0 ease-in-out \${index === currentIndex
                         ? 'opacity-100 z-10 transition-opacity duration-700'
                         : 'opacity-0 z-0 pointer-events-none transition-opacity duration-700 delay-700'
-                        }`}
+                        }\`}
                     style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
                 >
                     <img
@@ -86,7 +91,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                                             </span>
                                             {tour.title ? (
                                                 <h1
-                                                    className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
+                                                    className={\`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold \${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} \${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}\`}
                                                     style={{ '--char-count': tour.title.length } as React.CSSProperties}
                                                 >
                                                     {tour.title}
@@ -94,14 +99,14 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                                             ) : null}
                                         </div>
                                         {tour.subtitle && (
-                                            <p className={`block md:block text-sm sm:text-base md:text-lg font-medium ${tour.use_dark_text_mobile ? 'text-slate-600/80' : 'text-white/90'} ${tour.use_dark_text_desktop ? 'md:text-slate-600/80' : 'md:text-white/90'}`}>
+                                            <p className={\`block md:block text-sm sm:text-base md:text-lg font-medium \${tour.use_dark_text_mobile ? 'text-slate-600/80' : 'text-white/90'} \${tour.use_dark_text_desktop ? 'md:text-slate-600/80' : 'md:text-white/90'}\`}>
                                                 {tour.subtitle}
                                             </p>
                                         )}
                                     </div>
                                 ) : (
                                     <Link
-                                        href={`/activity/${tour.slug}`}
+                                        href={\`/activity/\${tour.slug}\`}
                                         className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full pb-6"
                                     >
                                         <div className="flex flex-col items-start max-w-full overflow-hidden">
@@ -111,7 +116,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                                                 </span>
                                             )}
                                             <h1
-                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
+                                                className={\`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold \${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} \${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}\`}
                                                 style={{ '--char-count': tour.title.length } as React.CSSProperties}
                                             >
                                                 {tour.title}
@@ -127,3 +132,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
         </section>
     )
 }
+`;
+
+fs.writeFileSync(filePath, newContent, 'utf8');
+console.log('Successfully rewrote HeroCarousel.tsx');
