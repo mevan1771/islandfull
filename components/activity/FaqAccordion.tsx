@@ -27,7 +27,7 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
     return (
         <section>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
                 {faqs.map((faq, index) => {
                     const isActive = activeIndex === index
                     return (
@@ -40,7 +40,7 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
                         >
                             <div
                                 onClick={() => toggleFaq(index)}
-                                className="w-full flex items-center justify-between p-4 cursor-pointer font-bold text-slate-700/80 select-none text-left"
+                                className="w-full flex items-center justify-between p-3.5 md:p-5 cursor-pointer font-bold text-slate-700/80 select-none text-left text-sm md:text-base"
                             >
                                 <span>{faq.question}</span>
                                 <span
@@ -55,7 +55,7 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
                                 className={`${isActive ? 'grid grid-rows-[1fr]' : 'grid grid-rows-[0fr]'} transition-all duration-300`}
                             >
                                 <div className="overflow-hidden">
-                                    <div className="px-4 pb-4 text-sm font-medium text-slate-600/80 leading-relaxed">
+                                    <div className="px-3.5 pb-3.5 md:px-5 md:pb-5 text-sm font-medium text-slate-600/80 leading-relaxed">
                                         {faq.answer}
                                     </div>
                                 </div>
