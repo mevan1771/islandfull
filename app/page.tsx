@@ -80,7 +80,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     console.error("Failed to fetch intro slide:", e);
   }
 
-  
+
   const carouselSlides = [
     {
       id: 'static-intro',
@@ -142,7 +142,7 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
   let activities: any[] = [];
   try {
     const currentVertical = searchParams.vertical || 'tour';
-    let query = supabase.from('activities').select('*, categories!inner(slug), reviews(rating)')
+    let query = supabase.from('activities').select('*, discount_price, deal_end_date, categories!inner(slug), reviews(rating)')
       .eq('category_type', currentVertical)
       .eq('status', 'published')
       .eq('is_paused_by_host', false);
