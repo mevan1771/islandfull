@@ -21,8 +21,8 @@ interface ActivityCardProps {
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   maxGuests?: number
   priceSuffix?: string
-  discountPrice?: number | null
-  dealEndDate?: string | null
+  discountPrice?: number
+  dealEndDate?: string
 }
 
 export function ActivityCard({
@@ -44,16 +44,8 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [isDealActive, setIsDealActive] = useState(false)
 
-  useEffect(() => {
-    if (discountPrice && dealEndDate) {
-      const endDate = new Date(dealEndDate)
-      if (endDate > new Date() && discountPrice < priceUsd) {
-        setIsDealActive(true)
-      }
-    }
-  }, [discountPrice, dealEndDate, priceUsd])
+  const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
 
   useEffect(() => {
     const video = videoRef.current
@@ -185,7 +177,7 @@ export function ActivityCard({
             </div>
             {isDealActive && dealEndDate && (
               <div className="mt-2">
-                <CountdownTimer targetDate={dealEndDate} onExpire={() => setIsDealActive(false)} />
+                <CountdownTimer targetDate={dealEndDate} />
               </div>
             )}
           </div>

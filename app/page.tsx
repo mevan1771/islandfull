@@ -186,6 +186,8 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
           duration: d.duration,
           priceUsd: d.price_usd,
           price_suffix: d.price_suffix,
+          discount_price: d.discount_price,
+          deal_end_date: d.deal_end_date,
           coverImage: d.card_image_url || d.cover_image_url,
           isHiddenGem: d.is_hidden_gem,
           rating: rating,
