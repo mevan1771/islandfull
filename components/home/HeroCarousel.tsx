@@ -84,16 +84,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         }`}
                     style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
                 >
-                    <Image
+                    <img
                         src={upgradeUnsplashUrl(tour.cover_image_url || tour.card_image_url || "")}
                         alt={tour.title}
-                        fill
-                        className={`object-cover transition-opacity duration-700 ease-in-out ${index === 0 || loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${index === 0 || loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
                         onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
-                        priority={index === 0}
                         fetchPriority={index === 0 ? "high" : "auto"}
-                        quality={95}
-                        sizes="100vw"
+                        decoding={index === 0 ? "sync" : "async"}
+                        loading={index === 0 ? "eager" : "lazy"}
                     />
 
                     {/* Slide-specific Legibility Mask Removed */}
