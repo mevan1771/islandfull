@@ -269,20 +269,22 @@ export function BookingDrawer({
                 {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
                 {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
-              {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{getPricingLabel()}</span>}
+              <div className="flex flex-col gap-0.5 mt-0.5">
+                {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium leading-none">{getPricingLabel()}</span>}
 
-              {/* Short Cancellation Policy (Mobile Only) */}
-              {cancellationTierData && (
-                <div className="md:hidden mt-0.5">
-                  {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
-                    <span className="text-[10px] font-bold text-green-600">Free cancellation</span>
-                  ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
-                    <span className="text-[10px] font-bold text-green-600">Partial refund</span>
-                  ) : (
-                    <span className="text-[10px] font-medium text-zinc-400">Non-refundable</span>
-                  )}
-                </div>
-              )}
+                {/* Short Cancellation Policy (Mobile Only) */}
+                {cancellationTierData && (
+                  <div className="md:hidden leading-none">
+                    {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
+                      <span className="text-[10px] font-bold text-green-600">Free cancellation</span>
+                    ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
+                      <span className="text-[10px] font-bold text-green-600">Partial refund</span>
+                    ) : (
+                      <span className="text-[10px] font-medium text-zinc-400">Non-refundable</span>
+                    )}
+                  </div>
+                )}
+              </div>
               {isDealActive && dealEndDate && (
                 <div className="mt-1 hidden md:flex">
                   <CountdownTimer targetDate={dealEndDate} />
