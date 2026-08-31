@@ -154,7 +154,7 @@ export function ActivityCard({
                     {isDealActive && discountPrice ? (
                       <>
                         <del className="text-xs sm:text-sm text-red-500">${priceUsd}</del>
-                        <span className="font-bold text-lg text-gray-900">${discountPrice}</span>
+                        <span className="text-sm sm:text-base font-bold text-gray-900">${discountPrice}</span>
                         <span className="text-xs sm:text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
