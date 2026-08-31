@@ -4,25 +4,28 @@ const path = require('path');
 const filePath = path.join(__dirname, 'app', 'actions', 'tours.ts');
 let content = fs.readFileSync(filePath, 'utf8');
 
-// Replace in createTour and updateTour
+// Add to createTour extraction
 content = content.replace(
-    'const use_dark_text = formData.get("use_dark_text") === "true"',
-    'const use_dark_text_desktop = formData.get("use_dark_text_desktop") === "true"\n    const use_dark_text_mobile = formData.get("use_dark_text_mobile") === "true"'
+    `const price_usd = parseFloat(formData.get("price_usd") as string)`,
+    `const price_usd = parseFloat(formData.get("price_usd") as string)\n    const discount_price_str = formData.get("discount_price") as string\n    const discount_price = discount_price_str ? parseFloat(discount_price_str) : null\n    const deal_end_date = formData.get("deal_end_date") as string || null`
 );
 
+// Add to createTour insert object
 content = content.replace(
-    'const use_dark_text = formData.get("use_dark_text") === "true"',
-    'const use_dark_text_desktop = formData.get("use_dark_text_desktop") === "true"\n    const use_dark_text_mobile = formData.get("use_dark_text_mobile") === "true"'
+    `price_usd,`,
+    `price_usd,\n        discount_price,\n        deal_end_date,`
 );
 
+// Add to updateTour extraction
 content = content.replace(
-    'use_dark_text,',
-    'use_dark_text_desktop,\n      use_dark_text_mobile,'
+    `const price_usd = parseFloat(formData.get("price_usd") as string)`,
+    `const price_usd = parseFloat(formData.get("price_usd") as string)\n    const discount_price_str = formData.get("discount_price") as string\n    const discount_price = discount_price_str ? parseFloat(discount_price_str) : null\n    const deal_end_date = formData.get("deal_end_date") as string || null`
 );
 
+// Add to updateTour update object
 content = content.replace(
-    'use_dark_text,',
-    'use_dark_text_desktop,\n      use_dark_text_mobile,'
+    `price_usd,`,
+    `price_usd,\n        discount_price,\n        deal_end_date,`
 );
 
 fs.writeFileSync(filePath, content, 'utf8');

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { CountdownTimer } from "@/components/ui/CountdownTimer"
 
 interface ActivityCardProps {
   id: string
@@ -20,6 +21,8 @@ interface ActivityCardProps {
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
   maxGuests?: number
   priceSuffix?: string
+  discountPrice?: number | null
+  dealEndDate?: string | null
 }
 
 export function ActivityCard({
@@ -36,9 +39,21 @@ export function ActivityCard({
   pricingModel = 'per_person',
   maxGuests,
   priceSuffix,
+  discountPrice,
+  dealEndDate,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [isDealActive, setIsDealActive] = useState(false)
+
+  useEffect(() => {
+    if (discountPrice && dealEndDate) {
+      const endDate = new Date(dealEndDate)
+      if (endDate > new Date()) {
+        setIsDealActive(true)
+      }
+    }
+  }, [discountPrice, dealEndDate])
 
   useEffect(() => {
     const video = videoRef.current
@@ -144,16 +159,35 @@ export function ActivityCard({
                   <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>
-                    <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
-                    <span className="text-[10px] sm:text-xs font-normal text-gray-500">
-                      {priceSuffix ? ` ${priceSuffix}` : ''}
-                    </span>
+                    {isDealActive && discountPrice ? (
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm sm:text-base font-bold text-rose-600">${discountPrice}</span>
+                          <span className="text-xs font-medium text-gray-400 line-through">${priceUsd}</span>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-normal text-gray-500">
+                          {priceSuffix ? ` ${priceSuffix}` : ''}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
+                        <span className="text-[10px] sm:text-xs font-normal text-gray-500">
+                          {priceSuffix ? ` ${priceSuffix}` : ''}
+                        </span>
+                      </>
+                    )}
                   </>
                 )}
               </div>
               <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
               <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
             </div>
+            {isDealActive && dealEndDate && (
+              <div className="mt-2">
+                <CountdownTimer targetDate={dealEndDate} onExpire={() => setIsDealActive(false)} />
+              </div>
+            )}
           </div>
         </div>
       </div>

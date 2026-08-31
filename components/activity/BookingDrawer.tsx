@@ -11,6 +11,7 @@ import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -35,6 +36,8 @@ interface BookingDrawerProps {
   hostAvatar?: string
   hostName?: string
   cancellationTierData?: CancellationTierData | null
+  discountPrice?: number | null
+  dealEndDate?: string | null
 }
 
 export function BookingDrawer({
@@ -57,7 +60,9 @@ export function BookingDrawer({
   pricingModel = 'per_person',
   hostAvatar,
   hostName,
-  cancellationTierData
+  cancellationTierData,
+  discountPrice,
+  dealEndDate
 }: BookingDrawerProps) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
@@ -89,6 +94,18 @@ export function BookingDrawer({
 
   // Policy Agreement State
   const [agreedToPolicies, setAgreedToPolicies] = useState(false)
+
+  const [isDealActive, setIsDealActive] = useState(false)
+  useEffect(() => {
+    if (discountPrice && dealEndDate) {
+      const endDate = new Date(dealEndDate)
+      if (endDate > new Date()) {
+        setIsDealActive(true)
+      }
+    }
+  }, [discountPrice, dealEndDate])
+
+  const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
 
   const getPricingLabel = () => {
     if (pricingTiers && Object.keys(pricingTiers).length > 0) return "starting price"
@@ -246,13 +263,27 @@ export function BookingDrawer({
                 {priceUsd === 0 ? (
                   <span className="text-lg md:text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
                 ) : (
-                  <span className="text-lg md:text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                  <div className="flex flex-col">
+                    {isDealActive && discountPrice ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg md:text-3xl font-bold text-rose-600">{formatUSD(discountPrice)}</span>
+                        <span className="text-sm md:text-lg font-medium text-gray-400 line-through">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-lg md:text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                    )}
+                  </div>
                 )}
                 {paymentStrategy === 'no_card' && priceUsd !== 0 && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-wider">⚡️ No Card Needed</span>}
                 {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
                 {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
               {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{getPricingLabel()}</span>}
+              {isDealActive && dealEndDate && (
+                <div className="mt-1">
+                  <CountdownTimer targetDate={dealEndDate} onExpire={() => setIsDealActive(false)} />
+                </div>
+              )}
             </div>
             {/* Rating (Desktop Only) */}
             <div className="hidden md:flex flex-col items-end">

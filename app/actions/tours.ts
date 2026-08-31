@@ -58,6 +58,9 @@ export async function createTour(formData: FormData) {
     const description = formData.get("description") as string
     const duration = formData.get("duration") as string
     const price_usd = parseFloat(formData.get("price_usd") as string)
+    const discount_price_str = formData.get("discount_price") as string
+    const discount_price = discount_price_str ? parseFloat(discount_price_str) : null
+    const deal_end_date = formData.get("deal_end_date") as string || null
     const price_suffix = formData.get("price_suffix") as string || ""
     const price_lkr_approx = 0 // Automatically calculated via global rate now
     const is_featured = formData.get("is_featured") === "on"
@@ -167,6 +170,8 @@ export async function createTour(formData: FormData) {
       inclusions,
       duration,
       price_usd,
+        discount_price,
+        deal_end_date,
       price_suffix,
       price_lkr_approx,
       is_featured,

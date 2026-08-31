@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createTour, updateTour } from "@/app/actions/tours"
 import { uploadToCloudinary } from "@/app/actions/upload"
-import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car, CalendarDays, Percent, MessageCircle } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon, Loader2, MapPin, Compass, Tag, Clock, Users, DollarSign, Text, CheckSquare, Eye, Briefcase, X, Images, Plus, Trash2, List, Car, CalendarDays, Percent, MessageCircle, Zap } from "lucide-react"
 import Link from "next/link"
 import { DayPicker } from "react-day-picker"
 import { format, parse } from "date-fns"
@@ -759,6 +759,45 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                   </select>
                 </div>
               </div>
+
+              <div className="p-6 rounded-2xl border-2 border-rose-100 bg-rose-50/50 space-y-6">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-rose-500" />
+                  <h3 className="text-lg font-bold text-zinc-900">Flash Deal (Optional)</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                      <DollarSign className="w-4 h-4 text-rose-500" />
+                      Discounted Price (USD)
+                    </label>
+                    <div className="relative group">
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-rose-500 font-bold text-lg transition-colors">$</span>
+                      <input
+                        name="discount_price"
+                        type="number"
+                        step="0.01"
+                        defaultValue={initialData?.discount_price}
+                        placeholder="29.99"
+                        className="w-full h-14 pl-9 pr-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-xl text-zinc-900 placeholder:text-zinc-300 bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                      <CalendarDays className="w-4 h-4 text-rose-500" />
+                      Deal Expiration Date
+                    </label>
+                    <input
+                      name="deal_end_date"
+                      type="datetime-local"
+                      defaultValue={initialData?.deal_end_date ? new Date(initialData.deal_end_date).toISOString().slice(0, 16) : ""}
+                      className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-lg text-zinc-900 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
