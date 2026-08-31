@@ -213,19 +213,19 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     {/* Quick Info (Mobile Minimalist Row) */}
                     <div className="flex md:hidden flex-nowrap items-center justify-start gap-3 w-full overflow-x-auto hide-scrollbar pt-2 pb-4">
                         <div className="flex items-center shrink-0">
-                            <span className="bg-[#fa385f] text-white text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full whitespace-nowrap">
+                            <span className="bg-[#fa385f] text-white text-xs font-bold tracking-wide uppercase px-2 py-1 rounded-full whitespace-nowrap">
                                 {activity.location}
                             </span>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
-                            <Clock className="w-3 h-3 text-red-500" />
-                            <span className="text-xs text-gray-600 whitespace-nowrap">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
+                            <Clock className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-sm text-gray-600 whitespace-nowrap font-medium">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
-                            <Users className="w-3 h-3 text-red-500" />
-                            <span className="text-xs text-gray-600 whitespace-nowrap">
+                            <Users className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-sm text-gray-600 whitespace-nowrap font-medium">
                                 {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                             </span>
                         </div>
