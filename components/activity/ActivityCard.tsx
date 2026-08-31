@@ -175,11 +175,7 @@ export function ActivityCard({
               <span className="text-gray-300 text-[10px] sm:text-xs flex-shrink-0">•</span>
               <span className="text-[10px] sm:text-xs font-normal text-gray-500 truncate">{duration}</span>
             </div>
-            {isDealActive && dealEndDate && (
-              <div className="mt-2">
-                <CountdownTimer targetDate={dealEndDate} />
-              </div>
-            )}
+
           </div>
         </div>
       </div>
