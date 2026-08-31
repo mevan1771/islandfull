@@ -321,17 +321,17 @@ export function BookingDrawer({
                 <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
               </a>
               <FavoriteButton activityId={activityId} variant="inline" />
-              <Button onClick={() => setIsOpen(true)} className="flex-1 flex flex-col items-center justify-center h-auto py-2 px-5 rounded-xl shadow-lg shadow-rose-500/20">
-                <span className="text-sm font-bold">Reserve Now</span>
+              <Button onClick={() => setIsOpen(true)} className="flex-1 flex flex-col items-center justify-center h-[44px] px-5 rounded-xl shadow-lg shadow-rose-500/20">
+                <span className="text-sm font-bold leading-tight">Reserve Now</span>
                 {/* Short Cancellation Policy (Mobile Only) */}
                 {cancellationTierData && (
-                  <div className="text-center leading-none mt-0.5">
+                  <div className="text-center leading-none">
                     {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
-                      <span className="text-[10px] font-medium text-white/90">Free cancellation</span>
+                      <span className="text-[9px] font-medium text-white/90">Free cancellation</span>
                     ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
-                      <span className="text-[10px] font-medium text-white/90">Partial refund</span>
+                      <span className="text-[9px] font-medium text-white/90">Partial refund</span>
                     ) : (
-                      <span className="text-[10px] font-medium text-white/70">Non-refundable</span>
+                      <span className="text-[9px] font-medium text-white/70">Non-refundable</span>
                     )}
                   </div>
                 )}
