@@ -146,21 +146,19 @@ export function ActivityCard({
 
           <div className="flex flex-col mt-auto pt-1.5">
             <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
-              <div className="flex items-baseline gap-0.5 flex-shrink-0">
+              <div className="flex items-center flex-nowrap whitespace-nowrap gap-1 flex-shrink-0">
                 {priceUsd === 0 ? (
                   <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>
                     {isDealActive && discountPrice ? (
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm sm:text-base font-bold text-rose-600">${discountPrice}</span>
-                          <span className="text-xs font-medium text-gray-400 line-through">${priceUsd}</span>
-                        </div>
+                      <>
+                        <del className="text-xs text-gray-400">${priceUsd}</del>
+                        <span className="font-bold text-lg text-gray-900">${discountPrice}</span>
                         <span className="text-[10px] sm:text-xs font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
-                      </div>
+                      </>
                     ) : (
                       <>
                         <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
