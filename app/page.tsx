@@ -154,9 +154,6 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
     if (searchParams.category && searchParams.category !== 'saved') {
       query = query.eq('categories.slug', searchParams.category);
     }
-    // Always prioritize featured tours, then sort by newest first
-    query = query.order('is_featured', { ascending: false, nullsFirst: false });
-
     if (searchParams.sort === 'price_asc') {
       query = query.order('price_usd', { ascending: true });
     } else if (searchParams.sort === 'price_desc') {
@@ -165,6 +162,7 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
       query = query.order('discount_price', { ascending: true, nullsFirst: false });
     } else {
       // Default sort for maximum visibility of new tours
+      query = query.order('is_featured', { ascending: false, nullsFirst: false });
       query = query.order('created_at', { ascending: false });
     }
 
