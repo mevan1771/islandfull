@@ -90,11 +90,10 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                         fill
                         className={`object-cover transition-opacity duration-700 ease-in-out ${index === 0 || loadedImages[tour.id] ? 'opacity-100' : 'opacity-0'}`}
                         onLoad={() => setLoadedImages(prev => ({ ...prev, [tour.id]: true }))}
-                        priority={true}
+                        priority={index === 0}
                         fetchPriority={index === 0 ? "high" : "auto"}
                         quality={95}
                         sizes="100vw"
-                        unoptimized={true}
                     />
 
                     {/* Slide-specific Legibility Mask Removed */}
