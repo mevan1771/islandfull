@@ -99,11 +99,11 @@ export function BookingDrawer({
   useEffect(() => {
     if (discountPrice && dealEndDate) {
       const endDate = new Date(dealEndDate)
-      if (endDate > new Date()) {
+      if (endDate > new Date() && discountPrice < priceUsd) {
         setIsDealActive(true)
       }
     }
-  }, [discountPrice, dealEndDate])
+  }, [discountPrice, dealEndDate, priceUsd])
 
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
 

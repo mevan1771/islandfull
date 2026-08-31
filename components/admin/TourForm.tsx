@@ -777,7 +777,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                         name="discount_price"
                         type="number"
                         step="0.01"
-                        defaultValue={initialData?.discount_price}
+                        defaultValue={initialData?.discount_price || ""}
                         placeholder="29.99"
                         className="w-full h-14 pl-9 pr-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-bold text-xl text-zinc-900 placeholder:text-zinc-300 bg-white"
                       />

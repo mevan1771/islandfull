@@ -49,11 +49,11 @@ export function ActivityCard({
   useEffect(() => {
     if (discountPrice && dealEndDate) {
       const endDate = new Date(dealEndDate)
-      if (endDate > new Date()) {
+      if (endDate > new Date() && discountPrice < priceUsd) {
         setIsDealActive(true)
       }
     }
-  }, [discountPrice, dealEndDate])
+  }, [discountPrice, dealEndDate, priceUsd])
 
   useEffect(() => {
     const video = videoRef.current
