@@ -25,7 +25,7 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
 
     const res = await uploadToCloudinary(formData)
     if (res.success) {
-      setData({ ...data, cover_image_url: res.url })
+      setData({ ...data, cover_image_url: res.secure_url })
       toast.success("Image uploaded successfully!")
     } else {
       toast.error(res.error || "Failed to upload image")

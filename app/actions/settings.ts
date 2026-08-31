@@ -69,7 +69,8 @@ export async function updateSettings(use_live_rate: boolean, manual_usd_lkr_rate
     await logActivity(user?.id, `Updated Platform Settings: live_rate=${use_live_rate}, manual_rate=${manual_usd_lkr_rate}`, 'platform_settings', '1')
 
     // Instantly invalidate the whole app to apply the new rate immediately
-    revalidatePath('/', 'layout');
+    revalidatePath('/', 'layout')
+    revalidatePath('/', 'page');
     
     return { success: true };
   } catch (err: any) {
