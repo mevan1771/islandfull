@@ -271,6 +271,19 @@ export function BookingDrawer({
               </div>
               <div className="flex flex-col gap-0.5 mt-0.5">
                 {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium leading-none">{getPricingLabel()}</span>}
+
+                {/* Short Cancellation Policy (Mobile Only) */}
+                {cancellationTierData && (
+                  <div className="md:hidden leading-none">
+                    {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
+                      <span className="text-[10px] font-bold text-green-600">Free cancellation</span>
+                    ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
+                      <span className="text-[10px] font-bold text-green-600">Partial refund</span>
+                    ) : (
+                      <span className="text-[10px] font-medium text-zinc-400">Non-refundable</span>
+                    )}
+                  </div>
+                )}
               </div>
               {isDealActive && dealEndDate && (
                 <div className="mt-1 hidden md:flex">
@@ -321,20 +334,8 @@ export function BookingDrawer({
                 <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
               </a>
               <FavoriteButton activityId={activityId} variant="inline" />
-              <Button onClick={() => setIsOpen(true)} className="flex-1 flex flex-col items-center justify-center h-[40px] px-5 rounded-xl shadow-lg shadow-rose-500/20">
-                <span className="text-sm font-bold leading-none">Reserve Now</span>
-                {/* Short Cancellation Policy (Mobile Only) */}
-                {cancellationTierData && (
-                  <div className="text-center leading-none mt-0.5">
-                    {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
-                      <span className="text-[8px] font-medium text-white/90">Free cancellation</span>
-                    ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
-                      <span className="text-[8px] font-medium text-white/90">Partial refund</span>
-                    ) : (
-                      <span className="text-[8px] font-medium text-white/70">Non-refundable</span>
-                    )}
-                  </div>
-                )}
+              <Button onClick={() => setIsOpen(true)} className="flex-1 h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
+                Reserve Now
               </Button>
             </div>
           </div>
