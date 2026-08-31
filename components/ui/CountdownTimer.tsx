@@ -56,7 +56,7 @@ export function CountdownTimer({ targetDate, onExpire, compact }: CountdownTimer
         return (
             <>
                 <Tag className="w-3 h-3 text-red-500" />
-                <span className="text-red-500">
+                <span className="text-xs font-medium text-red-500 whitespace-nowrap">
                     {timeLeft.days > 0 ? `${timeLeft.days}d ` : ''}{timeLeft.hours}h {timeLeft.minutes}m
                 </span>
             </>

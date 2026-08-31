@@ -211,22 +211,21 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     {/* Quick Info (Mobile Minimalist Row) */}
-                    <div className="flex md:hidden flex-nowrap items-center justify-between w-full text-[11px] sm:text-xs overflow-x-auto hide-scrollbar gap-2 pt-2 pb-4 px-4">
-                        <div className="flex items-center gap-1 shrink-0">
-                            <MapPin className="w-3 h-3 text-red-500" />
-                            <span className="text-gray-600 font-semibold uppercase tracking-wider">
+                    <div className="flex md:hidden flex-nowrap items-center justify-start gap-3 w-full overflow-x-auto hide-scrollbar pt-2 pb-4 px-4">
+                        <div className="flex items-center shrink-0">
+                            <span className="bg-[#fa385f] text-white text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full whitespace-nowrap">
                                 {activity.location}
                             </span>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
                             <Clock className="w-3 h-3 text-red-500" />
-                            <span className="text-gray-600 font-semibold">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
+                            <span className="text-xs text-gray-600 whitespace-nowrap">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
                             <Users className="w-3 h-3 text-red-500" />
-                            <span className="text-gray-600 font-semibold">
+                            <span className="text-xs text-gray-600 whitespace-nowrap">
                                 {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                             </span>
                         </div>
