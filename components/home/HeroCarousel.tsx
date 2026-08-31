@@ -29,8 +29,8 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
     const carouselSlides: Tour[] = [
         {
             id: 'static-intro',
-            title: introSlide?.title || 'Your Journey in Sri Lanka Begins Here',
-            subtitle: introSlide?.subtitle || 'Inspiration, planning, and booking—all in one place.',
+            title: introSlide?.title ?? 'Your Journey in Sri Lanka Begins Here',
+            subtitle: introSlide?.subtitle ?? 'Inspiration, planning, and booking—all in one place.',
             slug: '',
             cover_image_url: introSlide?.cover_image_url || 'https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
             isStatic: true,
@@ -108,12 +108,14 @@ export function HeroCarousel({ tours, introSlide }: { tours: Tour[], introSlide?
                                             <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
                                                 SRI LANKA
                                             </span>
-                                            <h1
-                                                className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
-                                                style={{ '--char-count': tour.title.length } as React.CSSProperties}
-                                            >
-                                                {tour.title}
-                                            </h1>
+                                            {tour.title ? (
+                                                <h1
+                                                    className={`text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold ${tour.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${tour.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
+                                                    style={{ '--char-count': tour.title.length } as React.CSSProperties}
+                                                >
+                                                    {tour.title}
+                                                </h1>
+                                            ) : null}
                                         </div>
                                         {tour.subtitle && (
                                             <p className={`block md:block text-sm sm:text-base md:text-lg font-medium ${tour.use_dark_text_mobile ? 'text-slate-600/80' : 'text-white/90'} ${tour.use_dark_text_desktop ? 'md:text-slate-600/80' : 'md:text-white/90'}`}>
