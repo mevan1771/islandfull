@@ -25,6 +25,7 @@ export default function ActivityMapInner({ lat, lng }: { lat: number, lng: numbe
         center={[lat, lng]}
         zoom={12}
         scrollWheelZoom={false}
+        dragging={!L.Browser.mobile}
         attributionControl={false}
         {...({ tap: false } as any)}
         className="w-full h-full min-h-[300px] z-0"
