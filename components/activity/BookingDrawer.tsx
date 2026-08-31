@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import {  CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle , CreditCard } from "lucide-react"
+import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import { validatePromoCode } from "@/app/actions/promo"
@@ -95,16 +95,7 @@ export function BookingDrawer({
   // Policy Agreement State
   const [agreedToPolicies, setAgreedToPolicies] = useState(false)
 
-  const [isDealActive, setIsDealActive] = useState(false)
-  useEffect(() => {
-    if (discountPrice && dealEndDate) {
-      const endDate = new Date(dealEndDate)
-      if (endDate > new Date() && discountPrice < priceUsd) {
-        setIsDealActive(true)
-      }
-    }
-  }, [discountPrice, dealEndDate, priceUsd])
-
+  const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
 
   const getPricingLabel = () => {
@@ -274,14 +265,14 @@ export function BookingDrawer({
                     )}
                   </div>
                 )}
-                
+
                 {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
                 {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
               {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{getPricingLabel()}</span>}
               {isDealActive && dealEndDate && (
                 <div className="mt-1">
-                  <CountdownTimer targetDate={dealEndDate} onExpire={() => setIsDealActive(false)} />
+                  <CountdownTimer targetDate={dealEndDate} />
                 </div>
               )}
             </div>
