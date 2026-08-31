@@ -271,7 +271,7 @@ export function BookingDrawer({
               </div>
               {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium">{getPricingLabel()}</span>}
               {isDealActive && dealEndDate && (
-                <div className="mt-1">
+                <div className="mt-1 hidden md:flex">
                   <CountdownTimer targetDate={dealEndDate} />
                 </div>
               )}
