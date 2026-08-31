@@ -423,6 +423,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     cancellationTierData={cancellationTierData}
                     discountPrice={activity.discount_price}
                     dealEndDate={activity.deal_end_date}
+                    priceSuffix={activity.price_suffix}
                 />
             </div>
         </div>

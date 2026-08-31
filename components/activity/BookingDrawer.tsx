@@ -38,6 +38,7 @@ interface BookingDrawerProps {
   cancellationTierData?: CancellationTierData | null
   discountPrice?: number | null
   dealEndDate?: string | null
+  priceSuffix?: string | null
 }
 
 export function BookingDrawer({
@@ -62,7 +63,8 @@ export function BookingDrawer({
   hostName,
   cancellationTierData,
   discountPrice,
-  dealEndDate
+  dealEndDate,
+  priceSuffix
 }: BookingDrawerProps) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
@@ -98,11 +100,12 @@ export function BookingDrawer({
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
 
-  const getPricingLabel = () => {
-    if (pricingTiers && Object.keys(pricingTiers).length > 0) return "starting price"
-    if (pricingModel === 'flat_rate') return `group (Max ${maxCapacity})`
-    if (pricingModel === 'per_day') return "per day"
-    return "per person"
+  const getPricingSuffix = () => {
+    if (priceSuffix) return ` ${priceSuffix}`;
+    if (pricingTiers && Object.keys(pricingTiers).length > 0) return " / 👤 (%)"
+    if (pricingModel === 'flat_rate') return ` / 👥`
+    if (pricingModel === 'per_day') return " / 📅"
+    return " / 👤"
   }
 
   // Calculate Totals using Tiered Pricing if available
@@ -256,12 +259,16 @@ export function BookingDrawer({
                 ) : (
                   <div className="flex flex-col">
                     {isDealActive && discountPrice ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <span className="text-lg md:text-3xl font-bold text-rose-600">{formatUSD(discountPrice)}</span>
                         <span className="text-sm md:text-lg font-medium text-gray-400 line-through">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                        <span className="text-xs md:text-sm font-medium text-zinc-500">{getPricingSuffix()}</span>
                       </div>
                     ) : (
-                      <span className="text-lg md:text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-lg md:text-3xl font-bold text-zinc-900">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                        <span className="text-xs md:text-sm font-medium text-zinc-500">{getPricingSuffix()}</span>
+                      </div>
                     )}
                   </div>
                 )}
@@ -270,8 +277,6 @@ export function BookingDrawer({
                 {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
               <div className="flex flex-col gap-0 mt-0.5">
-                {priceUsd !== 0 && <span className="text-[10px] md:text-sm text-zinc-500 font-medium leading-none">{getPricingLabel()}</span>}
-
                 {/* Short Cancellation Policy (Mobile Only) */}
                 {cancellationTierData && (
                   <div className="md:hidden leading-none">
