@@ -52,3 +52,10 @@ body {
   stroke: #f43f5e !important;
   color: #f43f5e !important;
 }
+
+
+@media (max-width: 1023px) {
+  body.mobile-booking-padding {
+    padding-bottom: 120px !important;
+  }
+}

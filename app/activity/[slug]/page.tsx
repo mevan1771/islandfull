@@ -12,6 +12,7 @@ import { ActivityGallery } from "@/components/activity/ActivityGallery"
 import { FaqAccordion } from "@/components/activity/FaqAccordion"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MobileBackButton } from "@/components/ui/MobileBackButton"
+import { MobilePaddingSetter } from "@/components/activity/MobilePaddingSetter"
 import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
@@ -163,7 +164,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     }
 
     return (
-        <div className="bg-white min-h-screen pb-32 md:pb-12">
+        <div className="bg-white min-h-screen md:pb-12">
+            <MobilePaddingSetter />
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
             {/* Hero Image */}
@@ -322,7 +324,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 </div>
 
                 {/* Sidebar / Desktop Booking */}
-                <div className="hidden md:block w-full max-w-[420px]">
+                <div className="hidden lg:block w-full max-w-[420px]">
                     <div className="sticky top-28">
                         <BookingDrawer
                             activityId={activity.id}
@@ -386,7 +388,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             )}
 
             {/* Mobile Booking Widget (Sticky Bottom) */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
                 <BookingDrawer
                     activityId={activity.id}
                     title={activity.title}
