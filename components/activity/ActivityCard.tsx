@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
+import { formatUSD } from "@/lib/utils"
 
 interface ActivityCardProps {
   id: string
@@ -153,15 +154,15 @@ export function ActivityCard({
                   <>
                     {isDealActive && discountPrice ? (
                       <>
-                        <del className="text-xs sm:text-sm text-red-500">${priceUsd}</del>
-                        <span className="text-sm sm:text-base font-bold text-gray-900">${discountPrice}</span>
+                        <del className="text-xs sm:text-sm text-red-500">{formatUSD(priceUsd)}</del>
+                        <span className="text-sm sm:text-base font-bold text-gray-900">{formatUSD(discountPrice)}</span>
                         <span className="text-xs sm:text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
                       </>
                     ) : (
                       <>
-                        <span className="text-sm sm:text-base font-bold text-gray-900">${priceUsd}</span>
+                        <span className="text-sm sm:text-base font-bold text-gray-900">{formatUSD(priceUsd)}</span>
                         <span className="text-xs sm:text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
