@@ -104,7 +104,7 @@ export async function POST(req: Request) {
         tour_option: selectedOption || null,
         pickup_location: bookingType === 'point_to_point' ? `From: ${fromLocation} To: ${toLocation}` : (pickupLocation || null),
         special_requests: specialRequests || null,
-        status: ['no_card', 'pay_later'].includes(paymentStrategy) ? 'pending_payment' : 'pending',
+        status: ['no_card', 'pay_later', 'manual_hold'].includes(paymentStrategy) ? 'pending_payment' : 'pending',
         payment_status: 'unpaid',
         promo_code_applied: appliedPromoCode,
         discount_amount_usd: discountAmountUsd,
@@ -203,7 +203,7 @@ export async function POST(req: Request) {
       customer_email: touristEmail,
     })
 
-    if (['no_card', 'pay_later'].includes(paymentStrategy)) {
+    if (['no_card', 'pay_later', 'manual_hold'].includes(paymentStrategy)) {
       // Pay Later: send pending email WITH the Stripe link
       try {
         await sendPendingEmail({
