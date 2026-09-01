@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { validatePromoCode } from '@/app/actions/promo'
 import { eachDayOfInterval, parseISO, format } from 'date-fns'
-import { sendPendingEmail, sendReceiptEmail } from '@/app/actions/email'
+import { sendPendingEmail, sendReceiptEmail, sendHostEmail } from '@/app/actions/email'
 import { revalidatePath } from 'next/cache'
 import { getExchangeRate } from '@/app/actions/settings'
 
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     // 0. Fetch Commission Rate and Capacity
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('commission_rate, max_capacity, cover_image_url')
+      .select('commission_rate, max_capacity, cover_image_url, hosts(name, email)')
       .eq('id', activityId)
       .single()
 
@@ -143,6 +143,40 @@ export async function POST(req: Request) {
         }
       }
 
+      // Generate QR Code internally
+      const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://islandfull.com';
+      const qrCodeUrl = `${appUrl}/api/qr?id=${encodeURIComponent(booking.id)}`
+
+      // Send Receipt Email
+      const tourOptionStr = selectedOption ? ` (${selectedOption})` : ''
+      try {
+        await sendReceiptEmail({
+          toEmail: touristEmail,
+          touristName: touristName,
+          activityTitle: `${title}${tourOptionStr}`,
+          date: date,
+          guests: guests,
+          qrCodeUrl,
+          imageUrl: activity?.cover_image_url
+        })
+
+        // Send Host Email
+        const host: any = Array.isArray(activity?.hosts) ? activity.hosts[0] : activity?.hosts;
+        if (host?.email) {
+          await sendHostEmail({
+            toEmail: host.email,
+            hostName: host.name || 'Host',
+            touristName: touristName,
+            activityTitle: `${title}${tourOptionStr}`,
+            date: date,
+            guests: guests,
+            totalPayout: hostPayoutUsd
+          })
+        }
+      } catch (error) {
+        console.error("[RESEND_EMAIL_ERROR]", error);
+      }
+
       return NextResponse.json({ url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id=no_card_${booking.id}` })
     }
 
@@ -181,6 +215,20 @@ export async function POST(req: Request) {
           imageUrl: activity?.cover_image_url,
           paymentUrl: session.url || undefined
         });
+
+        // Send Host Email for pending booking
+        const host: any = Array.isArray(activity?.hosts) ? activity.hosts[0] : activity?.hosts;
+        if (host?.email) {
+          await sendHostEmail({
+            toEmail: host.email,
+            hostName: host.name || 'Host',
+            touristName: touristName,
+            activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
+            date: date,
+            guests: guests,
+            totalPayout: hostPayoutUsd
+          })
+        }
       } catch (error) {
         console.error("[RESEND_EMAIL_ERROR]", error);
       }

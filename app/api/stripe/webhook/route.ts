@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { supabaseAdmin } from '@/lib/supabase'
 
-import { sendReceiptEmail } from '@/app/actions/email'
+import { sendReceiptEmail, sendHostEmail } from '@/app/actions/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20' as any,
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       // Look up booking details for email and promo
       const { data: booking } = await supabaseAdmin
         .from('bookings')
-        .select('*, activities(title, cover_image_url)')
+        .select('*, activities(title, cover_image_url, hosts(name, email))')
         .eq('id', bookingId)
         .single()
 
@@ -73,6 +73,20 @@ export async function POST(req: Request) {
           qrCodeUrl,
           imageUrl: booking.activities?.cover_image_url
         })
+
+        // Send Host Email
+        const host: any = Array.isArray(booking.activities?.hosts) ? booking.activities.hosts[0] : booking.activities?.hosts;
+        if (host?.email) {
+          await sendHostEmail({
+            toEmail: host.email,
+            hostName: host.name || 'Host',
+            touristName: booking.tourist_name,
+            activityTitle: `${activityTitle}${tourOption}`,
+            date: booking.travel_date,
+            guests: booking.pax_count,
+            totalPayout: booking.host_payout_usd
+          })
+        }
       }
     }
   }

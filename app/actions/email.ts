@@ -87,3 +87,51 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
     return { success: false, error: err.message };
   }
 }
+
+interface SendHostEmailProps {
+  toEmail: string;
+  hostName: string;
+  touristName: string;
+  activityTitle: string;
+  date: string;
+  guests: number;
+  totalPayout: number;
+}
+
+export async function sendHostEmail(props: SendHostEmailProps) {
+  try {
+    const htmlString = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>New Booking Received!</h2>
+        <p>Hi ${props.hostName},</p>
+        <p>You have a new booking for <strong>${props.activityTitle}</strong>.</p>
+        <ul>
+          <li><strong>Date:</strong> ${props.date}</li>
+          <li><strong>Guests:</strong> ${props.guests}</li>
+          <li><strong>Tourist Name:</strong> ${props.touristName}</li>
+          <li><strong>Expected Payout:</strong> $${props.totalPayout.toFixed(2)}</li>
+        </ul>
+        <p>Please check your host dashboard for more details.</p>
+        <p>Best,<br>IslandFull Team</p>
+      </div>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: 'IslandFull <bookings@islandfull.com>',
+      replyTo: 'islandfull@gmail.com',
+      to: [props.toEmail],
+      subject: `New Booking: ${props.activityTitle}`,
+      html: htmlString,
+    });
+
+    if (error) {
+      console.error("Resend host email error:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("Failed to send host email:", err);
+    return { success: false, error: err.message };
+  }
+}
