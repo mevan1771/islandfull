@@ -34,8 +34,8 @@ export default async function BookingSuccess({
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 pt-32 pb-12">
-      <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl text-center space-y-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 pt-32 pb-12">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center space-y-6">
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-2">
           <CheckCircle2 className="w-12 h-12 text-green-500" />
         </div>
@@ -72,9 +72,9 @@ export default async function BookingSuccess({
         )}
 
         {params.session_id && (
-          <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 text-left text-sm mt-4 text-center">
-            <span className="text-zinc-500 font-medium block mb-1">Booking Reference:</span>
-            <span className="font-mono text-zinc-900 font-bold text-lg">{formatBookingReference(params.session_id)}</span>
+          <div className="border-2 border-dashed border-gray-200 bg-gray-50 rounded-lg p-4 mt-6 text-center">
+            <span className="text-xs text-gray-500 uppercase tracking-wider block">Booking Reference:</span>
+            <span className="text-lg font-mono font-bold text-gray-900 mt-1 block">{formatBookingReference(params.session_id)}</span>
           </div>
         )}
 
