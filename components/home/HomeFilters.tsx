@@ -145,22 +145,22 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       <div className="relative -mt-24 z-20 px-4 hidden sm:block">
         <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
           {/* Tabs */}
-          <div className="flex overflow-x-auto scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
+          <div className="flex overflow-x-auto md:overflow-visible scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
             <button
               onClick={() => handleVerticalClick('tour')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Map className="w-4 h-4" /> Tours
             </button>
             <button
               onClick={() => handleVerticalClick('event')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Calendar className="w-4 h-4" /> Events
             </button>
             <button
               onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Bike className="w-4 h-4" /> Transport
             </button>
@@ -286,7 +286,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                 <button
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border ${cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
+                  className={`flex items-center justify-center shrink-0 rounded-full transition-all duration-300 ease-out active:scale-95 border cursor-pointer ${cat.id === "saved" ? "w-10 md:w-11 h-10 md:h-11 p-0" : "gap-2 px-4 py-2 md:px-4 md:py-2 text-sm md:text-base font-medium"
                     } ${optimisticCategory === cat.id
                       ? "bg-black text-white border-black shadow-md"
                       : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900 hover:bg-zinc-100"
