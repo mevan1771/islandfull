@@ -94,8 +94,7 @@ export function BookingDrawer({
   const [discountUsd, setDiscountUsd] = useState(0)
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
-  // Policy Agreement State
-  const [agreedToPolicies, setAgreedToPolicies] = useState(false)
+  // Policy Agreement State (Removed)
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
@@ -172,10 +171,6 @@ export function BookingDrawer({
     const finalEndDate = resolvedEndDate ? format(resolvedEndDate, 'yyyy-MM-dd') : "";
 
     if (!finalDate || !whatsapp || !touristName || !touristEmail || (isMulti && !finalEndDate)) return
-    if (!agreedToPolicies) {
-      alert("You must agree to the Global Terms and Cancellation Policy to proceed.")
-      return
-    }
 
     setStep("processing")
 
