@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
-import SiteFooter from "@/components/layout/SiteFooter";
+import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import "./globals.css";
 
@@ -50,7 +50,7 @@ export default function RootLayout({
             {children}
           </main>
 
-          <SiteFooter />
+          <ConditionalFooter />
         </SmoothScrollProvider>
       </body>
     </html>
