@@ -269,7 +269,7 @@ export async function createTour(formData: FormData) {
 export async function updateTour(id: string, formData: FormData) {
   try {
     // Fetch old tour data for audit logging and defaults
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('category_type, price_usd, commission_rate, reference_code, created_at, cancellation_tier').eq('id', id).single()
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('slug, category_type, price_usd, commission_rate, reference_code, created_at, cancellation_tier').eq('id', id).single()
 
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
