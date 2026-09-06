@@ -212,14 +212,14 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
                     {/* Quick Info (Mobile Minimalist Row) */}
                     <div className="flex md:hidden flex-wrap items-center justify-start gap-2 w-full pt-2 pb-4">
-                        <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
+                        <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
                             {activity.location}
                         </span>
-                        <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
+                        <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
                             {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                         </span>
                         {activity.duration && (
-                            <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
+                            <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
                                 {activity.duration}
                             </span>
                         )}
