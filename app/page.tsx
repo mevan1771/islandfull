@@ -128,7 +128,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
 const ActivitySkeleton = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {[...Array(8)].map((_, i) => (
+    {[...Array(12)].map((_, i) => (
       <div key={i} className="flex flex-col gap-3">
         <div className="w-full aspect-[4/3] bg-zinc-100 rounded-2xl animate-pulse"></div>
         <div className="w-3/4 h-4 bg-zinc-100 rounded animate-pulse"></div>
@@ -166,8 +166,8 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
       query = query.order('created_at', { ascending: false });
     }
 
-    // If viewing saved, we might need more than 12 to filter on client, so grab up to 50
-    const fetchLimit = searchParams.category === 'saved' ? 50 : 12;
+    // If viewing saved, we might need more than 24 to filter on client, so grab up to 100
+    const fetchLimit = searchParams.category === 'saved' ? 100 : 24;
     const { data, error } = await query.limit(fetchLimit);
 
     if (error) {
