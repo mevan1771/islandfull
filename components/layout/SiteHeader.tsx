@@ -27,7 +27,7 @@ export default function SiteHeader() {
     // If it's a standard page (not home, activity, destinations, trips, map), default to dark text
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const effectiveDarkTextDesktop = isMapPage ? false : (isStandardPage ? true : useDarkTextDesktop)
+    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextDesktop))
     const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
@@ -39,7 +39,7 @@ export default function SiteHeader() {
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
     const headerClasses = isActivityPage
-        ? "relative md:absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none bg-transparent"
+        ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
