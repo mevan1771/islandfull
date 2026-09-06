@@ -16,10 +16,17 @@ export default async function NewTourPage() {
     .select('*')
     .order('cutoff_hours', { ascending: true });
 
+  const { data: locationsData } = await supabase
+    .from('activities')
+    .select('location')
+    .not('location', 'is', 'null');
+    
+  const existingLocations = locationsData ? Array.from(new Set(locationsData.map((t: any) => t.location))) : [];
+
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <TourForm categories={categories || []} cancellationTiers={cancellationTiers || []} />
+        <TourForm categories={categories || []} cancellationTiers={cancellationTiers || []} existingLocations={existingLocations} />
       </div>
     </div>
   )

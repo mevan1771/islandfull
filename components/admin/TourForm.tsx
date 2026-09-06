@@ -16,7 +16,7 @@ import imageCompression from 'browser-image-compression'
 
 const TOTAL_STEPS = 5;
 
-export default function TourForm({ categories, initialData, cancellationTiers = [] }: { categories: any[], initialData?: any, cancellationTiers?: any[] }) {
+export default function TourForm({ categories, initialData, cancellationTiers = [], existingLocations = [] }: { categories: any[], initialData?: any, cancellationTiers?: any[], existingLocations?: string[] }) {
   const router = useRouter()
   const isEditing = !!initialData
 
@@ -512,24 +512,53 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                     <MapPin className="w-4 h-4 text-rose-500" />
                     Location
                   </label>
-                  <input
-                    type="text"
+                  <CreatableSelect
+                    instanceId="tour-location-select"
                     name="location"
-                    list="location-suggestions"
-                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 bg-white placeholder:text-zinc-300"
                     placeholder="e.g. Ella or Tissamaharama"
-                    required
-                    defaultValue={initialData?.location || ""}
+                    options={[
+                      {
+                        label: 'System Defaults',
+                        options: ["Ella", "Mirissa", "Hiriketiya", "Sigiriya", "Kandy", "Arugam Bay", "Colombo"].map(loc => ({ label: loc, value: loc }))
+                      },
+                      ...(existingLocations.length > 0 ? [{
+                        label: 'Other Locations',
+                        options: existingLocations
+                          .map(loc => loc.trim())
+                          .filter(Boolean)
+                          .map(loc => loc.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
+                          .filter((loc, i, arr) => arr.indexOf(loc) === i)
+                          .filter(loc => !["Ella", "Mirissa", "Hiriketiya", "Sigiriya", "Kandy", "Arugam Bay", "Colombo"].includes(loc))
+                          .map(loc => ({ label: loc, value: loc }))
+                      }] : [])
+                    ]}
+                    defaultValue={initialData?.location ? { label: initialData.location, value: initialData.location } : null}
+                    isClearable
+                    className="react-select-container font-medium text-lg text-zinc-900"
+                    classNamePrefix="react-select"
+                    styles={{
+                      control: (base, state) => ({
+                        ...base,
+                        minHeight: '3.5rem',
+                        borderRadius: '1rem',
+                        border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
+                        boxShadow: state.isFocused ? '0 0 0 4px rgba(244, 63, 94, 0.1)' : 'none',
+                        '&:hover': {
+                          border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
+                        },
+                        padding: '0 8px'
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        padding: '0 8px',
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        margin: 0,
+                        padding: 0,
+                      }),
+                    }}
                   />
-                  <datalist id="location-suggestions">
-                    <option value="Ella" />
-                    <option value="Mirissa" />
-                    <option value="Hiriketiya" />
-                    <option value="Sigiriya" />
-                    <option value="Kandy" />
-                    <option value="Arugam Bay" />
-                    <option value="Colombo" />
-                  </datalist>
                 </div>
 
                 <div className="space-y-3">

@@ -174,8 +174,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <div className="relative h-[35svh] md:h-[600px] mx-4 mt-0 md:mx-auto md:mt-6 max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden">
 
                 <Image
-                    src={upgradeUnsplashUrl(activity.cover_image_url)}
-                    alt={activity.title}
+                    src={upgradeUnsplashUrl(activity.cover_image_url) || '/placeholder.jpg'}
+                    alt={activity.title || 'Activity'}
                     fill
                     sizes="100vw"
                     quality={95}
@@ -215,17 +215,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                         <div className="flex items-center shrink-0">
                             <span className="bg-[#fa385f] text-white text-xs font-bold tracking-wide uppercase px-2 py-1 rounded-full whitespace-nowrap">
                                 {activity.location}
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                            <Clock className="w-3.5 h-3.5 text-red-500" />
-                            <span className="text-sm text-gray-600 whitespace-nowrap font-medium">{activity.duration.replace('Hours', 'Hrs').replace('Hour', 'Hr')}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                            <Users className="w-3.5 h-3.5 text-red-500" />
-                            <span className="text-sm text-gray-600 whitespace-nowrap font-medium">
                                 {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                             </span>
                         </div>

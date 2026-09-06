@@ -97,7 +97,7 @@ export function BookingDrawer({
   // Policy Agreement State (Removed)
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
-  const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : priceUsd;
+  const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : (priceUsd || 0);
 
   const getPricingSuffix = () => {
     if (priceSuffix) return ` ${priceSuffix}`;
