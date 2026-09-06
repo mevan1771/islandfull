@@ -120,7 +120,7 @@ export function ActivityCard({
         }`}
       >
         {/* Image / Video Container */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100 shadow-md shadow-gray-200/50 hover:shadow-lg transition-shadow duration-300">
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100 shadow-md md:shadow-lg hover:shadow-xl transition-shadow duration-300">
           {videoUrl ? (
             <video
               ref={videoRef}

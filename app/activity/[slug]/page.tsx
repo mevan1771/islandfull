@@ -171,7 +171,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
             {/* Hero Image */}
-            <div className="relative h-[35svh] md:h-[600px] mx-4 mt-0 md:mx-auto max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-md shadow-gray-300/50">
+            <div className="relative h-[35svh] md:h-[600px] mx-4 mt-0 md:mx-auto max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-xl">
 
                 <Image
                     src={upgradeUnsplashUrl(activity.cover_image_url) || '/placeholder.jpg'}
