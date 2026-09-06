@@ -269,7 +269,7 @@ export async function createTour(formData: FormData) {
 export async function updateTour(id: string, formData: FormData) {
   try {
     // Fetch old tour data for audit logging and defaults
-    const { data: oldTour } = await supabaseAdmin.from('activities').select('slug, category_type, price_usd, commission_rate, reference_code, created_at, cancellation_tier').eq('id', id).single()
+    const { data: oldTour } = await supabaseAdmin.from('activities').select('slug, cover_image_url, card_image_url, category_type, price_usd, commission_rate, reference_code, created_at, cancellation_tier').eq('id', id).single()
 
     const title = formData.get("title") as string
     const category_inputs = formData.getAll("category_ids") as string[]
@@ -292,7 +292,14 @@ export async function updateTour(id: string, formData: FormData) {
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
     const cover_image_url = formData.get("cover_image_url") as string
-    const card_image_url = formData.get("card_image_url") as string || null
+    let card_image_url = formData.get("card_image_url") as string || null
+
+    if (cover_image_url !== oldTour?.cover_image_url && card_image_url === oldTour?.card_image_url) {
+      // Cover image changed, but card image wasn't explicitly updated in this submission
+      card_image_url = cover_image_url
+    } else if (!card_image_url) {
+      card_image_url = cover_image_url
+    }
     const max_capacity = parseInt(formData.get("max_capacity") as string, 10)
     const min_guests = parseInt(formData.get("min_guests") as string || "1", 10)
     const status = formData.get("status") as string || "published"
@@ -450,6 +457,10 @@ export async function updateTour(id: string, formData: FormData) {
     await logActivity(user?.id, actionStr, 'activities', id)
 
     revalidatePath('/', 'layout')
+    revalidatePath('/')
+    if (oldTour?.slug) {
+      revalidatePath(`/activity/${oldTour.slug}`, 'page')
+    }
 
     const typeMap: Record<string, string> = {
       tour: "Tours",
