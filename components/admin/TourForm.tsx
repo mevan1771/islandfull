@@ -264,6 +264,9 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
 
       if (result.success && result.secure_url) {
         setPreviewImage(result.secure_url);
+        if (!useOriginalForCard || !originalCoverFile) {
+          setCardImage(result.secure_url);
+        }
         setCropImageSrc(null); // Close modal on success
       } else {
         throw new Error(result.error || "Failed to upload cropped cover image");
@@ -1180,14 +1183,20 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                   <input
                     type="text"
                     value={previewImage}
-                    onChange={(e) => setPreviewImage(e.target.value)}
+                    onChange={(e) => {
+                      setPreviewImage(e.target.value);
+                      setCardImage(e.target.value);
+                    }}
                     placeholder="Paste Cloudinary URL (.jpg or .mp4) here..."
                     className="flex-1 h-12 px-4 rounded-xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-sm text-zinc-900 placeholder:text-zinc-400"
                   />
                   {previewImage && (
                     <button
                       type="button"
-                      onClick={() => setPreviewImage("")}
+                      onClick={() => {
+                        setPreviewImage("");
+                        setCardImage("");
+                      }}
                       className="px-4 py-2 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900 rounded-xl font-bold transition-colors text-sm"
                     >
                       Clear
