@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -41,14 +42,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-hidden`}>
-        <Toaster position="top-center" />
-        <SiteHeader />
+        <SmoothScrollProvider>
+          <Toaster position="top-center" />
+          <SiteHeader />
 
-        <main className="flex-1">
-          {children}
-        </main>
+          <main className="flex-1">
+            {children}
+          </main>
 
-        <SiteFooter />
+          <SiteFooter />
+        </SmoothScrollProvider>
       </body>
     </html>
   );
