@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
+import { useState, useEffect } from "react"
 
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 
@@ -11,6 +12,33 @@ export default function SiteHeader() {
     const pathname = usePathname()
     const router = useRouter()
     const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
+
+    const [isVisible, setIsVisible] = useState(true)
+    const [isScrolled, setIsScrolled] = useState(false)
+
+    useEffect(() => {
+        let lastScrollY = window.scrollY
+
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY
+
+            setIsScrolled(currentScrollY > 50)
+
+            if (currentScrollY > 50) {
+                if (currentScrollY > lastScrollY) {
+                    setIsVisible(false)
+                } else {
+                    setIsVisible(true)
+                }
+            } else {
+                setIsVisible(true)
+            }
+            lastScrollY = currentScrollY
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true })
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [])
 
     // Do not render the main site header on host or admin portals
     if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
@@ -24,10 +52,10 @@ export default function SiteHeader() {
 
     const isMapPage = pathname === '/map'
 
-    // If it's a standard page (not home, activity, destinations, trips, map), default to dark text
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextDesktop))
+    const shouldForceDarkTextDesktop = isHomePage && isScrolled
+    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
     const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
@@ -40,6 +68,12 @@ export default function SiteHeader() {
 
     const headerClasses = isActivityPage
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
+        : isHomePage
+        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none md:transition-all md:duration-300 md:ease-in-out ${
+            isScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
+          } ${
+            isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
+          }`
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
