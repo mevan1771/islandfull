@@ -39,7 +39,7 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
 
   return (
     <div 
-      className={`fixed bottom-0 left-0 right-0 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 p-4 md:p-6 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100] w-full md:w-[420px]
+      className={`fixed bottom-0 left-0 right-0 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 p-4 pb-12 md:pb-6 md:p-6 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100] w-full md:w-[420px]
         ${tour ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}
       `}
     >
