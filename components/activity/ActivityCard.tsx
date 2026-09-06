@@ -82,7 +82,7 @@ export function ActivityCard({
     <Link href={`/activity/${slug}`} prefetch={true} className="block group h-full">
       <div className="flex flex-col gap-2 h-full">
         {/* Image / Video Container */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100">
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100 shadow-md shadow-gray-200/50 hover:shadow-lg transition-shadow duration-300">
           {videoUrl ? (
             <video
               ref={videoRef}
