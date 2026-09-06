@@ -215,11 +215,11 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                         <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
                             {activity.location}
                         </span>
-                        <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
+                        <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
                             {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
                         </span>
                         {activity.duration && (
-                            <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
+                            <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm">
                                 {activity.duration}
                             </span>
                         )}
