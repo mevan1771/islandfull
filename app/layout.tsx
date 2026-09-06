@@ -46,7 +46,7 @@ export default function RootLayout({
           <Toaster position="top-center" />
           <SiteHeader />
 
-          <main className="flex-1">
+          <main className="flex-1 flex flex-col">
             {children}
           </main>
 

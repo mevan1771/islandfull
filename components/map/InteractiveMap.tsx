@@ -230,7 +230,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   }
 
   return (
-    <div className="relative w-full h-[calc(100dvh-60px)] md:h-[calc(100vh-80px)] overflow-hidden bg-zinc-900">
+    <div className="relative w-full flex-1 flex flex-col min-h-0 overflow-hidden bg-zinc-900">
 
 
 
@@ -247,7 +247,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       {/* Strict isolation for Mapbox Canvas */}
       <div
         ref={mapContainer}
-        className="w-full h-full"
+        className="w-full flex-1"
         style={{
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent'
