@@ -149,9 +149,14 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
 
     if (searchParams.location) {
       // Remove emojis and special characters to prevent match failures on autocomplete tags
-      const q = searchParams.location.toLowerCase().replace(/[^\p{L}\p{N}\s.,-]/gu, '').trim();
+      let q = searchParams.location.toLowerCase().replace(/[^\p{L}\p{N}\s.,-]/gu, '').trim();
       
       if (q) {
+        // Basic English plural stemming to match singular database entries (e.g. "safaris" -> "safari")
+        if (q.endsWith('ies')) q = q.slice(0, -3) + 'y';
+        else if (q.endsWith('es')) q = q.slice(0, -2);
+        else if (q.endsWith('s') && !q.endsWith('ss')) q = q.slice(0, -1);
+
         query = query.or(`title.ilike.%${q}%,location.ilike.%${q}%,description.ilike.%${q}%`);
       }
     }
