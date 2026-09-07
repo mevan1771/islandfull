@@ -142,13 +142,14 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
   let activities: any[] = [];
   try {
     const currentVertical = searchParams.vertical || 'tour';
-    let query = supabase.from('activities').select('*, discount_price, deal_end_date, categories!inner(slug), reviews(rating)')
+    let query = supabase.from('activities').select('*, discount_price, deal_end_date, categories!inner(slug, name), reviews(rating)')
       .eq('category_type', currentVertical)
       .eq('status', 'published')
       .eq('is_paused_by_host', false);
 
     if (searchParams.location) {
-      query = query.or(`title.ilike.%${searchParams.location}%,location.ilike.%${searchParams.location}%`);
+      const q = searchParams.location;
+      query = query.or(`title.ilike.%${q}%,location.ilike.%${q}%,description.ilike.%${q}%`);
     }
 
     if (searchParams.category && searchParams.category !== 'saved') {
