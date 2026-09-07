@@ -19,6 +19,7 @@ import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 import { incrementActivityView } from "@/app/actions/tracking"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
+import { ScrollToTop } from "@/components/activity/ScrollToTop"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -167,6 +168,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
     return (
         <div className="bg-white min-h-screen md:pb-12">
+            <ScrollToTop />
             <MobilePaddingSetter />
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
