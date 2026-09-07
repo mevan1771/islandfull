@@ -148,7 +148,7 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
       .eq('is_paused_by_host', false);
 
     if (searchParams.location) {
-      const q = searchParams.location;
+      const q = searchParams.location.toLowerCase();
       query = query.or(`title.ilike.%${q}%,location.ilike.%${q}%,description.ilike.%${q}%`);
     }
 
