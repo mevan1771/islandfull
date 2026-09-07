@@ -69,7 +69,7 @@ export default function SiteHeader() {
     const headerClasses = isActivityPage
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : isHomePage
-        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none md:transition-all md:duration-300 md:ease-in-out ${
+        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none md:transition-transform md:duration-300 md:ease-in-out ${
             isScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
           } ${
             isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
