@@ -97,8 +97,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
     const params = new URLSearchParams(searchParams.toString())
 
-    if (location) params.set("location", location)
+    if (location) params.set("location", location.trim())
     else params.delete("location")
+
+    params.delete("category")
 
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })

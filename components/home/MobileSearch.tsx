@@ -62,8 +62,10 @@ export function MobileSearch() {
     e.preventDefault()
     const params = new URLSearchParams(searchParams.toString())
 
-    if (location) params.set("location", location)
+    if (location) params.set("location", location.trim())
     else params.delete("location")
+
+    params.delete("category")
 
     if (date) params.set("date", date)
     else params.delete("date")
