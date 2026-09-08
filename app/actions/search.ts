@@ -8,18 +8,19 @@ export async function searchLocationsAndTags(query: string) {
   try {
     const searchTerm = `%${query}%`
 
-    // 1. Search distinct locations in activities table
-    const { data: locationData, error: locError } = await supabaseAdmin
+    // 1. Search activities table for matching locations, titles, or descriptions
+    const { data: activityData, error: actError } = await supabaseAdmin
       .from('activities')
-      .select('location')
-      .ilike('location', searchTerm)
+      .select('location, title')
+      .or(`location.ilike.${searchTerm},title.ilike.${searchTerm},description.ilike.${searchTerm}`)
       .eq('status', 'published')
       .eq('is_paused_by_host', false)
 
-    if (locError) throw locError
+    if (actError) throw actError
 
-    // Extract unique locations
-    const uniqueLocations = Array.from(new Set(locationData.map(d => d.location).filter(Boolean)))
+    // Extract unique locations and titles
+    const uniqueLocations = Array.from(new Set(activityData.map(d => d.location).filter(Boolean)))
+    const uniqueTitles = Array.from(new Set(activityData.map(d => d.title).filter(Boolean)))
 
     // 2. Search categories table for matching names
     const { data: categoryData, error: catError } = await supabaseAdmin
@@ -33,7 +34,7 @@ export async function searchLocationsAndTags(query: string) {
     const uniqueCategories = Array.from(new Set(categoryData.map(d => d.name).filter(Boolean)))
 
     // 3. Combine, deduplicate, and limit
-    const combined = Array.from(new Set([...uniqueLocations, ...uniqueCategories]))
+    const combined = Array.from(new Set([...uniqueLocations, ...uniqueTitles, ...uniqueCategories]))
     
     // Prioritize exact/starting matches, then fallback to others
     const sorted = combined.sort((a, b) => {
