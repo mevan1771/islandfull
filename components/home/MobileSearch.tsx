@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
-import { searchLocationsAndTags } from "@/app/actions/search"
+import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 
 
 export function MobileSearch() {
@@ -20,7 +20,7 @@ export function MobileSearch() {
   const [date, setDate] = useState(searchParams.get("date") || "")
   const [travelers, setTravelers] = useState(searchParams.get("travelers") || "")
 
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -41,7 +41,7 @@ export function MobileSearch() {
       const results = await searchLocationsAndTags(debouncedLocation)
       setSuggestions(results)
       
-      if (results.length === 1 && results[0] === debouncedLocation) {
+      if (results.length === 1 && results[0].text === debouncedLocation) {
         setIsDropdownOpen(false)
       } else {
         setIsDropdownOpen(true)
@@ -148,23 +148,24 @@ export function MobileSearch() {
             {/* Autocomplete Dropdown */}
             {isDropdownOpen && suggestions.length > 0 && (
               <ul className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-zinc-100 overflow-hidden z-50 max-h-60 overflow-y-auto">
-                {suggestions.map((sug, idx) => (
-                  <li
-                    key={idx}
-                    className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
-                    onMouseDown={(e) => {
-                      e.preventDefault() // prevent input blur
-                      setLocation(sug)
-                      setIsDropdownOpen(false)
-                      const params = new URLSearchParams(searchParams.toString())
-                      params.set("location", sug)
-                      router.push(`/?${params.toString()}`, { scroll: false })
-                    }}
-                  >
-                    <Search className="w-4 h-4 text-zinc-400" />
-                    {sug}
-                  </li>
-                ))}
+                  {suggestions.map((sug, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-3 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm font-medium text-zinc-700 transition-colors border-b border-zinc-50 last:border-0"
+                      onClick={() => {
+                        setLocation(sug.text)
+                        setIsDropdownOpen(false)
+                        const params = new URLSearchParams(searchParams.toString())
+                        params.set("location", sug.text)
+                        router.push(`/?${params.toString()}`, { scroll: false })
+                      }}
+                    >
+                      {sug.type === 'location' && <MapPin className="w-4 h-4 text-zinc-400" />}
+                      {sug.type === 'title' && <Compass className="w-4 h-4 text-zinc-400" />}
+                      {sug.type === 'category' && <Hash className="w-4 h-4 text-zinc-400" />}
+                      <span className="truncate">{sug.text}</span>
+                    </li>
+                  ))}
               </ul>
             )}
           </div>

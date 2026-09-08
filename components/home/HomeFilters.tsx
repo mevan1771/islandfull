@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
-import { searchLocationsAndTags } from "@/app/actions/search"
+import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 
 
 type CategoryType = {
@@ -57,7 +57,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const [date, setDate] = useState("")
   const [travelers, setTravelers] = useState("")
 
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -78,7 +78,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       const results = await searchLocationsAndTags(debouncedLocation)
       setSuggestions(results)
       
-      if (results.length === 1 && results[0] === debouncedLocation) {
+      if (results.length === 1 && results[0].text === debouncedLocation) {
         setIsDropdownOpen(false)
       } else {
         setIsDropdownOpen(true)
@@ -213,16 +213,17 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
                       key={idx}
                       className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 text-sm font-medium text-gray-700 transition-colors"
                       onMouseDown={(e) => {
-                        e.preventDefault() // prevent input blur
-                        setLocation(sug)
+                        setLocation(sug.text)
                         setIsDropdownOpen(false)
                         const params = new URLSearchParams(searchParams.toString())
-                        params.set("location", sug)
+                        params.set("location", sug.text)
                         router.push(`/?${params.toString()}`, { scroll: false })
                       }}
                     >
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      {sug}
+                      {sug.type === 'location' && <MapPin className="w-4 h-4 text-gray-400" />}
+                      {sug.type === 'title' && <Compass className="w-4 h-4 text-gray-400" />}
+                      {sug.type === 'category' && <Hash className="w-4 h-4 text-gray-400" />}
+                      {sug.text}
                     </li>
                   ))}
                 </ul>
