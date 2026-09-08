@@ -77,7 +77,13 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       setIsFetching(true)
       const results = await searchLocationsAndTags(debouncedLocation)
       setSuggestions(results)
-      setIsDropdownOpen(true)
+      
+      if (results.length === 1 && results[0] === debouncedLocation) {
+        setIsDropdownOpen(false)
+      } else {
+        setIsDropdownOpen(true)
+      }
+      
       setIsFetching(false)
     }
 
