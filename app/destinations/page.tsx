@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const DESTINATIONS = [
-  { id: 1, name: 'Galle', activities: 14, image: 'https://images.unsplash.com/photo-1546853020-caa2b66255a5?auto=format&fit=crop&w=800&q=80' },
-  { id: 2, name: 'Sigiriya', activities: 8, image: 'https://images.unsplash.com/photo-1588614959060-4d144f28b207?auto=format&fit=crop&w=800&q=80' },
-  { id: 3, name: 'Weligama', activities: 22, image: 'https://images.unsplash.com/photo-1579430132386-db9a1a720dd3?auto=format&fit=crop&w=800&q=80' },
-  { id: 4, name: 'Yala', activities: 12, image: 'https://images.unsplash.com/photo-1610993302487-6db2bfdd8e2a?auto=format&fit=crop&w=800&q=80' },
+  { id: 1, name: 'Galle', activities: 14, image: 'https://picsum.photos/seed/galle/800/600' },
+  { id: 2, name: 'Sigiriya', activities: 8, image: 'https://picsum.photos/seed/sigiriya/800/600' },
+  { id: 3, name: 'Weligama', activities: 22, image: 'https://picsum.photos/seed/weligama/800/600' },
+  { id: 4, name: 'Yala', activities: 12, image: 'https://picsum.photos/seed/yala/800/600' },
 ];
 
 export default function DestinationsPage() {
