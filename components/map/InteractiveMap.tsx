@@ -231,7 +231,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   }
 
   return (
-    <div className="relative w-full flex-1 flex flex-col min-h-0 overflow-hidden bg-zinc-900">
+    <div className="relative w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden bg-zinc-900">
 
 
 
