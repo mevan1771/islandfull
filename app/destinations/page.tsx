@@ -47,7 +47,7 @@ export default function DestinationsPage() {
         <div 
           className={`w-full lg:w-[55%] flex-col overflow-y-auto h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)] pb-24 lg:pr-4
             ${viewMode === "map" ? "hidden lg:flex" : "flex"}
-            scrollbar-hide
+            [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]
           `}
         >
           <div className="py-8">
@@ -71,7 +71,7 @@ export default function DestinationsPage() {
                       return (
                         <div 
                           key={dest.id} 
-                          className={`group relative rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500 block bg-zinc-200
+                          className={`group relative rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500 block bg-zinc-900
                             ${isPrimary ? "md:col-span-2 md:row-span-2" : "md:col-span-1 md:row-span-1"}
                           `}
                         >
@@ -85,7 +85,7 @@ export default function DestinationsPage() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300" />
                           
                           <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col justify-end">
-                            <h3 className={`${isPrimary ? 'text-3xl' : 'text-2xl'} font-bold text-white mb-2 group-hover:text-rose-400 transition-colors drop-shadow-md`}>
+                            <h3 className={`${isPrimary ? 'text-3xl' : 'text-2xl'} font-bold text-white mb-2 drop-shadow-md`}>
                               {dest.name}
                             </h3>
                             <div className="inline-block bg-white/20 backdrop-blur-md border border-white/20 rounded-full px-3 py-1 text-xs font-semibold text-white w-max">
