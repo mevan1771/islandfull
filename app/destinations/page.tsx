@@ -6,28 +6,28 @@ const DESTINATIONS = [
     id: 1,
     name: 'Galle',
     activities: 14,
-    image: 'https://images.pexels.com/photos/2444403/pexels-photo-2444403.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Galle_Fort_Lighthouse_in_Sri_Lanka.jpg/1280px-Galle_Fort_Lighthouse_in_Sri_Lanka.jpg',
     span: 'col-span-1 md:col-span-2 row-span-2'
   },
   {
     id: 2,
     name: 'Sigiriya',
     activities: 8,
-    image: 'https://images.pexels.com/photos/258117/pexels-photo-258117.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg/1280px-Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg',
     span: 'col-span-1 row-span-2'
   },
   {
     id: 3,
     name: 'Weligama',
     activities: 22,
-    image: 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Mirissa_Beach.jpg/1280px-Mirissa_Beach.jpg',
     span: 'col-span-1 row-span-1'
   },
   {
     id: 4,
     name: 'Yala',
     activities: 12,
-    image: 'https://images.pexels.com/photos/3601425/pexels-photo-3601425.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sri_Lankan_leopard_in_Yala_National_Park.jpg/1280px-Sri_Lankan_leopard_in_Yala_National_Park.jpg',
     span: 'col-span-1 md:col-span-2 row-span-1'
   },
 ];
