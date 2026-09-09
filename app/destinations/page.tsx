@@ -1,34 +1,17 @@
-"use client";
-
 import Link from "next/link";
-import { MapClientWrapper } from "@/components/map/MapClientWrapper";
-import type { MapTour } from "@/components/map/InteractiveMap";
+// Import MapClientWrapper here as needed
 
 const DESTINATIONS = [
-  { id: 1, name: 'Galle', activities: 14, image: 'https://images.unsplash.com/photo-1546853020-caa2b66255a5?auto=format&fit=crop&w=800&q=80', lat: 6.0328, lng: 80.2170 },
-  { id: 2, name: 'Sigiriya', activities: 8, image: 'https://images.unsplash.com/photo-1588614959060-4d144f28b207?auto=format&fit=crop&w=800&q=80', lat: 7.9570, lng: 80.7603 },
-  { id: 3, name: 'Weligama', activities: 22, image: 'https://images.unsplash.com/photo-1579430132386-db9a1a720dd3?auto=format&fit=crop&w=800&q=80', lat: 5.9739, lng: 80.4284 },
-  { id: 4, name: 'Yala', activities: 12, image: 'https://images.unsplash.com/photo-1610993302487-6db2bfdd8e2a?auto=format&fit=crop&w=800&q=80', lat: 6.3770, lng: 81.5030 },
+  { id: 1, name: 'Galle', activities: 14, image: 'https://images.unsplash.com/photo-1546853020-caa2b66255a5?auto=format&fit=crop&w=800&q=80' },
+  { id: 2, name: 'Sigiriya', activities: 8, image: 'https://images.unsplash.com/photo-1588614959060-4d144f28b207?auto=format&fit=crop&w=800&q=80' },
+  { id: 3, name: 'Weligama', activities: 22, image: 'https://images.unsplash.com/photo-1579430132386-db9a1a720dd3?auto=format&fit=crop&w=800&q=80' },
+  { id: 4, name: 'Yala', activities: 12, image: 'https://images.unsplash.com/photo-1610993302487-6db2bfdd8e2a?auto=format&fit=crop&w=800&q=80' },
 ];
 
 export default function DestinationsPage() {
-  const mapData: MapTour[] = DESTINATIONS.map((d) => ({
-    id: d.name.toLowerCase(),
-    title: d.name,
-    location: d.name,
-    price_usd: 0,
-    cover_image_url: d.image,
-    duration: "",
-    category: "destination",
-    category_type: "destination",
-    latitude: d.lat,
-    longitude: d.lng,
-  }));
-
   return (
     <div className="flex w-full h-[calc(100vh-80px)] mt-[80px] overflow-hidden bg-gray-50">
       
-      {/* LEFT PANEL */}
       <div className="w-full lg:w-[60%] h-full overflow-y-auto p-6 md:p-10 [&::-webkit-scrollbar]:hidden">
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-zinc-900">Explore Sri Lanka</h1>
@@ -38,16 +21,13 @@ export default function DestinationsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
           {DESTINATIONS.map((dest) => (
             <Link className="relative h-72 rounded-2xl overflow-hidden group block shadow-md" href={`/destinations/${dest.name.toLowerCase()}`} key={dest.id}>
-              
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={dest.image} 
                 alt={dest.name} 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
               />
-              
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              
               <div className="absolute bottom-5 left-5 z-10">
                 <h2 className="text-white text-3xl font-bold drop-shadow-lg">{dest.name}</h2>
                 <span className="inline-block mt-3 px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-white text-sm font-medium">
@@ -59,9 +39,8 @@ export default function DestinationsPage() {
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="hidden lg:block lg:w-[40%] h-full relative border-l border-zinc-200">
-         <MapClientWrapper tours={mapData} isDestinationMode={true} />
+      <div className="hidden lg:block lg:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900">
+         {/* Render Map here */}
       </div>
 
     </div>
