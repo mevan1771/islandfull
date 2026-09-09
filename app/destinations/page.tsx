@@ -74,7 +74,7 @@ export default function DestinationsPage() {
       {/* Right Sticky Map Pane with Isolated Scroll/Zoom Context */}
       <section className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden">
         <div className="absolute inset-0 h-full w-full">
-          <MapClientWrapper />
+          <MapClientWrapper tours={[]} />
         </div>
       </section>
 
