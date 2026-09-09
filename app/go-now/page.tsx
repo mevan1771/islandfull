@@ -5,35 +5,35 @@ const LOCATIONS = [
     id: 1,
     name: 'Sigiriya Rock Fortress',
     description: 'The ancient palace in the sky.',
-    image: 'https://images.unsplash.com/photo-1588614959060-4d144f28b207?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.pexels.com/photos/258117/pexels-photo-258117.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     span: 'md:col-span-2 md:row-span-2'
   },
   {
     id: 2,
     name: 'Nine Arches Bridge',
     description: 'Iconic railway bridge in Ella.',
-    image: 'https://images.unsplash.com/photo-1574246604907-827d09618b1d?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.pexels.com/photos/2387866/pexels-photo-2387866.jpeg?auto=compress&cs=tinysrgb&w=800',
     span: 'md:col-span-1 md:row-span-1'
   },
   {
     id: 3,
     name: 'Yala National Park',
     description: 'Home to the majestic leopard.',
-    image: 'https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.pexels.com/photos/3601425/pexels-photo-3601425.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     span: 'md:col-span-1 md:row-span-2'
   },
   {
     id: 4,
     name: 'Galle Fort',
     description: 'Dutch colonial history.',
-    image: 'https://images.unsplash.com/photo-1546853020-caa2b66255a5?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.pexels.com/photos/2444403/pexels-photo-2444403.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     span: 'md:col-span-2 md:row-span-1'
   },
   {
     id: 5,
     name: 'Mirissa Coast',
     description: 'Whale watching and pristine beaches.',
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg?auto=compress&cs=tinysrgb&w=800',
     span: 'md:col-span-1 md:row-span-1'
   },
 ];
