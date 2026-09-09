@@ -1,5 +1,5 @@
 import Link from "next/link";
-import MapClientWrapper from "@/components/map/MapClientWrapper";
+import { MapClientWrapper } from "@/components/map/MapClientWrapper";
 
 const DESTINATIONS = [
   {
@@ -37,7 +37,7 @@ export default function DestinationsPage() {
     <main className="fixed inset-x-0 bottom-0 top-[80px] flex overflow-hidden bg-zinc-50">
 
       {/* Left Scrollable Bento Feed */}
-      <section className="w-full lg:w-[55%][xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <section className="w-full lg:w-[55%] xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="mb-8">
           <h1 className="text-4xl font-black tracking-tight text-zinc-900">Explore Sri Lanka</h1>
           <p className="text-zinc-500 mt-2 text-base">Select a destination to filter experiences and live itineraries.</p>
