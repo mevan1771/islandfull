@@ -34,21 +34,21 @@ const DESTINATIONS = [
 
 export default function DestinationsPage() {
   return (
-    <div className="relative w-full h-[calc(100vh-80px)] mt-[80px] flex overflow-hidden bg-zinc-50">
+    <div className="fixed inset-x-0 bottom-0 top-[80px] flex overflow-hidden bg-zinc-50 z-30">
       
-      {/* Left Scrollable Bento Feed - Explicitly prioritized pointer events */}
-      <div className="w-full lg:w-[55%] xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 pointer-events-auto z-20 relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Left Scrollable Bento Feed - Fully isolated scroll container */}
+      <div className="w-full lg:w-[55%] xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="mb-8">
           <h1 className="text-4xl font-black tracking-tight text-zinc-900">Explore Sri Lanka</h1>
           <p className="text-zinc-500 mt-2 text-base">Select a destination to filter experiences and live itineraries.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-4 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-4 pb-20">
           {DESTINATIONS.map((dest) => (
             <Link
               key={dest.id}
               href={`/destinations/${dest.name.toLowerCase()}`}
-              className={`relative rounded-3xl overflow-hidden group block shadow-md hover:shadow-2xl transition-all duration-500 pointer-events-auto ${dest.span}`}
+              className={`relative rounded-3xl overflow-hidden group block shadow-md hover:shadow-2xl transition-all duration-500 ${dest.span}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -71,9 +71,9 @@ export default function DestinationsPage() {
         </div>
       </div>
 
-      {/* Right Sticky Map Pane - Isolated container bounds */}
-      <div className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden z-10">
-        <div className="absolute inset-0 h-full w-full pointer-events-auto">
+      {/* Right Sticky Map Pane - Strict boundary lock to prevent scroll leakage */}
+      <div className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden">
+        <div className="absolute inset-0 h-full w-full">
           <MapClientWrapper tours={[]} />
         </div>
       </div>
