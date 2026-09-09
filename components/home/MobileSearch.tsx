@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
+import locationIcon from "@/components/ui/Location icon/354556546.jpg"
 import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -205,6 +208,20 @@ export function MobileSearch() {
             >
               <span className="text-[1.1rem]">🌍</span>
             </button>
+
+            {/* Destinations Button */}
+            <Link 
+              href="/destinations"
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm hover:bg-zinc-50 transition-colors"
+            >
+              <Image 
+                src={locationIcon} 
+                alt="Destinations" 
+                width={20} 
+                height={20} 
+                className="w-5 h-5 object-contain" 
+              />
+            </Link>
 
             {/* Filter / Sort Button */}
             <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">

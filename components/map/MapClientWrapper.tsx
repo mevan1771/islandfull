@@ -9,14 +9,16 @@ interface MapClientWrapperProps {
     tours: MapTour[]
     dynamicCategories?: any[]
     currentVertical?: string
+    isDestinationMode?: boolean
 }
 
-export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = 'all' }: MapClientWrapperProps) {
+export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false }: MapClientWrapperProps) {
     return (
         <InteractiveMap
             tours={tours}
             dynamicCategories={dynamicCategories}
             currentVertical={currentVertical}
+            isDestinationMode={isDestinationMode}
         />
     )
 }

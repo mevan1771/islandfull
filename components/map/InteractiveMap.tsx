@@ -33,6 +33,7 @@ interface InteractiveMapProps {
   tours: MapTour[]
   dynamicCategories?: any[]
   currentVertical?: string
+  isDestinationMode?: boolean
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -45,7 +46,7 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all' }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false }: InteractiveMapProps) {
   const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
@@ -166,9 +167,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
         markerHTML = `
           <div class="${innerClass}">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-' + themeColor + ' text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+            ${!isDestinationMode ? `<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-' + themeColor + ' text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
               $${tour.price_usd}
-            </div>
+            </div>` : ''}
             <div class="w-14 h-14 rounded-full overflow-hidden border-2 transition-colors ${isSelected ? 'border-' + themeColor : 'border-white'}">
               <img src="${optimizedImageUrl}" alt="${tour.title}" class="w-full h-full object-cover" loading="lazy" width="56" height="56" />
             </div>
@@ -235,14 +236,16 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
       {/* Category Filter Bar (Floating on bottom) */}
-      <MapFilterBar
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        isTourSelected={!!selectedTour}
-        dynamicCategories={dynamicCategories}
-        currentVertical={currentVertical}
-        onVerticalChange={(v) => router.push('?vertical=' + v)}
-      />
+      {!isDestinationMode && (
+        <MapFilterBar
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+          isTourSelected={!!selectedTour}
+          dynamicCategories={dynamicCategories}
+          currentVertical={currentVertical}
+          onVerticalChange={(v) => router.push('?vertical=' + v)}
+        />
+      )}
 
       {/* Strict isolation for Mapbox Canvas */}
       <div
@@ -255,10 +258,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       />
 
       {/* Render the drawer completely outside the map canvas layer */}
-      <MapPreviewDrawer
-        tour={selectedTour}
-        onClose={() => setSelectedTour(null)}
-      />
+      {!isDestinationMode && (
+        <MapPreviewDrawer
+          tour={selectedTour}
+          onClose={() => setSelectedTour(null)}
+        />
+      )}
 
     </div>
   )
