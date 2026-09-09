@@ -54,9 +54,9 @@ export default function SiteHeader() {
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const shouldForceDarkTextDesktop = (isHomePage && isScrolled) || isDestinationsPage
+    const shouldForceDarkTextDesktop = isHomePage && isScrolled
     const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
-    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : (isDestinationsPage ? true : useDarkTextMobile)))
+    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
     const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
