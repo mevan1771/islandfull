@@ -1,39 +1,40 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const LOCATIONS = [
   {
     id: 1,
     name: 'Sigiriya Rock Fortress',
     description: 'The ancient palace in the sky.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg/1280px-Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg',
+    image: 'https://images.unsplash.com/photo-1588598198321-97368d4076e6?auto=format&fit=crop&q=80&w=1280',
     span: 'md:col-span-2 md:row-span-2'
   },
   {
     id: 2,
     name: 'Nine Arches Bridge',
     description: 'Iconic railway bridge in Ella.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Nine_Arch_Bridge%2C_Demodara.jpg/1280px-Nine_Arch_Bridge%2C_Demodara.jpg',
+    image: 'https://images.unsplash.com/photo-1546708773-51780f2d80d2?auto=format&fit=crop&q=80&w=1280',
     span: 'md:col-span-1 md:row-span-1'
   },
   {
     id: 3,
     name: 'Yala National Park',
     description: 'Home to the majestic leopard.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sri_Lankan_leopard_in_Yala_National_Park.jpg/1280px-Sri_Lankan_leopard_in_Yala_National_Park.jpg',
+    image: 'https://images.unsplash.com/photo-1625736301386-79df30dfbc0b?auto=format&fit=crop&q=80&w=1280',
     span: 'md:col-span-1 md:row-span-2'
   },
   {
     id: 4,
     name: 'Galle Fort',
     description: 'Dutch colonial history.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Galle_Fort_Lighthouse_in_Sri_Lanka.jpg/1280px-Galle_Fort_Lighthouse_in_Sri_Lanka.jpg',
+    image: 'https://images.unsplash.com/photo-1579970966953-b0fc5ee818bb?auto=format&fit=crop&q=80&w=1280',
     span: 'md:col-span-2 md:row-span-1'
   },
   {
     id: 5,
     name: 'Mirissa Coast',
     description: 'Whale watching and pristine beaches.',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Mirissa_Beach.jpg/1280px-Mirissa_Beach.jpg',
+    image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=1280',
     span: 'md:col-span-1 md:row-span-1'
   },
 ];
@@ -56,11 +57,12 @@ export default function GoNowPage() {
               key={loc.id}
               className={`relative rounded-[2rem] overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-700 ${loc.span}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={loc.image}
                 alt={loc.name}
-                className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-[1.5s] group-hover:scale-110 bg-zinc-900"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transform transition-transform duration-[1.5s] group-hover:scale-110 bg-zinc-900"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none opacity-90 transition-opacity duration-700 group-hover:opacity-100" />
 

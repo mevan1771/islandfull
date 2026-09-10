@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapClientWrapper } from "@/components/map/MapClientWrapper";
 
 const DESTINATIONS = [
@@ -6,28 +7,28 @@ const DESTINATIONS = [
     id: 1,
     name: 'Galle',
     activities: 14,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Galle_Fort_Lighthouse_in_Sri_Lanka.jpg/1280px-Galle_Fort_Lighthouse_in_Sri_Lanka.jpg',
+    image: 'https://images.unsplash.com/photo-1579970966953-b0fc5ee818bb?auto=format&fit=crop&q=80&w=1280',
     span: 'col-span-1 md:col-span-2 row-span-2'
   },
   {
     id: 2,
     name: 'Sigiriya',
     activities: 8,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg/1280px-Beauty_of_Sigiriya_by_Buddhika_Mahaarachchi.jpg',
+    image: 'https://images.unsplash.com/photo-1588598198321-97368d4076e6?auto=format&fit=crop&q=80&w=1280',
     span: 'col-span-1 row-span-2'
   },
   {
     id: 3,
     name: 'Weligama',
     activities: 22,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Mirissa_Beach.jpg/1280px-Mirissa_Beach.jpg',
+    image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=1280',
     span: 'col-span-1 row-span-1'
   },
   {
     id: 4,
     name: 'Yala',
     activities: 12,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sri_Lankan_leopard_in_Yala_National_Park.jpg/1280px-Sri_Lankan_leopard_in_Yala_National_Park.jpg',
+    image: 'https://images.unsplash.com/photo-1625736301386-79df30dfbc0b?auto=format&fit=crop&q=80&w=1280',
     span: 'col-span-1 md:col-span-2 row-span-1'
   },
 ];
@@ -50,11 +51,12 @@ export default function DestinationsPage() {
               href={`/destinations/${dest.name.toLowerCase()}`}
               className={`relative rounded-3xl overflow-hidden group block shadow-md hover:shadow-2xl transition-all duration-500 ${dest.span}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={dest.image}
                 alt={dest.name}
-                className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105 bg-zinc-900"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transform transition-transform duration-700 group-hover:scale-105 bg-zinc-900"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
