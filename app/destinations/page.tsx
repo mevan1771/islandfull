@@ -29,7 +29,7 @@ const DESTINATIONS = [
     activities: 12,
     image: '[https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80)',
     span: 'col-span-1 md:col-span-2 row-span-1'
-  },
+  }
 ];
 
 export default function DestinationsPage() {
