@@ -61,6 +61,7 @@ export default function GoNowPage() {
                 src={loc.image}
                 alt={loc.name}
                 fill
+                unoptimized
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transform transition-transform duration-[1.5s] group-hover:scale-110 bg-zinc-900"
               />
