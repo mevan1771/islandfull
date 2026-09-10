@@ -41,35 +41,25 @@ const LOCATIONS = [
 
 export default function GoNowPage() {
   return (
-    <main className="min-h-screen bg-zinc-100 pt-[120px] pb-20 px-6 md:px-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900">Go Now</h1>
-          <p className="text-zinc-600 mt-4 text-xl max-w-2xl font-medium">
-            Discover the most breathtaking destinations in Sri Lanka. 
-            Pack your bags and experience the magic of the island.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[320px] gap-6">
+    <main className="min-h-screen bg-white pt-32 pb-20 px-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8">Go Now (Debug Layout)</h1>
+        <div className="flex flex-col gap-8">
           {LOCATIONS.map((loc) => (
-            <div
-              key={loc.id}
-              className={`relative rounded-[2rem] overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-700 ${loc.span}`}
-            >
-              <Image
-                src={loc.image}
-                alt={loc.name}
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover transform transition-transform duration-[1.5s] group-hover:scale-110 bg-zinc-900"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none opacity-90 transition-opacity duration-700 group-hover:opacity-100" />
-
-              <div className="absolute bottom-8 left-8 right-8 z-10 flex flex-col justify-end pointer-events-none transform transition-transform duration-700 translate-y-2 group-hover:translate-y-0">
-                <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight drop-shadow-xl">{loc.name}</h2>
-                <p className="text-zinc-200 mt-2 text-base md:text-lg font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">{loc.description}</p>
+            <div key={loc.id} className="border border-gray-200 p-4 rounded-lg flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-1/2 h-64 relative bg-gray-100">
+                <Image
+                  src={loc.image}
+                  alt={loc.name}
+                  fill
+                  unoptimized
+                  className="object-cover rounded"
+                />
+              </div>
+              <div className="w-full md:w-1/2 flex flex-col justify-center">
+                <h2 className="text-2xl font-semibold mb-2">{loc.name}</h2>
+                <p className="text-gray-600">{loc.description}</p>
+                <p className="text-xs text-gray-400 mt-4 break-all">Image URL: {loc.image}</p>
               </div>
             </div>
           ))}
