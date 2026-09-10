@@ -37,6 +37,41 @@ const LOCATIONS = [
     image: '/images/destinations/mirissa.jpg',
     span: 'md:col-span-1 md:row-span-1'
   },
+  {
+    id: 6,
+    name: 'Kandy Lake',
+    description: 'Spiritual heart of the island.',
+    image: '/images/destinations/kandy.jpg',
+    span: 'md:col-span-2 md:row-span-2'
+  },
+  {
+    id: 7,
+    name: 'Ella Rock',
+    description: 'Breathtaking mountain views.',
+    image: '/images/destinations/ella.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  },
+  {
+    id: 8,
+    name: 'Arugam Bay',
+    description: 'Surfers paradise.',
+    image: '/images/destinations/arugam_bay.jpg',
+    span: 'md:col-span-1 md:row-span-2'
+  },
+  {
+    id: 9,
+    name: 'Trincomalee',
+    description: 'Pristine white sand beaches.',
+    image: '/images/destinations/trincomalee.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  },
+  {
+    id: 10,
+    name: 'Nuwara Eliya',
+    description: 'Little England tea country.',
+    image: '/images/destinations/nuwara_eliya.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  }
 ];
 
 export default function GoNowPage() {
@@ -51,11 +86,11 @@ export default function GoNowPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[320px] gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[320px] gap-0 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-zinc-900">
           {LOCATIONS.map((loc) => (
             <div
               key={loc.id}
-              className={`relative rounded-[2rem] overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-700 ${loc.span}`}
+              className={`relative overflow-hidden group transition-all duration-700 ${loc.span} border-[0.5px] border-zinc-800`}
             >
               <Image
                 src={loc.image}

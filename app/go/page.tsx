@@ -37,6 +37,41 @@ const LOCATIONS = [
     image: '/images/destinations/mirissa.jpg',
     span: 'md:col-span-1 md:row-span-1'
   },
+  {
+    id: 6,
+    name: 'Kandy Lake',
+    description: 'Spiritual heart of the island.',
+    image: '/images/destinations/kandy.jpg',
+    span: 'md:col-span-2 md:row-span-2'
+  },
+  {
+    id: 7,
+    name: 'Ella Rock',
+    description: 'Breathtaking mountain views.',
+    image: '/images/destinations/ella.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  },
+  {
+    id: 8,
+    name: 'Arugam Bay',
+    description: 'Surfers paradise.',
+    image: '/images/destinations/arugam_bay.jpg',
+    span: 'md:col-span-1 md:row-span-2'
+  },
+  {
+    id: 9,
+    name: 'Trincomalee',
+    description: 'Pristine white sand beaches.',
+    image: '/images/destinations/trincomalee.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  },
+  {
+    id: 10,
+    name: 'Nuwara Eliya',
+    description: 'Little England tea country.',
+    image: '/images/destinations/nuwara_eliya.jpg',
+    span: 'md:col-span-1 md:row-span-1'
+  }
 ];
 
 export default function GoPage() {
@@ -49,12 +84,12 @@ export default function GoPage() {
             Explore Sri Lanka's most iconic destinations in a bold, cinematic bento grid. Click any tile to dive deeper.
           </p>
         </header>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px] lg:auto-rows-[260px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 auto-rows-[200px] lg:auto-rows-[260px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-zinc-900">
           {LOCATIONS.map((loc) => (
             <Link
               key={loc.id}
               href={`/destinations/${loc.name.toLowerCase().replace(/ /g, '-')}`}
-              className={`relative group rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 ${loc.span}`}
+              className={`relative group overflow-hidden transition-all duration-500 ${loc.span} border-[0.5px] border-zinc-800`}
             >
               <Image
                 src={loc.image}

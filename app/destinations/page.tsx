@@ -31,25 +31,60 @@ const DESTINATIONS = [
     image: '/images/destinations/yala.jpg',
     span: 'col-span-1 md:col-span-2 row-span-1'
   },
+  {
+    id: 5,
+    name: 'Kandy',
+    activities: 18,
+    image: '/images/destinations/kandy.jpg',
+    span: 'col-span-1 md:col-span-2 row-span-2'
+  },
+  {
+    id: 6,
+    name: 'Ella',
+    activities: 15,
+    image: '/images/destinations/ella.jpg',
+    span: 'col-span-1 row-span-1'
+  },
+  {
+    id: 7,
+    name: 'Arugam Bay',
+    activities: 10,
+    image: '/images/destinations/arugam_bay.jpg',
+    span: 'col-span-1 row-span-2'
+  },
+  {
+    id: 8,
+    name: 'Trincomalee',
+    activities: 9,
+    image: '/images/destinations/trincomalee.jpg',
+    span: 'col-span-1 md:col-span-2 row-span-1'
+  },
+  {
+    id: 9,
+    name: 'Nuwara Eliya',
+    activities: 7,
+    image: '/images/destinations/nuwara_eliya.jpg',
+    span: 'col-span-1 row-span-1'
+  }
 ];
 
 export default function DestinationsPage() {
   return (
-    <div className="fixed inset-x-0 bottom-0 top-[80px] flex overflow-hidden bg-zinc-50 z-30">
+    <div className="fixed inset-x-0 bottom-0 top-[80px] flex flex-col lg:flex-row overflow-hidden bg-zinc-50 z-30">
       
       {/* Left Scrollable Bento Feed - Fully isolated scroll container */}
-      <div className="w-full lg:w-[55%] xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="w-full lg:w-[55%] xl:w-[60%] flex-1 lg:h-full overflow-y-auto px-4 py-6 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="mb-8">
           <h1 className="text-4xl font-black tracking-tight text-zinc-900">Explore Sri Lanka</h1>
           <p className="text-zinc-500 mt-2 text-base">Select a destination to filter experiences and live itineraries.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-4 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-0 rounded-[2rem] overflow-hidden shadow-xl border-4 border-zinc-900 mb-8 lg:mb-20">
           {DESTINATIONS.map((dest) => (
             <Link
               key={dest.id}
               href={`/destinations/${dest.name.toLowerCase()}`}
-              className={`relative rounded-3xl overflow-hidden group block shadow-md hover:shadow-2xl transition-all duration-500 ${dest.span}`}
+              className={`relative overflow-hidden group block transition-all duration-500 ${dest.span} border-[0.5px] border-zinc-800`}
             >
               <Image
                 src={dest.image}
@@ -75,7 +110,7 @@ export default function DestinationsPage() {
       </div>
 
       {/* Right Sticky Map Pane - Strict boundary lock to prevent scroll leakage */}
-      <div className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden">
+      <div className="w-full lg:w-[45%] xl:w-[40%] h-[40vh] lg:h-full relative border-t lg:border-t-0 lg:border-l border-zinc-200 bg-zinc-900 overflow-hidden shrink-0">
         <div className="absolute inset-0 h-full w-full">
           <MapClientWrapper tours={[]} />
         </div>
