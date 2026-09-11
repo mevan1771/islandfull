@@ -70,7 +70,7 @@ export default function DestinationsPage() {
       {/* RIGHT PANEL */}
       <div className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden">
         <div className="absolute inset-0 h-full w-full">
-          <MapClientWrapper tours="{[]}"/>
+          <MapClientWrapper tours={[]}/>
         </div>
       </div>
 
