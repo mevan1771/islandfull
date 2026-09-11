@@ -74,7 +74,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       minZoom: 2,
       pitch: 0,
       bearing: 0,
-      attributionControl: false
+      attributionControl: false,
+      cooperativeGestures: true
     })
 
     map.on('load', () => {
