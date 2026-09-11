@@ -6,28 +6,28 @@ const DESTINATIONS = [
     id: 1,
     name: 'Galle',
     activities: 14,
-    image: '[https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=80)',
+    image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=80',
     span: 'col-span-1 md:col-span-2 row-span-2'
   },
   {
     id: 2,
     name: 'Sigiriya',
     activities: 8,
-    image: '[https://images.unsplash.com/photo-1586724237569-f3d0c1ebd4e2?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1586724237569-f3d0c1ebd4e2?auto=format&fit=crop&w=800&q=80)',
+    image: 'https://images.unsplash.com/photo-1586724237569-f3d0c1ebd4e2?auto=format&fit=crop&w=800&q=80',
     span: 'col-span-1 row-span-2'
   },
   {
     id: 3,
     name: 'Weligama',
     activities: 22,
-    image: '[https://images.unsplash.com/photo-1574246604907-827d09618b1d?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1574246604907-827d09618b1d?auto=format&fit=crop&w=800&q=80)',
+    image: 'https://images.unsplash.com/photo-1574246604907-827d09618b1d?auto=format&fit=crop&w=800&q=80',
     span: 'col-span-1 row-span-1'
   },
   {
     id: 4,
     name: 'Yala',
     activities: 12,
-    image: '[https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80](https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80)',
+    image: 'https://images.unsplash.com/photo-1580255977934-03c733621415?auto=format&fit=crop&w=1200&q=80',
     span: 'col-span-1 md:col-span-2 row-span-1'
   }
 ];
