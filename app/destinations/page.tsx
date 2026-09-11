@@ -6,35 +6,49 @@ const DESTINATIONS = [
     id: 1,
     name: 'Galle',
     activities: 14,
-    image: '/images/destinations/galle.jpg',
-    span: 'col-span-1 md:col-span-2 row-span-2'
+    image: 'https://images.pexels.com/photos/319892/pexels-photo-319892.jpeg?auto=compress&cs=tinysrgb&w=800',
+    span: 'col-span-1 md:col-span-2 row-span-1'
   },
   {
     id: 2,
     name: 'Sigiriya',
     activities: 8,
-    image: '/images/destinations/sigiriya.jpg',
+    image: 'https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800',
     span: 'col-span-1 row-span-2'
   },
   {
     id: 3,
+    name: 'Kandy',
+    activities: 18,
+    image: 'https://images.pexels.com/photos/322437/pexels-photo-322437.jpeg?auto=compress&cs=tinysrgb&w=800',
+    span: 'col-span-1 row-span-1'
+  },
+  {
+    id: 4,
+    name: 'Hikkaduwa',
+    activities: 10,
+    image: 'https://images.pexels.com/photos/7400676/pexels-photo-7400676.jpeg?auto=compress&cs=tinysrgb&w=800',
+    span: 'col-span-1 row-span-1'
+  },
+  {
+    id: 5,
     name: 'Weligama',
     activities: 22,
     image: '/images/destinations/mirissa.jpg',
     span: 'col-span-1 row-span-1'
   },
   {
-    id: 4,
+    id: 6,
     name: 'Yala',
     activities: 12,
     image: '/images/destinations/yala.jpg',
-    span: 'col-span-1 md:col-span-2 row-span-1'
+    span: 'col-span-1 row-span-1'
   }
 ];
 
 export default function DestinationsPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col lg:flex-row relative z-10">
+    <div className="min-h-screen bg-zinc-50 flex flex-col lg:flex-row relative z-10 max-w-[1600px] mx-auto">
       
       {/* LEFT PANEL */}
       <div className="w-full lg:w-[55%] xl:w-[60%] px-6 py-8 md:px-12 pb-32">
@@ -43,7 +57,7 @@ export default function DestinationsPage() {
           <p className="text-zinc-500 mt-2 text-base">Select a destination to filter experiences and live itineraries.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-[280px] gap-6 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-[200px] gap-4 pb-12">
           {DESTINATIONS.map((dest) => (
             <Link key={dest.id} href={`/destinations/${dest.name.toLowerCase()}`} className={`relative block overflow-hidden rounded-3xl shadow-md transition-all duration-500 group hover:shadow-2xl ${dest.span}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
