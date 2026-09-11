@@ -64,6 +64,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     if (mapInstance.current) return // Map already initialized
 
+    mapContainer.current.replaceChildren()
+
     const isMobile = window.innerWidth < 768;
 
     const map = new mapboxgl.Map({
@@ -75,7 +77,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       pitch: 0,
       bearing: 0,
       attributionControl: false,
-      cooperativeGestures: true
+      // Scroll-zoom immediately. Page scroll is paused while the pointer is over the map.
+      cooperativeGestures: false
     })
 
     map.on('load', () => {
@@ -84,7 +87,13 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     mapInstance.current = map
 
+    const observer = new ResizeObserver(() => {
+      map.resize()
+    })
+    observer.observe(mapContainer.current)
+
     return () => {
+      observer.disconnect()
       mapInstance.current?.remove()
       mapInstance.current = null
     }
@@ -100,9 +109,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       pitch: 0, // Flat top-down view
       duration: 2000,
       essential: true,
-      offset: [0, -150] // Shift camera center up so the marker sits cleanly above the preview drawer
+      offset: isDestinationMode ? [0, 0] : [0, -150] // Shift camera center up so the marker sits cleanly above the preview drawer
     })
-  }, [])
+  }, [isDestinationMode])
 
   // Initialize Markers ONCE
   useEffect(() => {
@@ -221,18 +230,18 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
       el.innerHTML = markerHTML
     })
-  }, [activeCategory, selectedTour, favorites])
+  }, [activeCategory, selectedTour, favorites, isDestinationMode])
 
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-zinc-900 text-white">
+      <div className="w-full h-full min-h-[240px] flex items-center justify-center bg-zinc-900 text-white">
         <p>Mapbox token is missing in .env.local</p>
       </div>
     )
   }
 
   return (
-    <div className="relative w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden bg-zinc-900">
+    <div className="relative w-full h-full min-h-0 overflow-hidden bg-zinc-900">
 
 
 
@@ -248,10 +257,10 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         />
       )}
 
-      {/* Strict isolation for Mapbox Canvas */}
+      {/* Strict isolation for Mapbox Canvas — fill the parent so embed/sidebar layouts get a real size */}
       <div
         ref={mapContainer}
-        className="w-full flex-1"
+        className="absolute inset-0 h-full w-full"
         style={{
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent'

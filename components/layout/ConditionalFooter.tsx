@@ -6,7 +6,7 @@ import SiteFooter from "./SiteFooter"
 export function ConditionalFooter() {
   const pathname = usePathname()
   
-  if (pathname === '/map') {
+  if (pathname === '/map' || pathname === '/destinations') {
     return null
   }
   

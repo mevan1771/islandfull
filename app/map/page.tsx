@@ -81,7 +81,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
   }
 
   return (
-    <div className="w-full flex-1 flex flex-col">
+    <div className="relative w-full h-screen overflow-hidden">
       <MapClientWrapper tours={mapData} dynamicCategories={dynamicCategories} currentVertical={currentVertical} />
     </div>
   )
