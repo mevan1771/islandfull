@@ -45,7 +45,7 @@ export default function DestinationsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-4 pb-20">
           {DESTINATIONS.map((dest) => (
-            <Link ${dest.span}`} block className="{`relative" duration-500 group hover:shadow-2xl href="{`/destinations/${dest.name.toLowerCase()}`}" key="{dest.id}" overflow-hidden rounded-3xl shadow-md transition-all>
+            <Link key={dest.id} href={`/destinations/${dest.name.toLowerCase()}`} className={`relative block overflow-hidden rounded-3xl shadow-md transition-all duration-500 group hover:shadow-2xl ${dest.span}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={dest.image}
