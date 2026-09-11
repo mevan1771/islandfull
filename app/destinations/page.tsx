@@ -34,16 +34,16 @@ const DESTINATIONS = [
 
 export default function DestinationsPage() {
   return (
-    <div className="fixed inset-x-0 bottom-0 top-[80px] flex overflow-hidden bg-zinc-50 z-30">
+    <div className="min-h-screen bg-zinc-50 flex flex-col lg:flex-row relative z-10">
       
       {/* LEFT PANEL */}
-      <div className="w-full lg:w-[55%] xl:w-[60%] h-full overflow-y-auto px-6 py-8 md:px-12 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="w-full lg:w-[55%] xl:w-[60%] px-6 py-8 md:px-12 pb-32">
         <div className="mb-8">
           <h1 className="text-4xl font-black tracking-tight text-zinc-900">Explore Sri Lanka</h1>
           <p className="text-zinc-500 mt-2 text-base">Select a destination to filter experiences and live itineraries.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 auto-rows-[240px] gap-4 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-[280px] gap-6 pb-12">
           {DESTINATIONS.map((dest) => (
             <Link key={dest.id} href={`/destinations/${dest.name.toLowerCase()}`} className={`relative block overflow-hidden rounded-3xl shadow-md transition-all duration-500 group hover:shadow-2xl ${dest.span}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -68,7 +68,7 @@ export default function DestinationsPage() {
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="hidden lg:block lg:w-[45%] xl:w-[40%] h-full relative border-l border-zinc-200 bg-zinc-900 overflow-hidden">
+      <div className="hidden lg:block lg:w-[45%] xl:w-[40%] sticky top-0 h-screen border-l border-zinc-200 bg-zinc-900 overflow-hidden">
         <div className="absolute inset-0 h-full w-full">
           <MapClientWrapper tours={[]}/>
         </div>
