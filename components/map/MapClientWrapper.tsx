@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useLenis } from "lenis/react"
 import type { Map as MapboxMap } from "mapbox-gl"
@@ -22,44 +22,53 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     const rootRef = useRef<HTMLDivElement>(null)
     const hoveringRef = useRef(false)
     const mapRef = useRef<MapboxMap | null>(null)
-    const pendingLocationRef = useRef(activeLocation)
-    pendingLocationRef.current = activeLocation
+    const [mapReady, setMapReady] = useState(false)
 
     const flyToLocation = useCallback((location: { lat: number, lng: number }) => {
         const map = mapRef.current
         if (!map) return
+        map.stop()
         map.flyTo({
             center: [location.lng, location.lat],
-            zoom: 11,
-            duration: 1500,
+            zoom: 9.2,
+            duration: 2800,
             essential: true,
+            curve: 1.8,
+            easing: (t) => 1 - Math.pow(1 - t, 3),
         })
     }, [])
 
     const handleMapReady = useCallback((map: MapboxMap | null) => {
         mapRef.current = map
-        if (map && pendingLocationRef.current) {
-            flyToLocation(pendingLocationRef.current)
-        }
-    }, [flyToLocation])
+        setMapReady(!!map)
+    }, [])
 
     useEffect(() => {
-        if (!activeLocation) return
-        flyToLocation(activeLocation)
-    }, [activeLocation, flyToLocation])
-
-    useEffect(() => {
+        if (!activeLocation || !mapReady) return
         const map = mapRef.current
         if (!map) return
-        const frame = window.requestAnimationFrame(() => {
+
+        let cancelled = false
+        map.stop()
+
+        const startFly = () => {
+            if (cancelled) return
+            const { width, height } = map.getContainer().getBoundingClientRect()
             map.resize()
-        })
-        const timeout = window.setTimeout(() => map.resize(), 250)
+            if (width < 40 || height < 40) {
+                window.setTimeout(startFly, 80)
+                return
+            }
+            flyToLocation(activeLocation)
+        }
+
+        const timeout = window.setTimeout(startFly, 350)
+
         return () => {
-            window.cancelAnimationFrame(frame)
+            cancelled = true
             window.clearTimeout(timeout)
         }
-    }, [resizeToken])
+    }, [activeLocation, resizeToken, mapReady, flyToLocation])
 
     useEffect(() => {
         const el = rootRef.current

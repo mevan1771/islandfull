@@ -89,11 +89,25 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       map.resize() // Fix container layout offsets
     })
 
+    map.scrollZoom.setWheelZoomRate(1 / 900)
+    map.scrollZoom.setZoomRate(1 / 200)
+
     mapInstance.current = map
     onMapReadyRef.current?.(map)
     setMapReady(true)
 
+    let waitingForIdle = false
     const observer = new ResizeObserver(() => {
+      if (map.isMoving()) {
+        if (!waitingForIdle) {
+          waitingForIdle = true
+          map.once('moveend', () => {
+            waitingForIdle = false
+            map.resize()
+          })
+        }
+        return
+      }
       map.resize()
     })
     observer.observe(mapContainer.current)
@@ -113,13 +127,15 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const handleMarkerClick = useCallback((tour: MapTour & { coords: { lat: number, lng: number } }) => {
     setSelectedTour(tour)
 
+    mapInstance.current?.stop()
     mapInstance.current?.flyTo({
       center: [tour.coords.lng, tour.coords.lat],
-      zoom: 11, // Slightly wider zoom on marker click
-      pitch: 0, // Flat top-down view
-      duration: 2000,
+      zoom: isDestinationMode ? 9.2 : 11,
+      pitch: 0,
+      duration: isDestinationMode ? 2800 : 2000,
       essential: true,
-      offset: isDestinationMode ? [0, 0] : [0, -150] // Shift camera center up so the marker sits cleanly above the preview drawer
+      curve: isDestinationMode ? 1.8 : 1.42,
+      offset: isDestinationMode ? [0, 0] : [0, -150]
     })
   }, [isDestinationMode])
 

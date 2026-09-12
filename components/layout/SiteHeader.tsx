@@ -66,7 +66,9 @@ export default function SiteHeader() {
     const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
-    const headerClasses = (isActivityPage || isDestinationsPage)
+    const headerClasses = isDestinationsPage
+        ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white shadow-sm"
+        : isActivityPage
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none md:transition-transform md:duration-300 md:ease-in-out ${
@@ -80,9 +82,15 @@ export default function SiteHeader() {
         <header className={headerClasses}>
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-3">
-                    {isActivityPage && (
+                    {(isActivityPage || isDestinationsPage) && (
                         <button
-                            onClick={() => router.back()}
+                            onClick={() => {
+                                if (isDestinationsPage) {
+                                    const event = new CustomEvent("islandfull:destinations-back", { cancelable: true })
+                                    if (!window.dispatchEvent(event)) return
+                                }
+                                router.back()
+                            }}
                             className="md:hidden flex items-center justify-center"
                             aria-label="Go back"
                         >

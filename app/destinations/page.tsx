@@ -188,17 +188,6 @@ export default function DestinationsPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const isMobileMap = mobileView === "map" && window.matchMedia("(max-width: 1023px)").matches;
-    if (!isMobileMap) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [mobileView]);
-
   const showMobileMap = () => {
     listScrollRef.current = window.scrollY;
     setMobileView("map");
@@ -211,10 +200,32 @@ export default function DestinationsPage() {
     });
   };
 
+  useEffect(() => {
+    const isMobileMap = mobileView === "map" && window.matchMedia("(max-width: 1023px)").matches;
+    if (!isMobileMap) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileView]);
+
+  useEffect(() => {
+    const onBack = (event: Event) => {
+      if (mobileView !== "map" || !window.matchMedia("(max-width: 1023px)").matches) return;
+      event.preventDefault();
+      showMobileList();
+    };
+
+    window.addEventListener("islandfull:destinations-back", onBack);
+    return () => window.removeEventListener("islandfull:destinations-back", onBack);
+  }, [mobileView]);
+
   return (
     <div className="w-full bg-gray-50">
       <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
-        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-4 md:py-6 pb-24 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
+        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-4 md:py-6 pb-8 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
           <div className="mb-4 md:mb-6">
             <h1 className="text-4xl font-bold text-zinc-900">Explore Sri Lanka</h1>
             <p className="text-zinc-500 mt-2 text-base">
@@ -270,7 +281,7 @@ export default function DestinationsPage() {
         </section>
 
         <aside
-          className={`${mobileView === "map" ? "fixed inset-0 z-30" : "hidden"} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-[42%] lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          className={`${mobileView === "map" ? "fixed inset-x-0 top-16 bottom-0 z-30" : "hidden"} lg:relative lg:inset-auto lg:top-auto lg:z-auto lg:block lg:w-[42%] lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
           data-lenis-prevent
         >
           <div className="absolute inset-0">
