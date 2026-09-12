@@ -225,10 +225,10 @@ export default function DestinationsPage() {
   return (
     <div className="w-full bg-gray-50">
       <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
-        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-4 md:py-6 pb-8 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
-          <div className="mb-4 md:mb-6">
-            <h1 className="text-4xl font-bold text-zinc-900">Explore Sri Lanka</h1>
-            <p className="text-zinc-500 mt-2 text-base">
+        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-3 md:py-6 pb-8 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
+          <div className="mb-3 md:mb-6">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 leading-tight">Explore Sri Lanka</h1>
+            <p className="text-zinc-500 mt-1 md:mt-2 text-sm md:text-base leading-snug">
               Select a destination to filter experiences and live itineraries.
             </p>
           </div>
@@ -266,7 +266,7 @@ export default function DestinationsPage() {
                     alt={dest.name}
                     className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 transition-transform duration-500 ease-out group-hover:scale-105 ${dest.comingSoon ? "grayscale-[35%]" : ""}`}
                   />
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
                   <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
                     <h2 className="text-white text-sm md:text-lg font-bold drop-shadow-md leading-tight">{dest.name}</h2>
@@ -281,7 +281,7 @@ export default function DestinationsPage() {
         </section>
 
         <aside
-          className={`${mobileView === "map" ? "fixed inset-x-0 top-16 bottom-0 z-30" : "hidden"} lg:relative lg:inset-auto lg:top-auto lg:z-auto lg:block lg:w-[42%] lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:z-30 max-lg:block" : "max-lg:hidden"} lg:sticky lg:top-20 lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
           data-lenis-prevent
         >
           <div className="absolute inset-0">
