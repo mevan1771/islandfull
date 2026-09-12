@@ -10,7 +10,7 @@ type Destination = {
   name: string;
   image: string;
   coordinates: { lat: number; lng: number };
-  gridSpan: string;
+  span: string;
   comingSoon?: boolean;
 };
 
@@ -20,49 +20,49 @@ const DESTINATIONS: Destination[] = [
     name: "Galle",
     image: "https://images.pexels.com/photos/319892/pexels-photo-319892.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.0535, lng: 80.2210 },
-    gridSpan: "md:col-span-2 md:row-span-2",
+    span: "md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
     name: "Sigiriya",
     image: "https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 7.9570, lng: 80.7603 },
-    gridSpan: "md:col-span-2 md:row-span-1",
+    span: "md:col-span-2 md:row-span-1",
   },
   {
     id: 3,
     name: "Kandy",
     image: "https://images.pexels.com/photos/322437/pexels-photo-322437.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 7.2906, lng: 80.6337 },
-    gridSpan: "col-span-1 md:row-span-2",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 4,
     name: "Hikkaduwa",
     image: "https://images.pexels.com/photos/7400676/pexels-photo-7400676.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.1408, lng: 80.1014 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 5,
     name: "Weligama",
     image: "https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 5.9735, lng: 80.4297 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
   },
   {
     id: 6,
     name: "Yala",
     image: "https://images.pexels.com/photos/631317/pexels-photo-631317.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.3690, lng: 81.5180 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "md:col-span-2 md:row-span-1",
   },
   {
     id: 7,
     name: "Ella",
     image: "https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.8667, lng: 81.0466 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
@@ -70,7 +70,7 @@ const DESTINATIONS: Destination[] = [
     name: "Mirissa",
     image: "https://images.pexels.com/photos/457882/pexels-photo-457882.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 5.9483, lng: 80.4714 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
@@ -78,7 +78,7 @@ const DESTINATIONS: Destination[] = [
     name: "Colombo",
     image: "https://images.pexels.com/photos/1549326/pexels-photo-1549326.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.9271, lng: 79.8612 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
@@ -86,7 +86,7 @@ const DESTINATIONS: Destination[] = [
     name: "Trincomalee",
     image: "https://images.pexels.com/photos/1078983/pexels-photo-1078983.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 8.5874, lng: 81.2152 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
@@ -94,7 +94,7 @@ const DESTINATIONS: Destination[] = [
     name: "Nuwara Eliya",
     image: "https://images.pexels.com/photos/1591373/pexels-photo-1591373.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.9497, lng: 80.7891 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
@@ -102,7 +102,7 @@ const DESTINATIONS: Destination[] = [
     name: "Arugam Bay",
     image: "https://images.pexels.com/photos/390051/surfer-wave-sunset-the-indian-ocean-390051.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.8404, lng: 81.8363 },
-    gridSpan: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1",
     comingSoon: true,
   },
 ];
@@ -222,7 +222,7 @@ export default function DestinationsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 grid-flow-row-dense auto-rows-[240px]">
             {DESTINATIONS.map((dest) => {
               const count = activityCounts[dest.name] ?? 0;
               const isActive = activeLocation?.lat === dest.coordinates.lat && activeLocation?.lng === dest.coordinates.lng;
@@ -247,7 +247,7 @@ export default function DestinationsPage() {
                       setActiveLocation(dest.coordinates);
                     }
                   }}
-                  className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow group cursor-pointer ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
+                  className={`relative h-full min-h-0 rounded-3xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span} ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
