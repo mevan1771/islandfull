@@ -20,14 +20,14 @@ const DESTINATIONS: Destination[] = [
     name: "Galle",
     image: "https://images.pexels.com/photos/319892/pexels-photo-319892.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.0535, lng: 80.2210 },
-    span: "md:col-span-2 md:row-span-2",
+    span: "col-span-2 row-span-2 md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
     name: "Sigiriya",
     image: "https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 7.9570, lng: 80.7603 },
-    span: "md:col-span-2 md:row-span-1",
+    span: "col-span-1 row-span-2 md:col-span-2 md:row-span-1",
   },
   {
     id: 3,
@@ -55,14 +55,14 @@ const DESTINATIONS: Destination[] = [
     name: "Yala",
     image: "https://images.pexels.com/photos/631317/pexels-photo-631317.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.3690, lng: 81.5180 },
-    span: "md:col-span-2 md:row-span-1",
+    span: "col-span-2 row-span-2 md:col-span-2 md:row-span-1",
   },
   {
     id: 7,
     name: "Ella",
     image: "https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg?auto=compress&cs=tinysrgb&w=800",
     coordinates: { lat: 6.8667, lng: 81.0466 },
-    span: "col-span-1 row-span-1",
+    span: "col-span-1 row-span-1 md:col-span-1 md:row-span-1",
     comingSoon: true,
   },
   {
@@ -214,15 +214,15 @@ export default function DestinationsPage() {
   return (
     <div className="w-full bg-gray-50">
       <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
-        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
-          <div className="mb-8">
+        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-4 md:py-6 pb-24 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
+          <div className="mb-4 md:mb-6">
             <h1 className="text-4xl font-bold text-zinc-900">Explore Sri Lanka</h1>
             <p className="text-zinc-500 mt-2 text-base">
               Select a destination to filter experiences and live itineraries.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 grid-flow-row-dense auto-rows-[240px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 grid-flow-row-dense auto-rows-[108px] md:auto-rows-[160px] lg:auto-rows-[180px]">
             {DESTINATIONS.map((dest) => {
               const count = activityCounts[dest.name] ?? 0;
               const isActive = activeLocation?.lat === dest.coordinates.lat && activeLocation?.lng === dest.coordinates.lng;
@@ -247,7 +247,7 @@ export default function DestinationsPage() {
                       setActiveLocation(dest.coordinates);
                     }
                   }}
-                  className={`relative h-full min-h-0 rounded-3xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span} ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
+                  className={`relative h-full min-h-0 rounded-2xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span} ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -257,9 +257,9 @@ export default function DestinationsPage() {
                   />
                   <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                  <div className="absolute bottom-4 left-4 right-4 z-10">
-                    <h2 className="text-white text-lg md:text-2xl font-bold drop-shadow-md">{dest.name}</h2>
-                    <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-md border border-white/30 text-white">
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
+                    <h2 className="text-white text-sm md:text-lg font-bold drop-shadow-md leading-tight">{dest.name}</h2>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-white/20 backdrop-blur-md border border-white/30 text-white">
                       {countLabel}
                     </span>
                   </div>
