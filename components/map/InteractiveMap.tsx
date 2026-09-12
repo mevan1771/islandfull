@@ -34,6 +34,7 @@ interface InteractiveMapProps {
   dynamicCategories?: any[]
   currentVertical?: string
   isDestinationMode?: boolean
+  onMapReady?: (map: mapboxgl.Map | null) => void
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -46,14 +47,17 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, onMapReady }: InteractiveMapProps) {
   const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
   const markersRef = useRef<{ [id: string]: MarkerRef }>({})
+  const onMapReadyRef = useRef(onMapReady)
+  onMapReadyRef.current = onMapReady
 
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("all")
+  const [mapReady, setMapReady] = useState(false)
   const { favorites } = useFavorites()
 
   // Setup Mapbox STRICTLY ONCE
@@ -86,6 +90,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     })
 
     mapInstance.current = map
+    onMapReadyRef.current?.(map)
+    setMapReady(true)
 
     const observer = new ResizeObserver(() => {
       map.resize()
@@ -94,8 +100,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     return () => {
       observer.disconnect()
+      Object.values(markersRef.current).forEach(({ marker }) => marker.remove())
+      markersRef.current = {}
+      onMapReadyRef.current?.(null)
       mapInstance.current?.remove()
       mapInstance.current = null
+      setMapReady(false)
     }
   }, []) // Empty dependency array guarantees it never tears down on state changes
 
@@ -113,32 +123,32 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     })
   }, [isDestinationMode])
 
-  // Initialize Markers ONCE
+  // Create / refresh markers whenever the map is ready and tour data arrives
   useEffect(() => {
-    if (!mapInstance.current) return
+    if (!mapReady || !mapInstance.current) return
     const map = mapInstance.current
 
-    // Only create markers if we haven't already
-    if (Object.keys(markersRef.current).length === 0 && tours.length > 0) {
-      tours.forEach(tour => {
-        const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location, tour.id)
-        if (!coords) return
+    Object.values(markersRef.current).forEach(({ marker }) => marker.remove())
+    markersRef.current = {}
 
-        const el = document.createElement('div')
+    tours.forEach(tour => {
+      const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location, tour.id)
+      if (!coords) return
 
-        el.addEventListener('click', (e) => {
-          e.stopPropagation()
-          handleMarkerClick({ ...tour, coords })
-        })
+      const el = document.createElement('div')
 
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([coords.lng, coords.lat])
-          .addTo(map)
-
-        markersRef.current[tour.id] = { marker, el, tour, coords }
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        handleMarkerClick({ ...tour, coords })
       })
-    }
-  }, [tours, handleMarkerClick])
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([coords.lng, coords.lat])
+        .addTo(map)
+
+      markersRef.current[tour.id] = { marker, el, tour, coords }
+    })
+  }, [tours, handleMarkerClick, mapReady])
 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
@@ -230,7 +240,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
       el.innerHTML = markerHTML
     })
-  }, [activeCategory, selectedTour, favorites, isDestinationMode])
+  }, [activeCategory, selectedTour, favorites, isDestinationMode, tours, mapReady])
 
   if (!MAPBOX_TOKEN) {
     return (

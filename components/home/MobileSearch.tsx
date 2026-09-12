@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
 import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
+import locationPin from "@/components/ui/Location icon/354556546.jpg"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
@@ -202,9 +205,24 @@ export function MobileSearch() {
               type="button"
               onClick={() => router.push('/map')}
               className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+              aria-label="Explore map"
             >
               <span className="text-[1.1rem]">🌍</span>
             </button>
+
+            <Link
+              href="/destinations"
+              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+              aria-label="Destinations"
+            >
+              <Image
+                src={locationPin}
+                alt=""
+                width={20}
+                height={20}
+                className="w-5 h-5 object-contain"
+              />
+            </Link>
 
             {/* Filter / Sort Button */}
             <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">

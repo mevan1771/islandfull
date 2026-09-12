@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client"
+
+import { useEffect, useRef, useState } from "react";
 import { MapClientWrapper } from "@/components/map/MapClientWrapper";
 import type { MapTour } from "@/components/map/InteractiveMap";
 import { supabase } from "@/lib/supabase";
@@ -7,6 +9,8 @@ type Destination = {
   id: number;
   name: string;
   image: string;
+  coordinates: { lat: number; lng: number };
+  gridSpan: string;
   comingSoon?: boolean;
 };
 
@@ -15,66 +19,90 @@ const DESTINATIONS: Destination[] = [
     id: 1,
     name: "Galle",
     image: "https://images.pexels.com/photos/319892/pexels-photo-319892.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.0535, lng: 80.2210 },
+    gridSpan: "md:col-span-2 md:row-span-2",
   },
   {
     id: 2,
     name: "Sigiriya",
     image: "https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 7.9570, lng: 80.7603 },
+    gridSpan: "md:col-span-2 md:row-span-1",
   },
   {
     id: 3,
     name: "Kandy",
     image: "https://images.pexels.com/photos/322437/pexels-photo-322437.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 7.2906, lng: 80.6337 },
+    gridSpan: "col-span-1 md:row-span-2",
   },
   {
     id: 4,
     name: "Hikkaduwa",
     image: "https://images.pexels.com/photos/7400676/pexels-photo-7400676.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.1408, lng: 80.1014 },
+    gridSpan: "col-span-1 row-span-1",
   },
   {
     id: 5,
     name: "Weligama",
     image: "https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 5.9735, lng: 80.4297 },
+    gridSpan: "col-span-1 row-span-1",
   },
   {
     id: 6,
     name: "Yala",
     image: "https://images.pexels.com/photos/631317/pexels-photo-631317.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.3690, lng: 81.5180 },
+    gridSpan: "col-span-1 row-span-1",
   },
   {
     id: 7,
     name: "Ella",
     image: "https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.8667, lng: 81.0466 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
     id: 8,
     name: "Mirissa",
     image: "https://images.pexels.com/photos/457882/pexels-photo-457882.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 5.9483, lng: 80.4714 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
     id: 9,
     name: "Colombo",
     image: "https://images.pexels.com/photos/1549326/pexels-photo-1549326.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.9271, lng: 79.8612 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
     id: 10,
     name: "Trincomalee",
     image: "https://images.pexels.com/photos/1078983/pexels-photo-1078983.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 8.5874, lng: 81.2152 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
     id: 11,
     name: "Nuwara Eliya",
     image: "https://images.pexels.com/photos/1591373/pexels-photo-1591373.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.9497, lng: 80.7891 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
   {
     id: 12,
     name: "Arugam Bay",
     image: "https://images.pexels.com/photos/390051/surfer-wave-sunset-the-indian-ocean-390051.jpeg?auto=compress&cs=tinysrgb&w=800",
+    coordinates: { lat: 6.8404, lng: 81.8363 },
+    gridSpan: "col-span-1 row-span-1",
     comingSoon: true,
   },
 ];
@@ -114,103 +142,155 @@ function toMapTour(activity: any): MapTour {
   };
 }
 
-export default async function DestinationsPage() {
-  let mapTours: MapTour[] = [];
-  const activityCounts: Record<string, number> = {};
+export default function DestinationsPage() {
+  const [activeLocation, setActiveLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [mapTours, setMapTours] = useState<MapTour[]>([]);
+  const [activityCounts, setActivityCounts] = useState<Record<string, number>>({});
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const listScrollRef = useRef(0);
 
-  try {
-    const { data: activities, error } = await supabase
-      .from("activities")
-      .select("id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug)), reviews(rating)")
-      .eq("status", "published")
-      .eq("is_paused_by_host", false);
+  useEffect(() => {
+    let cancelled = false;
 
-    if (error) {
-      console.error("Failed to fetch destination activities:", error);
-    }
+    async function loadActivities() {
+      try {
+        const { data: activities, error } = await supabase
+          .from("activities")
+          .select("id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug)), reviews(rating)")
+          .eq("status", "published")
+          .eq("is_paused_by_host", false);
 
-    if (activities) {
-      for (const dest of DESTINATIONS) {
-        const key = dest.name.toLowerCase();
-        activityCounts[dest.name] = activities.filter((a) =>
-          (a.location || "").toLowerCase().includes(key)
-        ).length;
+        if (error) {
+          console.error("Failed to fetch destination activities:", error);
+          return;
+        }
+
+        if (cancelled || !activities) return;
+
+        const counts: Record<string, number> = {};
+        for (const dest of DESTINATIONS) {
+          const key = dest.name.toLowerCase();
+          counts[dest.name] = activities.filter((a) =>
+            (a.location || "").toLowerCase().includes(key)
+          ).length;
+        }
+
+        setActivityCounts(counts);
+        setMapTours(activities.map(toMapTour));
+      } catch (e) {
+        console.error("Failed to fetch destination activities:", e);
       }
-
-      mapTours = activities.map(toMapTour);
     }
-  } catch (e) {
-    console.error("Failed to fetch destination activities:", e);
-  }
+
+    loadActivities();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const isMobileMap = mobileView === "map" && window.matchMedia("(max-width: 1023px)").matches;
+    if (!isMobileMap) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileView]);
+
+  const showMobileMap = () => {
+    listScrollRef.current = window.scrollY;
+    setMobileView("map");
+  };
+
+  const showMobileList = () => {
+    setMobileView("list");
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: listScrollRef.current, behavior: "auto" });
+    });
+  };
 
   return (
-    <div className="w-full bg-zinc-50">
-      <div className="mx-auto w-full max-w-[1600px] px-4 md:px-8 py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,42vw)] xl:grid-cols-[minmax(0,1fr)_520px] gap-6 lg:gap-8 items-start">
-          <section className="min-w-0">
-            <div className="mb-8">
-              <h1 className="text-4xl font-black tracking-tight text-zinc-900">Explore Sri Lanka</h1>
-              <p className="text-zinc-500 mt-2 text-base">
-                Select a destination to filter experiences and live itineraries.
-              </p>
-            </div>
+    <div className="w-full bg-gray-50">
+      <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
+        <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-zinc-900">Explore Sri Lanka</h1>
+            <p className="text-zinc-500 mt-2 text-base">
+              Select a destination to filter experiences and live itineraries.
+            </p>
+          </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-              {DESTINATIONS.map((dest) => {
-                const count = activityCounts[dest.name] ?? 0;
-                const label = dest.comingSoon
-                  ? "Coming soon"
-                  : `${count} ${count === 1 ? "Activity" : "Activities"}`;
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            {DESTINATIONS.map((dest) => {
+              const count = activityCounts[dest.name] ?? 0;
+              const isActive = activeLocation?.lat === dest.coordinates.lat && activeLocation?.lng === dest.coordinates.lng;
+              const countLabel = dest.comingSoon
+                ? "Coming soon"
+                : `${count} ${count === 1 ? "Activity" : "Activities"}`;
 
-                const cardClassName = "relative block aspect-[4/3] overflow-hidden rounded-3xl shadow-md bg-zinc-900";
+              return (
+                <div
+                  key={dest.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    setActiveLocation(dest.coordinates);
+                    if (window.matchMedia("(max-width: 1023px)").matches) {
+                      showMobileMap();
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setActiveLocation(dest.coordinates);
+                    }
+                  }}
+                  className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow group cursor-pointer ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={dest.image}
+                    alt={dest.name}
+                    className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 transition-transform duration-500 ease-out group-hover:scale-105 ${dest.comingSoon ? "grayscale-[35%]" : ""}`}
+                  />
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                const content = (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={dest.image}
-                      alt={dest.name}
-                      className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 ${dest.comingSoon ? "grayscale-[35%] scale-100" : "transform transition-transform duration-700 group-hover:scale-105"}`}
-                    />
-                    <div className={`absolute inset-0 pointer-events-none ${dest.comingSoon ? "bg-gradient-to-t from-black/85 via-black/40 to-black/10" : "bg-gradient-to-t from-black/80 via-black/20 to-transparent"}`} />
+                  <div className="absolute bottom-4 left-4 right-4 z-10">
+                    <h2 className="text-white text-lg md:text-2xl font-bold drop-shadow-md">{dest.name}</h2>
+                    <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-md border border-white/30 text-white">
+                      {countLabel}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
-                    <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
-                      <h2 className="text-white text-lg md:text-2xl font-bold drop-shadow-md">{dest.name}</h2>
-                      <span className={`inline-block mt-2 px-3 py-1 backdrop-blur-md border rounded-full text-xs font-medium ${dest.comingSoon ? "bg-white/10 border-white/20 text-white/80" : "bg-white/20 border-white/30 text-white"}`}>
-                        {label}
-                      </span>
-                    </div>
-                  </>
-                );
-
-                if (dest.comingSoon) {
-                  return (
-                    <div key={dest.id} className={`${cardClassName} cursor-default`}>
-                      {content}
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={dest.id}
-                    href={`/?location=${encodeURIComponent(dest.name)}`}
-                    className={`${cardClassName} transition-all duration-500 group hover:shadow-2xl hover:-translate-y-0.5`}
-                  >
-                    {content}
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-
-          <aside className="relative isolate w-full h-[280px] lg:h-[calc(100vh-7rem)] lg:sticky lg:top-24 overflow-hidden rounded-3xl shadow-2xl border-4 border-zinc-900 bg-zinc-900" data-lenis-prevent>
-            <div className="absolute inset-0">
-              <MapClientWrapper tours={mapTours} isDestinationMode />
-            </div>
-          </aside>
-        </div>
+        <aside
+          className={`${mobileView === "map" ? "fixed inset-0 z-30" : "hidden"} lg:relative lg:inset-auto lg:z-auto lg:block lg:w-[42%] lg:shrink-0 lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          data-lenis-prevent
+        >
+          <div className="absolute inset-0">
+            <MapClientWrapper
+              tours={mapTours}
+              isDestinationMode
+              activeLocation={activeLocation}
+              resizeToken={mobileView}
+            />
+          </div>
+        </aside>
       </div>
+
+      <button
+        type="button"
+        onClick={mobileView === "list" ? showMobileMap : showMobileList}
+        className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-zinc-900 text-white shadow-xl px-5 py-3 rounded-full flex items-center gap-2 text-sm font-semibold hover:scale-105 transition-all"
+      >
+        {mobileView === "list" ? "🗺️ Map" : "📋 List"}
+      </button>
     </div>
   );
 }
