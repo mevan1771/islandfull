@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const useNativeScroll = pathname === '/destinations' || pathname === '/map'
+  const useNativeScroll = pathname === '/map'
 
   return (
     <ReactLenis

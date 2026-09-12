@@ -130,12 +130,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     mapInstance.current?.stop()
     mapInstance.current?.flyTo({
       center: [tour.coords.lng, tour.coords.lat],
-      zoom: isDestinationMode ? 9.2 : 11,
+      zoom: isDestinationMode ? 12 : 11,
       pitch: 0,
-      duration: isDestinationMode ? 2800 : 2000,
+      duration: isDestinationMode ? 1400 : 2000,
       essential: true,
-      curve: isDestinationMode ? 1.8 : 1.42,
-      offset: isDestinationMode ? [0, 0] : [0, -150]
+      curve: isDestinationMode ? 1.4 : 1.42,
+      offset: isDestinationMode ? [0, -160] : [0, -150]
     })
   }, [isDestinationMode])
 
@@ -294,12 +294,11 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       />
 
       {/* Render the drawer completely outside the map canvas layer */}
-      {!isDestinationMode && (
-        <MapPreviewDrawer
-          tour={selectedTour}
-          onClose={() => setSelectedTour(null)}
-        />
-      )}
+      <MapPreviewDrawer
+        tour={selectedTour}
+        onClose={() => setSelectedTour(null)}
+        contained={isDestinationMode}
+      />
 
     </div>
   )

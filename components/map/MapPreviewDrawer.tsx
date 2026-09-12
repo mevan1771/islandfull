@@ -10,23 +10,20 @@ import { FavoriteButton } from "@/components/ui/FavoriteButton"
 interface MapPreviewDrawerProps {
   tour: MapTour | null
   onClose: () => void
+  contained?: boolean
 }
 
-export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
+export function MapPreviewDrawer({ tour, onClose, contained = false }: MapPreviewDrawerProps) {
   const [currentTour, setCurrentTour] = useState<MapTour | null>(tour)
   const [isAnimating, setIsAnimating] = useState(false)
 
-  // Handle smooth transition between tours
   useEffect(() => {
     if (tour?.id !== currentTour?.id) {
       if (!tour) {
-        // closing
         setCurrentTour(null)
       } else if (!currentTour) {
-        // opening from null
         setCurrentTour(tour)
       } else {
-        // switching tours
         setIsAnimating(true)
         const timer = setTimeout(() => {
           setCurrentTour(tour)
@@ -38,18 +35,18 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
   }, [tour, currentTour?.id])
 
   return (
-    <div 
-      className={`fixed bottom-0 left-0 right-0 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 p-4 pb-24 md:pb-6 md:p-6 flex justify-center md:justify-start pointer-events-none transition-transform duration-500 ease-out z-[100] w-full md:w-[420px]
-        ${tour ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'}
+    <div
+      className={`flex pointer-events-none transition-transform duration-500 ease-out z-[100]
+        ${contained
+          ? "absolute inset-x-0 bottom-0 p-3 pb-20 lg:p-4 lg:pb-4 justify-center w-full"
+          : "fixed bottom-0 left-0 right-0 p-4 pb-24 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 md:p-6 md:pb-6 md:justify-start w-full md:w-[420px]"}
+        ${tour ? "translate-y-0 opacity-100" : "translate-y-[150%] opacity-0"}
       `}
     >
       {currentTour && (
-        <div className={`bg-white rounded-3xl shadow-2xl w-full max-w-sm md:max-w-none pointer-events-auto overflow-hidden flex flex-col transform transition-opacity duration-300 relative ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-          
-          {/* Cover Image */}
-          <div className="relative w-full h-48 md:h-[220px] min-h-[200px] md:min-h-0">
-            {/* Close Button */}
-            <button 
+        <div className={`bg-white rounded-3xl shadow-2xl w-full ${contained ? "" : "max-w-sm md:max-w-none"} pointer-events-auto overflow-hidden flex flex-col transform transition-opacity duration-300 relative ${isAnimating ? "opacity-0" : "opacity-100"}`}>
+          <div className={`relative w-full ${contained ? "h-44 lg:h-[200px]" : "h-48 md:h-[220px] min-h-[200px] md:min-h-0"}`}>
+            <button
               onClick={onClose}
               className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-zinc-600 rounded-full backdrop-blur-md sm:backdrop-blur-none transition-colors shadow-sm border-transparent sm:border sm:border-zinc-200"
             >
@@ -62,55 +59,50 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
-            
-            {/* Favorite Button explicitly spaced to the left of the close button using !important overrides */}
+            <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent ${contained ? "lg:hidden" : "md:hidden"}`} />
+
             <FavoriteButton activityId={currentTour.id} className="!right-14 sm:!right-16" />
 
-            {/* Mobile Title overlay */}
-            <div className="absolute bottom-3 left-4 text-white md:hidden">
+            <div className={`absolute bottom-3 left-4 right-12 text-white ${contained ? "lg:hidden" : "md:hidden"}`}>
               <p className="text-sm font-medium opacity-90">{currentTour.location}</p>
               <h3 className="text-xl font-bold leading-tight">{currentTour.title}</h3>
             </div>
           </div>
 
-          {/* Details */}
-          <div className="p-4 md:p-6 bg-white flex-1 flex flex-col justify-between max-h-[50vh] md:max-h-[60vh] overflow-y-auto hide-scrollbar">
+          <div className={`p-4 bg-white flex-1 flex flex-col justify-between overflow-y-auto hide-scrollbar ${contained ? "lg:p-5 max-h-[42vh] lg:max-h-[min(52vh,420px)]" : "md:p-6 max-h-[50vh] md:max-h-[60vh]"}`}>
             <div>
-              <div className="hidden md:block mb-4">
-                 <p className="text-sm font-bold text-rose-500 uppercase tracking-wide mb-1">{currentTour.location}</p>
-                 <h3 className="text-2xl font-bold leading-tight text-zinc-900 mb-2">{currentTour.title}</h3>
-                 
-                 {/* Host Info */}
-                 {currentTour.hostName && (
-                   <div className="flex items-center gap-2 mb-3">
-                     <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center">
-                       <User className="w-3.5 h-3.5 text-rose-600" />
-                     </div>
-                     <span className="text-sm font-medium text-zinc-700">Hosted by {currentTour.hostName}</span>
-                   </div>
-                 )}
+              <div className={contained ? "hidden lg:block mb-4" : "hidden md:block mb-4"}>
+                <p className="text-sm font-bold text-rose-500 uppercase tracking-wide mb-1">{currentTour.location}</p>
+                <h3 className="text-2xl font-bold leading-tight text-zinc-900 mb-2">{currentTour.title}</h3>
 
-                 <p className="text-sm text-zinc-500 line-clamp-3 mb-4">{currentTour.description || "Discover this unforgettable experience."}</p>
-                 
-                 {/* Inclusions */}
-                 {currentTour.inclusions && currentTour.inclusions.length > 0 && (
-                   <div className="mb-4">
-                     <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">What's Included</h4>
-                     <ul className="grid grid-cols-2 gap-y-1.5 gap-x-2">
-                       {currentTour.inclusions.slice(0, 4).map((inc, i) => (
-                         <li key={i} className="text-xs text-zinc-600 flex items-start gap-1.5">
-                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                           <span className="line-clamp-1">{inc}</span>
-                         </li>
-                       ))}
-                     </ul>
-                   </div>
-                 )}
+                {currentTour.hostName && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center">
+                      <User className="w-3.5 h-3.5 text-rose-600" />
+                    </div>
+                    <span className="text-sm font-medium text-zinc-700">Hosted by {currentTour.hostName}</span>
+                  </div>
+                )}
+
+                <p className="text-sm text-zinc-500 line-clamp-3 mb-4">{currentTour.description || "Discover this unforgettable experience."}</p>
+
+                {currentTour.inclusions && currentTour.inclusions.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">What's Included</h4>
+                    <ul className="grid grid-cols-2 gap-y-1.5 gap-x-2">
+                      {currentTour.inclusions.slice(0, 4).map((inc, i) => (
+                        <li key={i} className="text-xs text-zinc-600 flex items-start gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                          <span className="line-clamp-1">{inc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between mb-4 md:mb-6 md:mt-2 md:border-t md:border-zinc-100 md:pt-4">
-                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 text-sm text-zinc-600">
+              <div className={`flex items-center justify-between mb-4 ${contained ? "lg:mb-5 lg:mt-2 lg:border-t lg:border-zinc-100 lg:pt-4" : "md:mb-6 md:mt-2 md:border-t md:border-zinc-100 md:pt-4"}`}>
+                <div className={`flex gap-1 text-sm text-zinc-600 ${contained ? "flex-col lg:flex-row lg:items-center lg:gap-4" : "flex-col md:flex-row md:items-center md:gap-4"}`}>
                   <div className="flex items-center gap-1">
                     {!currentTour.reviewCount ? (
                       <>
@@ -132,12 +124,12 @@ export function MapPreviewDrawer({ tour, onClose }: MapPreviewDrawerProps) {
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-zinc-500 block">From</span>
-                  <p className="text-lg md:text-2xl font-bold text-zinc-900">${currentTour.price_usd}</p>
+                  <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-2xl" : "text-lg md:text-2xl"}`}>${currentTour.price_usd}</p>
                 </div>
               </div>
             </div>
 
-            <Link 
+            <Link
               href={`/activity/${currentTour.slug || currentTour.id}`}
               className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black text-white py-3.5 rounded-xl font-semibold transition-colors mt-2 flex-shrink-0"
             >
