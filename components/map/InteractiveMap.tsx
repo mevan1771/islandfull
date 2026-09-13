@@ -57,8 +57,13 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("all")
+  const [destinationVertical, setDestinationVertical] = useState<string>("all")
   const [mapReady, setMapReady] = useState(false)
   const { favorites } = useFavorites()
+  const vertical = isDestinationMode ? destinationVertical : currentVertical
+  const barCategories = isDestinationMode
+    ? dynamicCategories.filter((category) => category.category_type === destinationVertical)
+    : dynamicCategories
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -169,14 +174,19 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
     Object.values(markersRef.current).forEach(({ el, tour }) => {
-      // Filter logic (using slugs and favorites)
-      let isVisible = false;
-      if (activeCategory === "all") {
-        isVisible = true;
-      } else if (activeCategory === "saved") {
-        isVisible = favorites.includes(tour.id);
-      } else {
-        isVisible = tour.category === activeCategory || (!!tour.tags && tour.tags.includes(activeCategory));
+      // Filter logic (using slugs, favorites, and destination verticals)
+      let isVisible = true
+      if (isDestinationMode && destinationVertical !== "all") {
+        isVisible = tour.category_type === destinationVertical
+      }
+      if (isVisible) {
+        if (activeCategory === "all") {
+          isVisible = true
+        } else if (activeCategory === "saved") {
+          isVisible = favorites.includes(tour.id)
+        } else {
+          isVisible = tour.category === activeCategory || (!!tour.tags && tour.tags.includes(activeCategory))
+        }
       }
       el.style.display = isVisible ? 'block' : 'none'
 
@@ -203,9 +213,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
         markerHTML = `
           <div class="${innerClass}">
-            ${!isDestinationMode ? `<div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-' + themeColor + ' text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-' + themeColor + ' text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
               $${tour.price_usd}
-            </div>` : ''}
+            </div>
             <div class="w-14 h-14 rounded-full overflow-hidden border-2 transition-colors ${isSelected ? 'border-' + themeColor : 'border-white'}">
               <img src="${optimizedImageUrl}" alt="${tour.title}" class="w-full h-full object-cover" loading="lazy" width="56" height="56" />
             </div>
@@ -256,7 +266,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
       el.innerHTML = markerHTML
     })
-  }, [activeCategory, selectedTour, favorites, isDestinationMode, tours, mapReady])
+  }, [activeCategory, selectedTour, favorites, isDestinationMode, destinationVertical, tours, mapReady])
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -272,16 +282,23 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
       {/* Category Filter Bar (Floating on bottom) */}
-      {!isDestinationMode && (
+      <div className={isDestinationMode ? "lg:hidden" : undefined}>
         <MapFilterBar
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
           isTourSelected={!!selectedTour}
-          dynamicCategories={dynamicCategories}
-          currentVertical={currentVertical}
-          onVerticalChange={(v) => router.push('?vertical=' + v)}
+          dynamicCategories={barCategories}
+          currentVertical={vertical}
+          onVerticalChange={(v) => {
+            if (isDestinationMode) {
+              setDestinationVertical(v)
+              setActiveCategory("all")
+              return
+            }
+            router.push("?vertical=" + v)
+          }}
         />
-      )}
+      </div>
 
       {/* Strict isolation for Mapbox Canvas — fill the parent so embed/sidebar layouts get a real size */}
       <div

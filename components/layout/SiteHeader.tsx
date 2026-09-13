@@ -51,12 +51,19 @@ export default function SiteHeader() {
     const isTripsPage = pathname?.startsWith('/trips')
 
     const isMapPage = pathname === '/map'
+    const isSupportPage = [
+        '/help',
+        '/cancellation-policy',
+        '/contact',
+        '/legal',
+        '/list-your-tour',
+    ].includes(pathname || '')
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
     const shouldForceDarkTextDesktop = isHomePage && isScrolled
-    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
-    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage ? true : (isStandardPage ? true : useDarkTextMobile))
+    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
+    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
     const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
@@ -66,7 +73,7 @@ export default function SiteHeader() {
     const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
-    const headerClasses = isDestinationsPage
+    const headerClasses = isDestinationsPage || isSupportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white shadow-sm"
         : isActivityPage
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
@@ -126,16 +133,43 @@ export default function SiteHeader() {
                 </div>
 
                 {/* Desktop Navigation */}
-                <nav className={`hidden md:flex items-center gap-8 text-sm font-medium ${textColor}`}>
-                    <Link
-                        href="/"
-                        className={`${hoverColor} transition-colors cursor-pointer`}
-                    >
-                        Home
-                    </Link>
-                    <Link href="/destinations" className={`${hoverColor} transition-colors`}>Destinations</Link>
-                    <Link href="/trips" className={`${hoverColor} transition-colors`}>Trips</Link>
-                    <Link href="/about-us" className={`${hoverColor} transition-colors`}>About Us</Link>
+                <nav
+                    className={`hidden md:flex items-center text-sm ${
+                        isHomePage && !isScrolled
+                            ? "gap-0.5 rounded-full bg-white/90 backdrop-blur-md px-1.5 py-1 shadow-lg shadow-black/10 font-semibold text-slate-800"
+                            : `gap-8 font-medium ${textColor}`
+                    }`}
+                >
+                    {[
+                        { href: "/", label: "Home" },
+                        { href: "/destinations", label: "Destinations" },
+                        { href: "/trips", label: "Trips" },
+                        { href: "/about-us", label: "About Us" },
+                    ].map((item) => {
+                        const isActive =
+                            item.href === "/"
+                                ? pathname === "/"
+                                : pathname?.startsWith(item.href)
+                        const overlay = isHomePage && !isScrolled
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={
+                                    overlay
+                                        ? `px-4 py-1.5 rounded-full transition-colors ${
+                                              isActive
+                                                  ? "bg-zinc-900 text-white"
+                                                  : "hover:bg-zinc-100"
+                                          }`
+                                        : `${hoverColor} transition-colors`
+                                }
+                            >
+                                {item.label}
+                            </Link>
+                        )
+                    })}
                 </nav>
 
                 <div className="flex items-center gap-4 ">

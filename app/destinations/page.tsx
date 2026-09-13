@@ -115,11 +115,19 @@ function toMapTour(activity: any): MapTour {
     reviewCount = activity.reviews.length;
   }
 
-  const tags = Array.isArray(activity.categories)
+  const primaryTags = Array.isArray(activity.categories)
     ? activity.categories.map((c: any) => c.slug)
     : activity.categories?.slug
       ? [activity.categories.slug]
       : [];
+  const junctionTags = Array.isArray(activity.activity_categories)
+    ? activity.activity_categories.flatMap((row: any) => {
+        const cat = row.categories;
+        if (!cat) return [];
+        return Array.isArray(cat) ? cat.map((c: any) => c.slug) : [cat.slug];
+      }).filter(Boolean)
+    : [];
+  const tags = [...new Set([...primaryTags, ...junctionTags])];
 
   return {
     id: activity.id,
@@ -145,6 +153,7 @@ function toMapTour(activity: any): MapTour {
 export default function DestinationsPage() {
   const [activeLocation, setActiveLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mapTours, setMapTours] = useState<MapTour[]>([]);
+  const [mapCategories, setMapCategories] = useState<{ name: string; slug: string; category_type: string }[]>([]);
   const [activityCounts, setActivityCounts] = useState<Record<string, number>>({});
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
   const listScrollRef = useRef(0);
@@ -154,11 +163,18 @@ export default function DestinationsPage() {
 
     async function loadActivities() {
       try {
-        const { data: activities, error } = await supabase
-          .from("activities")
-          .select("id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug)), reviews(rating)")
-          .eq("status", "published")
-          .eq("is_paused_by_host", false);
+        const [{ data: activities, error }, { data: categories }] = await Promise.all([
+          supabase
+            .from("activities")
+            .select("id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug)), reviews(rating)")
+            .eq("status", "published")
+            .eq("is_paused_by_host", false),
+          supabase
+            .from("categories")
+            .select("name, slug, category_type")
+            .order("sort_order", { ascending: true })
+            .order("name"),
+        ]);
 
         if (error) {
           console.error("Failed to fetch destination activities:", error);
@@ -177,6 +193,7 @@ export default function DestinationsPage() {
 
         setActivityCounts(counts);
         setMapTours(activities.map(toMapTour));
+        setMapCategories(categories || []);
       } catch (e) {
         console.error("Failed to fetch destination activities:", e);
       }
@@ -302,6 +319,7 @@ export default function DestinationsPage() {
           <div className="absolute inset-0">
             <MapClientWrapper
               tours={mapTours}
+              dynamicCategories={mapCategories}
               isDestinationMode
               activeLocation={activeLocation}
               resizeToken={mobileView}
@@ -309,14 +327,6 @@ export default function DestinationsPage() {
           </div>
         </aside>
       </div>
-
-      <button
-        type="button"
-        onClick={mobileView === "list" ? showMobileMap : showMobileList}
-        className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-zinc-900 text-white shadow-xl px-5 py-3 rounded-full flex items-center gap-2 text-sm font-semibold hover:scale-105 transition-all"
-      >
-        {mobileView === "list" ? "🗺️ Map" : "📋 List"}
-      </button>
     </div>
   );
 }

@@ -20,23 +20,19 @@ export default function SiteFooter() {
           <div>
             <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Support</h3>
             <ul className="space-y-2 md:space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Help Center</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Safety Information</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cancellation Options</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">COVID-19 Resources</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Contact Us</Link></li>
+              <li><Link href="/help" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Help Center</Link></li>
+              <li><Link href="/cancellation-policy" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Cancellation Policy</Link></li>
+              <li><Link href="/contact" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Contact Us</Link></li>
+              <li><Link href="/legal" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Terms & Privacy</Link></li>
             </ul>
           </div>
 
-          {/* Column 3: Community & Hosting */}
+          {/* Column 3: Partner With Us */}
           <div>
-            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Community & Hosting</h3>
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Partner With Us</h3>
             <ul className="space-y-2 md:space-y-3">
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">List Your Tour</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Host Community</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Responsible Tourism</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Partner Hub</Link></li>
-              <li><Link href="#" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Community Policies</Link></li>
+              <li><Link href="/list-your-tour" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">List Your Tour</Link></li>
+              <li><Link href="/host/login" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Partner Login</Link></li>
             </ul>
           </div>
 
