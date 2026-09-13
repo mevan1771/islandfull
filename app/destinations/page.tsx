@@ -266,11 +266,11 @@ export default function DestinationsPage() {
                     alt={dest.name}
                     className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 transition-transform duration-500 ease-out group-hover:scale-105 ${dest.comingSoon ? "grayscale-[35%]" : ""}`}
                   />
-                  <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-t from-black/70 to-transparent" />
 
                   <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
-                    <h2 className="text-white text-sm md:text-lg font-bold drop-shadow-md leading-tight">{dest.name}</h2>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-white/20 backdrop-blur-md border border-white/30 text-white">
+                    <h2 className="text-white text-sm md:text-lg font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">{dest.name}</h2>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-black/35 md:bg-white/20 backdrop-blur-md border border-white/30 text-white">
                       {countLabel}
                     </span>
                   </div>
