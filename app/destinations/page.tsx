@@ -237,9 +237,6 @@ export default function DestinationsPage() {
             {DESTINATIONS.map((dest) => {
               const count = activityCounts[dest.name] ?? 0;
               const isActive = activeLocation?.lat === dest.coordinates.lat && activeLocation?.lng === dest.coordinates.lng;
-              const countLabel = dest.comingSoon
-                ? "Coming soon"
-                : `${count} ${count === 1 ? "Activity" : "Activities"}`;
 
               return (
                 <div
@@ -258,7 +255,8 @@ export default function DestinationsPage() {
                       setActiveLocation(dest.coordinates);
                     }
                   }}
-                  className={`relative h-full min-h-0 rounded-2xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span} ${isActive ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-gray-50" : ""}`}
+                  aria-label={`${dest.name}${dest.comingSoon ? ", coming soon" : `, ${count} ${count === 1 ? "activity" : "activities"}`}`}
+                  className={`relative h-full min-h-0 rounded-2xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -268,11 +266,28 @@ export default function DestinationsPage() {
                   />
                   <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-t from-black/70 to-transparent" />
 
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10">
-                    <h2 className="text-white text-sm md:text-lg font-bold drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">{dest.name}</h2>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-black/35 md:bg-white/20 backdrop-blur-md border border-white/30 text-white">
-                      {countLabel}
+                  <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center gap-1.5 min-w-0">
+                    <span
+                      className={`shrink-0 inline-block uppercase font-bold tracking-wider rounded-full px-2.5 py-1 md:px-3 text-[10px] md:text-xs shadow-sm transition-colors ${
+                        isActive
+                          ? "bg-rose-500 text-white"
+                          : "bg-white/90 text-zinc-900"
+                      }`}
+                    >
+                      {dest.name}
                     </span>
+                    {dest.comingSoon ? (
+                      <span className="shrink-0 text-[10px] md:text-[11px] font-semibold text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                        Soon
+                      </span>
+                    ) : (
+                      <span
+                        className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white text-zinc-900 text-[10px] font-bold px-1.5 tabular-nums shadow-sm"
+                        aria-hidden
+                      >
+                        {count}
+                      </span>
+                    )}
                   </div>
                 </div>
               );

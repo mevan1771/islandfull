@@ -1,9 +1,8 @@
 import Image from "next/image"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
-import { GlobalHeader } from "@/components/layout/GlobalHeader"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { MapPin, Clock, Users, ArrowLeft, Check } from "lucide-react"
+import { Check } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
@@ -12,14 +11,12 @@ import { ActivityGallery } from "@/components/activity/ActivityGallery"
 import { FaqAccordion } from "@/components/activity/FaqAccordion"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MobileBackButton } from "@/components/ui/MobileBackButton"
-import { DesktopBackButton } from "@/components/ui/DesktopBackButton"
 import { MobilePaddingSetter } from "@/components/activity/MobilePaddingSetter"
 import { getExchangeRate } from "@/app/actions/settings"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
-import { incrementActivityView } from "@/app/actions/tracking"
-import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { ScrollToTop } from "@/components/activity/ScrollToTop"
+import { ActivityMetaBar } from "@/components/activity/ActivityMetaBar"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -49,8 +46,6 @@ export async function generateMetadata(
 
         if (data) {
             activity = data
-            // Fire-and-forget the view tracking (doesn't block render)
-            incrementActivityView(activity.id)
         }
     } catch (err) { }
 
@@ -212,62 +207,24 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
                 <div className="flex-1 space-y-6 md:space-y-12">
 
-                    {/* Quick Info (Mobile Minimalist Row) */}
-                    <div className="flex md:hidden flex-wrap items-center justify-start gap-2 w-full pt-2 pb-4">
-                        <span className="bg-[#fa385f] text-white text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
-                            {activity.location}
-                        </span>
-                        <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
-                            {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests}-${activity.max_capacity} Pax` : `Max ${activity.max_capacity}`}
-                        </span>
-                        {activity.duration && (
-                            <span className="bg-white border border-gray-200 text-gray-700 text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full whitespace-nowrap">
-                                {activity.duration}
-                            </span>
+                    <ActivityMetaBar
+                        tourId={activity.id}
+                        location={activity.location}
+                        duration={activity.duration}
+                        capacityLabel={
+                            activity.min_guests && activity.min_guests > 1
+                                ? `${activity.min_guests}-${activity.max_capacity}`
+                                : `${activity.max_capacity}`
+                        }
+                        initialLikes={activity.like_count || 0}
+                        initialViews={activity.view_count || 0}
+                        dealEndDate={activity.deal_end_date}
+                        hasActiveDeal={Boolean(
+                            activity.discount_price &&
+                            activity.deal_end_date &&
+                            new Date(activity.deal_end_date) > new Date()
                         )}
-
-                        {activity.discount_price && activity.deal_end_date && new Date(activity.deal_end_date) > new Date() && (
-                            <div className="flex items-center gap-1 shrink-0">
-                                <CountdownTimer targetDate={activity.deal_end_date} compact={true} />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Quick Info (Desktop Balloons) */}
-                    <div className="hidden md:flex flex-wrap gap-4 w-full py-2">
-                        <DesktopBackButton />
-                        <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100 flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                <Clock className="w-5 h-5 text-rose-500" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs font-bold text-zinc-400 uppercase">Duration</span>
-                                <span className="text-base font-semibold text-slate-700/80">{activity.duration}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100 flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                <MapPin className="w-5 h-5 text-rose-500" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs font-bold text-zinc-400 uppercase">Location</span>
-                                <span className="text-base font-semibold text-slate-700/80">{activity.location}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 px-5 py-3 bg-zinc-50 rounded-2xl border border-zinc-100 flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                <Users className="w-5 h-5 text-rose-500" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-xs font-bold text-zinc-400 uppercase">Capacity</span>
-                                <span className="text-base font-semibold text-slate-700/80">
-                                    {activity.min_guests && activity.min_guests > 1 ? `${activity.min_guests} - ${activity.max_capacity} Guests` : `Up to ${activity.max_capacity}`}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    />
 
                     {/* Description */}
                     <section>
