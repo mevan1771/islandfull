@@ -737,42 +737,6 @@ export function BookingDrawer({
                     </div>
                   )}
 
-                  {priceUsd > 0 && (
-                    <div className="mt-2 space-y-2">
-                      {showGroupSavings && (
-                        <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-center text-sm font-semibold text-emerald-700">
-                          🎉 Group rate unlocked! You save {formatUSD(groupSavings)}.
-                        </div>
-                      )}
-                      <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100">
-                      {discountUsd > 0 && (
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-emerald-600 font-bold">Promo Discount</span>
-                          <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
-                        </div>
-                      )}
-                      {showGroupSavings && (
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-zinc-400 font-medium line-through">Standard total</span>
-                          <span className="font-medium text-zinc-400 line-through">{formatUSD(standardTotalForStay)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <span className="text-zinc-800 font-bold">Total (USD)</span>
-                        <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, totalUsd - discountUsd))}</span>
-                      </div>
-                      <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
-                        {paymentStrategy === 'deposit_15' && (
-                          <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
-                        )}
-                      </div>
-                    </div>
-                    </div>
-                  )}
-
-
-
                 </div>
               )}
 
@@ -835,9 +799,37 @@ export function BookingDrawer({
 
             {/* Sticky Footer */}
             <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-3 pb-safe">
-              {step === "details" && showGroupSavings && (
-                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-center text-sm font-semibold text-emerald-700">
-                  🎉 Group rate unlocked! You save {formatUSD(groupSavings)}.
+              {step === "details" && priceUsd > 0 && (
+                <div className="space-y-2">
+                  {showGroupSavings && (
+                    <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-center text-sm font-semibold text-emerald-700">
+                      🎉 Group rate unlocked! You save {formatUSD(groupSavings)}.
+                    </div>
+                  )}
+                  <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100">
+                    {discountUsd > 0 && (
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-emerald-600 font-bold">Promo Discount</span>
+                        <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
+                      </div>
+                    )}
+                    {showGroupSavings && (
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-zinc-400 font-medium line-through">Standard total</span>
+                        <span className="font-medium text-zinc-400 line-through">{formatUSD(standardTotalForStay)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-800 font-bold">Total (USD)</span>
+                      <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, actualTotal - discountUsd))}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-0.5">
+                      <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
+                      {paymentStrategy === 'deposit_15' && (
+                        <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
               {step === "details" && (
