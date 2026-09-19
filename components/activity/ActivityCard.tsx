@@ -7,6 +7,7 @@ import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { formatUSD } from "@/lib/utils"
+import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
 interface ActivityCardProps {
   id: string
@@ -24,6 +25,7 @@ interface ActivityCardProps {
   priceSuffix?: string
   discountPrice?: number
   dealEndDate?: string
+  pricingTiers?: Record<string, number> | unknown
 }
 
 function useGpuEntryAnimation<T extends HTMLElement>() {
@@ -73,11 +75,14 @@ export function ActivityCard({
   priceSuffix,
   discountPrice,
   dealEndDate,
+  pricingTiers,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
+  const hasGroupTiers = hasPricingTiers(pricingTiers)
+  const lowestPerPerson = hasGroupTiers ? getLowestPerPersonFromTiers(pricingTiers) : null
 
   useEffect(() => {
     const video = videoRef.current
@@ -197,6 +202,12 @@ export function ActivityCard({
                         <span className="text-xs sm:text-sm font-normal text-gray-500">
                           {priceSuffix ? ` ${priceSuffix}` : ''}
                         </span>
+                      </>
+                    ) : hasGroupTiers && lowestPerPerson != null ? (
+                      <>
+                        <span className="text-xs sm:text-sm font-medium text-gray-500">From</span>
+                        <span className="text-sm sm:text-base font-bold text-gray-900">{formatUSD(lowestPerPerson)}</span>
+                        <span className="text-xs sm:text-sm font-normal text-gray-500"> / person</span>
                       </>
                     ) : (
                       <>

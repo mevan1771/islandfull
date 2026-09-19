@@ -203,7 +203,8 @@ async function ActivityGridServer({ searchParams, currentCategory }: { searchPar
           rating: rating,
           reviewCount: d.reviews ? d.reviews.length : 0,
           pricingModel: d.pricing_model,
-          maxGuests: d.max_capacity
+          maxGuests: d.max_capacity,
+          pricingTiers: d.pricing_tiers
         };
       });
     }

@@ -120,7 +120,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         if (activity.host_id) {
             const { data: moreData } = await supabase
                 .from('activities')
-                .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, reviews(rating)')
+                .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, reviews(rating)')
                 .eq('host_id', activity.host_id)
                 .eq('status', 'published')
                 .eq('is_paused_by_host', false)
@@ -344,6 +344,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                         isHiddenGem={d.is_hidden_gem}
                                         rating={rating}
                                         reviewCount={d.reviews ? d.reviews.length : 0}
+                                        pricingTiers={d.pricing_tiers}
                                     />
                                 )
                             })}

@@ -58,6 +58,7 @@ export function ActivityGrid({ activities, currentCategory }: ActivityGridProps)
           priceSuffix={act.price_suffix}
           discountPrice={act.discount_price}
           dealEndDate={act.deal_end_date}
+          pricingTiers={act.pricingTiers ?? act.pricing_tiers}
         />
       ))}
     </div>

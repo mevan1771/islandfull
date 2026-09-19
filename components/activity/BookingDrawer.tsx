@@ -14,6 +14,7 @@ import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
+import { getLowestPerPersonFromTiers, getMatchingTierPrice, hasPricingTiers } from "@/lib/pricingTiers"
 
 interface BookingDrawerProps {
   activityId: string
@@ -98,10 +99,12 @@ export function BookingDrawer({
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : (priceUsd || 0);
+  const lowestFromTiers = getLowestPerPersonFromTiers(pricingTiers)
+  const showFromPrice = hasPricingTiers(pricingTiers) && lowestFromTiers != null
 
   const getPricingSuffix = () => {
+    if (hasPricingTiers(pricingTiers)) return " / person"
     if (priceSuffix) return ` ${priceSuffix}`;
-    if (pricingTiers && Object.keys(pricingTiers).length > 0) return " / 👤 (%)"
     if (pricingModel === 'flat_rate') return ` / 👥`
     if (pricingModel === 'per_day') return " / 📅"
     return " / 👤"
@@ -115,49 +118,36 @@ export function BookingDrawer({
     return differenceInDays(endDate, dateRange.from) + 1;
   })();
 
-  let totalUsd = 0;
-  let appliedTierPrice: number | null = null;
+  const guestCount = guests
+  const standardTotal = effectivePriceUsd * guestCount
+  const matchingTierPrice = getMatchingTierPrice(guestCount, pricingTiers)
 
-  if (pricingTiers && Object.keys(pricingTiers).length > 0) {
-    // 1. Strict Descending Sort
-    const sortedTiers = Object.entries(pricingTiers)
-      .map(([guestCountStr, price]) => ({
-        guestCount: parseInt(guestCountStr, 10),
-        price: price as number
-      }))
-      .sort((a, b) => b.guestCount - a.guestCount);
-
-    // 2. Find the Highest Applicable Tier
-    const activeTier = sortedTiers.find(tier => guests >= tier.guestCount);
-
-    // 3. Apply Value
-    if (activeTier) {
-      appliedTierPrice = activeTier.price;
-    }
-  }
-
-  // 4. Fallback
-  if (appliedTierPrice !== null) {
-    totalUsd = appliedTierPrice;
+  let actualTotal = 0
+  if (matchingTierPrice !== null) {
+    actualTotal = matchingTierPrice
   } else if (pricingModel === 'flat_rate') {
-    totalUsd = effectivePriceUsd;
+    actualTotal = effectivePriceUsd
   } else {
-    totalUsd = effectivePriceUsd * guests;
+    actualTotal = standardTotal
   }
 
   // Multiply by days if it's a rental (per_day model)
-  if (pricingModel === 'per_day') {
-    totalUsd = totalUsd * totalDays;
-  }
+  const dayMultiplier = pricingModel === 'per_day' ? totalDays : 1
+  const standardTotalForStay = standardTotal * dayMultiplier
+  actualTotal = actualTotal * dayMultiplier
 
   // Add Option Price Modifier (which is applied per person)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
     if (opt) {
-      const optionModifier = opt.price_modifier * guests * (pricingModel === 'per_day' ? totalDays : 1);
-      totalUsd += optionModifier
+      const optionModifier = opt.price_modifier * guests * dayMultiplier
+      actualTotal += optionModifier
     }
   }
+
+  const totalUsd = actualTotal
+  const groupSavings = matchingTierPrice !== null ? standardTotalForStay - (matchingTierPrice * dayMultiplier) : 0
+  const showGroupSavings = groupSavings > 0.009
 
   let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
 
@@ -185,7 +175,7 @@ export function BookingDrawer({
           date: finalDate,
           endDate: finalEndDate,
           bookingType,
-          pricingModel,
+          pricingModel: matchingTierPrice !== null ? 'flat_rate' : pricingModel,
           guests,
           whatsapp,
           touristName,
@@ -256,12 +246,18 @@ export function BookingDrawer({
                     {isDealActive && discountPrice ? (
                       <div className="flex items-center gap-1">
                         <span className="text-lg md:text-3xl font-bold text-rose-600 leading-none">{formatUSD(discountPrice)}</span>
-                        <span className="text-sm md:text-lg font-medium text-gray-400 line-through leading-none">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                        <span className="text-sm md:text-lg font-medium text-gray-400 line-through leading-none">{formatUSD(priceUsd)}</span>
+                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
+                      </div>
+                    ) : showFromPrice ? (
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">From</span>
+                        <span className="text-lg md:text-3xl font-bold text-zinc-900 leading-none">{formatUSD(lowestFromTiers)}</span>
                         <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1">
-                        <span className="text-lg md:text-3xl font-bold text-zinc-900 leading-none">{formatUSD(pricingTiers && pricingTiers["1"] ? pricingTiers["1"] : priceUsd)}</span>
+                        <span className="text-lg md:text-3xl font-bold text-zinc-900 leading-none">{formatUSD(priceUsd)}</span>
                         <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
                       </div>
                     )}
@@ -742,11 +738,23 @@ export function BookingDrawer({
                   )}
 
                   {priceUsd > 0 && (
-                    <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100 mt-2">
+                    <div className="mt-2 space-y-2">
+                      {showGroupSavings && (
+                        <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-center text-sm font-semibold text-emerald-700">
+                          🎉 Group rate unlocked! You save {formatUSD(groupSavings)}.
+                        </div>
+                      )}
+                      <div className="bg-zinc-50 py-2 px-4 rounded-2xl border border-zinc-100">
                       {discountUsd > 0 && (
                         <div className="flex justify-between items-center mb-1">
                           <span className="text-emerald-600 font-bold">Promo Discount</span>
                           <span className="font-bold text-lg text-emerald-600">-{formatUSD(discountUsd)}</span>
+                        </div>
+                      )}
+                      {showGroupSavings && (
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-zinc-400 font-medium line-through">Standard total</span>
+                          <span className="font-medium text-zinc-400 line-through">{formatUSD(standardTotalForStay)}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center">
@@ -759,6 +767,7 @@ export function BookingDrawer({
                           <span className="text-emerald-600 text-xs font-bold">15% Deposit Today</span>
                         )}
                       </div>
+                    </div>
                     </div>
                   )}
 
@@ -825,9 +834,14 @@ export function BookingDrawer({
             </div>
 
             {/* Sticky Footer */}
-            <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col-reverse md:flex-row gap-4 items-center justify-between pb-safe">
+            <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-3 pb-safe">
+              {step === "details" && showGroupSavings && (
+                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-center text-sm font-semibold text-emerald-700">
+                  🎉 Group rate unlocked! You save {formatUSD(groupSavings)}.
+                </div>
+              )}
               {step === "details" && (
-                <>
+                <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between">
                   {cancellationPolicy && (
                     <p className="text-xs text-center md:text-left text-green-600 w-full">
                       {cancellationPolicy}
@@ -846,7 +860,7 @@ export function BookingDrawer({
                           ? "Proceed to Deposit"
                           : "Proceed to Payment"}
                   </Button>
-                </>
+                </div>
               )}
               {step === "success" && (
                 <Button onClick={resetAndClose} className="w-full h-14 rounded-xl font-bold text-lg" variant="outline">
