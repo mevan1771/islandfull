@@ -120,7 +120,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
     }, [currentIndex])
 
     return (
-        <section className="relative pt-24 md:pt-32 pb-16 md:pb-48 text-white h-[clamp(15.75rem,40svh,21.5rem)] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900">
+        <section className="relative pt-24 md:pt-32 pb-16 md:pb-48 text-white h-[clamp(15rem,36svh,18.25rem)] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900">
             <HeaderThemeSetter useDarkTextDesktop={useDarkTextDesktop} useDarkTextMobile={useDarkTextMobile} />
 
             {carouselSlides.map((tour, index) => {
@@ -153,7 +153,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 )
             })}
 
-            <div className="absolute bottom-12 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
+            <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[5.5rem] md:min-h-[160px]">
                         {carouselSlides.map((tour, index) => (
