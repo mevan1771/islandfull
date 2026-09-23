@@ -26,18 +26,23 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const titleClass = `text-2xl sm:text-3xl md:text-4xl leading-tight font-bold ${
+    const titleClass = `max-w-full text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] md:text-[clamp(1.25rem,calc(90vw/var(--char-count)),2.25rem)] whitespace-nowrap overflow-hidden text-ellipsis leading-tight font-bold ${
         tour.use_dark_text_mobile ? "text-slate-700/80" : "text-white"
     } ${tour.use_dark_text_desktop ? "md:text-slate-700/80" : "md:text-white"}`
+    const titleStyle = { "--char-count": Math.max(tour.title?.length ?? 1, 1) } as React.CSSProperties
 
     if (tour.isStatic) {
         return (
             <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full pb-6">
-                <div className="flex flex-col items-start max-w-full">
+                <div className="flex flex-col items-start max-w-full overflow-hidden">
                     <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
                         SRI LANKA
                     </span>
-                    {tour.title ? <h1 className={titleClass}>{tour.title}</h1> : null}
+                    {tour.title ? (
+                        <h1 className={titleClass} style={titleStyle}>
+                            {tour.title}
+                        </h1>
+                    ) : null}
                 </div>
                 {tour.subtitle && (
                     <p
@@ -57,13 +62,15 @@ function TitleBlock({ tour }: { tour: Tour }) {
             href={`/activity/${tour.slug}`}
             className="flex flex-col items-start text-left cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto w-full pb-6"
         >
-            <div className="flex flex-col items-start max-w-full">
+            <div className="flex flex-col items-start max-w-full overflow-hidden">
                 {tour.location && (
                     <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
                         {tour.location.replace(", Sri Lanka", "")}
                     </span>
                 )}
-                <h1 className={titleClass}>{tour.title}</h1>
+                <h1 className={titleClass} style={titleStyle}>
+                    {tour.title}
+                </h1>
             </div>
         </Link>
     )
