@@ -153,7 +153,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 )
             })}
 
-            <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
+            <div className="absolute bottom-5 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[5.5rem] md:min-h-[160px]">
                         {carouselSlides.map((tour, index) => (
