@@ -1,7 +1,7 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { logActivity } from "@/utils/auditLogger"
 import { createClient } from "@/utils/supabase/server"
 
@@ -95,8 +95,11 @@ export async function updateGlobalSetting(key: string, value: any) {
     const { data: { user } } = await supabase.auth.getUser()
     await logActivity(user?.id, `Changed global setting [${key}]`, 'global_settings', key)
 
-    // Revalidate paths that might use this setting
     revalidatePath('/', 'layout')
+    revalidatePath('/')
+    if (key === 'hero_intro_slide' || key === 'featured_spotlight') {
+      revalidateTag('hero-carousel', 'max')
+    }
     
     return { success: true }
   } catch (error: any) {

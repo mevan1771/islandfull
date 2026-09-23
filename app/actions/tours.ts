@@ -1,7 +1,7 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { logActivity } from "@/utils/auditLogger"
 import { createClient } from "@/utils/supabase/server"
 import { sendWebhook } from "@/utils/webhook"
@@ -223,6 +223,7 @@ export async function createTour(formData: FormData) {
 
     // Revalidate paths so the new tour appears instantly
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
 
     const typeMap: Record<string, string> = {
       tour: "Tours",
@@ -457,6 +458,7 @@ export async function updateTour(id: string, formData: FormData) {
     await logActivity(user?.id, actionStr, 'activities', id)
 
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
     revalidatePath('/')
     if (oldTour?.slug) {
       revalidatePath(`/activity/${oldTour.slug}`, 'page')
@@ -545,6 +547,7 @@ export async function autoBlockDate(activityId: string, dateString: string) {
         }
 
         revalidatePath('/', 'layout')
+        revalidateTag('hero-carousel', 'max')
       }
     }
 
@@ -586,6 +589,7 @@ export async function autoUnblockDate(activityId: string, dateString: string) {
         }
 
         revalidatePath('/', 'layout')
+        revalidateTag('hero-carousel', 'max')
       }
     }
 
@@ -648,6 +652,7 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
     }
 
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
     return { success: true, newStatus }
   } catch (err: any) {
     console.error("Status toggle error:", err)
@@ -704,6 +709,7 @@ export async function deleteTour(activityId: string) {
     }
 
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
     return { success: true }
   } catch (err: any) {
     console.error("Delete tour error:", err)
@@ -724,6 +730,7 @@ export async function toggleFeaturedStatus(activityId: string, isFeatured: boole
     }
 
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
     return { success: true }
   } catch (err: any) {
     console.error("Featured toggle error:", err)
@@ -752,6 +759,7 @@ export async function toggleActivityPauseState(activityId: string, isPaused: boo
     }
 
     revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max')
     revalidatePath('/host/tours')
     return { success: true }
   } catch (err: any) {
@@ -853,7 +861,8 @@ export async function backfillAndSyncAll(actionType: 'SYNC' | 'FORCE_SYNC' = 'SY
       });
     }
 
-    revalidatePath('/', 'layout');
+    revalidatePath('/', 'layout')
+    revalidateTag('hero-carousel', 'max');
     return { success: true, count: activities.length };
   } catch (err: any) {
     console.error("Failed to backfill and sync:", err);

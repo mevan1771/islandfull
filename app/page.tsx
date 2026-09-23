@@ -1,85 +1,25 @@
-
-import { ActivityCard } from "@/components/activity/ActivityCard"
 import { HomeFilters } from "@/components/home/HomeFilters"
 import { MobileSearch } from "@/components/home/MobileSearch"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { SpotlightCarousel } from "@/components/home/SpotlightCarousel"
 import { Suspense } from "react"
+import { preload } from "react-dom"
 import { supabase } from "@/lib/supabase"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
-import Image from "next/image"
-import Link from "next/link"
+import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
+import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 
-
-
-export const revalidate = 0; // Opt out of static caching to ensure Flash Deals are always up-to-date
+export const revalidate = 60
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
   const currentVertical = params.vertical || 'tour';
   const currentCategory = params.category || 'all';
 
-  let featuredSpotlight: any = null;
-  try {
-    const { data: spotlightSetting } = await supabase
-      .from('global_settings')
-      .select('value')
-      .eq('key', 'featured_spotlight')
-      .single();
-
-    if (spotlightSetting && spotlightSetting.value) {
-      featuredSpotlight = spotlightSetting.value;
-    }
-  } catch (e) {
-    console.error("Failed to fetch featured spotlight:", e);
-  }
-
-
-
-  let dynamicCategories: any[] = [];
-  try {
-    const { data: catData } = await supabase
-      .from('categories')
-      .select('name, slug')
-      .eq('category_type', currentVertical)
-      .order('sort_order', { ascending: true })
-      .order('name');
-
-    if (catData) {
-      dynamicCategories = catData;
-    }
-  } catch (e) {
-    console.error("Failed to fetch dynamic categories:", e);
-  }
-
-  let featuredTours = [];
-  try {
-    const { data } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('status', 'published')
-      .eq('is_paused_by_host', false)
-      .eq('is_featured', true)
-      .order('featured_order', { ascending: true })
-      .limit(5);
-
-    if (data) featuredTours = data;
-  } catch (e) {
-    console.error("Failed to fetch featured tours:", e);
-  }
-
-  let introSlide = null;
-  try {
-    const { data } = await supabase
-      .from('global_settings')
-      .select('value')
-      .eq('key', 'hero_intro_slide')
-      .single();
-    if (data) introSlide = data.value;
-  } catch (e) {
-    console.error("Failed to fetch intro slide:", e);
-  }
-
+  const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories] = await Promise.all([
+    getHomepageHeroData(),
+    getHomepageCategories(currentVertical),
+  ]);
 
   const carouselSlides = [
     {
@@ -94,6 +34,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     },
     ...featuredTours
   ];
+
+  const lcpUrl = carouselSlides[0]?.cover_image_url;
+  if (lcpUrl) {
+    preload(heroDefaultSrc(lcpUrl), {
+      as: "image",
+      fetchPriority: "high",
+      imageSrcSet: heroSrcSet(lcpUrl),
+      imageSizes: HERO_SIZES,
+    });
+  }
 
   return (
     <div className="pb-24">

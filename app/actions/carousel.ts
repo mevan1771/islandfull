@@ -1,7 +1,7 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function updateCarouselOrder(
   updates: { id: string, featured_order: number, is_featured: boolean }[]
@@ -21,6 +21,7 @@ export async function updateCarouselOrder(
     
     revalidatePath('/')
     revalidatePath('/admin/carousel')
+    revalidateTag('hero-carousel', 'max')
     
     return { success: true }
   } catch (error: any) {

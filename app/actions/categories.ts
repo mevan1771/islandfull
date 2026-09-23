@@ -1,7 +1,7 @@
 "use server"
 
 import { supabaseAdmin } from "@/lib/supabase"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function getCategories() {
   const { data, error } = await supabaseAdmin
@@ -33,6 +33,7 @@ export async function createCategory(formData: FormData) {
   
   revalidatePath('/')
   revalidatePath('/admin/categories')
+  revalidateTag('homepage-categories', 'max')
   return { success: true }
 }
 
@@ -53,6 +54,7 @@ export async function updateCategory(id: string, formData: FormData) {
   
   revalidatePath('/')
   revalidatePath('/admin/categories')
+  revalidateTag('homepage-categories', 'max')
   return { success: true }
 }
 
@@ -78,5 +80,6 @@ export async function deleteCategory(id: string) {
   
   revalidatePath('/')
   revalidatePath('/admin/categories')
+  revalidateTag('homepage-categories', 'max')
   return { success: true }
 }
