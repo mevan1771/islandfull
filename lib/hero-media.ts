@@ -3,7 +3,7 @@
 const CLOUDINARY_UPLOAD = "/image/upload/";
 
 export const HERO_SIZES = "100vw";
-export const HERO_SRCSET_WIDTHS = [640, 960, 1280, 1920] as const;
+export const HERO_SRCSET_WIDTHS = [480, 640, 960, 1280, 1920] as const;
 
 function isCloudinaryUrl(url: string) {
   return url.includes("res.cloudinary.com") && url.includes(CLOUDINARY_UPLOAD);
