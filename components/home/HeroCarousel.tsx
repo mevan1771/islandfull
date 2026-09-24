@@ -26,7 +26,7 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const titleClass = `max-w-full text-[clamp(0.75rem,calc(170vw/var(--char-count)),1.5rem)] md:text-[clamp(1.25rem,calc(90vw/var(--char-count)),2.25rem)] whitespace-nowrap overflow-hidden text-ellipsis leading-tight font-bold ${
+    const titleClass = `max-w-full text-[clamp(0.7rem,calc(130vw/var(--char-count)),1.125rem)] md:text-[clamp(1.125rem,calc(70vw/var(--char-count)),1.875rem)] whitespace-nowrap overflow-hidden text-ellipsis leading-tight font-bold ${
         tour.use_dark_text_mobile ? "text-slate-700/80" : "text-white"
     } ${tour.use_dark_text_desktop ? "md:text-slate-700/80" : "md:text-white"}`
     const titleStyle = { "--char-count": Math.max(tour.title?.length ?? 1, 1) } as React.CSSProperties
