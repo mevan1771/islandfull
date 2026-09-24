@@ -207,7 +207,7 @@ export function ActivityCard({
                       <>
                         <span className="text-xs sm:text-sm font-medium text-gray-500">From</span>
                         <span className="text-sm sm:text-base font-bold text-gray-900">{formatUSD(lowestPerPerson)}</span>
-                        <span className="text-xs sm:text-sm font-normal text-gray-500"> / person</span>
+                        <span className="text-xs sm:text-sm font-normal text-gray-500"> / 👤</span>
                       </>
                     ) : (
                       <>

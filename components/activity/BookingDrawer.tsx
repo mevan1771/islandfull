@@ -103,7 +103,7 @@ export function BookingDrawer({
   const showFromPrice = hasPricingTiers(pricingTiers) && lowestFromTiers != null
 
   const getPricingSuffix = () => {
-    if (hasPricingTiers(pricingTiers)) return " / person"
+    if (hasPricingTiers(pricingTiers)) return " / 👤"
     if (priceSuffix) return ` ${priceSuffix}`;
     if (pricingModel === 'flat_rate') return ` / 👥`
     if (pricingModel === 'per_day') return " / 📅"
