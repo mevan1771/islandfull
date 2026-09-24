@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Star, Clock, X, ChevronRight, CheckCircle2, User } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { formatUSD } from "@/lib/utils"
 
 interface MapPreviewDrawerProps {
   tour: MapTour | null
@@ -124,7 +125,7 @@ export function MapPreviewDrawer({ tour, onClose, contained = false }: MapPrevie
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-zinc-500 block">From</span>
-                  <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-2xl" : "text-lg md:text-2xl"}`}>${currentTour.price_usd}</p>
+                  <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-2xl" : "text-lg md:text-2xl"}`}>{formatUSD(currentTour.price_usd)}</p>
                 </div>
               </div>
             </div>
