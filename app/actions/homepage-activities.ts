@@ -1,34 +1,11 @@
 "use server"
 
 import { supabase } from "@/lib/supabase"
-
-export const HOMEPAGE_PAGE_SIZE = 24
-
-export type HomepageActivity = {
-  id: string
-  title: string
-  slug: string
-  location: string
-  duration: string
-  priceUsd: number
-  price_suffix: string | null
-  discount_price: number | null
-  deal_end_date: string | null
-  coverImage: string
-  isHiddenGem: boolean
-  rating?: number
-  reviewCount: number
-  pricingModel: string
-  maxGuests: number
-  pricingTiers: unknown
-}
-
-export type HomepageActivityFilters = {
-  vertical?: string
-  category?: string
-  location?: string
-  sort?: string
-}
+import {
+  HOMEPAGE_PAGE_SIZE,
+  type HomepageActivity,
+  type HomepageActivityFilters,
+} from "@/lib/homepage-feed"
 
 const ACTIVITY_SELECT =
   "id, title, slug, location, duration, price_usd, price_suffix, discount_price, deal_end_date, card_image_url, cover_image_url, is_hidden_gem, pricing_model, max_capacity, pricing_tiers, is_featured, created_at, categories!inner(slug, name), reviews(rating)"

@@ -4,12 +4,12 @@ import { useEffect, useState, useTransition } from "react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { SpotlightCarousel } from "@/components/home/SpotlightCarousel"
+import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
 import {
-  fetchHomepageActivities,
   HOMEPAGE_PAGE_SIZE,
   type HomepageActivity,
   type HomepageActivityFilters,
-} from "@/app/actions/homepage-activities"
+} from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
 interface ActivityGridProps {

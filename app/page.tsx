@@ -6,7 +6,8 @@ import { preload } from "react-dom"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
-import { fetchHomepageActivities, HOMEPAGE_PAGE_SIZE } from "@/app/actions/homepage-activities"
+import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
+import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
 export const revalidate = 60
