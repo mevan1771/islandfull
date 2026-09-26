@@ -1,13 +1,13 @@
 import { HomeFilters } from "@/components/home/HomeFilters"
 import { MobileSearch } from "@/components/home/MobileSearch"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
-import { SpotlightCarousel } from "@/components/home/SpotlightCarousel"
 import { Suspense } from "react"
 import { preload } from "react-dom"
-import { supabase } from "@/lib/supabase"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
+import { fetchHomepageActivities, HOMEPAGE_PAGE_SIZE } from "@/app/actions/homepage-activities"
+import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
 export const revalidate = 60
 
@@ -63,14 +63,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       {/* Activity Grid */}
       <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         <Suspense fallback={<ActivitySkeleton />}>
-          <ActivityGridServer searchParams={params} currentCategory={currentCategory} />
+          <ActivityGridServer
+            searchParams={params}
+            currentCategory={currentCategory}
+            spotlightSlides={Array.isArray(featuredSpotlight) ? featuredSpotlight : featuredSpotlight ? [featuredSpotlight] : null}
+          />
         </Suspense>
       </section>
-
-      {/* Featured Tour Spotlight Carousel */}
-      {featuredSpotlight && (
-        <SpotlightCarousel slides={Array.isArray(featuredSpotlight) ? featuredSpotlight : [featuredSpotlight]} />
-      )}
 
     </div>
   )
@@ -88,79 +87,32 @@ const ActivitySkeleton = () => (
   </div>
 );
 
-async function ActivityGridServer({ searchParams, currentCategory }: { searchParams: any, currentCategory: string }) {
-  let activities: any[] = [];
-  try {
-    const currentVertical = searchParams.vertical || 'tour';
-    let query = supabase.from('activities').select('*, discount_price, deal_end_date, categories!inner(slug, name), reviews(rating)')
-      .eq('category_type', currentVertical)
-      .eq('status', 'published')
-      .eq('is_paused_by_host', false);
-
-    if (searchParams.location) {
-      // Remove emojis and special characters to prevent match failures on autocomplete tags
-      let q = searchParams.location.toLowerCase().replace(/[^\p{L}\p{N}\s.,-]/gu, '').trim();
-      
-      if (q) {
-        // Basic English plural stemming to match singular database entries (e.g. "safaris" -> "safari")
-        if (q.endsWith('ies')) q = q.slice(0, -3) + 'y';
-        else if (q.endsWith('es')) q = q.slice(0, -2);
-        else if (q.endsWith('s') && !q.endsWith('ss')) q = q.slice(0, -1);
-
-        query = query.or(`title.ilike.%${q}%,location.ilike.%${q}%,description.ilike.%${q}%`);
-      }
-    }
-
-    if (searchParams.category && searchParams.category !== 'saved') {
-      query = query.eq('categories.slug', searchParams.category);
-    }
-    if (searchParams.sort === 'price_asc') {
-      query = query.order('price_usd', { ascending: true });
-    } else if (searchParams.sort === 'price_desc') {
-      query = query.order('price_usd', { ascending: false });
-    } else if (searchParams.sort === 'deals') {
-      query = query.order('discount_price', { ascending: true, nullsFirst: false });
-    } else {
-      // Default sort for maximum visibility of new tours
-      query = query.order('is_featured', { ascending: false, nullsFirst: false });
-      query = query.order('created_at', { ascending: false });
-    }
-
-    // If viewing saved, we might need more than 24 to filter on client, so grab up to 100
-    const fetchLimit = searchParams.category === 'saved' ? 100 : 24;
-    const { data, error } = await query.limit(fetchLimit);
-
-    if (error) {
-      console.error("Supabase query error:", error);
-    } else if (data && data.length > 0) {
-      activities = data.map(d => {
-        const rating = d.reviews && d.reviews.length > 0
-          ? d.reviews.reduce((acc: number, rev: any) => acc + rev.rating, 0) / d.reviews.length
-          : undefined;
-
-        return {
-          id: d.id,
-          title: d.title,
-          slug: d.slug,
-          location: d.location,
-          duration: d.duration,
-          priceUsd: d.price_usd,
-          price_suffix: d.price_suffix,
-          discount_price: d.discount_price,
-          deal_end_date: d.deal_end_date,
-          coverImage: d.card_image_url || d.cover_image_url,
-          isHiddenGem: d.is_hidden_gem,
-          rating: rating,
-          reviewCount: d.reviews ? d.reviews.length : 0,
-          pricingModel: d.pricing_model,
-          maxGuests: d.max_capacity,
-          pricingTiers: d.pricing_tiers
-        };
-      });
-    }
-  } catch (e) {
-    console.error("Failed to fetch activities:", e);
+async function ActivityGridServer({
+  searchParams,
+  currentCategory,
+  spotlightSlides,
+}: {
+  searchParams: any
+  currentCategory: string
+  spotlightSlides: SpotlightConfig[] | null
+}) {
+  const filters = {
+    vertical: searchParams.vertical || "tour",
+    category: searchParams.category || "all",
+    location: searchParams.location || "",
+    sort: searchParams.sort || "",
   }
 
-  return <ActivityGrid activities={activities} currentCategory={currentCategory} />;
+  const limit = filters.category === "saved" ? 100 : HOMEPAGE_PAGE_SIZE
+  const { activities, total } = await fetchHomepageActivities(filters, 0, limit)
+
+  return (
+    <ActivityGrid
+      activities={activities}
+      total={total}
+      currentCategory={currentCategory}
+      filters={filters}
+      spotlightSlides={spotlightSlides}
+    />
+  )
 }

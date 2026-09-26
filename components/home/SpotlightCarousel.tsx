@@ -8,9 +8,10 @@ import { SpotlightConfig } from '@/components/admin/SpotlightClient'
 
 interface SpotlightCarouselProps {
   slides: SpotlightConfig[]
+  embedded?: boolean
 }
 
-export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
+export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouselProps) {
   const searchParams = useSearchParams()
   const searchLocation = searchParams.get('location')?.toLowerCase()
   const searchCategory = searchParams.get('category')
@@ -125,8 +126,8 @@ export function SpotlightCarousel({ slides }: SpotlightCarouselProps) {
   }
 
   return (
-    <section className="bg-zinc-50 py-4 md:py-24 relative overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-8">
+    <section className={`bg-zinc-50 relative overflow-hidden ${embedded ? "py-6 md:py-14 rounded-none md:rounded-3xl" : "py-4 md:py-24"}`}>
+      <div className={`w-full mx-auto px-4 md:px-8 ${embedded ? "" : "max-w-7xl"}`}>
         <div
           ref={scrollContainerRef}
           onMouseDown={handleMouseDown}
