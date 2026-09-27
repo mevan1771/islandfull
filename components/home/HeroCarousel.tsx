@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { heroDefaultSrc, heroLqip, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
+import { Tag } from "lucide-react"
 import { formatUSD } from "@/lib/utils"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
@@ -69,7 +70,8 @@ function TitleBlock({ tour }: { tour: Tour }) {
             ) : null}
             {title}
             {priceLabel && (
-                <span className={`${chip} bg-[#FFD100] text-zinc-900 whitespace-nowrap`}>
+                <span className={`${chip} inline-flex items-center gap-1 md:gap-1.5 bg-[#FFD100] text-zinc-900 whitespace-nowrap`}>
+                    <Tag className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0" strokeWidth={2.5} />
                     {priceLabel}
                 </span>
             )}
