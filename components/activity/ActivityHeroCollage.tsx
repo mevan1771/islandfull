@@ -73,15 +73,15 @@ export function ActivityHeroCollage({
     <>
       <div className="mx-4 mt-0 md:mx-auto max-w-[1400px]">
         <div
-          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-lg md:shadow-xl ${
+          className={`relative ${
             hasCollage
-              ? "grid grid-cols-1 md:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-1.5 md:gap-2 h-[35svh] md:h-[480px]"
+              ? "grid grid-cols-1 md:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-2 md:gap-2.5 h-[35svh] md:h-[480px]"
               : "h-[35svh] md:h-[480px]"
           }`}
         >
           <button
             type="button"
-            className="relative w-full h-full min-h-0 overflow-hidden text-left"
+            className="relative w-full h-full min-h-0 overflow-hidden rounded-2xl sm:rounded-3xl text-left shadow-md"
             onClick={() => setOpenIndex(0)}
           >
             <Image
@@ -113,14 +113,14 @@ export function ActivityHeroCollage({
           </button>
 
           {hasCollage && (
-            <div className={`hidden md:grid gap-1.5 md:gap-2 h-full min-h-0 ${sideGridClass}`}>
+            <div className={`hidden md:grid gap-2 md:gap-2.5 h-full min-h-0 ${sideGridClass}`}>
               {side.map((url, i) => {
                 const isLast = i === side.length - 1 && all.length > side.length + 1
                 return (
                   <button
                     key={url + i}
                     type="button"
-                    className="relative overflow-hidden bg-zinc-100"
+                    className="relative overflow-hidden rounded-2xl bg-zinc-100 shadow-md"
                     onClick={() => setOpenIndex(i + 1)}
                   >
                     <Image src={url} alt="" fill sizes="30vw" unoptimized className="object-cover" />
