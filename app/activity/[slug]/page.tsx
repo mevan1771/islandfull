@@ -178,7 +178,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     <div className="space-y-2.5 md:space-y-3">
-                        <h1 className="text-xl md:text-[1.75rem] font-semibold tracking-[-0.02em] text-slate-700 leading-snug">
+                        <h1 className="text-2xl md:text-4xl font-semibold tracking-tight text-slate-700 leading-tight">
                             {activity.title}
                         </h1>
                         <ActivityMetaBar
