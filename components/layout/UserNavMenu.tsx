@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { signIn, signOut, useSession } from "next-auth/react"
+import { SignInButton, useClerk, useSignIn, useUser } from "@clerk/nextjs"
 import { Heart, LogOut, MapPinned, Settings, X } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -29,37 +29,22 @@ function GoogleMark() {
   )
 }
 
-function LoggedOutActions({ onDone }: { onDone: () => void }) {
-  const [emailOpen, setEmailOpen] = useState(false)
-  const [email, setEmail] = useState("")
-  const [sending, setSending] = useState(false)
+function LoggedOutActions() {
+  const { signIn, isLoaded } = useSignIn()
+  const [busy, setBusy] = useState(false)
 
-  const callbackUrl = typeof window === "undefined" ? "/" : window.location.href
-
-  const google = () => {
-    void signIn("google", { callbackUrl })
-  }
-
-  const sendMagicLink = async (event: React.FormEvent) => {
-    event.preventDefault()
-    if (!email.trim()) return
-    setSending(true)
+  const google = async () => {
+    if (!signIn || !isLoaded) return
+    setBusy(true)
     try {
-      const result = await signIn("resend", {
-        email: email.trim(),
-        callbackUrl,
-        redirect: false,
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: window.location.href,
       })
-      if (result?.error) {
-        toast.error("Could not send the sign-in email. Check Resend is set up.")
-        return
-      }
-      toast.success("Check your inbox for a sign-in link.")
-      onDone()
     } catch {
-      toast.error("Could not send the sign-in email.")
-    } finally {
-      setSending(false)
+      toast.error("Google sign-in is not available yet. Enable Google in the Clerk dashboard.")
+      setBusy(false)
     }
   }
 
@@ -68,44 +53,27 @@ function LoggedOutActions({ onDone }: { onDone: () => void }) {
       <p className="text-sm text-zinc-500">Save tours and keep your bookings in one place.</p>
       <button
         type="button"
-        onClick={google}
-        className="flex items-center justify-center gap-3 min-h-11 w-full rounded-full bg-zinc-900 text-white text-sm font-bold px-4 hover:bg-zinc-800 transition-colors"
+        disabled={busy || !isLoaded}
+        onClick={() => void google()}
+        className="flex items-center justify-center gap-3 min-h-11 w-full rounded-full bg-zinc-900 text-white text-sm font-bold px-4 hover:bg-zinc-800 transition-colors disabled:opacity-60"
       >
         <GoogleMark />
         Continue with Google
       </button>
-      {emailOpen ? (
-        <form onSubmit={sendMagicLink} className="flex flex-col gap-2">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@email.com"
-            className="min-h-11 w-full rounded-full border border-zinc-200 px-4 text-sm text-zinc-900 outline-none focus:border-rose-500"
-          />
-          <button
-            type="submit"
-            disabled={sending}
-            className="flex items-center justify-center min-h-11 w-full rounded-full border border-zinc-200 bg-white text-zinc-800 text-sm font-semibold px-4 hover:bg-zinc-50 transition-colors disabled:opacity-60"
-          >
-            {sending ? "Sending…" : "Email me a link"}
-          </button>
-        </form>
-      ) : (
+      <SignInButton mode="modal" forceRedirectUrl={typeof window === "undefined" ? "/" : window.location.href}>
         <button
           type="button"
-          onClick={() => setEmailOpen(true)}
           className="flex items-center justify-center min-h-11 w-full rounded-full border border-zinc-200 bg-white text-zinc-800 text-sm font-semibold px-4 hover:bg-zinc-50 transition-colors"
         >
           Continue with Email
         </button>
-      )}
+      </SignInButton>
     </div>
   )
 }
 
 function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
+  const { signOut } = useClerk()
   const item =
     "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors"
 
@@ -128,7 +96,7 @@ function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
         className={`${item} text-left`}
         onClick={() => {
           onNavigate()
-          void signOut({ callbackUrl: "/" })
+          void signOut({ redirectUrl: "/" })
         }}
       >
         <LogOut className="w-4 h-4 text-zinc-400" />
@@ -145,10 +113,8 @@ export function UserNavMenu({
   triggerClassName: string
   iconClassName: string
 }) {
-  const { data: session, status } = useSession()
+  const { user, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
-  const user = session?.user
-  const isSignedIn = status === "authenticated"
 
   useEffect(() => {
     if (!open) return
@@ -163,10 +129,13 @@ export function UserNavMenu({
     }
   }, [open])
 
+  const firstName = user?.firstName || user?.fullName?.split(" ")[0]
+  const imageUrl = user?.imageUrl
+
   const menuBody = isSignedIn ? (
     <LoggedInActions onNavigate={() => setOpen(false)} />
   ) : (
-    <LoggedOutActions onDone={() => setOpen(false)} />
+    <LoggedOutActions />
   )
 
   return (
@@ -178,9 +147,9 @@ export function UserNavMenu({
         onClick={() => setOpen((value) => !value)}
         className={`min-w-11 min-h-11 md:min-w-10 md:min-h-10 overflow-hidden ${triggerClassName}`}
       >
-        {user?.image ? (
+        {imageUrl && isSignedIn ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
+          <img src={imageUrl} alt="" className="w-full h-full rounded-full object-cover" />
         ) : (
           <svg
             viewBox="0 0 24 24"
@@ -205,7 +174,7 @@ export function UserNavMenu({
           />
           <div className="hidden md:block absolute right-0 top-[calc(100%+10px)] z-[80] w-80 rounded-2xl bg-white p-5 shadow-2xl shadow-black/15 border border-zinc-100">
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">
-              {isSignedIn ? user?.name?.split(" ")[0] || "Account" : "Welcome"}
+              {isSignedIn ? firstName || "Account" : "Welcome"}
             </p>
             {menuBody}
           </div>
@@ -221,7 +190,7 @@ export function UserNavMenu({
               <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-zinc-200" />
               <div className="flex items-center justify-between mb-4">
                 <p className="text-base font-bold text-zinc-900">
-                  {isSignedIn ? user?.name?.split(" ")[0] || "Account" : "Sign in"}
+                  {isSignedIn ? firstName || "Account" : "Sign in"}
                 </p>
                 <button
                   type="button"
