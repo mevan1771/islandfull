@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-hidden`}>
-        <ClerkProvider>
+        <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <Toaster position="top-center" />
