@@ -70,7 +70,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
             ) : null}
             {title}
             {priceLabel && (
-                <span className={`${chip} inline-flex items-center gap-1 md:gap-1.5 bg-emerald-500 text-white whitespace-nowrap`}>
+                <span className={`${chip} inline-flex items-center gap-1 md:gap-1.5 bg-[#00C853] text-white whitespace-nowrap`}>
                     <Tag className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0" strokeWidth={2.5} />
                     {priceLabel}
                 </span>
