@@ -53,24 +53,24 @@ function TitleBlock({ tour }: { tour: Tour }) {
     const priceLabel = heroPriceLabel(tour)
 
     const copy = (
-        <div className="flex flex-col items-start max-w-3xl">
+        <div className="flex flex-col items-start max-w-2xl">
             {location && (
-                <p className="text-[10px] md:text-xs font-semibold uppercase tracking-[0.18em] text-white/80 mb-1.5 md:mb-3">
+                <span className="inline-flex items-center rounded-full bg-rose-500 text-white text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.16em] px-2.5 md:px-3.5 py-1 md:py-1.5 mb-2 md:mb-3 shadow-[0_6px_20px_rgba(244,63,94,0.4)]">
                     {location}
-                </p>
+                </span>
             )}
             {tour.title && (
-                <h1 className="text-xl sm:text-3xl md:text-5xl font-semibold tracking-tight text-white leading-tight text-balance">
+                <h1 className="text-lg md:text-2xl lg:text-3xl font-semibold tracking-tight text-white leading-snug">
                     {tour.title}
                 </h1>
             )}
             {tour.isStatic && tour.subtitle && (
-                <p className="mt-2 md:mt-3 text-sm md:text-lg font-medium text-white/80 max-w-xl leading-snug">
+                <p className="mt-1.5 md:mt-2 text-xs md:text-base font-medium text-white/80 max-w-xl leading-snug">
                     {tour.subtitle}
                 </p>
             )}
             {priceLabel && (
-                <p className="mt-2 md:mt-4 text-sm md:text-xl font-medium text-white/90 tabular-nums">
+                <p className="mt-1.5 md:mt-3 text-sm md:text-lg font-medium text-white/90 tabular-nums">
                     {priceLabel}
                 </p>
             )}
