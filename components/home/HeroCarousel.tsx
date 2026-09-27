@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { heroDefaultSrc, heroLqip, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
-import { Tag } from "lucide-react"
 import { formatUSD } from "@/lib/utils"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
@@ -50,53 +49,44 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const chip = "text-[10px] md:text-sm font-bold px-2.5 md:px-6 py-1 md:py-2.5 rounded-full shadow-sm md:shadow-lg leading-none"
-    const title = tour.title ? (
-        <h1 className={`${chip} max-w-full min-w-0 bg-white text-zinc-900 whitespace-nowrap overflow-hidden text-ellipsis`}>
-            {tour.title}
-        </h1>
-    ) : null
-
+    const location = tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
     const priceLabel = heroPriceLabel(tour)
 
-    const badges = (
-        <div className="flex flex-wrap items-center gap-1.5 md:gap-2 max-w-full">
-            {tour.isStatic ? (
-                <span className={`${chip} bg-rose-500 text-white uppercase tracking-wider`}>SRI LANKA</span>
-            ) : tour.location ? (
-                <span className={`${chip} bg-rose-500 text-white uppercase tracking-wider`}>
-                    {tour.location.replace(", Sri Lanka", "")}
-                </span>
-            ) : null}
-            {title}
+    const copy = (
+        <div className="flex flex-col items-start max-w-3xl">
+            {location && (
+                <p className="text-[10px] md:text-xs font-semibold uppercase tracking-[0.18em] text-white/80 mb-1.5 md:mb-3">
+                    {location}
+                </p>
+            )}
+            {tour.title && (
+                <h1 className="text-xl sm:text-3xl md:text-5xl font-semibold tracking-tight text-white leading-tight text-balance">
+                    {tour.title}
+                </h1>
+            )}
+            {tour.isStatic && tour.subtitle && (
+                <p className="mt-2 md:mt-3 text-sm md:text-lg font-medium text-white/80 max-w-xl leading-snug">
+                    {tour.subtitle}
+                </p>
+            )}
             {priceLabel && (
-                <span className={`${chip} inline-flex items-center gap-1 md:gap-1.5 bg-[#00C853] text-white whitespace-nowrap`}>
-                    <Tag className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0" strokeWidth={2.5} />
+                <p className="mt-2 md:mt-4 text-sm md:text-xl font-medium text-white/90 tabular-nums">
                     {priceLabel}
-                </span>
+                </p>
             )}
         </div>
     )
 
     if (tour.isStatic) {
-        return (
-            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-6">
-                {badges}
-                {tour.subtitle && (
-                    <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
-                        {tour.subtitle}
-                    </p>
-                )}
-            </div>
-        )
+        return <div className="pointer-events-auto w-full pb-6">{copy}</div>
     }
 
     return (
         <Link
             href={`/activity/${tour.slug}`}
-            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-6"
+            className="block pointer-events-auto w-full pb-6 transition-opacity hover:opacity-90"
         >
-            {badges}
+            {copy}
         </Link>
     )
 }
@@ -177,6 +167,8 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                     </div>
                 )
             })}
+
+            <div className="absolute inset-x-0 bottom-0 z-[15] h-[55%] md:h-[42%] bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
 
             <div className="absolute bottom-5 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
