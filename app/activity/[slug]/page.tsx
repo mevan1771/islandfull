@@ -172,16 +172,17 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 coverUrl={upgradeUnsplashUrl(activity.cover_image_url) || "/placeholder.jpg"}
                 galleryUrls={activity.gallery_urls}
                 title={activity.title}
-                location={activity.location}
-                useDarkTextDesktop={activity.use_dark_text_desktop}
-                useDarkTextMobile={activity.use_dark_text_mobile}
             />
 
             {/* Content */}
             <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
                 <div className="flex-1 space-y-6 md:space-y-12">
 
-                    <ActivityMetaBar
+                    <div className="space-y-3 md:space-y-4">
+                        <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-zinc-900 leading-tight">
+                            {activity.title}
+                        </h1>
+                        <ActivityMetaBar
                         tourId={activity.id}
                         location={activity.location}
                         duration={activity.duration}
@@ -199,6 +200,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             new Date(activity.deal_end_date) > new Date()
                         )}
                     />
+                    </div>
 
                     {/* Description */}
                     <section>

@@ -111,6 +111,8 @@ export function ActivityMetaBar({
   return (
     <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3 w-full pt-2 md:pt-0">
       <div className="flex flex-nowrap items-center justify-start gap-1.5 md:gap-3 w-full md:w-auto overflow-x-auto hide-scrollbar md:overflow-visible">
+        <span className={`inline-flex ${rosePill}`}>{location}</span>
+
         <button
           type="button"
           onClick={() => router.back()}
@@ -120,8 +122,6 @@ export function ActivityMetaBar({
           <ArrowLeft className={`${iconClass} text-rose-500`} />
           Back
         </button>
-
-        <span className={`inline-flex md:hidden ${rosePill}`}>{location}</span>
 
         <span className={`inline-flex ${whitePill}`} aria-label={`${capacityLabel} guests`}>
           <Users className={`${iconClass} text-rose-500`} />

@@ -23,16 +23,10 @@ export function ActivityHeroCollage({
   coverUrl,
   galleryUrls = [],
   title,
-  location,
-  useDarkTextDesktop,
-  useDarkTextMobile,
 }: {
   coverUrl: string
   galleryUrls?: string[] | null
   title: string
-  location?: string
-  useDarkTextDesktop?: boolean
-  useDarkTextMobile?: boolean
 }) {
   const all = uniqueUrls(coverUrl, Array.isArray(galleryUrls) ? galleryUrls : [])
   const cover = all[0] || "/placeholder.jpg"
@@ -58,10 +52,6 @@ export function ActivityHeroCollage({
     }
   }, [openIndex, all.length])
 
-  const titleClass = `text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-3xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${
-    useDarkTextMobile ? "text-slate-700/80" : "text-white"
-  } ${useDarkTextDesktop ? "md:text-slate-700/80" : "md:text-white"}`
-
   const sideGridClass =
     side.length >= 3
       ? "grid-cols-2 grid-rows-2"
@@ -71,7 +61,7 @@ export function ActivityHeroCollage({
 
   return (
     <>
-      <div className="mx-4 mt-0 md:mx-auto max-w-[1400px]">
+      <div className="px-4 mx-auto max-w-7xl">
         <div
           className={`relative ${
             hasCollage
@@ -97,19 +87,7 @@ export function ActivityHeroCollage({
               priority
               fetchPriority="high"
             />
-            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-6 pointer-events-none">
-              <div className="px-4 flex flex-col items-start gap-2">
-                {location && (
-                  <span className="px-2.5 py-1 md:px-3.5 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.14em] shadow-sm">
-                    {location}
-                  </span>
-                )}
-                <h1 className={titleClass} style={{ "--char-count": title.length } as React.CSSProperties}>
-                  {title}
-                </h1>
-              </div>
-            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent pointer-events-none md:hidden" />
           </button>
 
           {hasCollage && (
