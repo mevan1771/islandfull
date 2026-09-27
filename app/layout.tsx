@@ -7,7 +7,6 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import NextTopLoader from 'nextjs-toploader';
-import { AuthSessionProvider } from "@/components/layout/AuthSessionProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -44,7 +43,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-hidden`}>
-        <AuthSessionProvider>
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <Toaster position="top-center" />
@@ -56,7 +54,6 @@ export default function RootLayout({
 
           <ConditionalFooter />
         </SmoothScrollProvider>
-        </AuthSessionProvider>
       </body>
     </html>
   );
