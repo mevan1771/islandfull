@@ -26,7 +26,7 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const chip = "text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full shadow-sm leading-none"
+    const chip = "text-[10px] md:text-sm font-bold px-2.5 md:px-6 py-1 md:py-2.5 rounded-full shadow-sm md:shadow-lg leading-none"
     const title = tour.title ? (
         <h1 className={`${chip} max-w-full min-w-0 bg-white text-zinc-900 whitespace-nowrap overflow-hidden text-ellipsis`}>
             {tour.title}
@@ -34,7 +34,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
     ) : null
 
     const badges = (
-        <div className="flex flex-wrap items-center gap-1.5 max-w-full">
+        <div className="flex flex-wrap items-center gap-1.5 md:gap-2 max-w-full">
             {tour.isStatic ? (
                 <span className={`${chip} bg-rose-500 text-white uppercase tracking-wider`}>SRI LANKA</span>
             ) : tour.location ? (
