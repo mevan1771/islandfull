@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect } from "react"
+import { shouldReturnViaHistory } from "@/lib/home-scroll"
 
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 
@@ -89,13 +90,28 @@ export default function SiteHeader() {
         <header className={headerClasses}>
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-3">
-                    {(isActivityPage || isDestinationsPage) && (
+                    {isActivityPage && (
                         <button
+                            type="button"
                             onClick={() => {
-                                if (isDestinationsPage) {
-                                    const event = new CustomEvent("islandfull:destinations-back", { cancelable: true })
-                                    if (!window.dispatchEvent(event)) return
+                                if (shouldReturnViaHistory()) {
+                                    router.back()
+                                    return
                                 }
+                                router.push("/")
+                            }}
+                            className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"
+                            aria-label="Back to previous page"
+                        >
+                            <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
+                        </button>
+                    )}
+                    {isDestinationsPage && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const event = new CustomEvent("islandfull:destinations-back", { cancelable: true })
+                                if (!window.dispatchEvent(event)) return
                                 router.back()
                             }}
                             className="md:hidden flex items-center justify-center"

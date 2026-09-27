@@ -7,6 +7,7 @@ import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { formatUSD } from "@/lib/utils"
+import { markHomeScrollForRestore } from "@/lib/home-scroll"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
 interface ActivityCardProps {
@@ -117,7 +118,12 @@ export function ActivityCard({
   const { ref: animRef, isActive } = useGpuEntryAnimation<HTMLDivElement>();
 
   return (
-    <Link href={`/activity/${slug}`} prefetch={true} className="block group h-full">
+    <Link
+      href={`/activity/${slug}`}
+      prefetch={true}
+      className="block group h-full"
+      onClick={markHomeScrollForRestore}
+    >
       <div 
         ref={animRef}
         className={`flex flex-col gap-2 h-full transition-all duration-300 ease-in-out transform-gpu md:opacity-100 md:scale-100 md:!translate-y-0 ${

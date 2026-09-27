@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Clock, Users, Eye, Heart } from "lucide-react"
+import { Clock, Users, Eye, Heart } from "lucide-react"
 import { incrementActivityView } from "@/app/actions/tracking"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 
@@ -47,7 +46,6 @@ export function ActivityMetaBar({
   dealEndDate,
   hasActiveDeal,
 }: ActivityMetaBarProps) {
-  const router = useRouter()
   const [likes, setLikes] = useState(initialLikes)
   const [hasLiked, setHasLiked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -112,16 +110,6 @@ export function ActivityMetaBar({
     <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3 w-full pt-2 md:pt-0">
       <div className="flex flex-nowrap items-center justify-start gap-1.5 md:gap-3 w-full md:w-auto overflow-x-auto hide-scrollbar md:overflow-visible">
         <span className={`inline-flex ${rosePill}`}>{location}</span>
-
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Go back"
-          className={`hidden md:inline-flex ${whitePill} hover:bg-gray-50 transition-colors`}
-        >
-          <ArrowLeft className={`${iconClass} text-rose-500`} />
-          Back
-        </button>
 
         <span className={`inline-flex ${whitePill}`} aria-label={`${capacityLabel} guests`}>
           <Users className={`${iconClass} text-rose-500`} />

@@ -4,6 +4,7 @@ import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { preload } from "react-dom"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
+import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
@@ -48,6 +49,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
   return (
     <div className="pb-24">
+      <HomeScrollRestore />
       {/* Hero Section */}
       <HeroCarousel carouselSlides={carouselSlides} />
 
