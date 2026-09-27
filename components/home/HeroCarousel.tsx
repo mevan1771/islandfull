@@ -79,7 +79,8 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     if (tour.isStatic) {
         return (
-            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-6">
+        return (
+            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-1 md:pb-6">
                 {badges}
                 {tour.subtitle && (
                     <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
@@ -93,7 +94,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
     return (
         <Link
             href={`/activity/${tour.slug}`}
-            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-6"
+            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-1 md:pb-6"
         >
             {badges}
         </Link>
@@ -144,7 +145,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
     }, [currentIndex])
 
     return (
-        <section className="relative pt-24 md:pt-32 pb-16 md:pb-48 text-white h-[clamp(15rem,36svh,18.25rem)] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900">
+        <section className="relative pt-24 md:pt-32 pb-16 md:pb-48 text-white h-[clamp(20rem,48svh,24rem)] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900">
             <HeaderThemeSetter useDarkTextDesktop={useDarkTextDesktop} useDarkTextMobile={useDarkTextMobile} />
 
             {carouselSlides.map((tour, index) => {
@@ -177,9 +178,9 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 )
             })}
 
-            <div className="absolute inset-x-0 bottom-0 z-[15] h-[55%] md:h-[42%] bg-gradient-to-t from-black/70 via-black/25 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
-            <div className="absolute bottom-5 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
+            <div className="absolute bottom-10 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                         {carouselSlides.map((tour, index) => (
