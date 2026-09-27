@@ -17,7 +17,6 @@ import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 import { ScrollToTop } from "@/components/activity/ScrollToTop"
 import { ActivityMetaBar } from "@/components/activity/ActivityMetaBar"
-import { ActivityTitle } from "@/components/activity/ActivityTitle"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -179,9 +178,12 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     <div className="space-y-2.5 md:space-y-3">
-                        <ActivityTitle title={activity.title} location={activity.location} />
+                        <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-700 leading-tight">
+                            {activity.title}
+                        </h1>
                         <ActivityMetaBar
                         tourId={activity.id}
+                        location={activity.location}
                         duration={activity.duration}
                         capacityLabel={
                             activity.min_guests && activity.min_guests > 1

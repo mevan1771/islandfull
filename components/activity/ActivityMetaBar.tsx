@@ -7,6 +7,7 @@ import { CountdownTimer } from "@/components/ui/CountdownTimer"
 
 interface ActivityMetaBarProps {
   tourId: string
+  location: string
   duration?: string | null
   capacityLabel: string
   initialLikes: number
@@ -37,6 +38,7 @@ const iconClass = "w-3 h-3 md:w-4 md:h-4 shrink-0"
 
 export function ActivityMetaBar({
   tourId,
+  location,
   duration,
   capacityLabel,
   initialLikes,
@@ -107,6 +109,8 @@ export function ActivityMetaBar({
   return (
     <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3 w-full pt-2 md:pt-0">
       <div className="flex flex-nowrap items-center justify-start gap-1.5 md:gap-3 w-full md:w-auto overflow-x-auto hide-scrollbar md:overflow-visible">
+        <span className={`inline-flex ${rosePill}`}>{location}</span>
+
         <span className={`inline-flex ${whitePill}`} aria-label={`${capacityLabel} guests`}>
           <Users className={`${iconClass} text-rose-500`} />
           {capacityLabel}
