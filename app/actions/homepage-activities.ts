@@ -37,11 +37,10 @@ function mapActivity(d: any): HomepageActivity {
 }
 
 function applySearchAndCategory(query: any, filters: HomepageActivityFilters) {
-  let next = query.eq("status", "published").eq("is_paused_by_host", false)
-
-  if (filters.vertical && filters.vertical !== "all") {
-    next = next.eq("category_type", filters.vertical)
-  }
+  let next = query
+    .eq("category_type", filters.vertical || "tour")
+    .eq("status", "published")
+    .eq("is_paused_by_host", false)
 
   if (filters.location) {
     let q = filters.location.toLowerCase().replace(/[^\p{L}\p{N}\s.,-]/gu, "").trim()

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash, LayoutGrid } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
 import locationPin from "@/components/ui/Location icon/354556546.jpg"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -16,8 +16,8 @@ export function MobileSearch() {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  const [currentVertical, setCurrentVertical] = useState<'all' | 'tour' | 'event' | 'transport'>(
-    (searchParams.get("vertical") as any) || 'all'
+  const [currentVertical, setCurrentVertical] = useState<'tour' | 'event' | 'transport'>(
+    (searchParams.get("vertical") as any) || 'tour'
   )
   const [location, setLocation] = useState(searchParams.get("location") || "")
   const [date, setDate] = useState(searchParams.get("date") || "")
@@ -32,11 +32,6 @@ export function MobileSearch() {
   const debouncedLocation = useDebounce(location, 300)
 
   useOnClickOutside(dropdownRef, () => setIsDropdownOpen(false))
-
-  useEffect(() => {
-    setCurrentVertical((searchParams.get("vertical") as any) || "all")
-    setLocation(searchParams.get("location") || "")
-  }, [searchParams])
 
   useEffect(() => {
     async function fetchSuggestions() {
@@ -63,12 +58,10 @@ export function MobileSearch() {
     }
   }, [debouncedLocation, isFocused])
 
-  const handleVerticalClick = (vertical: 'all' | 'tour' | 'event' | 'transport') => {
+  const handleVerticalClick = (vertical: 'tour' | 'event' | 'transport') => {
     setCurrentVertical(vertical)
     const params = new URLSearchParams(searchParams.toString())
-    if (vertical === "all") params.delete("vertical")
-    else params.set("vertical", vertical)
-    params.delete("category")
+    params.set("vertical", vertical)
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -103,12 +96,6 @@ export function MobileSearch() {
       <div className="bg-white rounded-xl shadow-md p-3">
         {/* Tabs */}
         <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 border-b border-zinc-100 mb-3 pb-1">
-          <button
-            onClick={() => handleVerticalClick('all')}
-            className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'all' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" /> All
-          </button>
           <button
             onClick={() => handleVerticalClick('tour')}
             className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
