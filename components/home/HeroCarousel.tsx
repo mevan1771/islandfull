@@ -48,28 +48,42 @@ function slideImageUrl(tour: Tour) {
     return tour.cover_image_url || tour.card_image_url || ""
 }
 
+const chip =
+    "inline-flex items-center text-[10px] md:text-sm font-bold px-2.5 md:px-6 py-1 md:py-2.5 rounded-full shadow-sm md:shadow-lg leading-none"
+
+function locationLabel(tour: Tour) {
+    return tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
+}
+
+function LocationChip({ tour }: { tour: Tour }) {
+    const location = locationLabel(tour)
+    if (!location) return null
+
+    return (
+        <span className={`${chip} shrink-0 bg-rose-500 text-white uppercase tracking-wider`}>
+            {location}
+        </span>
+    )
+}
+
 function TitleBlock({ tour }: { tour: Tour }) {
-    const chip =
-        "inline-flex items-center text-[10px] md:text-sm font-bold px-2.5 md:px-6 py-1 md:py-2.5 rounded-full shadow-sm md:shadow-lg leading-none"
-    const location = tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
     const priceLabel = heroPriceLabel(tour)
 
-    const badges = (
-        <div className="flex flex-nowrap items-center gap-1.5 md:gap-2 max-w-full">
-            {location && (
-                <span className={`${chip} shrink-0 bg-rose-500 text-white uppercase tracking-wider`}>
-                    {location}
-                </span>
-            )}
+    const stack = (
+        <div className="flex flex-col items-start gap-1.5 md:gap-2 max-w-full">
+            <LocationChip tour={tour} />
             {tour.title && (
-                <h1 className={`${chip} min-w-0 bg-white text-zinc-900 whitespace-nowrap overflow-hidden text-ellipsis`}>
-                    {tour.title}
+                <h1 className={`${chip} min-w-0 max-w-full gap-2 md:gap-3 bg-white`}>
+                    <span className="min-w-0 truncate text-zinc-900">{tour.title}</span>
+                    {priceLabel && (
+                        <>
+                            <span className="h-3 md:h-3.5 w-px shrink-0 bg-zinc-200" aria-hidden="true" />
+                            <span className="shrink-0 text-rose-500 tabular-nums tracking-tight">
+                                {priceLabel}
+                            </span>
+                        </>
+                    )}
                 </h1>
-            )}
-            {priceLabel && (
-                <span className={`${chip} shrink-0 bg-zinc-900 text-white whitespace-nowrap tabular-nums`}>
-                    {priceLabel}
-                </span>
             )}
         </div>
     )
@@ -77,7 +91,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
     if (tour.isStatic) {
         return (
             <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-6">
-                {badges}
+                {stack}
                 {tour.subtitle && (
                     <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
                         {tour.subtitle}
@@ -92,7 +106,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
             href={`/activity/${tour.slug}`}
             className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-6"
         >
-            {badges}
+            {stack}
         </Link>
     )
 }
@@ -178,7 +192,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
 
             <div className="absolute bottom-5 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
+                    <div className="relative min-h-[4.5rem] md:min-h-[5.5rem]">
                         {carouselSlides.map((tour, index) => (
                             <div
                                 key={`${tour.id}-copy`}
