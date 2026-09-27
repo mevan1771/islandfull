@@ -150,7 +150,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   return (
     <>
       {/* Floating Search Widget (Desktop only now) */}
-      <div className="relative -mt-12 z-20 px-4 hidden sm:block">
+      <div className="relative -mt-24 z-20 px-4 hidden sm:block">
         <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
           {/* Tabs */}
           <div className="flex overflow-x-auto md:overflow-visible scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
