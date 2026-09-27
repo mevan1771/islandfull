@@ -49,32 +49,28 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const chip =
-        "inline-flex items-center text-[10px] md:text-sm font-bold px-2.5 md:px-6 py-1 md:py-2.5 rounded-full shadow-sm md:shadow-lg leading-none"
     const location = tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
     const priceLabel = heroPriceLabel(tour)
 
     const badges = (
-        <div className="flex flex-nowrap items-center gap-1.5 md:gap-2 max-w-full">
+        <h1 className="inline-flex items-center min-w-0 max-w-full gap-1.5 md:gap-3 text-[10px] md:text-sm font-bold leading-none bg-white rounded-full shadow-sm md:shadow-lg pl-1 pr-2.5 py-1 md:pl-1.5 md:pr-6 md:py-1.5">
             {location && (
-                <span className={`${chip} shrink-0 bg-rose-500 text-white uppercase tracking-wider`}>
+                <span className="shrink-0 rounded-full bg-rose-500 text-white uppercase tracking-wider px-2.5 md:px-4 py-1 md:py-1.5">
                     {location}
                 </span>
             )}
             {tour.title && (
-                <h1 className={`${chip} min-w-0 max-w-full gap-2 md:gap-3 bg-white`}>
-                    <span className="min-w-0 truncate text-zinc-900">{tour.title}</span>
-                    {priceLabel && (
-                        <>
-                            <span className="h-3 md:h-3.5 w-px shrink-0 bg-zinc-200" aria-hidden="true" />
-                            <span className="shrink-0 text-rose-500 tabular-nums tracking-tight">
-                                {priceLabel}
-                            </span>
-                        </>
-                    )}
-                </h1>
+                <span className="min-w-0 truncate text-zinc-900">{tour.title}</span>
             )}
-        </div>
+            {priceLabel && (
+                <>
+                    <span className="h-3 md:h-3.5 w-px shrink-0 bg-zinc-200" aria-hidden="true" />
+                    <span className="shrink-0 text-rose-500 tabular-nums tracking-tight">
+                        {priceLabel}
+                    </span>
+                </>
+            )}
+        </h1>
     )
 
     if (tour.isStatic) {
