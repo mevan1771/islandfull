@@ -39,19 +39,9 @@ function heroPriceLabel(tour: Tour): string | null {
     const hasGroupTiers = hasPricingTiers(tour.pricing_tiers)
     const lowestPerPerson = hasGroupTiers ? getLowestPerPersonFromTiers(tour.pricing_tiers) : null
 
-    if (isDealActive && tour.discount_price) {
-        const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👤"
-        return `${formatUSD(tour.discount_price)}${suffix}`
-    }
-    if (hasGroupTiers && lowestPerPerson != null) {
-        return `From ${formatUSD(lowestPerPerson)} / 👤`
-    }
-    if (tour.pricing_model === "flat_rate") {
-        const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👥"
-        return `${formatUSD(priceUsd)}${suffix}`
-    }
-    const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👤"
-    return `${formatUSD(priceUsd)}${suffix}`
+    if (isDealActive && tour.discount_price) return formatUSD(tour.discount_price)
+    if (hasGroupTiers && lowestPerPerson != null) return formatUSD(lowestPerPerson)
+    return formatUSD(priceUsd)
 }
 
 function slideImageUrl(tour: Tour) {
@@ -79,7 +69,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
             ) : null}
             {title}
             {priceLabel && (
-                <span className={`${chip} bg-zinc-900 text-white whitespace-nowrap`}>
+                <span className={`${chip} bg-[#FFD100] text-zinc-900 whitespace-nowrap`}>
                     {priceLabel}
                 </span>
             )}
