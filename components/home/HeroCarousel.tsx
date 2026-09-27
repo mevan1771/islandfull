@@ -73,15 +73,14 @@ function TitleBlock({ tour }: { tour: Tour }) {
         <div className="flex flex-col items-start gap-1.5 md:gap-2 max-w-full">
             <LocationChip tour={tour} />
             {tour.title && (
-                <h1 className={`${chip} min-w-0 max-w-full gap-2 md:gap-3 bg-white`}>
-                    <span className="min-w-0 truncate text-zinc-900">{tour.title}</span>
+                <h1 className="flex items-baseline gap-2 md:gap-3 min-w-0 max-w-full">
+                    <span className="min-w-0 truncate text-[15px] md:text-2xl lg:text-[1.75rem] font-semibold tracking-tight text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5),0_10px_28px_rgba(0,0,0,0.4)]">
+                        {tour.title}
+                    </span>
                     {priceLabel && (
-                        <>
-                            <span className="h-3 md:h-3.5 w-px shrink-0 bg-zinc-200" aria-hidden="true" />
-                            <span className="shrink-0 text-rose-500 tabular-nums tracking-tight">
-                                {priceLabel}
-                            </span>
-                        </>
+                        <span className="shrink-0 text-[15px] md:text-2xl lg:text-[1.75rem] font-semibold tabular-nums tracking-tight text-rose-400 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
+                            {priceLabel}
+                        </span>
                     )}
                 </h1>
             )}
