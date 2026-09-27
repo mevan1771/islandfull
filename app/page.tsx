@@ -14,12 +14,12 @@ export const revalidate = 60
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
-  const currentVertical = params.vertical || 'tour';
+  const currentVertical = params.vertical || "all";
   const currentCategory = params.category || 'all';
 
   const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories] = await Promise.all([
     getHomepageHeroData(),
-    getHomepageCategories(currentVertical),
+    currentVertical === "all" ? Promise.resolve([]) : getHomepageCategories(currentVertical),
   ]);
 
   const carouselSlides = [
@@ -98,7 +98,7 @@ async function ActivityGridServer({
   spotlightSlides: SpotlightConfig[] | null
 }) {
   const filters = {
-    vertical: searchParams.vertical || "tour",
+    vertical: searchParams.vertical || "all",
     category: searchParams.category || "all",
     location: searchParams.location || "",
     sort: searchParams.sort || "",

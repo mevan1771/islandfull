@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash, LayoutGrid } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -28,7 +28,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  const currentVertical = searchParams.get("vertical") || "tour"
+  const currentVertical = searchParams.get("vertical") || "all"
   const currentCategory = searchParams.get("category") || "all"
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
@@ -95,7 +95,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const CATEGORIES = [
     { id: "all", name: "All" },
     { id: "saved", name: "", icon: Heart },
-    ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
+    ...(currentVertical === "all" ? [] : dynamicCategories.map(c => ({ id: c.slug, name: c.name }))),
   ]
 
   const handleSearch = (e?: FormEvent) => {
@@ -128,8 +128,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const handleVerticalClick = (vertical: string) => {
     setOptimisticVertical(vertical)
     const params = new URLSearchParams(searchParams.toString())
-    params.set("vertical", vertical)
-    params.delete("category") // Reset category when switching vertical
+    if (vertical === "all") params.delete("vertical")
+    else params.set("vertical", vertical)
+    params.delete("category")
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -154,6 +155,12 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
         <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
           {/* Tabs */}
           <div className="flex overflow-x-auto md:overflow-visible scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
+            <button
+              onClick={() => handleVerticalClick('all')}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'all' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+            >
+              <LayoutGrid className="w-4 h-4" /> All
+            </button>
             <button
               onClick={() => handleVerticalClick('tour')}
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
