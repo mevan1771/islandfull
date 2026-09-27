@@ -26,27 +26,32 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
-    const titleStyle = { "--char-count": Math.max(tour.title?.length ?? 1, 1) } as React.CSSProperties
-    const title = (
-        <h1
-            className="max-w-full min-w-0 inline-flex items-center rounded-full bg-black/55 backdrop-blur-md text-white shadow-[0_8px_30px_rgba(0,0,0,0.28)] px-3 py-1 md:px-5 md:py-1.5 text-[clamp(0.7rem,calc(130vw/var(--char-count)),1.125rem)] md:text-[clamp(1.125rem,calc(70vw/var(--char-count)),1.875rem)] whitespace-nowrap overflow-hidden text-ellipsis leading-tight font-bold"
-            style={titleStyle}
-        >
+    const chip = "text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full shadow-sm leading-none"
+    const title = tour.title ? (
+        <h1 className={`${chip} max-w-full min-w-0 bg-white text-zinc-900 whitespace-nowrap overflow-hidden text-ellipsis`}>
             {tour.title}
         </h1>
+    ) : null
+
+    const badges = (
+        <div className="flex flex-wrap items-center gap-1.5 max-w-full">
+            {tour.isStatic ? (
+                <span className={`${chip} bg-rose-500 text-white uppercase tracking-wider`}>SRI LANKA</span>
+            ) : tour.location ? (
+                <span className={`${chip} bg-rose-500 text-white uppercase tracking-wider`}>
+                    {tour.location.replace(", Sri Lanka", "")}
+                </span>
+            ) : null}
+            {title}
+        </div>
     )
 
     if (tour.isStatic) {
         return (
-            <div className="flex flex-col items-start text-left gap-2 pointer-events-auto w-full pb-6">
-                <div className="flex flex-col items-start max-w-full overflow-hidden">
-                    <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
-                        SRI LANKA
-                    </span>
-                    {tour.title ? title : null}
-                </div>
+            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-6">
+                {badges}
                 {tour.subtitle && (
-                    <p className="max-w-xl rounded-2xl bg-black/40 backdrop-blur-md text-white/95 text-sm sm:text-base md:text-lg font-medium px-3 py-1.5 md:px-4 md:py-2 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
+                    <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
                         {tour.subtitle}
                     </p>
                 )}
@@ -59,14 +64,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
             href={`/activity/${tour.slug}`}
             className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-6"
         >
-            <div className="flex flex-col items-start max-w-full overflow-hidden">
-                {tour.location && (
-                    <span className="bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 rounded-full w-max shadow-sm tracking-wider shrink-0 mb-2">
-                        {tour.location.replace(", Sri Lanka", "")}
-                    </span>
-                )}
-                {title}
-            </div>
+            {badges}
         </Link>
     )
 }
