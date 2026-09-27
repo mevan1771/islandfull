@@ -8,6 +8,7 @@ import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
 import { ActivityMap } from "@/components/activity/ActivityMap"
 import { ActivityGallery } from "@/components/activity/ActivityGallery"
+import { ActivityHeroCollage } from "@/components/activity/ActivityHeroCollage"
 import { FaqAccordion } from "@/components/activity/FaqAccordion"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MobileBackButton } from "@/components/ui/MobileBackButton"
@@ -167,41 +168,14 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <MobilePaddingSetter />
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
-            {/* Hero Image */}
-            <div className="relative h-[35svh] md:h-[600px] mx-4 mt-0 md:mx-auto max-w-[1400px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg md:shadow-xl">
-
-                <Image
-                    src={upgradeUnsplashUrl(activity.cover_image_url) || '/placeholder.jpg'}
-                    alt={activity.title || 'Activity'}
-                    fill
-                    sizes="100vw"
-                    quality={95}
-                    unoptimized={true}
-                    placeholder="blur"
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-                    className="object-cover object-center"
-                    priority={true}
-                    fetchPriority="high"
-                />
-                {/* Top Gradient for Header Legibility Removed */}
-
-
-                <div className="absolute bottom-0 left-0 right-0 w-full pb-4 md:pb-8">
-                    <div className="max-w-7xl mx-auto px-4 flex flex-col items-start gap-2">
-                        <div className="hidden md:flex items-center gap-2">
-                            <span className="px-2.5 py-1 md:px-4 md:py-1.5 bg-rose-500 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider shadow-sm ">
-                                {activity.location}
-                            </span>
-                        </div>
-                        <h1
-                            className={`text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.25rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:leading-tight md:whitespace-normal md:overflow-visible font-bold tracking-tight ${activity.use_dark_text_mobile ? 'text-slate-700/80' : 'text-white'} ${activity.use_dark_text_desktop ? 'md:text-slate-700/80' : 'md:text-white'}`}
-                            style={{ '--char-count': activity.title.length } as React.CSSProperties}
-                        >
-                            {activity.title}
-                        </h1>
-                    </div>
-                </div>
-            </div>
+            <ActivityHeroCollage
+                coverUrl={upgradeUnsplashUrl(activity.cover_image_url) || "/placeholder.jpg"}
+                galleryUrls={activity.gallery_urls}
+                title={activity.title}
+                location={activity.location}
+                useDarkTextDesktop={activity.use_dark_text_desktop}
+                useDarkTextMobile={activity.use_dark_text_mobile}
+            />
 
             {/* Content */}
             <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
