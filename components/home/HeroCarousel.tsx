@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { heroDefaultSrc, heroLqip, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
+import { formatUSD } from "@/lib/utils"
+import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
 export interface Tour {
     id: string
@@ -16,10 +18,41 @@ export interface Tour {
     isStatic?: boolean
     use_dark_text_desktop?: boolean
     use_dark_text_mobile?: boolean
+    price_usd?: number
+    price_suffix?: string | null
+    discount_price?: number | null
+    deal_end_date?: string | null
+    pricing_model?: string
+    pricing_tiers?: unknown
 }
 
 const THEME_DELAY_MS = 350
 const LOAD_WAIT_MS = 1200
+
+function heroPriceLabel(tour: Tour): string | null {
+    if (tour.isStatic) return null
+    const priceUsd = tour.price_usd
+    if (priceUsd == null) return null
+    if (priceUsd === 0) return "Free"
+
+    const isDealActive = Boolean(tour.discount_price && tour.deal_end_date && new Date(tour.deal_end_date) > new Date())
+    const hasGroupTiers = hasPricingTiers(tour.pricing_tiers)
+    const lowestPerPerson = hasGroupTiers ? getLowestPerPersonFromTiers(tour.pricing_tiers) : null
+
+    if (isDealActive && tour.discount_price) {
+        const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👤"
+        return `${formatUSD(tour.discount_price)}${suffix}`
+    }
+    if (hasGroupTiers && lowestPerPerson != null) {
+        return `From ${formatUSD(lowestPerPerson)} / 👤`
+    }
+    if (tour.pricing_model === "flat_rate") {
+        const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👥"
+        return `${formatUSD(priceUsd)}${suffix}`
+    }
+    const suffix = tour.price_suffix?.trim() ? ` ${tour.price_suffix.trim()}` : " / 👤"
+    return `${formatUSD(priceUsd)}${suffix}`
+}
 
 function slideImageUrl(tour: Tour) {
     return tour.cover_image_url || tour.card_image_url || ""
@@ -33,6 +66,8 @@ function TitleBlock({ tour }: { tour: Tour }) {
         </h1>
     ) : null
 
+    const priceLabel = heroPriceLabel(tour)
+
     const badges = (
         <div className="flex flex-wrap items-center gap-1.5 md:gap-2 max-w-full">
             {tour.isStatic ? (
@@ -43,6 +78,11 @@ function TitleBlock({ tour }: { tour: Tour }) {
                 </span>
             ) : null}
             {title}
+            {priceLabel && (
+                <span className={`${chip} bg-zinc-900 text-white whitespace-nowrap`}>
+                    {priceLabel}
+                </span>
+            )}
         </div>
     )
 

@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache"
 import { supabase } from "@/lib/supabase"
 
 const HERO_TOUR_COLUMNS =
-  "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile"
+  "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers"
 
 export type HomepageHeroPayload = {
   featuredTours: any[]
