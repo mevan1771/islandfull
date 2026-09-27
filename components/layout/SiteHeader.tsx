@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import { shouldReturnViaHistory } from "@/lib/home-scroll"
 
 import { ArrowLeft, ChevronLeft } from "lucide-react"
+import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
 export default function SiteHeader() {
     const pathname = usePathname()
@@ -198,12 +199,10 @@ export default function SiteHeader() {
                             🌍 Explore Map
                         </Link>
                     )}
-                    <div className={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors ${iconBorder}`}>
-                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}>
-                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                        </svg>
-                    </div>
+                    <UserNavMenu
+                        triggerClassName={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors ${iconBorder}`}
+                        iconClassName={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}
+                    />
                 </div>
             </div>
         </header>
