@@ -79,7 +79,6 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     if (tour.isStatic) {
         return (
-        return (
             <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-1 md:pb-6">
                 {badges}
                 {tour.subtitle && (
