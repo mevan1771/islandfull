@@ -1,4 +1,4 @@
-export const HOMEPAGE_PAGE_SIZE = 24
+export const HOMEPAGE_PAGE_SIZE = 36
 
 export type HomepageActivity = {
   id: string

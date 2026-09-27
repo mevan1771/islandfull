@@ -101,9 +101,9 @@ export function ActivityGrid({
     )
   }
 
-  const leading = displayActivities.slice(0, 6)
-  const desktopOnlyBeforeSpotlight = displayActivities.slice(6, 8)
-  const trailing = displayActivities.slice(8)
+  const leading = displayActivities.slice(0, 8)
+  const desktopOnlyBeforeSpotlight = displayActivities.slice(8, 12)
+  const trailing = displayActivities.slice(12)
 
   return (
     <div>
