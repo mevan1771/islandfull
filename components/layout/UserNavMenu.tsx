@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { SignInButton, useClerk, useSignIn, useUser } from "@clerk/nextjs"
+import { SignInButton, useClerk, useUser } from "@clerk/nextjs"
 import { Heart, LogOut, MapPinned, Settings, X } from "lucide-react"
-import toast from "react-hot-toast"
 
 function GoogleMark() {
   return (
@@ -30,37 +29,21 @@ function GoogleMark() {
 }
 
 function LoggedOutActions() {
-  const { signIn, isLoaded } = useSignIn()
-  const [busy, setBusy] = useState(false)
-
-  const google = async () => {
-    if (!signIn || !isLoaded) return
-    setBusy(true)
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: window.location.href,
-      })
-    } catch {
-      toast.error("Google sign-in is not available yet. Enable Google in the Clerk dashboard.")
-      setBusy(false)
-    }
-  }
+  const redirectUrl = typeof window === "undefined" ? "/" : window.location.href
 
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-zinc-500">Save tours and keep your bookings in one place.</p>
-      <button
-        type="button"
-        disabled={busy || !isLoaded}
-        onClick={() => void google()}
-        className="flex items-center justify-center gap-3 min-h-11 w-full rounded-full bg-zinc-900 text-white text-sm font-bold px-4 hover:bg-zinc-800 transition-colors disabled:opacity-60"
-      >
-        <GoogleMark />
-        Continue with Google
-      </button>
-      <SignInButton mode="modal" forceRedirectUrl={typeof window === "undefined" ? "/" : window.location.href}>
+      <SignInButton mode="modal" forceRedirectUrl={redirectUrl}>
+        <button
+          type="button"
+          className="flex items-center justify-center gap-3 min-h-11 w-full rounded-full bg-zinc-900 text-white text-sm font-bold px-4 hover:bg-zinc-800 transition-colors"
+        >
+          <GoogleMark />
+          Continue with Google
+        </button>
+      </SignInButton>
+      <SignInButton mode="modal" forceRedirectUrl={redirectUrl}>
         <button
           type="button"
           className="flex items-center justify-center min-h-11 w-full rounded-full border border-zinc-200 bg-white text-zinc-800 text-sm font-semibold px-4 hover:bg-zinc-50 transition-colors"
