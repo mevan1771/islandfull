@@ -35,6 +35,8 @@ function CardFromItem({ act }: { act: HomepageActivity }) {
 }
 
 export function TripsPageClient({ recommended }: { recommended: HomepageActivity[] }) {
+  const searchParams = useSearchParams()
+  const tab = searchParams.get("tab") === "wishlist" ? "wishlist" : "trips"
   const { user, isSignedIn } = useUser()
   const { favorites, isHydrated } = useFavorites()
   const [saved, setSaved] = useState<HomepageActivity[]>([])
