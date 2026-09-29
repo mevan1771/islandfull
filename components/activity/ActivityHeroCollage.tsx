@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { createPortal } from "react-dom"
+import { useState } from "react"
 import Image from "next/image"
-import { X, Images } from "lucide-react"
+import { Images } from "lucide-react"
+import { PhotoLightbox } from "@/components/activity/PhotoLightbox"
 
 const BLUR =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
@@ -34,23 +34,6 @@ export function ActivityHeroCollage({
   const hasCollage = side.length > 0
 
   const [openIndex, setOpenIndex] = useState<number | null>(null)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-
-  useEffect(() => {
-    if (openIndex === null) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenIndex(null)
-      if (e.key === "ArrowRight") setOpenIndex((i) => (i === null ? i : Math.min(all.length - 1, i + 1)))
-      if (e.key === "ArrowLeft") setOpenIndex((i) => (i === null ? i : Math.max(0, i - 1)))
-    }
-    window.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
-    return () => {
-      window.removeEventListener("keydown", onKey)
-      document.body.style.overflow = "unset"
-    }
-  }, [openIndex, all.length])
 
   const sideGridClass =
     side.length >= 3
@@ -71,6 +54,7 @@ export function ActivityHeroCollage({
         >
           <button
             type="button"
+            aria-label={`View photos of ${title || "this activity"}`}
             className="relative w-full h-full min-h-0 overflow-hidden rounded-2xl sm:rounded-3xl text-left shadow-md"
             onClick={() => setOpenIndex(0)}
           >
@@ -116,41 +100,14 @@ export function ActivityHeroCollage({
         </div>
       </div>
 
-      {openIndex !== null && mounted &&
-        createPortal(
-          <div className="fixed inset-0 z-[999999] bg-black flex items-center justify-center">
-            <div className="absolute top-4 left-4 text-white text-sm tracking-widest bg-black/50 px-3 py-1 rounded-full">
-              {openIndex + 1} OF {all.length}
-            </div>
-            <button
-              type="button"
-              className="absolute top-4 right-4 p-3 text-white bg-black/50 rounded-full"
-              onClick={() => setOpenIndex(null)}
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <img src={all[openIndex]} alt="" className="max-w-[100vw] max-h-[100vh] object-contain" />
-            {openIndex > 0 && (
-              <button
-                type="button"
-                className="absolute left-4 text-white text-4xl px-3"
-                onClick={() => setOpenIndex((i) => Math.max(0, (i ?? 0) - 1))}
-              >
-                ‹
-              </button>
-            )}
-            {openIndex < all.length - 1 && (
-              <button
-                type="button"
-                className="absolute right-4 text-white text-4xl px-3"
-                onClick={() => setOpenIndex((i) => Math.min(all.length - 1, (i ?? 0) + 1))}
-              >
-                ›
-              </button>
-            )}
-          </div>,
-          document.body
-        )}
+      {openIndex !== null && (
+        <PhotoLightbox
+          urls={all}
+          startIndex={openIndex}
+          alt={title || "Activity"}
+          onClose={() => setOpenIndex(null)}
+        />
+      )}
     </>
   )
 }

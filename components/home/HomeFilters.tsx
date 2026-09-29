@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash, ChevronLeft, ChevronRight } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -62,6 +62,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const tagScrollerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
 
   const debouncedLocation = useDebounce(location, 300)
 
@@ -133,6 +136,33 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
+  }
+
+  const updateTagOverflow = () => {
+    const el = tagScrollerRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(max > 4 && el.scrollLeft < max - 4)
+  }
+
+  useEffect(() => {
+    const el = tagScrollerRef.current
+    if (!el) return
+    updateTagOverflow()
+    const observer = new ResizeObserver(updateTagOverflow)
+    observer.observe(el)
+    window.addEventListener("resize", updateTagOverflow)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("resize", updateTagOverflow)
+    }
+  }, [dynamicCategories.length])
+
+  const jogTags = (direction: 1 | -1) => {
+    const el = tagScrollerRef.current
+    if (!el) return
+    el.scrollBy({ left: direction * Math.max(160, el.clientWidth * 0.7), behavior: "smooth" })
   }
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -286,9 +316,26 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
       </div>
 
       {/* Activity Grid Header / Filters */}
-      <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900 overflow-hidden md:overflow-visible">
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex w-[calc(100%+2rem)] md:w-auto -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900">
+        <div className="relative w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0">
+          {canScrollLeft && (
+            <>
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white to-transparent" />
+              <button
+                type="button"
+                aria-label="Previous tags"
+                onClick={() => jogTags(-1)}
+                className="absolute left-1 md:left-0 top-1/2 z-20 -translate-y-1/2 flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm text-zinc-700"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
+          )}
+          <div
+            ref={tagScrollerRef}
+            onScroll={updateTagOverflow}
+            className="flex w-full px-4 md:px-0 overflow-x-auto flex-nowrap whitespace-nowrap gap-2 pb-2 items-center md:gap-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
@@ -310,6 +357,19 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               );
             })}
           </div>
+          {canScrollRight && (
+            <>
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-white to-transparent" />
+              <button
+                type="button"
+                aria-label="More tags"
+                onClick={() => jogTags(1)}
+                className="absolute right-1 md:right-0 top-1/2 z-20 -translate-y-1/2 flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full border border-zinc-200 bg-white shadow-sm text-zinc-700"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>
