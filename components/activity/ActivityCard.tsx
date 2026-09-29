@@ -27,6 +27,7 @@ interface ActivityCardProps {
   discountPrice?: number
   dealEndDate?: string
   pricingTiers?: Record<string, number> | unknown
+  alwaysShowFavorite?: boolean
 }
 
 function useGpuEntryAnimation<T extends HTMLElement>() {
@@ -77,6 +78,7 @@ export function ActivityCard({
   discountPrice,
   dealEndDate,
   pricingTiers,
+  alwaysShowFavorite = false,
 }: ActivityCardProps) {
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -154,7 +156,7 @@ export function ActivityCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           )}
-          <FavoriteButton activityId={id} className="hidden md:flex" />
+          <FavoriteButton activityId={id} className={alwaysShowFavorite ? undefined : "hidden md:flex"} />
         </div>
 
         {/* Content Details */}
