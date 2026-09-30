@@ -46,11 +46,17 @@ export async function POST(req: Request) {
             currency: 'usd',
             product_data: {
               name: selectedOption ? `${title} (${selectedOption})` : title,
-              description: pricingModel === 'flat_rate' ? `Private Group (Up to ${guests} guests) on ${date}` : `${guests} Pax on ${date}`,
+              description: pricingModel === 'flat_rate'
+                ? `Private Group (Up to ${guests} guests) on ${date}`
+                : pricingModel === 'per_day'
+                  ? `Vehicle hire (${guests} passengers) on ${date}`
+                  : `${guests} Pax on ${date}`,
             },
-            unit_amount: pricingModel === 'flat_rate' ? Math.round(finalTotalUsd * 100) : Math.round((finalTotalUsd / guests) * 100),
+            unit_amount: pricingModel === 'flat_rate' || pricingModel === 'per_day'
+              ? Math.round(finalTotalUsd * 100)
+              : Math.round((finalTotalUsd / guests) * 100),
           },
-          quantity: pricingModel === 'flat_rate' ? 1 : guests,
+          quantity: pricingModel === 'flat_rate' || pricingModel === 'per_day' ? 1 : guests,
         },
       ],
       mode: 'payment',

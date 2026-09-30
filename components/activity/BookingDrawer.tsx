@@ -119,13 +119,14 @@ export function BookingDrawer({
   })();
 
   const guestCount = guests
-  const standardTotal = effectivePriceUsd * guestCount
+  const chargesPerGuest = pricingModel === 'per_person'
+  const standardTotal = chargesPerGuest ? effectivePriceUsd * guestCount : effectivePriceUsd
   const matchingTierPrice = getMatchingTierPrice(guestCount, pricingTiers)
 
   let actualTotal = 0
   if (matchingTierPrice !== null) {
     actualTotal = matchingTierPrice
-  } else if (pricingModel === 'flat_rate') {
+  } else if (pricingModel === 'flat_rate' || pricingModel === 'per_day') {
     actualTotal = effectivePriceUsd
   } else {
     actualTotal = standardTotal
@@ -136,11 +137,11 @@ export function BookingDrawer({
   const standardTotalForStay = standardTotal * dayMultiplier
   actualTotal = actualTotal * dayMultiplier
 
-  // Option extras: per person on per-person tours, once on flat-rate (whole group / jeep)
+  // Option extras: per person on per-person tours; once on flat-rate / per-day (whole car or group)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
     if (opt) {
-      const optionGuestMultiplier = pricingModel === 'flat_rate' ? 1 : guests
+      const optionGuestMultiplier = chargesPerGuest ? guests : 1
       const optionModifier = opt.price_modifier * optionGuestMultiplier * dayMultiplier
       actualTotal += optionModifier
     }
@@ -562,7 +563,7 @@ export function BookingDrawer({
                           >
                             {tourOptions.map((opt, idx) => (
                               <option key={idx} value={opt.title}>
-                                {opt.title} {opt.price_modifier > 0 ? (pricingModel === 'flat_rate' ? `(+$${opt.price_modifier})` : `(+$${opt.price_modifier} pp)`) : ""}
+                                {opt.title} {opt.price_modifier > 0 ? (chargesPerGuest ? `(+$${opt.price_modifier} pp)` : `(+$${opt.price_modifier})`) : ""}
                               </option>
                             ))}
                           </select>
@@ -573,7 +574,11 @@ export function BookingDrawer({
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                             <Users className="w-3.5 h-3.5 text-rose-500" />
-                            {bookingType === 'multi_day' ? 'Quantity' : 'Guests'}
+                            {bookingType === 'multi_day' && pricingModel !== 'per_day'
+                              ? 'Quantity'
+                              : pricingModel === 'per_day'
+                                ? 'Passengers'
+                                : 'Guests'}
                           </label>
                           <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                             <button
