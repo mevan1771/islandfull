@@ -4,108 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { MapClientWrapper } from "@/components/map/MapClientWrapper";
 import type { MapTour } from "@/components/map/InteractiveMap";
 import { supabase } from "@/lib/supabase";
-
-type Destination = {
-  id: number;
-  name: string;
-  image: string;
-  coordinates: { lat: number; lng: number };
-  span: string;
-  comingSoon?: boolean;
-};
-
-const DESTINATIONS: Destination[] = [
-  {
-    id: 1,
-    name: "Galle",
-    image: "https://images.pexels.com/photos/319892/pexels-photo-319892.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.0535, lng: 80.2210 },
-    span: "col-span-2 row-span-2 md:col-span-2 md:row-span-2",
-  },
-  {
-    id: 2,
-    name: "Sigiriya",
-    image: "https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 7.9570, lng: 80.7603 },
-    span: "col-span-1 row-span-2 md:col-span-2 md:row-span-1",
-  },
-  {
-    id: 3,
-    name: "Kandy",
-    image: "https://images.pexels.com/photos/322437/pexels-photo-322437.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 7.2906, lng: 80.6337 },
-    span: "col-span-1 row-span-1",
-  },
-  {
-    id: 4,
-    name: "Hikkaduwa",
-    image: "https://images.pexels.com/photos/7400676/pexels-photo-7400676.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.1408, lng: 80.1014 },
-    span: "col-span-1 row-span-1",
-  },
-  {
-    id: 5,
-    name: "Weligama",
-    image: "https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 5.9735, lng: 80.4297 },
-    span: "col-span-1 row-span-1",
-  },
-  {
-    id: 6,
-    name: "Yala",
-    image: "https://images.pexels.com/photos/631317/pexels-photo-631317.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.3690, lng: 81.5180 },
-    span: "col-span-2 row-span-2 md:col-span-2 md:row-span-1",
-  },
-  {
-    id: 7,
-    name: "Ella",
-    image: "https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.8667, lng: 81.0466 },
-    span: "col-span-1 row-span-1 md:col-span-1 md:row-span-1",
-    comingSoon: true,
-  },
-  {
-    id: 8,
-    name: "Mirissa",
-    image: "https://images.pexels.com/photos/457882/pexels-photo-457882.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 5.9483, lng: 80.4714 },
-    span: "col-span-1 row-span-1",
-    comingSoon: true,
-  },
-  {
-    id: 9,
-    name: "Colombo",
-    image: "https://images.pexels.com/photos/1549326/pexels-photo-1549326.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.9271, lng: 79.8612 },
-    span: "col-span-1 row-span-1",
-    comingSoon: true,
-  },
-  {
-    id: 10,
-    name: "Trincomalee",
-    image: "https://images.pexels.com/photos/1078983/pexels-photo-1078983.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 8.5874, lng: 81.2152 },
-    span: "col-span-1 row-span-1",
-    comingSoon: true,
-  },
-  {
-    id: 11,
-    name: "Nuwara Eliya",
-    image: "https://images.pexels.com/photos/1591373/pexels-photo-1591373.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.9497, lng: 80.7891 },
-    span: "col-span-1 row-span-1",
-    comingSoon: true,
-  },
-  {
-    id: 12,
-    name: "Arugam Bay",
-    image: "https://images.pexels.com/photos/390051/surfer-wave-sunset-the-indian-ocean-390051.jpeg?auto=compress&cs=tinysrgb&w=800",
-    coordinates: { lat: 6.8404, lng: 81.8363 },
-    span: "col-span-1 row-span-1",
-    comingSoon: true,
-  },
-];
+import { DESTINATIONS, type Destination } from "@/lib/destinations";
+import { DestinationBranch } from "@/components/destinations/DestinationBranch";
 
 function toMapTour(activity: any): MapTour {
   let rating = 4.9;
@@ -156,6 +56,8 @@ export default function DestinationsPage() {
   const [mapCategories, setMapCategories] = useState<{ name: string; slug: string; category_type: string }[]>([]);
   const [activityCounts, setActivityCounts] = useState<Record<string, number>>({});
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [branchHub, setBranchHub] = useState<Destination | null>(null);
+  const [branchTrail, setBranchTrail] = useState<Destination[]>([]);
   const listScrollRef = useRef(0);
 
   useEffect(() => {
@@ -205,6 +107,41 @@ export default function DestinationsPage() {
     };
   }, []);
 
+  const closeBranch = () => {
+    setBranchHub(null);
+    setBranchTrail([]);
+  };
+
+  const openBranch = (dest: Destination) => {
+    setBranchHub(dest);
+    setBranchTrail([dest]);
+  };
+
+  const branchTo = (dest: Destination) => {
+    setBranchHub(dest);
+    setBranchTrail((prev) => {
+      const existing = prev.findIndex((stop) => stop.id === dest.id);
+      if (existing >= 0) return prev.slice(0, existing + 1);
+      return [...prev, dest];
+    });
+  };
+
+  const jumpToTrail = (dest: Destination) => {
+    setBranchHub(dest);
+    setBranchTrail((prev) => {
+      const existing = prev.findIndex((stop) => stop.id === dest.id);
+      return existing >= 0 ? prev.slice(0, existing + 1) : [dest];
+    });
+  };
+
+  const openMapFor = (dest: Destination) => {
+    setActiveLocation(dest.coordinates);
+    closeBranch();
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      showMobileMap();
+    }
+  };
+
   const showMobileMap = () => {
     listScrollRef.current = window.scrollY;
     setMobileView("map");
@@ -230,6 +167,17 @@ export default function DestinationsPage() {
 
   useEffect(() => {
     const onBack = (event: Event) => {
+      if (branchHub) {
+        event.preventDefault();
+        if (branchTrail.length > 1) {
+          const nextTrail = branchTrail.slice(0, -1);
+          setBranchTrail(nextTrail);
+          setBranchHub(nextTrail[nextTrail.length - 1] ?? null);
+          return;
+        }
+        closeBranch();
+        return;
+      }
       if (mobileView !== "map" || !window.matchMedia("(max-width: 1023px)").matches) return;
       event.preventDefault();
       showMobileList();
@@ -237,7 +185,7 @@ export default function DestinationsPage() {
 
     window.addEventListener("islandfull:destinations-back", onBack);
     return () => window.removeEventListener("islandfull:destinations-back", onBack);
-  }, [mobileView]);
+  }, [mobileView, branchHub, branchTrail]);
 
   return (
     <div className="w-full bg-gray-50">
@@ -246,7 +194,7 @@ export default function DestinationsPage() {
           <div className="mb-3 md:mb-6">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-zinc-900 leading-tight">Explore Sri Lanka</h1>
             <p className="text-zinc-500 mt-1 md:mt-2 text-sm md:text-base leading-snug">
-              Select a destination to filter experiences and live itineraries.
+              Tap a place to see nearby towns branch out, then open the map when you are ready.
             </p>
           </div>
 
@@ -260,16 +208,11 @@ export default function DestinationsPage() {
                   key={dest.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => {
-                    setActiveLocation(dest.coordinates);
-                    if (window.matchMedia("(max-width: 1023px)").matches) {
-                      showMobileMap();
-                    }
-                  }}
+                  onClick={() => openBranch(dest)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      setActiveLocation(dest.coordinates);
+                      openBranch(dest);
                     }
                   }}
                   aria-label={`${dest.name}${dest.comingSoon ? ", coming soon" : `, ${count} ${count === 1 ? "activity" : "activities"}`}`}
@@ -311,6 +254,19 @@ export default function DestinationsPage() {
             })}
           </div>
         </section>
+
+        {branchHub && (
+          <DestinationBranch
+            key={branchHub.id}
+            hub={branchHub}
+            trail={branchTrail}
+            counts={activityCounts}
+            onClose={closeBranch}
+            onBranchTo={branchTo}
+            onJumpTo={jumpToTrail}
+            onOpenMap={openMapFor}
+          />
+        )}
 
         <aside
           className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:z-30 max-lg:block" : "max-lg:hidden"} lg:sticky lg:top-20 lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}

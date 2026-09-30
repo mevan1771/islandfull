@@ -59,3 +59,42 @@ body {
     padding-bottom: 120px !important;
   }
 }
+
+.destination-branch-line {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: destination-branch-draw 0.7s ease forwards;
+}
+
+.destination-branch-hub,
+.destination-branch-node {
+  transform: translate(-50%, -50%);
+  animation: destination-branch-pop 0.5s ease both;
+}
+
+@keyframes destination-branch-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes destination-branch-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destination-branch-line,
+  .destination-branch-hub,
+  .destination-branch-node {
+    animation: none;
+    stroke-dashoffset: 0;
+    transform: translate(-50%, -50%);
+  }
+}
