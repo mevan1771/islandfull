@@ -89,8 +89,8 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
           className="object-cover object-[center_35%]"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+        <div className="absolute inset-0 md:hidden bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-black/80 via-black/45 to-transparent w-[min(42rem,70%)]" />
         <div className="relative max-w-7xl mx-auto px-4 pt-28 pb-10 md:pt-32 md:pb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-white/70 mb-2">Your travel desk</p>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
