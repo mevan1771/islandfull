@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
@@ -79,9 +80,17 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-16">
-      <div className="relative overflow-hidden bg-zinc-950 text-white">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=60')] bg-cover bg-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/40" />
+      <div className="relative overflow-hidden bg-zinc-950 text-white min-h-[280px] md:min-h-[340px]">
+        <Image
+          src="/images/profile/profil-pic-1.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover object-[center_35%]"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
         <div className="relative max-w-7xl mx-auto px-4 pt-28 pb-10 md:pt-32 md:pb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-white/70 mb-2">Your travel desk</p>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
