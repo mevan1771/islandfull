@@ -136,11 +136,12 @@ export function BookingDrawer({
   const standardTotalForStay = standardTotal * dayMultiplier
   actualTotal = actualTotal * dayMultiplier
 
-  // Add Option Price Modifier (which is applied per person)
+  // Option extras: per person on per-person tours, once on flat-rate (whole group / jeep)
   if (selectedOption && tourOptions) {
     const opt = tourOptions.find(o => o.title === selectedOption)
     if (opt) {
-      const optionModifier = opt.price_modifier * guests * dayMultiplier
+      const optionGuestMultiplier = pricingModel === 'flat_rate' ? 1 : guests
+      const optionModifier = opt.price_modifier * optionGuestMultiplier * dayMultiplier
       actualTotal += optionModifier
     }
   }
@@ -561,7 +562,7 @@ export function BookingDrawer({
                           >
                             {tourOptions.map((opt, idx) => (
                               <option key={idx} value={opt.title}>
-                                {opt.title} {opt.price_modifier > 0 ? `(+$${opt.price_modifier} pp)` : ""}
+                                {opt.title} {opt.price_modifier > 0 ? (pricingModel === 'flat_rate' ? `(+$${opt.price_modifier})` : `(+$${opt.price_modifier} pp)`) : ""}
                               </option>
                             ))}
                           </select>
