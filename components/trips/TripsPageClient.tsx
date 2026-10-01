@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
@@ -37,6 +37,7 @@ function CardFromItem({ act }: { act: HomepageActivity }) {
 
 export function TripsPageClient({ recommended }: { recommended: HomepageActivity[] }) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const tab = searchParams.get("tab") === "wishlist" ? "wishlist" : "trips"
   const { user, isSignedIn } = useUser()
   const { favorites, isHydrated } = useFavorites()
@@ -80,17 +81,17 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-16">
-      <div className="relative overflow-hidden bg-zinc-950 text-white min-h-[280px] md:min-h-[340px]">
+      <div className="relative z-0 overflow-hidden bg-zinc-950 text-white min-h-[280px] md:min-h-[340px]">
         <Image
           src="/images/profile/profil-pic-1.jpg"
           alt=""
           fill
           priority
-          className="object-cover object-[center_35%]"
+          className="object-cover object-[center_35%] pointer-events-none"
           sizes="100vw"
         />
-        <div className="absolute inset-0 md:hidden bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-        <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-black/80 via-black/45 to-transparent w-[min(42rem,70%)]" />
+        <div className="absolute inset-0 md:hidden pointer-events-none bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div className="absolute inset-0 hidden md:block pointer-events-none bg-gradient-to-r from-black/80 via-black/45 to-transparent w-[min(42rem,70%)]" />
         <div className="relative max-w-7xl mx-auto px-4 pt-28 pb-10 md:pt-32 md:pb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-white/70 mb-2">Your travel desk</p>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
@@ -117,24 +118,26 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 -mt-5 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 -mt-5 relative z-20">
         <div className="inline-flex rounded-full bg-white p-1 shadow-md border border-zinc-100">
-          <Link
-            href="/trips"
+          <button
+            type="button"
+            onClick={() => router.replace("/trips?tab=trips", { scroll: false })}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               tab === "trips" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
             }`}
           >
             My Trips
-          </Link>
-          <Link
-            href="/trips?tab=wishlist"
+          </button>
+          <button
+            type="button"
+            onClick={() => router.replace("/trips?tab=wishlist", { scroll: false })}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               tab === "wishlist" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
             }`}
           >
             Wishlist
-          </Link>
+          </button>
         </div>
       </div>
 
