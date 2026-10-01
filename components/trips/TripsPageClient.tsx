@@ -98,6 +98,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
           </h1>
           <p className="mt-2 max-w-xl text-sm md:text-base text-white/75">
             Heart tours you love, then come back here to plan the days, dates, and places that make the trip feel real.
+            {isSignedIn ? " Saved tours follow your account across devices." : " Sign in to sync hearts between your phone and computer."}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -164,7 +165,9 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
                 </div>
                 <h3 className="text-lg font-bold text-zinc-900">Nothing saved yet</h3>
                 <p className="mt-2 text-sm text-zinc-500 max-w-md mx-auto">
-                  Heart tours from the homepage or a tour page. They live here so you can compare places and book when you are ready.
+                  {isSignedIn
+                    ? "Heart tours from your phone or this computer — they stay on your account. If you already liked tours on another device, open the site there once while signed in so they can upload."
+                    : "Heart tours from the homepage or a tour page. Sign in to keep them when you switch phones or computers."}
                 </p>
                 <Link
                   href="/"
