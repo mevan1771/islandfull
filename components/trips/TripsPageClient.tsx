@@ -97,8 +97,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
             {isSignedIn ? `Hello, ${firstName}` : "Your trips"}
           </h1>
           <p className="mt-2 max-w-xl text-sm md:text-base text-white/75">
-            Heart tours you love, then come back here to plan the days, dates, and places that make the trip feel real.
-            {isSignedIn ? " Saved tours follow your account across devices." : " Sign in to sync hearts between your phone and computer."}
+            Heart tours you love, then come back here to plan the days and book.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
