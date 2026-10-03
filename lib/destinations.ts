@@ -174,6 +174,64 @@ const NEARBY: Record<string, NearbyLink[]> = {
 
 const byName = new Map(DESTINATIONS.map((d) => [d.name, d]))
 
+/** Town names that count as “in this destination’s area” on listings. */
+const AREA_ALIASES: Record<string, string[]> = {
+  Galle: ["galle", "unawatuna"],
+  Sigiriya: ["sigiriya", "habarana", "dambulla", "pidurangala", "minneriya", "polonnaruwa", "kandalama", "hurulu"],
+  Kandy: ["kandy", "peradeniya"],
+  Hikkaduwa: ["hikkaduwa"],
+  Weligama: ["weligama"],
+  Yala: ["yala", "tissamaharama", "tissa", "kataragama", "palatupana"],
+  Ella: ["ella", "bandarawela"],
+  Mirissa: ["mirissa"],
+  Colombo: ["colombo", "mount lavinia"],
+  Trincomalee: ["trincomalee", "nilaveli", "uppuveli"],
+  "Nuwara Eliya": ["nuwara eliya", "horton"],
+  "Arugam Bay": ["arugam", "pottuvil"],
+}
+
+const AREA_RADIUS_KM = 55
+
+function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(b.lat - a.lat)
+  const dLng = toRad(b.lng - a.lng)
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(s)))
+}
+
+function aliasesFor(name: string) {
+  return AREA_ALIASES[name] ?? [name.toLowerCase()]
+}
+
+function locationHitsAliases(location: string, aliases: string[]) {
+  return aliases.some((alias) => location.includes(alias))
+}
+
+export function activityBelongsToDestination(
+  dest: Destination,
+  location: string,
+  coords?: { lat: number; lng: number } | null
+) {
+  const loc = (location || "").toLowerCase()
+  if (locationHitsAliases(loc, aliasesFor(dest.name))) return true
+
+  const labeledElsewhere = DESTINATIONS.some(
+    (other) => other.name !== dest.name && locationHitsAliases(loc, aliasesFor(other.name))
+  )
+  if (labeledElsewhere) return false
+
+  if (coords && Number.isFinite(coords.lat) && Number.isFinite(coords.lng)) {
+    return haversineKm(coords, dest.coordinates) <= AREA_RADIUS_KM
+  }
+  return false
+}
+
 export function getNearbyDestinations(name: string) {
   return (NEARBY[name] || [])
     .map((link) => {

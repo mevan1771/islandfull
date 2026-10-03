@@ -13,7 +13,7 @@ interface MapClientWrapperProps {
     dynamicCategories?: any[]
     currentVertical?: string
     isDestinationMode?: boolean
-    activeLocation?: { lat: number, lng: number } | null
+    activeLocation?: { lat: number, lng: number, zoom?: number } | null
     resizeToken?: string | number
 }
 
@@ -24,13 +24,13 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     const mapRef = useRef<MapboxMap | null>(null)
     const [mapReady, setMapReady] = useState(false)
 
-    const flyToLocation = useCallback((location: { lat: number, lng: number }) => {
+    const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number }) => {
         const map = mapRef.current
         if (!map) return
         map.stop()
         map.flyTo({
             center: [location.lng, location.lat],
-            zoom: 9.2,
+            zoom: location.zoom ?? 9.2,
             duration: 2800,
             essential: true,
             curve: 1.8,
