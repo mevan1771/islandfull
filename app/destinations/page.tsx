@@ -492,7 +492,7 @@ function DestinationPage({
 
       {nearby.length > 0 && (
         <div className="mt-8">
-          <Label>Nearby from {dest.name}</Label>
+          <Label>{`Nearby from ${dest.name}`}</Label>
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
             {nearby.map((row, index) => (
               <button
