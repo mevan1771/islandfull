@@ -183,7 +183,7 @@ const AREA_ALIASES: Record<string, string[]> = {
   Weligama: ["weligama"],
   Yala: ["yala", "tissamaharama", "tissa", "kataragama", "palatupana"],
   Ella: ["ella", "bandarawela"],
-  Mirissa: ["mirissa"],
+  Mirissa: ["mirissa", "dickwella", "dikwella", "kudawella", "hummanaya"],
   Colombo: ["colombo", "mount lavinia"],
   Trincomalee: ["trincomalee", "nilaveli", "uppuveli"],
   "Nuwara Eliya": ["nuwara eliya", "horton"],

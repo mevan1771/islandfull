@@ -303,7 +303,7 @@ export default function DestinationsPage() {
         >
           <div className="absolute inset-0">
             <MapClientWrapper
-              tours={mapTours.filter((tour) => tour.category_type !== "place")}
+              tours={mapTours}
               dynamicCategories={mapCategories}
               isDestinationMode
               activeLocation={activeLocation}
@@ -514,13 +514,17 @@ function DestinationPage({
                     alt={place.title}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                  <span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-800">
+                    Must see
+                  </span>
                 </span>
                 <p className="mt-1.5 text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2 group-hover:text-rose-500">
                   {place.title}
                 </p>
-                {place.duration ? (
-                  <p className="mt-0.5 text-[11px] text-zinc-500">{place.duration}</p>
-                ) : null}
+                <p className="mt-0.5 text-[11px] text-zinc-500">
+                  {(place.location || "").replace(", Sri Lanka", "")}
+                  {place.duration ? ` · ${place.duration}` : ""}
+                </p>
               </Link>
             ))}
           </div>

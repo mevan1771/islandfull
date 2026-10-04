@@ -124,8 +124,17 @@ export function MapPreviewDrawer({ tour, onClose, contained = false }: MapPrevie
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-zinc-500 block">From</span>
-                  <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-2xl" : "text-lg md:text-2xl"}`}>{formatUSD(currentTour.price_usd)}</p>
+                  {currentTour.category_type === "place" ? (
+                    <>
+                      <span className="text-xs text-zinc-500 block">Must see</span>
+                      <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-xl" : "text-lg md:text-xl"}`}>Free to visit</p>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs text-zinc-500 block">From</span>
+                      <p className={`font-bold text-zinc-900 ${contained ? "text-lg lg:text-2xl" : "text-lg md:text-2xl"}`}>{formatUSD(currentTour.price_usd)}</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
