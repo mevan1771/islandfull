@@ -268,10 +268,21 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     {/* Rough Location Map */}
                     <ActivityMap lat={activity.approx_lat} lng={activity.approx_lng} />
 
-                    {/* Inclusions */}
-                    {activity.inclusions && activity.inclusions.length > 0 && (
+                    {isPlace && activity.inclusions && activity.inclusions.length > 0 ? (
+                        <section className="lg:hidden">
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Useful tips</h2>
+                            <ul className="space-y-2.5">
+                                {activity.inclusions.map((item: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-2.5 text-sm md:text-[15px] text-gray-700 leading-relaxed">
+                                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    ) : activity.inclusions && activity.inclusions.length > 0 ? (
                         <section>
-                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{isPlace ? "Good to know" : "What's included"}</h2>
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">What's included</h2>
                             <ul className="grid grid-cols-2 gap-y-3 gap-x-4 w-full">
                                 {activity.inclusions.map((item: string, i: number) => (
                                     <li key={i} className="flex items-start gap-2">
@@ -283,7 +294,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                 ))}
                             </ul>
                         </section>
-                    )}
+                    ) : null}
 
 
                     {/* FAQs */}
@@ -310,6 +321,19 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                 </div>
                                 {activity.duration && (
                                     <p className="mt-3 text-sm text-zinc-500">Allow {activity.duration}</p>
+                                )}
+                                {activity.inclusions && activity.inclusions.length > 0 && (
+                                    <div className="mt-5 pt-5 border-t border-zinc-100">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-zinc-400 mb-3">Useful tips</p>
+                                        <ul className="space-y-2.5">
+                                            {activity.inclusions.map((item: string, i: number) => (
+                                                <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-700 leading-snug">
+                                                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 )}
                             </div>
                         ) : (

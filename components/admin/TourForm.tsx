@@ -1130,15 +1130,18 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <CheckSquare className="w-4 h-4 text-rose-500" />
-                  {isPlace ? "Good to know (one per line)" : "Inclusions (One per line)"}
+                  {isPlace ? "Useful tips (one per line)" : "Inclusions (One per line)"}
                 </label>
                 <textarea
                   name="inclusions"
                   defaultValue={initialData?.inclusions?.join('\n')}
-                  placeholder={isPlace ? "Best time of day&#10;Ticket needed at the gate&#10;Wear shoes with grip" : "Surfboard Rental\nRash Guard\n2 Hour Lesson"}
+                  placeholder={isPlace ? "Open from 8:00 am to 5:00 pm.&#10;Entrance fees are LKR 250." : "Surfboard Rental\nRash Guard\n2 Hour Lesson"}
                   className="w-full h-32 p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-base text-zinc-900 placeholder:text-zinc-300 resize-none leading-relaxed"
                   required={!isPlace}
                 />
+                {isPlace && (
+                  <p className="text-xs text-zinc-500 font-medium mt-1">Each line becomes a bullet on the Must see page.</p>
+                )}
               </div>
             </div>
           </div>
