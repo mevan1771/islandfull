@@ -410,7 +410,7 @@ function DestinationPage({
             })}
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 md:gap-4">
+          <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-3">
             {visible.map((tour) => {
               const location = (tour.location || "").replace(", Sri Lanka", "")
               return (
@@ -418,7 +418,7 @@ function DestinationPage({
                   <button
                     type="button"
                     onClick={() => onFocusTour(tour)}
-                    className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl bg-zinc-100 aspect-square group text-left shadow-sm hover:shadow-md transition-shadow"
+                    className="relative w-full overflow-hidden rounded-xl md:rounded-2xl bg-zinc-100 aspect-[4/3] group text-left shadow-sm hover:shadow-md transition-shadow"
                     aria-label={`Show ${tour.title} on the map`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -428,23 +428,23 @@ function DestinationPage({
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </button>
-                  <div className="mt-2 px-0.5">
+                  <div className="mt-1.5 px-0.5">
                     {tour.slug ? (
                       <Link
                         href={`/activity/${tour.slug}`}
-                        className="block text-sm md:text-base font-semibold text-zinc-900 leading-tight line-clamp-2 hover:text-rose-500"
+                        className="block text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2 hover:text-rose-500"
                       >
                         {tour.title}
                       </Link>
                     ) : (
-                      <p className="text-sm md:text-base font-semibold text-zinc-900 leading-tight line-clamp-2">
+                      <p className="text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2">
                         {tour.title}
                       </p>
                     )}
                     {location && (
-                      <p className="mt-1 text-xs sm:text-sm text-zinc-500 truncate">{location}</p>
+                      <p className="mt-0.5 text-[11px] text-zinc-500 truncate">{location}</p>
                     )}
-                    <p className="mt-1 text-sm text-zinc-900">
+                    <p className="mt-0.5 text-[13px] text-zinc-900">
                       <span className="font-bold">{formatUSD(tour.price_usd)}</span>
                       {tour.duration ? (
                         <span className="font-normal text-zinc-500"> · {tour.duration}</span>
