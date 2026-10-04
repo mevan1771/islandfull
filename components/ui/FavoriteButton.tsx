@@ -38,7 +38,15 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
             onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
+                const adding = !isSaved
                 toggleFavorite(activityId)
+                if (adding) {
+                  void fetch(`/api/tours/${activityId}/popularity`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ event: "wishlist" }),
+                  })
+                }
             }}
             className={twMerge(
                 defaultClasses,

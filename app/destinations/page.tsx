@@ -8,6 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { DESTINATIONS, activityBelongsToDestination, getNearbyDestinations, type Destination } from "@/lib/destinations";
 import { getDestinationGuide } from "@/lib/destinationGuides";
 import { formatUSD } from "@/lib/utils";
+import { SortBySelect } from "@/components/ui/SortBySelect";
+import { sortTours, type TourSort } from "@/lib/tour-sort";
 
 function toMapTour(activity: any): MapTour {
   let rating = 4.9;
@@ -49,6 +51,8 @@ function toMapTour(activity: any): MapTour {
     rating: Number(rating.toFixed(1)),
     reviewCount,
     tags,
+    created_at: activity.created_at,
+    popularity_score: activity.popularity_score ?? 0,
   };
 }
 
@@ -67,18 +71,37 @@ export default function DestinationsPage() {
 
     async function loadActivities() {
       try {
-        const [{ data: activities, error }, { data: categories }] = await Promise.all([
-          supabase
+        const activitySelect =
+          "id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, created_at, popularity_score, categories(slug), activity_categories(categories(slug)), reviews(rating)"
+        const activitySelectFallback =
+          "id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, created_at, categories(slug), activity_categories(categories(slug)), reviews(rating)"
+
+        let activitiesRes = await supabase
+          .from("activities")
+          .select(activitySelect)
+          .eq("status", "published")
+          .eq("is_paused_by_host", false)
+          .order("popularity_score", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false })
+
+        if (activitiesRes.error && String(activitiesRes.error.message || "").includes("popularity_score")) {
+          activitiesRes = await supabase
             .from("activities")
-            .select("id, title, slug, location, description, inclusions, provider_name, price_usd, cover_image_url, duration, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug)), reviews(rating)")
+            .select(activitySelectFallback)
             .eq("status", "published")
-            .eq("is_paused_by_host", false),
+            .eq("is_paused_by_host", false)
+            .order("created_at", { ascending: false }) as typeof activitiesRes
+        }
+
+        const [{ data: categories }] = await Promise.all([
           supabase
             .from("categories")
             .select("name, slug, category_type")
             .order("sort_order", { ascending: true })
             .order("name"),
-        ]);
+        ])
+
+        const { data: activities, error } = activitiesRes
 
         if (error) {
           console.error("Failed to fetch destination activities:", error);
@@ -95,7 +118,7 @@ export default function DestinationsPage() {
             const coords = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
               ? { lat, lng }
               : null
-            return activityBelongsToDestination(dest, a.location || "", coords)
+            return a.category_type !== "place" && activityBelongsToDestination(dest, a.location || "", coords)
           }).length
         }
 
@@ -206,10 +229,11 @@ export default function DestinationsPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 grid-flow-row-dense auto-rows-[108px] md:auto-rows-[160px] lg:auto-rows-[180px]">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-3 md:gap-x-3 md:gap-y-4 grid-flow-row-dense auto-rows-[152px] md:auto-rows-[204px] lg:auto-rows-[226px]">
                 {DESTINATIONS.map((dest) => {
                   const count = activityCounts[dest.name] ?? 0
                   const isMapActive = activeLocation?.lat === dest.coordinates.lat && activeLocation?.lng === dest.coordinates.lng
+                  const guide = getDestinationGuide(dest.name)
 
                   return (
                     <div
@@ -224,37 +248,47 @@ export default function DestinationsPage() {
                         }
                       }}
                       aria-label={`${dest.name}${dest.comingSoon ? ", coming soon" : `, ${count} ${count === 1 ? "activity" : "activities"}`}`}
-                      className={`relative h-full min-h-0 rounded-2xl overflow-hidden group cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow ${dest.span}`}
+                      className={`flex flex-col min-h-0 cursor-pointer group ${dest.span}`}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={dest.image}
-                        alt={dest.name}
-                        className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 transition-transform duration-500 ease-out group-hover:scale-105 ${dest.comingSoon ? "grayscale-[35%]" : ""}`}
-                      />
-                      <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={dest.image}
+                          alt={dest.name}
+                          className={`absolute inset-0 h-full w-full object-cover bg-zinc-900 transition-transform duration-500 ease-out group-hover:scale-105 ${dest.comingSoon ? "grayscale-[35%]" : ""}`}
+                        />
+                        <div className="hidden md:block absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-t from-black/70 to-transparent" />
 
-                      <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center gap-1.5 min-w-0">
-                        <span
-                          className={`shrink-0 inline-block uppercase font-bold tracking-wider rounded-full px-2.5 py-1 md:px-3 text-[10px] md:text-xs shadow-sm ${
-                            isMapActive ? "bg-rose-500 text-white" : "bg-white/90 text-zinc-900"
-                          }`}
-                        >
-                          {dest.name}
-                        </span>
-                        {dest.comingSoon ? (
-                          <span className="shrink-0 text-[10px] md:text-[11px] font-semibold text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                            Soon
-                          </span>
-                        ) : (
+                        <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center gap-1.5 min-w-0">
                           <span
-                            className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white text-zinc-900 text-[10px] font-bold px-1.5 tabular-nums shadow-sm"
-                            aria-hidden
+                            className={`shrink-0 inline-block uppercase font-bold tracking-wider rounded-full px-2.5 py-1 md:px-3 text-[10px] md:text-xs shadow-sm ${
+                              isMapActive ? "bg-rose-500 text-white" : "bg-white/90 text-zinc-900"
+                            }`}
                           >
-                            {count}
+                            {dest.name}
                           </span>
-                        )}
+                          {dest.comingSoon ? (
+                            <span className="shrink-0 text-[10px] md:text-[11px] font-semibold text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                              Soon
+                            </span>
+                          ) : (
+                            <span
+                              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white text-zinc-900 text-[10px] font-bold px-1.5 tabular-nums shadow-sm"
+                              aria-hidden
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      {guide ? (
+                        <div className="mt-1.5 px-0.5 min-w-0">
+                          <p className="text-[11px] md:text-xs font-medium text-zinc-800 truncate">{guide.region}</p>
+                          <p className="text-[11px] text-zinc-500 leading-snug line-clamp-2">{guide.tagline}</p>
+                        </div>
+                      ) : dest.comingSoon ? (
+                        <p className="mt-1.5 px-0.5 text-[11px] text-zinc-500">Listing soon</p>
+                      ) : null}
                     </div>
                   )
                 })}
@@ -269,7 +303,7 @@ export default function DestinationsPage() {
         >
           <div className="absolute inset-0">
             <MapClientWrapper
-              tours={mapTours}
+              tours={mapTours.filter((tour) => tour.category_type !== "place")}
               dynamicCategories={mapCategories}
               isDestinationMode
               activeLocation={activeLocation}
@@ -321,6 +355,7 @@ function DestinationPage({
     event: local.filter((item) => item.category_type === "event"),
     transport: local.filter((item) => item.category_type === "transport"),
   }
+  const places = local.filter((item) => item.category_type === "place")
   const tabs = (
     [
       { id: "tour" as const, label: "Tours", items: groups.tour },
@@ -329,6 +364,7 @@ function DestinationPage({
     ]
   ).filter((tab) => tab.items.length > 0)
   const [activeTab, setActiveTab] = useState<"tour" | "event" | "transport">("tour")
+  const [sort, setSort] = useState<TourSort>("recommended")
 
   useEffect(() => {
     const first = (
@@ -340,7 +376,10 @@ function DestinationPage({
     ).find((tab) => tab.count > 0)
     setActiveTab(first?.id ?? "tour")
   }, [dest.id, groups.tour.length, groups.event.length, groups.transport.length])
-  const visible = tabs.find((tab) => tab.id === activeTab)?.items ?? tabs[0]?.items ?? []
+  const visible = sortTours(
+    tabs.find((tab) => tab.id === activeTab)?.items ?? tabs[0]?.items ?? [],
+    sort
+  )
 
   return (
     <article>
@@ -410,6 +449,10 @@ function DestinationPage({
             })}
           </div>
 
+          <div className="mt-3 flex justify-end">
+            <SortBySelect value={sort} onChange={setSort} />
+          </div>
+
           <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-3">
             {visible.map((tour) => {
               const location = (tour.location || "").replace(", Sri Lanka", "")
@@ -458,20 +501,46 @@ function DestinationPage({
         </div>
       )}
 
+      {places.length > 0 ? (
+        <div className="mt-8">
+          <Label>Things to see</Label>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {places.map((place) => (
+              <Link key={place.id} href={`/activity/${place.slug}`} className="group">
+                <span className="relative block w-full aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={place.cover_image_url || "/placeholder.jpg"}
+                    alt={place.title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </span>
+                <p className="mt-1.5 text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2 group-hover:text-rose-500">
+                  {place.title}
+                </p>
+                {place.duration ? (
+                  <p className="mt-0.5 text-[11px] text-zinc-500">{place.duration}</p>
+                ) : null}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : guide ? (
+        <div className="mt-8">
+          <Label>Things to see</Label>
+          <ul className="mt-3 space-y-3">
+            {guide.see.map((item) => (
+              <li key={item.title}>
+                <p className="text-sm md:text-[15px] font-semibold text-zinc-900">{item.title}</p>
+                <p className="text-sm text-zinc-500 leading-snug">{item.note}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {guide && (
         <>
-          <div className="mt-8">
-            <Label>Things to see</Label>
-            <ul className="mt-3 space-y-3">
-              {guide.see.map((item) => (
-                <li key={item.title}>
-                  <p className="text-sm md:text-[15px] font-semibold text-zinc-900">{item.title}</p>
-                  <p className="text-sm text-zinc-500 leading-snug">{item.note}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           <div className="mt-7">
             <Label>Eat & drink</Label>
             <p className="mt-2 text-sm md:text-[15px] text-zinc-700 leading-relaxed">{guide.eat.join("  ·  ")}</p>
@@ -493,22 +562,22 @@ function DestinationPage({
       {nearby.length > 0 && (
         <div className="mt-8">
           <Label>{`Nearby from ${dest.name}`}</Label>
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
             {nearby.map((row, index) => (
               <button
                 key={row.dest.id}
                 type="button"
                 onClick={() => onSelectNearby(row.dest)}
                 style={{ animationDelay: `${index * 50}ms` }}
-                className="destination-mosaic-pop shrink-0 w-[7.5rem] text-left"
+                className="destination-mosaic-pop shrink-0 w-40 md:w-44 text-left"
                 aria-label={`Nearby ${row.dest.name}, ${row.note}`}
               >
-                <span className="relative block h-20 w-[7.5rem] overflow-hidden rounded-2xl bg-zinc-200">
+                <span className="relative block w-full aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={row.dest.image} alt="" className="h-full w-full object-cover object-center" />
                 </span>
-                <span className="mt-1.5 block text-xs font-bold text-zinc-900 truncate">{row.dest.name}</span>
-                <span className="block text-[10px] text-zinc-500">{row.note}</span>
+                <span className="mt-2 block text-sm font-bold text-zinc-900 truncate">{row.dest.name}</span>
+                <span className="block text-xs text-zinc-500">{row.note}</span>
               </button>
             ))}
           </div>

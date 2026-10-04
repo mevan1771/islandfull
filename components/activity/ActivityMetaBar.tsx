@@ -14,6 +14,7 @@ interface ActivityMetaBarProps {
   initialViews: number
   dealEndDate?: string | null
   hasActiveDeal?: boolean
+  hideCapacity?: boolean
 }
 
 function formatNumber(num: number) {
@@ -45,6 +46,7 @@ export function ActivityMetaBar({
   initialViews,
   dealEndDate,
   hasActiveDeal,
+  hideCapacity,
 }: ActivityMetaBarProps) {
   const [likes, setLikes] = useState(initialLikes)
   const [hasLiked, setHasLiked] = useState(false)
@@ -111,10 +113,12 @@ export function ActivityMetaBar({
       <div className="flex flex-nowrap items-center justify-start gap-1.5 md:gap-3 w-full md:w-auto overflow-x-auto hide-scrollbar md:overflow-visible">
         <span className={`inline-flex ${rosePill}`}>{location}</span>
 
+        {!hideCapacity && (
         <span className={`inline-flex ${whitePill}`} aria-label={`${capacityLabel} guests`}>
           <Users className={`${iconClass} text-rose-500`} />
           {capacityLabel}
         </span>
+        )}
 
         {duration && (
           <span className={`inline-flex ${whitePill}`}>

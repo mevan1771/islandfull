@@ -14,12 +14,38 @@ function generateSlug(title: string): string {
     .replace(/(^-|-$)+/g, '')    // Remove leading and trailing hyphens
 }
 
+async function ensureMustSeeCategory(category_ids: any[], category_type: string) {
+  const ids = category_ids.filter(Boolean)
+  if (ids.length > 0 || category_type !== "place") return ids
+
+  const { data: existing } = await supabaseAdmin
+    .from("categories")
+    .select("id")
+    .eq("slug", "must-see")
+    .maybeSingle()
+  if (existing) return [existing.id]
+
+  const { data: created } = await supabaseAdmin
+    .from("categories")
+    .insert({
+      name: "Must see",
+      slug: "must-see",
+      category_type: "place",
+      sort_order: 0,
+    })
+    .select("id")
+    .single()
+
+  return created ? [created.id] : []
+}
+
 // Helper function to generate SKU
 async function generateSKU(category_type: string): Promise<string> {
   const prefixMap: Record<string, string> = {
     tour: 'T',
     event: 'E',
-    transport: 'TR'
+    transport: 'TR',
+    place: 'P',
   };
   const prefix = prefixMap[category_type] || 'A';
 
@@ -143,7 +169,7 @@ export async function createTour(formData: FormData) {
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
 
-    const category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
+    let category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cat_input);
       if (isUUID) return cat_input;
       const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', cat_input).single();
@@ -152,7 +178,16 @@ export async function createTour(formData: FormData) {
       return newCat?.id;
     })).then(res => res.filter(Boolean));
 
-    if (!title || category_ids.length === 0 || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+    const isPlace = category_type === "place"
+    const resolvedPrice = isPlace ? 0 : price_usd
+    const resolvedDuration = duration || (isPlace ? "Visit anytime" : duration)
+    const resolvedCapacity = isPlace && isNaN(max_capacity) ? 99 : max_capacity
+    const resolvedCommission = isPlace ? 0 : commission_rate
+    if (isPlace) {
+      category_ids = await ensureMustSeeCategory(category_ids, category_type)
+    }
+
+    if (!title || category_ids.length === 0 || !location || !description || !resolvedDuration || isNaN(resolvedPrice) || !cover_image_url || isNaN(resolvedCapacity)) {
       throw new Error(`Missing required fields. Please check all steps.`);
     }
 
@@ -168,20 +203,20 @@ export async function createTour(formData: FormData) {
       location,
       description,
       inclusions,
-      duration,
-      price_usd,
+      duration: resolvedDuration,
+      price_usd: resolvedPrice,
         discount_price,
         deal_end_date,
       price_suffix,
       price_lkr_approx,
       is_featured,
       category_type,
-      commission_rate,
+      commission_rate: resolvedCommission,
       is_custom_commission,
       cover_image_url,
       card_image_url,
       gallery_urls,
-      max_capacity,
+      max_capacity: resolvedCapacity,
       min_guests,
       pricing_tiers,
       tour_options,
@@ -228,7 +263,8 @@ export async function createTour(formData: FormData) {
     const typeMap: Record<string, string> = {
       tour: "Tours",
       event: "Events",
-      transport: "Transport"
+      transport: "Transport",
+      place: "Places",
     };
     const webhookType = typeMap[category_type] || "Tours";
 
@@ -370,7 +406,7 @@ export async function updateTour(id: string, formData: FormData) {
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
 
-    const category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
+    let category_ids = await Promise.all(category_inputs.map(async (cat_input) => {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cat_input);
       if (isUUID) return cat_input;
       const { data: existing } = await supabaseAdmin.from('categories').select('id').ilike('name', cat_input).single();
@@ -379,7 +415,16 @@ export async function updateTour(id: string, formData: FormData) {
       return newCat?.id;
     })).then(res => res.filter(Boolean));
 
-    if (!title || category_ids.length === 0 || !location || !description || !duration || isNaN(price_usd) || !cover_image_url || isNaN(max_capacity)) {
+    const isPlace = category_type === "place"
+    const resolvedPrice = isPlace ? 0 : price_usd
+    const resolvedDuration = duration || (isPlace ? "Visit anytime" : duration)
+    const resolvedCapacity = isPlace && isNaN(max_capacity) ? 99 : max_capacity
+    const resolvedCommission = isPlace ? 0 : commission_rate
+    if (isPlace) {
+      category_ids = await ensureMustSeeCategory(category_ids, category_type)
+    }
+
+    if (!title || category_ids.length === 0 || !location || !description || !resolvedDuration || isNaN(resolvedPrice) || !cover_image_url || isNaN(resolvedCapacity)) {
       throw new Error(`Missing required fields. Please check all steps.`);
     }
 
@@ -392,20 +437,20 @@ export async function updateTour(id: string, formData: FormData) {
       location,
       description,
       inclusions,
-      duration,
-      price_usd,
+      duration: resolvedDuration,
+      price_usd: resolvedPrice,
       discount_price,
       deal_end_date,
       price_suffix,
       price_lkr_approx,
       is_featured,
       category_type,
-      commission_rate,
+      commission_rate: resolvedCommission,
       is_custom_commission,
       cover_image_url,
       card_image_url,
       gallery_urls,
-      max_capacity,
+      max_capacity: resolvedCapacity,
       min_guests,
       pricing_tiers,
       tour_options,
@@ -467,7 +512,8 @@ export async function updateTour(id: string, formData: FormData) {
     const typeMap: Record<string, string> = {
       tour: "Tours",
       event: "Events",
-      transport: "Transport"
+      transport: "Transport",
+      place: "Places",
     };
     const webhookType = typeMap[category_type] || "Tours";
 
@@ -634,7 +680,8 @@ export async function toggleTourStatus(activityId: string, currentStatus: string
       const typeMap: Record<string, string> = {
         tour: "Tours",
         event: "Events",
-        transport: "Transport"
+        transport: "Transport",
+        place: "Places",
       };
       const webhookType = typeMap[activity.category_type] || "Tours";
       sendWebhook({
@@ -692,7 +739,8 @@ export async function deleteTour(activityId: string) {
       const typeMap: Record<string, string> = {
         tour: "Tours",
         event: "Events",
-        transport: "Transport"
+        transport: "Transport",
+        place: "Places",
       };
       const webhookType = typeMap[activity.category_type] || "Tours";
       sendWebhook({
@@ -821,7 +869,8 @@ export async function backfillAndSyncAll(actionType: 'SYNC' | 'FORCE_SYNC' = 'SY
       const typeMap: Record<string, string> = {
         tour: "Tours",
         event: "Events",
-        transport: "Transport"
+        transport: "Transport",
+        place: "Places",
       };
       const webhookType = typeMap[cat] || "Tours";
 

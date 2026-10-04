@@ -28,6 +28,8 @@ export interface MapTour {
   rating?: number
   reviewCount?: number
   tags?: string[]
+  created_at?: string | null
+  popularity_score?: number | null
 }
 
 interface InteractiveMapProps {

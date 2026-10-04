@@ -123,7 +123,14 @@ export async function POST(req: Request) {
 
     // If it's totally free, handle it immediately without Stripe
     if (finalTotalUsd === 0) {
+      const { data: existingBooking } = await supabaseAdmin
+        .from('bookings')
+        .select('status')
+        .eq('id', booking.id)
+        .single()
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
+      const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
+      await bumpPopularityIfNewlyConfirmed(booking.id, existingBooking?.status)
 
       try {
         const { autoBlockDate } = await import('@/app/actions/tours');

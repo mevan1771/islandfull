@@ -9,6 +9,7 @@ import locationPin from "@/components/ui/Location icon/354556546.jpg"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
+import { parseTourSort } from "@/lib/tour-sort"
 
 
 export function MobileSearch() {
@@ -236,19 +237,20 @@ export function MobileSearch() {
             <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 cursor-pointer transition-colors">
               <SlidersHorizontal className="w-4 h-4" />
               <select
-                value={searchParams.get("sort") || ""}
+                value={parseTourSort(searchParams.get("sort"))}
                 onChange={(e) => {
                   const params = new URLSearchParams(searchParams.toString())
-                  if (e.target.value) params.set("sort", e.target.value)
-                  else params.delete("sort")
+                  const sort = e.target.value
+                  if (!sort || sort === "recommended") params.delete("sort")
+                  else params.set("sort", sort)
                   router.push(`/?${params.toString()}`, { scroll: false })
                 }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               >
-                <option value="">Recommended</option>
-                <option value="deals">Best Deals</option>
+                <option value="recommended">Recommended</option>
                 <option value="price_asc">Price: Low to High</option>
                 <option value="price_desc">Price: High to Low</option>
+                <option value="newest">Newest Arrivals</option>
               </select>
             </div>
 

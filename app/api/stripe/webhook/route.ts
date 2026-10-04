@@ -33,8 +33,16 @@ export async function POST(req: Request) {
 
   if (event.type === 'checkout.session.completed' || event.type === 'invoice.paid') {
     if (bookingId) {
+      const { data: existingBooking } = await supabaseAdmin
+        .from('bookings')
+        .select('status')
+        .eq('id', bookingId)
+        .single()
+
       // Mark as confirmed
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)
+      const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
+      await bumpPopularityIfNewlyConfirmed(bookingId, existingBooking?.status)
 
       // Look up booking details for email and promo
       const { data: booking } = await supabaseAdmin

@@ -4,7 +4,13 @@ import TourForm from "@/components/admin/TourForm"
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-export default async function NewTourPage() {
+export default async function NewTourPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>
+}) {
+  const { type } = await searchParams
+  const lockCategory = type === "place" ? "place" : undefined
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
@@ -26,7 +32,7 @@ export default async function NewTourPage() {
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <TourForm categories={categories || []} cancellationTiers={cancellationTiers || []} existingLocations={existingLocations} />
+        <TourForm categories={categories || []} cancellationTiers={cancellationTiers || []} existingLocations={existingLocations} lockCategory={lockCategory} />
       </div>
     </div>
   )

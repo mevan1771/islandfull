@@ -16,7 +16,7 @@ import imageCompression from 'browser-image-compression'
 
 const TOTAL_STEPS = 5;
 
-export default function TourForm({ categories, initialData, cancellationTiers = [], existingLocations = [] }: { categories: any[], initialData?: any, cancellationTiers?: any[], existingLocations?: string[] }) {
+export default function TourForm({ categories, initialData, cancellationTiers = [], existingLocations = [], lockCategory }: { categories: any[], initialData?: any, cancellationTiers?: any[], existingLocations?: string[], lockCategory?: string }) {
   const router = useRouter()
   const isEditing = !!initialData
 
@@ -28,7 +28,9 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
   const [galleryImages, setGalleryImages] = useState<string[]>(initialData?.gallery_urls || [])
 
   // Commission & Category State
-  const [categoryType, setCategoryType] = useState<string>(initialData?.category_type || "tour")
+  const [categoryType, setCategoryType] = useState<string>(lockCategory || initialData?.category_type || "tour")
+  const isPlace = categoryType === "place"
+  const [placeDuration, setPlaceDuration] = useState(initialData?.duration || "Visit anytime")
   const [commissionRate, setCommissionRate] = useState<string>(initialData?.commission_rate?.toString() || "15")
   const [isCustomCommission, setIsCustomCommission] = useState<boolean>(initialData?.is_custom_commission || false)
   const [globalSettings, setGlobalSettings] = useState<Record<string, number>>({})
@@ -173,9 +175,15 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
         }
       }
     }
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS))
+    setStep((s) => {
+      if (isPlace && s === 1) return 3
+      return Math.min(s + 1, TOTAL_STEPS)
+    })
   }
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1))
+  const prevStep = () => setStep((s) => {
+    if (isPlace && s === 3) return 1
+    return Math.max(s - 1, 1)
+  })
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -199,8 +207,8 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
     }
 
     if (result.success) {
-      alert(isEditing ? "Tour updated successfully!" : "Tour published successfully to IslandFull!")
-      router.push("/admin/tours")
+      alert(isPlace ? (isEditing ? "Place updated." : "Place published.") : (isEditing ? "Tour updated successfully!" : "Tour published successfully to IslandFull!"))
+      router.push(isPlace ? "/admin/places" : "/admin/tours")
     } else {
       setError(result.error || (isEditing ? "Failed to update tour" : "Failed to create tour"))
       setIsSubmitting(false)
@@ -349,12 +357,15 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
     }
   }
 
+  const uiTotal = isPlace ? 4 : TOTAL_STEPS
+  const uiStep = isPlace ? (step === 1 ? 1 : step === 3 ? 2 : step === 4 ? 3 : 4) : step
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header & Progress Indicator */}
       <div className="flex items-center gap-4 mb-8">
         <Link
-          href="/admin/tours"
+          href={isPlace ? "/admin/places" : "/admin/tours"}
           className="p-3 bg-white border border-zinc-200 rounded-2xl hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm group"
         >
           <ArrowLeft className="w-5 h-5 text-zinc-500 group-hover:text-zinc-900 transition-colors" />
@@ -362,20 +373,36 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
         <div className="flex-1">
           <div className="flex justify-between items-end mb-2">
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
-              {isEditing ? "Edit Tour" : "Create New Tour"}
+              {isPlace
+                ? (isEditing ? "Edit Place" : "Add a Must see place")
+                : (isEditing ? "Edit Tour" : "Create New Tour")}
             </h1>
-            <span className="text-sm font-bold text-zinc-400 tracking-wider uppercase">Step {step} of {TOTAL_STEPS}</span>
+            <span className="text-sm font-bold text-zinc-400 tracking-wider uppercase">Step {uiStep} of {uiTotal}</span>
           </div>
           <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-rose-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+              style={{ width: `${(uiStep / uiTotal) * 100}%` }}
             />
           </div>
         </div>
       </div>
 
       <form onKeyDown={handleKeyDown} onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl shadow-zinc-200/40 border border-zinc-100 p-8 sm:p-12 min-h-[500px] flex flex-col relative overflow-hidden">
+        {isPlace && (
+          <>
+            <input type="hidden" name="category_type" value="place" />
+            <input type="hidden" name="commission_rate" value="0" />
+            <input type="hidden" name="is_custom_commission" value="false" />
+            <input type="hidden" name="booking_type" value="single_day" />
+            <input type="hidden" name="price_usd" value="0" />
+            <input type="hidden" name="min_guests" value="1" />
+            <input type="hidden" name="max_capacity" value="99" />
+            <input type="hidden" name="min_notice_days" value="0" />
+            <input type="hidden" name="pricing_model" value="flat_rate" />
+            <input type="hidden" name="duration" value={placeDuration} />
+          </>
+        )}
         {error && (
           <div className="mb-8 bg-red-50 text-red-600 p-5 rounded-2xl border border-red-100 font-semibold flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
@@ -401,12 +428,30 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                   name="title"
                   type="text"
                   defaultValue={initialData?.title}
-                  placeholder="e.g. Secret Sunset Surf Lesson"
+                  placeholder={isPlace ? "e.g. Hummanaya Blowhole" : "e.g. Secret Sunset Surf Lesson"}
                   className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
                   required
                 />
               </div>
 
+              {isPlace && (
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <Clock className="w-4 h-4 text-rose-500" />
+                    Time needed
+                  </label>
+                  <input
+                    type="text"
+                    value={placeDuration}
+                    onChange={(e) => setPlaceDuration(e.target.value)}
+                    placeholder="e.g. 45 minutes, Half day"
+                    className="w-full h-14 px-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-lg text-zinc-900 placeholder:text-zinc-300"
+                    required
+                  />
+                </div>
+              )}
+
+              {!isPlace && (
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-4 border-2 border-rose-100 bg-rose-50 rounded-2xl cursor-pointer hover:bg-rose-100/50 transition-colors">
                   <input
@@ -421,6 +466,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                   </div>
                 </label>
               </div>
+              )}
 
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
@@ -441,6 +487,8 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                 </select>
               </div>
 
+              {!isPlace && (
+              <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
@@ -508,6 +556,8 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                 </div>
 
               </div>
+              </>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-3">
@@ -652,6 +702,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
           </div>
 
           {/* STEP 2: LOGISTICS */}
+          {!isPlace && (
           <div id="step-2" className={step === 2 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
             <div className="mb-8">
               <h2 className="text-xl font-bold text-zinc-900">Logistics & Pricing</h2>
@@ -1051,12 +1102,13 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
               </div>
             </div>
           </div>
+          )}
 
           {/* STEP 3: STORYTELLING */}
           <div id="step-3" className={step === 3 ? "block animate-in fade-in slide-in-from-right-4 duration-500" : "hidden"}>
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-zinc-900">Storytelling</h2>
-              <p className="text-zinc-500 text-sm mt-1">Sell the experience. What makes it special?</p>
+              <h2 className="text-xl font-bold text-zinc-900">{isPlace ? "The story" : "Storytelling"}</h2>
+              <p className="text-zinc-500 text-sm mt-1">{isPlace ? "Why should someone visit? Tips, history, and what to expect." : "Sell the experience. What makes it special?"}</p>
             </div>
 
             <div className="space-y-8">
@@ -1078,14 +1130,14 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
                   <CheckSquare className="w-4 h-4 text-rose-500" />
-                  Inclusions (One per line)
+                  {isPlace ? "Good to know (one per line)" : "Inclusions (One per line)"}
                 </label>
                 <textarea
                   name="inclusions"
                   defaultValue={initialData?.inclusions?.join('\n')}
-                  placeholder="Surfboard Rental&#10;Rash Guard&#10;2 Hour Lesson"
+                  placeholder={isPlace ? "Best time of day&#10;Ticket needed at the gate&#10;Wear shoes with grip" : "Surfboard Rental\nRash Guard\n2 Hour Lesson"}
                   className="w-full h-32 p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-base text-zinc-900 placeholder:text-zinc-300 resize-none leading-relaxed"
-                  required
+                  required={!isPlace}
                 />
               </div>
             </div>
@@ -1424,7 +1476,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
               className="flex items-center gap-2 px-10 py-3.5 bg-rose-500 hover:bg-rose-600 disabled:opacity-50 disabled:active:scale-100 text-white rounded-xl font-bold shadow-xl shadow-rose-500/20 transition-all active:scale-95"
             >
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-              {isSubmitting ? (isEditing ? "Updating..." : "Publishing...") : (isEditing ? "Save Changes" : "Publish Tour")}
+              {isSubmitting ? (isEditing ? "Updating..." : "Publishing...") : (isEditing ? "Save Changes" : (isPlace ? "Publish Place" : "Publish Tour"))}
             </button>
           )}
         </div>

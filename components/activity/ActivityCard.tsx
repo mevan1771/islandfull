@@ -28,6 +28,7 @@ interface ActivityCardProps {
   dealEndDate?: string
   pricingTiers?: Record<string, number> | unknown
   alwaysShowFavorite?: boolean
+  variant?: "tour" | "place"
 }
 
 function useGpuEntryAnimation<T extends HTMLElement>() {
@@ -79,7 +80,9 @@ export function ActivityCard({
   dealEndDate,
   pricingTiers,
   alwaysShowFavorite = false,
+  variant = "tour",
 }: ActivityCardProps) {
+  const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -134,7 +137,7 @@ export function ActivityCard({
       >
         {/* Image / Video Container */}
         <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100 shadow-md md:shadow-lg hover:shadow-xl transition-shadow duration-300">
-          {videoUrl ? (
+          {videoUrl && !isPlace ? (
             <video
               ref={videoRef}
               src={videoUrl}
@@ -157,6 +160,11 @@ export function ActivityCard({
             />
           )}
           <FavoriteButton activityId={id} className={alwaysShowFavorite ? undefined : "hidden md:flex"} />
+          {isPlace && (
+            <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-[10px] md:text-xs font-bold uppercase tracking-wide text-zinc-800 shadow-sm">
+              Must see
+            </span>
+          )}
         </div>
 
         {/* Content Details */}
@@ -167,7 +175,7 @@ export function ActivityCard({
           </h3>
 
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 truncate mb-1">
-            {(rating || isHiddenGem || reviewCount === 0) && (
+            {!isPlace && (rating || isHiddenGem || reviewCount === 0) && (
               <div className="flex items-center gap-0.5 flex-shrink-0">
                 {isHiddenGem ? (
                   <>
@@ -189,7 +197,7 @@ export function ActivityCard({
               </div>
             )}
 
-            {(rating || isHiddenGem || reviewCount === 0) && (
+            {!isPlace && (rating || isHiddenGem || reviewCount === 0) && (
               <span className="text-gray-300 flex-shrink-0">•</span>
             )}
 
@@ -199,7 +207,9 @@ export function ActivityCard({
           <div className="flex flex-col mt-auto pt-1.5">
             <div className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
               <div className="flex items-center flex-nowrap whitespace-nowrap gap-1 flex-shrink-0">
-                {priceUsd === 0 ? (
+                {isPlace ? (
+                  <span className="text-xs sm:text-sm font-bold text-zinc-800">Free to visit</span>
+                ) : priceUsd === 0 ? (
                   <span className="text-xs sm:text-sm font-bold text-emerald-600">Free</span>
                 ) : (
                   <>

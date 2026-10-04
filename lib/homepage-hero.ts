@@ -18,6 +18,7 @@ async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
       .select(HERO_TOUR_COLUMNS)
       .eq("status", "published")
       .eq("is_paused_by_host", false)
+      .neq("category_type", "place")
       .eq("is_featured", true)
       .order("featured_order", { ascending: true })
       .limit(5),

@@ -67,6 +67,7 @@ CREATE TABLE activities (
   is_paused_by_host BOOLEAN DEFAULT false,
   view_count INTEGER DEFAULT 0,
   like_count INTEGER DEFAULT 0,
+  popularity_score INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

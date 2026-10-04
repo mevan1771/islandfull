@@ -59,36 +59,40 @@ function applySearchAndCategory(query: any, filters: HomepageActivityFilters) {
   return next
 }
 
+function applySort(query: any, filters: HomepageActivityFilters, usePopularity: boolean) {
+  if (filters.sort === "price_asc") return query.order("price_usd", { ascending: true })
+  if (filters.sort === "price_desc") return query.order("price_usd", { ascending: false })
+  if (filters.sort === "deals") return query.order("discount_price", { ascending: true, nullsFirst: false })
+  if (filters.sort === "newest" || !usePopularity) return query.order("created_at", { ascending: false })
+  return query
+    .order("popularity_score", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+}
+
 export async function fetchHomepageActivities(
   filters: HomepageActivityFilters,
   offset = 0,
   limit = HOMEPAGE_PAGE_SIZE
 ): Promise<{ activities: HomepageActivity[]; total: number }> {
-  let dataQuery: any = applySearchAndCategory(
-    supabase.from("activities").select(ACTIVITY_SELECT),
-    filters
-  )
-
-  if (filters.sort === "price_asc") {
-    dataQuery = dataQuery.order("price_usd", { ascending: true })
-  } else if (filters.sort === "price_desc") {
-    dataQuery = dataQuery.order("price_usd", { ascending: false })
-  } else if (filters.sort === "deals") {
-    dataQuery = dataQuery.order("discount_price", { ascending: true, nullsFirst: false })
-  } else {
-    dataQuery = dataQuery.order("is_featured", { ascending: false, nullsFirst: false })
-    dataQuery = dataQuery.order("created_at", { ascending: false })
-  }
-
   const countQuery = applySearchAndCategory(
     supabase.from("activities").select("id, categories!inner(slug)", { count: "exact", head: true }),
     filters
   )
 
-  const [{ data, error }, { count, error: countError }] = await Promise.all([
-    dataQuery.range(offset, offset + limit - 1),
-    countQuery,
-  ])
+  const run = (usePopularity: boolean) =>
+    applySort(
+      applySearchAndCategory(supabase.from("activities").select(ACTIVITY_SELECT), filters),
+      filters,
+      usePopularity
+    ).range(offset, offset + limit - 1)
+
+  let [{ data, error }, { count, error: countError }] = await Promise.all([run(true), countQuery])
+
+  if (error && String(error.message || "").includes("popularity_score")) {
+    const retry = await run(false)
+    data = retry.data
+    error = retry.error
+  }
 
   if (error) console.error("Supabase query error:", error)
   if (countError) console.error("Supabase count error:", countError)
@@ -97,4 +101,44 @@ export async function fetchHomepageActivities(
     activities: data ? data.map(mapActivity) : [],
     total: count ?? 0,
   }
+}
+
+export async function fetchMustSeePlaces(limit = 12) {
+  const select =
+    "id, title, slug, location, duration, cover_image_url, card_image_url"
+
+  const run = (usePopularity: boolean) => {
+    let query = supabase
+      .from("activities")
+      .select(select)
+      .eq("category_type", "place")
+      .eq("status", "published")
+      .eq("is_paused_by_host", false)
+
+    if (usePopularity) {
+      query = query.order("popularity_score", { ascending: false, nullsFirst: false })
+    }
+    return query.order("created_at", { ascending: false }).limit(limit)
+  }
+
+  let { data, error } = await run(true)
+  if (error && String(error.message || "").includes("popularity_score")) {
+    const retry = await run(false)
+    data = retry.data
+    error = retry.error
+  }
+
+  if (error) {
+    console.error("Failed to fetch must-see places:", error)
+    return []
+  }
+
+  return (data || []).map((d: any) => ({
+    id: d.id,
+    title: d.title,
+    slug: d.slug,
+    location: d.location,
+    duration: d.duration,
+    coverImage: d.card_image_url || d.cover_image_url,
+  }))
 }

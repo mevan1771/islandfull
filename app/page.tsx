@@ -7,7 +7,7 @@ import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
-import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
+import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
@@ -18,9 +18,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const currentVertical = params.vertical || 'tour';
   const currentCategory = params.category || 'all';
 
-  const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories] = await Promise.all([
+  const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories, mustSeePlaces] = await Promise.all([
     getHomepageHeroData(),
     getHomepageCategories(currentVertical),
+    currentVertical === "tour" ? fetchMustSeePlaces() : Promise.resolve([]),
   ]);
 
   const carouselSlides = [
@@ -70,6 +71,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
             searchParams={params}
             currentCategory={currentCategory}
             spotlightSlides={Array.isArray(featuredSpotlight) ? featuredSpotlight : featuredSpotlight ? [featuredSpotlight] : null}
+            mustSeePlaces={currentVertical === "tour" ? mustSeePlaces : []}
           />
         </Suspense>
       </section>
@@ -94,10 +96,12 @@ async function ActivityGridServer({
   searchParams,
   currentCategory,
   spotlightSlides,
+  mustSeePlaces,
 }: {
   searchParams: any
   currentCategory: string
   spotlightSlides: SpotlightConfig[] | null
+  mustSeePlaces: Awaited<ReturnType<typeof fetchMustSeePlaces>>
 }) {
   const filters = {
     vertical: searchParams.vertical || "tour",
@@ -116,6 +120,7 @@ async function ActivityGridServer({
       currentCategory={currentCategory}
       filters={filters}
       spotlightSlides={spotlightSlides}
+      mustSeePlaces={mustSeePlaces}
     />
   )
 }

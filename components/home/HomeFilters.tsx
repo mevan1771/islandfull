@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, ArrowDownUp, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash, ChevronLeft, ChevronRight } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
+import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 
 
 type CategoryType = {
@@ -165,13 +166,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     el.scrollBy({ left: direction * Math.max(160, el.clientWidth * 0.7), behavior: "smooth" })
   }
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSortChange = (sort: TourSort) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (e.target.value) {
-      params.set("sort", e.target.value)
-    } else {
-      params.delete("sort")
-    }
+    if (sort === "recommended") params.delete("sort")
+    else params.set("sort", sort)
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -287,15 +285,15 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 transition-all duration-300">
                 <SlidersHorizontal className="w-5 h-5" />
                 <select
-                  value={currentSort}
-                  onChange={handleSortChange}
+                  value={parseTourSort(currentSort)}
+                  onChange={(e) => handleSortChange(parseTourSort(e.target.value))}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  aria-label="Sort by"
                 >
-                  <option value="">Sort by...</option>
-                  <option value="deals">Best Deals</option>
+                  <option value="recommended">Recommended</option>
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
-                  <option value="rating_desc">Rating: Highest First</option>
+                  <option value="newest">Newest Arrivals</option>
                 </select>
               </div>
 
@@ -317,7 +315,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
       {/* Activity Grid Header / Filters */}
       <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900">
-        <div className="flex items-center w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0 pl-4 md:pl-0 pr-3 md:pr-0 h-10 md:h-11">
+        <div className="flex items-center w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0 pl-4 md:pl-0 pr-3 md:pr-0 h-10 md:h-11 min-w-0">
           {canScrollLeft && (
             <button
               type="button"

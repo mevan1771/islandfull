@@ -225,6 +225,7 @@ export default function CategoriesPage() {
                     <option value="tour">Tour</option>
                     <option value="event">Event</option>
                     <option value="transport">Transport</option>
+                    <option value="place">Place / Must see</option>
                   </select>
                 </div>
 

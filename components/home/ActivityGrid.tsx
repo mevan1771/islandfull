@@ -12,12 +12,26 @@ import {
 } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
+type MustSeePlace = {
+  id: string
+  title: string
+  slug: string
+  location: string
+  duration?: string | null
+  coverImage: string
+}
+
+type GridCell =
+  | { type: "tour"; act: HomepageActivity }
+  | { type: "place"; place: MustSeePlace }
+
 interface ActivityGridProps {
   activities: HomepageActivity[]
   total: number
   currentCategory: string
   filters: HomepageActivityFilters
   spotlightSlides?: SpotlightConfig[] | null
+  mustSeePlaces?: MustSeePlace[]
 }
 
 function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
@@ -43,12 +57,50 @@ function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
   )
 }
 
+function PlaceCard({ place }: { place: MustSeePlace }) {
+  return (
+    <ActivityCard
+      id={place.id}
+      title={place.title}
+      slug={place.slug}
+      location={place.location}
+      duration={place.duration || ""}
+      priceUsd={0}
+      coverImage={place.coverImage || "/placeholder.jpg"}
+      variant="place"
+    />
+  )
+}
+
+function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[]): GridCell[] {
+  const cells: GridCell[] = []
+  let pi = 0
+  for (let i = 0; i < tours.length; i++) {
+    cells.push({ type: "tour", act: tours[i] })
+    if ((i + 1) % 4 === 0 && pi < places.length) {
+      cells.push({ type: "place", place: places[pi++] })
+    }
+  }
+  if (pi === 0 && places[0] && tours.length > 0) {
+    cells.push({ type: "place", place: places[0] })
+  }
+  return cells
+}
+
+function Cell({ cell }: { cell: GridCell }) {
+  if (cell.type === "place") {
+    return <PlaceCard place={cell.place} />
+  }
+  return <ActivityCardFromItem act={cell.act} />
+}
+
 export function ActivityGrid({
   activities,
   total,
   currentCategory,
   filters,
   spotlightSlides,
+  mustSeePlaces = [],
 }: ActivityGridProps) {
   const { favorites, isHydrated } = useFavorites()
   const [items, setItems] = useState(activities)
@@ -65,6 +117,25 @@ export function ActivityGrid({
     }
     displayActivities = items.filter((act) => favorites.includes(act.id))
   }
+
+  const injectPlaces =
+    filters.vertical !== "event" &&
+    filters.vertical !== "transport" &&
+    currentCategory !== "saved" &&
+    (!filters.category || filters.category === "all")
+
+  const locationQ = (filters.location || "").trim().toLowerCase()
+  const placesForGrid = injectPlaces
+    ? mustSeePlaces.filter((place) => {
+        if (!locationQ) return true
+        return (
+          place.location.toLowerCase().includes(locationQ) ||
+          place.title.toLowerCase().includes(locationQ)
+        )
+      })
+    : []
+
+  const cells = withMustSeeSlots(displayActivities, placesForGrid)
 
   const showSpotlight =
     currentCategory !== "saved" &&
@@ -101,25 +172,25 @@ export function ActivityGrid({
     )
   }
 
-  const leading = displayActivities.slice(0, 8)
-  const desktopOnlyBeforeSpotlight = displayActivities.slice(8, 12)
-  const trailing = displayActivities.slice(12)
+  const leading = cells.slice(0, 8)
+  const desktopOnlyBeforeSpotlight = cells.slice(8, 12)
+  const trailing = cells.slice(12)
 
   return (
     <div>
       <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-        {leading.map((act) => (
-          <ActivityCardFromItem key={act.id} act={act} />
+        {leading.map((cell) => (
+          <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
         ))}
         {showSpotlight ? (
           <div className="hidden md:contents">
-            {desktopOnlyBeforeSpotlight.map((act) => (
-              <ActivityCardFromItem key={act.id} act={act} />
+            {desktopOnlyBeforeSpotlight.map((cell) => (
+              <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
             ))}
           </div>
         ) : (
-          desktopOnlyBeforeSpotlight.map((act) => (
-            <ActivityCardFromItem key={act.id} act={act} />
+          desktopOnlyBeforeSpotlight.map((cell) => (
+            <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
           ))
         )}
       </div>
@@ -134,13 +205,16 @@ export function ActivityGrid({
         <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 mt-4 md:mt-8">
           {showSpotlight && (
             <div className="contents md:hidden">
-              {desktopOnlyBeforeSpotlight.map((act) => (
-                <ActivityCardFromItem key={`${act.id}-m`} act={act} />
+              {desktopOnlyBeforeSpotlight.map((cell) => (
+                <Cell
+                  key={cell.type === "place" ? `p-${cell.place.id}-m` : `${cell.act.id}-m`}
+                  cell={cell}
+                />
               ))}
             </div>
           )}
-          {trailing.map((act) => (
-            <ActivityCardFromItem key={act.id} act={act} />
+          {trailing.map((cell) => (
+            <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
           ))}
         </div>
       )}

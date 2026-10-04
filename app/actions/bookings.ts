@@ -6,19 +6,23 @@ import { logActivity } from "@/utils/auditLogger"
 import { createClient } from "@/utils/supabase/server"
 
 export async function updateStatus(id: string, newStatus: string) {
-  if (newStatus === 'cancelled') {
-    const { data: booking } = await supabaseAdmin.from('bookings').select('activity_id, travel_date').eq('id', id).single();
-    if (booking) {
-      try {
-        const { autoUnblockDate } = await import('@/app/actions/tours');
-        await autoUnblockDate(booking.activity_id, booking.travel_date);
-      } catch (e) {
-        console.error("Failed to unblock date:", e);
-      }
+  const { data: booking } = await supabaseAdmin.from('bookings').select('activity_id, travel_date, status').eq('id', id).single();
+
+  if (newStatus === 'cancelled' && booking) {
+    try {
+      const { autoUnblockDate } = await import('@/app/actions/tours');
+      await autoUnblockDate(booking.activity_id, booking.travel_date);
+    } catch (e) {
+      console.error("Failed to unblock date:", e);
     }
   }
 
   await supabaseAdmin.from('bookings').update({ status: newStatus }).eq('id', id);
+
+  if (newStatus === 'confirmed') {
+    const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
+    await bumpPopularityIfNewlyConfirmed(id, booking?.status)
+  }
   
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

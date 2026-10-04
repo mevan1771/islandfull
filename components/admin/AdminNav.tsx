@@ -11,6 +11,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Tours', href: '/admin/tours' },
     { name: 'Events', href: '/admin/events' },
     { name: 'Transport', href: '/admin/transport' },
+    { name: 'Places', href: '/admin/places' },
     { name: 'Hero Carousel', href: '/admin/carousel' },
     { name: 'Spotlight', href: '/admin/spotlight' },
     { name: 'Reviews', href: '/admin/reviews' },

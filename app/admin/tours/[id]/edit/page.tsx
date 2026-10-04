@@ -42,7 +42,13 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
-        <TourForm categories={categories || []} initialData={tour} cancellationTiers={cancellationTiers || []} existingLocations={existingLocations} />
+        <TourForm
+          categories={categories || []}
+          initialData={tour}
+          cancellationTiers={cancellationTiers || []}
+          existingLocations={existingLocations}
+          lockCategory={tour.category_type === "place" ? "place" : undefined}
+        />
       </div>
     </div>
   )

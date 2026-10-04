@@ -2,16 +2,15 @@
 
 import { useEffect } from "react"
 
-export function MobilePaddingSetter() {
+export function MobilePaddingSetter({ enabled = true }: { enabled?: boolean }) {
     useEffect(() => {
-        // Add class on mount
+        if (!enabled) return
         document.body.classList.add('mobile-booking-padding')
 
-        // Remove class on unmount
         return () => {
             document.body.classList.remove('mobile-booking-padding')
         }
-    }, [])
+    }, [enabled])
 
     return null
 }

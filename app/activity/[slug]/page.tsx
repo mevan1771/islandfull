@@ -2,7 +2,7 @@ import Image from "next/image"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Check } from "lucide-react"
+import { Check, MapPin } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
@@ -17,6 +17,7 @@ import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 import { ScrollToTop } from "@/components/activity/ScrollToTop"
 import { ActivityMetaBar } from "@/components/activity/ActivityMetaBar"
+import { DESTINATIONS, activityBelongsToDestination } from "@/lib/destinations"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -114,16 +115,48 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         : undefined;
 
     let moreActivities: any[] = [];
+    let nearbyTours: any[] = [];
     let blockedDates: string[] = [];
+    const isPlace = activity.category_type === "place";
 
     if (activity) {
-        if (activity.host_id) {
+        if (isPlace) {
+            const placeCoords = (() => {
+                const lat = activity.approx_lat != null ? parseFloat(activity.approx_lat) : NaN
+                const lng = activity.approx_lng != null ? parseFloat(activity.approx_lng) : NaN
+                if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng }
+                return null
+            })()
+            const dest = DESTINATIONS.find((d) =>
+                activityBelongsToDestination(d, activity.location || "", placeCoords)
+            )
+
+            const { data: tours } = await supabase
+                .from("activities")
+                .select("id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, approx_lat, approx_lng, reviews(rating)")
+                .eq("category_type", "tour")
+                .eq("status", "published")
+                .eq("is_paused_by_host", false)
+                .neq("id", activity.id)
+                .limit(80)
+
+            nearbyTours = (tours || []).filter((t: any) => {
+                const lat = t.approx_lat != null ? parseFloat(t.approx_lat) : NaN
+                const lng = t.approx_lng != null ? parseFloat(t.approx_lng) : NaN
+                const coords = Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
+                if (dest) return activityBelongsToDestination(dest, t.location || "", coords)
+                const loc = (t.location || "").toLowerCase()
+                const here = (activity.location || "").toLowerCase()
+                return here && loc.includes(here)
+            }).slice(0, 8)
+        } else if (activity.host_id) {
             const { data: moreData } = await supabase
                 .from('activities')
                 .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, reviews(rating)')
                 .eq('host_id', activity.host_id)
                 .eq('status', 'published')
                 .eq('is_paused_by_host', false)
+                .neq('category_type', 'place')
                 .neq('id', activity.id)
                 .limit(4);
 
@@ -164,7 +197,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     return (
         <div className="bg-white min-h-screen md:pb-12">
             <ScrollToTop />
-            <MobilePaddingSetter />
+            <MobilePaddingSetter enabled={!isPlace} />
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
 
             <ActivityHeroCollage
@@ -198,15 +231,17 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             activity.deal_end_date &&
                             new Date(activity.deal_end_date) > new Date()
                         )}
+                        hideCapacity={isPlace}
                     />
                     </div>
 
                     {/* Description */}
                     <section>
-                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">About this experience</h2>
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{isPlace ? "About this place" : "About this experience"}</h2>
                         <div className="text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-slate-700/80 [&>strong]:font-bold [&>p]:mb-2">
                             <ReactMarkdown>{activity.description}</ReactMarkdown>
                         </div>
+                        {!isPlace && (
                         <div className="mt-6">
                             {(() => {
                                 const hostName = activity.hosts?.name || activity.provider_name || 'Islandfull Partner';
@@ -227,6 +262,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                 );
                             })()}
                         </div>
+                        )}
                     </section>
 
                     {/* Rough Location Map */}
@@ -235,7 +271,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     {/* Inclusions */}
                     {activity.inclusions && activity.inclusions.length > 0 && (
                         <section>
-                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">What's included</h2>
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{isPlace ? "Good to know" : "What's included"}</h2>
                             <ul className="grid grid-cols-2 gap-y-3 gap-x-4 w-full">
                                 {activity.inclusions.map((item: string, i: number) => (
                                     <li key={i} className="flex items-start gap-2">
@@ -263,6 +299,20 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 {/* Sidebar / Desktop Booking */}
                 <div className="hidden lg:block w-full max-w-[420px]">
                     <div className="sticky top-28">
+                        {isPlace ? (
+                            <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
+                                <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">Must see</p>
+                                <p className="mt-2 text-2xl font-bold text-zinc-900">Free to visit</p>
+                                <p className="mt-1 text-sm text-zinc-500">No reservation. Go when it suits you.</p>
+                                <div className="mt-5 flex items-start gap-2 text-sm text-zinc-700">
+                                    <MapPin className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
+                                    <span>{activity.location}</span>
+                                </div>
+                                {activity.duration && (
+                                    <p className="mt-3 text-sm text-zinc-500">Allow {activity.duration}</p>
+                                )}
+                            </div>
+                        ) : (
                         <BookingDrawer
                             activityId={activity.id}
                             title={activity.title}
@@ -288,19 +338,22 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             dealEndDate={activity.deal_end_date}
                             priceSuffix={activity.price_suffix}
                         />
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* More from Host */}
-            {moreActivities && moreActivities.length > 0 && (
+            {/* More from Host / Tours nearby */}
+            {((isPlace ? nearbyTours : moreActivities) || []).length > 0 && (
                 <div className="max-w-7xl mx-auto px-4 pb-12">
                     <div className="border-t border-zinc-200 pt-12">
                         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">
-                            More from {activity.hosts?.name || activity.provider_name}
+                            {isPlace
+                                ? "Tours nearby"
+                                : `More from ${activity.hosts?.name || activity.provider_name}`}
                         </h2>
                         <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
-                            {moreActivities.map((d: any) => {
+                            {(isPlace ? nearbyTours : moreActivities).map((d: any) => {
                                 let rating = 0;
                                 if (d.reviews && d.reviews.length > 0) {
                                     rating = d.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / d.reviews.length;
@@ -315,7 +368,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                         location={d.location}
                                         duration={d.duration}
                                         priceUsd={d.price_usd}
-                                        coverImage={d.cover_image_url || '/placeholder.jpg'}
+                                        coverImage={d.card_image_url || d.cover_image_url || '/placeholder.jpg'}
                                         isHiddenGem={d.is_hidden_gem}
                                         rating={rating}
                                         reviewCount={d.reviews ? d.reviews.length : 0}
@@ -329,6 +382,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             )}
 
             {/* Mobile Booking Widget (Sticky Bottom) */}
+            {!isPlace && (
             <div className="lg:hidden">
                 <BookingDrawer
                     activityId={activity.id}
@@ -356,6 +410,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     priceSuffix={activity.price_suffix}
                 />
             </div>
+            )}
         </div>
     )
 }
