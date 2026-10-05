@@ -1,11 +1,20 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { MapPin } from "lucide-react";
 import { MapClientWrapper } from "@/components/map/MapClientWrapper";
 import type { MapTour } from "@/components/map/InteractiveMap";
 import { supabase } from "@/lib/supabase";
-import { DESTINATIONS, activityBelongsToDestination, getNearbyDestinations, type Destination } from "@/lib/destinations";
+import {
+  DESTINATIONS,
+  activityBelongsToDestination,
+  destinationFromSlug,
+  destinationSlug,
+  getNearbyDestinations,
+  type Destination,
+} from "@/lib/destinations";
 import { getDestinationGuide } from "@/lib/destinationGuides";
 import { formatUSD } from "@/lib/utils";
 import { SortBySelect } from "@/components/ui/SortBySelect";
@@ -56,13 +65,23 @@ function toMapTour(activity: any): MapTour {
   };
 }
 
-export default function DestinationsPage() {
+export default function DestinationsRoute() {
+  return (
+    <Suspense fallback={<div className="w-full min-h-screen bg-gray-50" />}>
+      <DestinationsPage />
+    </Suspense>
+  )
+}
+
+function DestinationsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const branchHub = destinationFromSlug(searchParams.get("dest"))
   const [activeLocation, setActiveLocation] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const [mapTours, setMapTours] = useState<MapTour[]>([]);
   const [mapCategories, setMapCategories] = useState<{ name: string; slug: string; category_type: string }[]>([]);
   const [activityCounts, setActivityCounts] = useState<Record<string, number>>({});
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
-  const [branchHub, setBranchHub] = useState<Destination | null>(null);
   const listScrollRef = useRef(0);
   const mosaicScrollRef = useRef(0);
 
@@ -137,7 +156,8 @@ export default function DestinationsPage() {
   }, []);
 
   const closeBranch = () => {
-    setBranchHub(null);
+    setMobileView("list");
+    router.push("/destinations");
     requestAnimationFrame(() => {
       window.scrollTo({ top: mosaicScrollRef.current, behavior: "auto" });
     });
@@ -145,24 +165,21 @@ export default function DestinationsPage() {
 
   const selectHub = (dest: Destination) => {
     if (!branchHub) mosaicScrollRef.current = window.scrollY;
-    setBranchHub(dest);
-    setActiveLocation({ ...dest.coordinates, zoom: 9.2 });
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "auto" });
-    });
+    router.push(`/destinations?dest=${destinationSlug(dest.name)}`);
   };
+
+  useEffect(() => {
+    if (branchHub) {
+      sessionStorage.setItem("islandfull:return-dest", destinationSlug(branchHub.name))
+      setActiveLocation({ ...branchHub.coordinates, zoom: 9.2 })
+      window.scrollTo({ top: 0, behavior: "auto" })
+      return
+    }
+    sessionStorage.removeItem("islandfull:return-dest")
+  }, [branchHub])
 
   const openMapFor = (dest: Destination) => {
-    setActiveLocation({ ...dest.coordinates, zoom: 9.2 });
-    if (window.matchMedia("(max-width: 1023px)").matches) {
-      showMobileMap();
-    }
-  };
-
-  const focusTour = (tour: MapTour) => {
-    if (tour.latitude != null && tour.longitude != null) {
-      setActiveLocation({ lat: tour.latitude, lng: tour.longitude, zoom: 12.4 });
-    }
+    setActiveLocation({ ...dest.coordinates, zoom: 12 });
     if (window.matchMedia("(max-width: 1023px)").matches) {
       showMobileMap();
     }
@@ -193,14 +210,15 @@ export default function DestinationsPage() {
 
   useEffect(() => {
     const onBack = (event: Event) => {
+      if (mobileView === "map" && window.matchMedia("(max-width: 1023px)").matches) {
+        event.preventDefault();
+        showMobileList();
+        return;
+      }
       if (branchHub) {
         event.preventDefault();
         closeBranch();
-        return;
       }
-      if (mobileView !== "map" || !window.matchMedia("(max-width: 1023px)").matches) return;
-      event.preventDefault();
-      showMobileList();
     };
 
     window.addEventListener("islandfull:destinations-back", onBack);
@@ -218,7 +236,6 @@ export default function DestinationsPage() {
               onClose={closeBranch}
               onSelectNearby={selectHub}
               onOpenMap={() => openMapFor(branchHub)}
-              onFocusTour={focusTour}
             />
           ) : (
             <>
@@ -298,7 +315,7 @@ export default function DestinationsPage() {
         </section>
 
         <aside
-          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:z-30 max-lg:block" : "max-lg:hidden"} lg:sticky lg:top-20 lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:z-30 max-lg:block" : "max-lg:hidden"} relative lg:sticky lg:top-20 lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100vh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
           data-lenis-prevent
         >
           <div className="absolute inset-0">
@@ -338,14 +355,12 @@ function DestinationPage({
   onClose,
   onSelectNearby,
   onOpenMap,
-  onFocusTour,
 }: {
   dest: Destination
   tours: MapTour[]
   onClose: () => void
   onSelectNearby: (dest: Destination) => void
   onOpenMap: () => void
-  onFocusTour: (tour: MapTour) => void
 }) {
   const guide = getDestinationGuide(dest.name)
   const nearby = getNearbyDestinations(dest.name)
@@ -383,7 +398,47 @@ function DestinationPage({
 
   return (
     <article>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 items-start">
+      <div className="sm:hidden">
+        <div className="flex items-start gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={dest.image}
+            alt=""
+            className="h-[76px] w-[76px] rounded-2xl object-cover shrink-0 bg-zinc-200"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <Label>{guide?.region ?? "Destination"}</Label>
+                <h1 className="text-[28px] font-bold text-zinc-900 leading-tight">{dest.name}</h1>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenMap}
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-rose-500 text-white text-sm font-bold pl-2.5 pr-3 py-1.5 shadow-lg shadow-rose-500/20 hover:bg-rose-600"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                Map
+              </button>
+            </div>
+            {guide ? (
+              <p className="text-zinc-500 mt-1 text-sm leading-snug">{guide.tagline}</p>
+            ) : null}
+          </div>
+        </div>
+        {guide ? (
+          <>
+            <p className="mt-4 text-sm text-zinc-600 leading-relaxed">{guide.famousFor}</p>
+            <p className="mt-3 text-sm text-zinc-500">
+              Best {guide.season}
+              <span className="mx-2 text-zinc-300">·</span>
+              {guide.bestFor.join(" · ")}
+            </p>
+          </>
+        ) : null}
+      </div>
+
+      <div className="hidden sm:grid grid-cols-2 gap-4 md:gap-6 items-start">
         <div className="relative overflow-hidden rounded-3xl bg-zinc-200 aspect-[4/3]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={dest.image} alt={dest.name} className="absolute inset-0 h-full w-full object-cover object-center" />
@@ -408,7 +463,7 @@ function DestinationPage({
           {guide && (
             <>
               <p className="text-zinc-500 mt-1 md:mt-2 text-sm md:text-base leading-snug">{guide.tagline}</p>
-              <p className="mt-4 text-[15px] md:text-base text-zinc-600 leading-relaxed">{guide.famousFor}</p>
+              <p className="mt-4 text-sm text-zinc-600 leading-relaxed">{guide.famousFor}</p>
               <p className="mt-3 text-sm text-zinc-500">
                 Best {guide.season}
                 <span className="mx-2 text-zinc-300">·</span>
@@ -420,8 +475,9 @@ function DestinationPage({
       </div>
 
       {tabs.length > 0 && (
-        <div className="mt-8">
-          <div className="grid grid-cols-3 gap-1 p-1 rounded-full bg-zinc-100">
+        <div className="mt-6 lg:mt-8">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1 grid grid-cols-3 gap-0.5 p-1 rounded-full bg-zinc-100">
             {(["tour", "event", "transport"] as const).map((id) => {
               const tab = tabs.find((item) => item.id === id)
               const count = tab?.items.length ?? 0
@@ -434,7 +490,7 @@ function DestinationPage({
                   type="button"
                   disabled={!enabled}
                   onClick={() => enabled && setActiveTab(id)}
-                  className={`rounded-full py-2 text-xs md:text-sm font-semibold transition-colors ${
+                  className={`rounded-full py-2 text-[11px] md:text-sm font-semibold transition-colors ${
                     active && enabled
                       ? "bg-white text-zinc-900 shadow-sm"
                       : enabled
@@ -447,53 +503,46 @@ function DestinationPage({
                 </button>
               )
             })}
-          </div>
-
-          <div className="mt-3 flex justify-end">
-            <SortBySelect value={sort} onChange={setSort} />
+            </div>
+            <SortBySelect variant="icon" value={sort} onChange={setSort} />
           </div>
 
           <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-3">
             {visible.map((tour) => {
               const location = (tour.location || "").replace(", Sri Lanka", "")
-              return (
-                <div key={tour.id} className="min-w-0">
-                  <button
-                    type="button"
-                    onClick={() => onFocusTour(tour)}
-                    className="relative w-full overflow-hidden rounded-xl md:rounded-2xl bg-zinc-100 aspect-[4/3] group text-left shadow-sm hover:shadow-md transition-shadow"
-                    aria-label={`Show ${tour.title} on the map`}
-                  >
+              const body = (
+                <>
+                  <span className="relative block w-full overflow-hidden rounded-xl md:rounded-2xl bg-zinc-100 aspect-[4/3] shadow-sm">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={tour.cover_image_url || dest.image}
                       alt=""
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                  </button>
-                  <div className="mt-1.5 px-0.5">
-                    {tour.slug ? (
-                      <Link
-                        href={`/activity/${tour.slug}`}
-                        className="block text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2 hover:text-rose-500"
-                      >
-                        {tour.title}
-                      </Link>
-                    ) : (
-                      <p className="text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2">
-                        {tour.title}
-                      </p>
-                    )}
-                    {location && (
-                      <p className="mt-0.5 text-[11px] text-zinc-500 truncate">{location}</p>
-                    )}
-                    <p className="mt-0.5 text-[13px] text-zinc-900">
+                  </span>
+                  <span className="mt-1.5 px-0.5 block">
+                    <span className="block text-[13px] md:text-sm font-semibold text-zinc-900 leading-snug line-clamp-2 group-hover:text-rose-500">
+                      {tour.title}
+                    </span>
+                    {location ? (
+                      <span className="mt-0.5 block text-[11px] text-zinc-500 truncate">{location}</span>
+                    ) : null}
+                    <span className="mt-0.5 block text-[13px] text-zinc-900">
                       <span className="font-bold">{formatUSD(tour.price_usd)}</span>
                       {tour.duration ? (
                         <span className="font-normal text-zinc-500"> · {tour.duration}</span>
                       ) : null}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
+                </>
+              )
+              return tour.slug ? (
+                <Link key={tour.id} href={`/activity/${tour.slug}`} className="min-w-0 group">
+                  {body}
+                </Link>
+              ) : (
+                <div key={tour.id} className="min-w-0">
+                  {body}
                 </div>
               )
             })}
@@ -587,14 +636,6 @@ function DestinationPage({
           </div>
         </div>
       )}
-
-      <button
-        type="button"
-        onClick={onOpenMap}
-        className="mt-6 w-full rounded-full bg-rose-500 py-3 text-sm font-bold text-white shadow-lg shadow-rose-500/20 hover:bg-rose-600"
-      >
-        {local.length > 0 ? `See all on the map · ${local.length}` : `Open map · ${dest.name}`}
-      </button>
     </article>
   )
 }

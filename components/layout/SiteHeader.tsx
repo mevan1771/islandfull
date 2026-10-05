@@ -99,6 +99,11 @@ export default function SiteHeader() {
                                     router.back()
                                     return
                                 }
+                                const dest = sessionStorage.getItem("islandfull:return-dest")
+                                if (dest) {
+                                    router.push(`/destinations?dest=${dest}`)
+                                    return
+                                }
                                 router.push("/")
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"

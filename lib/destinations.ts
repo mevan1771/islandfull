@@ -105,6 +105,16 @@ export const DESTINATIONS: Destination[] = [
   },
 ]
 
+export function destinationSlug(name: string) {
+  return name.trim().toLowerCase().replace(/\s+/g, "-")
+}
+
+export function destinationFromSlug(slug: string | null | undefined) {
+  if (!slug) return null
+  const key = slug.trim().toLowerCase()
+  return DESTINATIONS.find((d) => destinationSlug(d.name) === key) ?? null
+}
+
 /** Curated travel corridors, not raw GPS nearest-neighbour. */
 const NEARBY: Record<string, NearbyLink[]> = {
   Galle: [
