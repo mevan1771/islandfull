@@ -289,7 +289,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
       {/* Category Filter Bar (Floating on bottom) */}
-      <div className={isDestinationMode ? "lg:hidden" : undefined}>
+      <div className={`absolute inset-0 z-40 pointer-events-none ${isDestinationMode ? "lg:hidden" : ""}`}>
         <MapFilterBar
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}

@@ -39,8 +39,8 @@ export function MapPreviewDrawer({ tour, onClose, contained = false }: MapPrevie
     <div
       className={`flex pointer-events-none transition-transform duration-500 ease-out z-[100]
         ${contained
-          ? "absolute inset-x-0 bottom-0 p-3 pb-20 lg:p-4 lg:pb-4 justify-center w-full"
-          : "fixed bottom-0 left-0 right-0 p-4 pb-24 md:left-0 md:right-auto md:translate-x-0 md:bottom-0 md:p-6 md:pb-6 md:justify-start w-full md:w-[420px]"}
+          ? "absolute inset-x-0 bottom-0 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] lg:p-4 lg:pb-4 justify-center w-full"
+          : "fixed bottom-0 left-0 right-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:left-0 md:right-auto md:translate-x-0 md:bottom-0 md:p-6 md:pb-6 md:justify-start w-full md:w-[420px]"}
         ${tour ? "translate-y-0 opacity-100" : "translate-y-[150%] opacity-0"}
       `}
     >
