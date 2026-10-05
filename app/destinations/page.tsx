@@ -157,7 +157,7 @@ function DestinationsPage() {
 
   const closeBranch = () => {
     setMobileView("list");
-    router.push("/destinations");
+    router.replace("/destinations");
     requestAnimationFrame(() => {
       window.scrollTo({ top: mosaicScrollRef.current, behavior: "auto" });
     });
@@ -218,12 +218,15 @@ function DestinationsPage() {
       if (branchHub) {
         event.preventDefault();
         closeBranch();
+        return;
       }
+      event.preventDefault();
+      router.push("/");
     };
 
     window.addEventListener("islandfull:destinations-back", onBack);
     return () => window.removeEventListener("islandfull:destinations-back", onBack);
-  }, [mobileView, branchHub]);
+  }, [mobileView, branchHub, router]);
 
   return (
     <div className="w-full bg-gray-50">
