@@ -15,6 +15,15 @@
   }
 }
 
+@keyframes islandfull-load-slide {
+  0% { left: -50%; width: 50%; }
+  100% { left: 100%; width: 50%; }
+}
+
+.islandfull-load-bar {
+  animation: islandfull-load-slide 1.5s infinite ease-in-out;
+}
+
 /* Hide Mapbox Logo & Attribution */
 .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib {
   display: none !important;
