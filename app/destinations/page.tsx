@@ -282,7 +282,7 @@ function DestinationsPage() {
                         <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center gap-1.5 min-w-0">
                           <span
                             className={`shrink-0 inline-block uppercase font-bold tracking-wider rounded-full px-2.5 py-1 md:px-3 text-[10px] md:text-xs shadow-sm ${
-                              isMapActive ? "bg-rose-500 text-white" : "bg-white/90 text-zinc-900"
+                              isMapActive ? "bg-rose-500 text-zinc-900" : "bg-white/90 text-zinc-900"
                             }`}
                           >
                             {dest.name}
@@ -418,7 +418,7 @@ function DestinationPage({
               <button
                 type="button"
                 onClick={onOpenMap}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-rose-500 text-white text-sm font-bold pl-2.5 pr-3 py-1.5 shadow-lg shadow-rose-500/20 hover:bg-rose-600"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-rose-500 text-zinc-900 text-sm font-bold pl-2.5 pr-3 py-1.5 shadow-lg shadow-rose-500/20 hover:bg-rose-600"
               >
                 <MapPin className="w-3.5 h-3.5" />
                 Map

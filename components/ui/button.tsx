@@ -17,7 +17,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     let variantStyles = ""
     switch(variant) {
       case "default":
-        variantStyles = "bg-rose-500 text-white hover:bg-rose-600 shadow-sm"
+        variantStyles = "bg-rose-500 text-zinc-900 hover:bg-rose-600 shadow-sm"
         break
       case "destructive":
         variantStyles = "bg-red-500 text-slate-50 hover:bg-red-500/90"

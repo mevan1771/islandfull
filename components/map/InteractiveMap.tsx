@@ -259,7 +259,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
           // tour fallback
           markerHTML = `
             <div class="${innerClass}">
-              <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-rose-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-rose-500 text-zinc-900' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
                 ${pinLabel}
               </div>
               <div class="w-14 h-14 rounded-full bg-zinc-200 border-2 transition-colors flex items-center justify-center ${isSelected ? 'border-rose-500' : 'border-white'}">

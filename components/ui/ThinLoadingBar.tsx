@@ -15,7 +15,7 @@ export default function ThinLoadingBar() {
         style={{
           position: "absolute",
           height: "100%",
-          backgroundColor: "#FF8C00",
+          backgroundColor: "#FCB026",
         }}
       />
     </div>

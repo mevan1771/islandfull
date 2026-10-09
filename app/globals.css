@@ -3,6 +3,17 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-rose-50: #fff9e8;
+  --color-rose-100: #feefc4;
+  --color-rose-200: #fde08a;
+  --color-rose-300: #fdd156;
+  --color-rose-400: #fcc43a;
+  --color-rose-500: #fcb026;
+  --color-rose-600: #e09412;
+  --color-rose-700: #b8760d;
+  --color-rose-800: #8a580c;
+  --color-rose-900: #5c3b0a;
+  --color-rose-950: #3d2706;
 }
 
 @layer utilities {
@@ -33,7 +44,7 @@
   :root {
     --background: #fafafa;
     --foreground: #09090b;
-    --rdp-accent-color: #f43f5e; /* Tailwind rose-500 */
+    --rdp-accent-color: #fcb026;
   }
 }
 
@@ -42,24 +53,24 @@ body {
   background: var(--background);
 }
 
-/* Force React Day Picker Chevrons to Rose-500 */
+/* Force React Day Picker Chevrons to brand gold */
 .rdp {
-  --rdp-accent-color: #f43f5e !important;
+  --rdp-accent-color: #fcb026 !important;
 }
 .rdp-nav_button, .rdp-nav_button_previous, .rdp-nav_button_next {
-  color: #f43f5e !important;
+  color: #fcb026 !important;
 }
 .rdp-nav_icon {
-  fill: #f43f5e !important;
-  stroke: #f43f5e !important;
+  fill: #fcb026 !important;
+  stroke: #fcb026 !important;
 }
 .rdp-nav button {
-  color: #f43f5e !important;
+  color: #fcb026 !important;
 }
 .rdp-nav svg, .rdp-button svg {
-  fill: #f43f5e !important;
-  stroke: #f43f5e !important;
-  color: #f43f5e !important;
+  fill: #fcb026 !important;
+  stroke: #fcb026 !important;
+  color: #fcb026 !important;
 }
 
 

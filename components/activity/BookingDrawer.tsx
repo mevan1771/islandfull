@@ -353,10 +353,10 @@ export function BookingDrawer({
                   return blackoutDates.includes(dateString);
                 }}
                 modifiersClassNames={{
-                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                  selected: 'bg-rose-500 text-zinc-900 font-bold hover:bg-rose-600',
                   today: 'text-rose-500 font-bold',
-                  range_start: 'bg-rose-500 text-white font-bold rounded-l-md rounded-r-none',
-                  range_end: 'bg-rose-500 text-white font-bold rounded-r-md rounded-l-none',
+                  range_start: 'bg-rose-500 text-zinc-900 font-bold rounded-l-md rounded-r-none',
+                  range_end: 'bg-rose-500 text-zinc-900 font-bold rounded-r-md rounded-l-none',
                   range_middle: 'bg-rose-100 text-rose-900 rounded-none hover:bg-rose-200'
                 }}
               />
@@ -373,7 +373,7 @@ export function BookingDrawer({
                   return blackoutDates.includes(dateString);
                 }}
                 modifiersClassNames={{
-                  selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                  selected: 'bg-rose-500 text-zinc-900 font-bold hover:bg-rose-600',
                   today: 'text-rose-500 font-bold'
                 }}
               />
@@ -486,10 +486,10 @@ export function BookingDrawer({
                                       return blackoutDates.includes(dateString);
                                     }}
                                     modifiersClassNames={{
-                                      selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                      selected: 'bg-rose-500 text-zinc-900 font-bold hover:bg-rose-600',
                                       today: 'text-rose-500 font-bold',
-                                      range_start: 'bg-rose-500 text-white font-bold rounded-l-md rounded-r-none',
-                                      range_end: 'bg-rose-500 text-white font-bold rounded-r-md rounded-l-none',
+                                      range_start: 'bg-rose-500 text-zinc-900 font-bold rounded-l-md rounded-r-none',
+                                      range_end: 'bg-rose-500 text-zinc-900 font-bold rounded-r-md rounded-l-none',
                                       range_middle: 'bg-rose-100 text-rose-900 rounded-none hover:bg-rose-200'
                                     }}
                                   />
@@ -506,7 +506,7 @@ export function BookingDrawer({
                                       return blackoutDates.includes(dateString);
                                     }}
                                     modifiersClassNames={{
-                                      selected: 'bg-rose-500 text-white font-bold hover:bg-rose-600',
+                                      selected: 'bg-rose-500 text-zinc-900 font-bold hover:bg-rose-600',
                                       today: 'text-rose-500 font-bold'
                                     }}
                                   />
