@@ -8,6 +8,7 @@ import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from "@clerk/nextjs";
+import { SplashGate } from "@/components/ui/SplashGate";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -47,6 +48,7 @@ export default function RootLayout({
         <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
+          <SplashGate />
           <Toaster position="top-center" />
           <SiteHeader />
 
