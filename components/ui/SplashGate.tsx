@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import SplashLoading from "@/components/ui/SplashLoading"
 
-const MIN_MS = 1800
+const MIN_MS = 2800
 const SKIP_PREFIXES = ["/host", "/admin", "/sign-in", "/sign-up"]
 
 export function SplashGate() {
