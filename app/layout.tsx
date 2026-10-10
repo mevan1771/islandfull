@@ -54,12 +54,11 @@ export default function RootLayout({
           <Toaster position="top-center" />
           <SiteHeader />
 
-          <main className="flex-1 flex flex-col min-h-[100dvh] bg-zinc-50">
+          <main className="flex-1 flex flex-col bg-zinc-50">
             {children}
           </main>
-
-          <ConditionalFooter />
         </SmoothScrollProvider>
+        <ConditionalFooter />
         </ClerkProvider>
       </body>
     </html>

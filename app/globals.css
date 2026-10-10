@@ -42,6 +42,10 @@ html {
   overflow-y: scroll;
 }
 
+footer + footer {
+  display: none;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
