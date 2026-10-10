@@ -4,7 +4,8 @@ import { Inter } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
-import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
+import { ConditionalFooter } from "@/components/layout/ConditionalFooter"
+import { RootScroll } from "@/components/layout/RootScroll";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from "@clerk/nextjs";
@@ -49,6 +50,7 @@ export default function RootLayout({
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <SplashGate />
+          <RootScroll />
           <Toaster position="top-center" />
           <SiteHeader />
 
