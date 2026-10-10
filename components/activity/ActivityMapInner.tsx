@@ -38,8 +38,8 @@ export default function ActivityMapInner({ lat, lng }: { lat: number, lng: numbe
           center={[lat, lng]}
           radius={1500} // 1.5km radius
           pathOptions={{
-            color: '#FA9420',
-            fillColor: '#FA9420',
+            color: '#f43f5e', // rose-500
+            fillColor: '#f43f5e',
             fillOpacity: 0.2,
             weight: 2
           }}

@@ -3,17 +3,6 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-rose-50: #fff6e8;
-  --color-rose-100: #fee9c4;
-  --color-rose-200: #fdd08a;
-  --color-rose-300: #fbb54f;
-  --color-rose-400: #faa332;
-  --color-rose-500: #fa9420;
-  --color-rose-600: #e07e12;
-  --color-rose-700: #b8640d;
-  --color-rose-800: #8a4c0c;
-  --color-rose-900: #5c330a;
-  --color-rose-950: #3d2206;
 }
 
 @layer utilities {
@@ -44,7 +33,7 @@
   :root {
     --background: #fafafa;
     --foreground: #09090b;
-    --rdp-accent-color: #fa9420;
+    --rdp-accent-color: #f43f5e; /* Tailwind rose-500 */
   }
 }
 
@@ -53,23 +42,24 @@ body {
   background: var(--background);
 }
 
+/* Force React Day Picker Chevrons to Rose-500 */
 .rdp {
-  --rdp-accent-color: #fa9420 !important;
+  --rdp-accent-color: #f43f5e !important;
 }
 .rdp-nav_button, .rdp-nav_button_previous, .rdp-nav_button_next {
-  color: #fa9420 !important;
+  color: #f43f5e !important;
 }
 .rdp-nav_icon {
-  fill: #fa9420 !important;
-  stroke: #fa9420 !important;
+  fill: #f43f5e !important;
+  stroke: #f43f5e !important;
 }
 .rdp-nav button {
-  color: #fa9420 !important;
+  color: #f43f5e !important;
 }
 .rdp-nav svg, .rdp-button svg {
-  fill: #fa9420 !important;
-  stroke: #fa9420 !important;
-  color: #fa9420 !important;
+  fill: #f43f5e !important;
+  stroke: #f43f5e !important;
+  color: #f43f5e !important;
 }
 
 

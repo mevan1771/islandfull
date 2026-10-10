@@ -141,9 +141,9 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: '#FA9420',
+  backgroundColor: '#f43f5e',
   borderRadius: '8px',
-  color: '#18181b',
+  color: '#fff',
   fontSize: '16px',
   fontWeight: 'bold',
   textDecoration: 'none',

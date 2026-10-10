@@ -257,7 +257,7 @@ export function MobileSearch() {
             {/* Search Button */}
             <button
               type="submit"
-              className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-zinc-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+              className="flex-1 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
             >
               <Search className="w-4 h-4" />
               Search
