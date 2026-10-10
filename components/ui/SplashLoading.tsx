@@ -3,7 +3,7 @@ import ThinLoadingBar from "@/components/ui/ThinLoadingBar"
 
 export default function SplashLoading() {
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-white">
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-white">
       <Image
         src="/images/loading/loading-if.png"
         alt="IslandFull"

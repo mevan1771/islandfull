@@ -14,8 +14,18 @@ export function SplashGate() {
 
   useEffect(() => {
     if (!show) return
+
+    const root = document.documentElement
+    const scrollbar = Math.max(0, window.innerWidth - root.clientWidth)
+    root.style.overflow = "hidden"
+    root.style.paddingRight = `${scrollbar}px`
+
     const timeout = window.setTimeout(() => setShow(false), MIN_MS)
-    return () => window.clearTimeout(timeout)
+    return () => {
+      window.clearTimeout(timeout)
+      root.style.overflow = ""
+      root.style.paddingRight = ""
+    }
   }, [show])
 
   if (!show) return null
