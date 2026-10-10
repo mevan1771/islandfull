@@ -318,7 +318,7 @@ function DestinationsPage() {
         </section>
 
         <aside
-          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:h-[calc(100dvh-4rem)] max-lg:z-30 max-lg:block" : "max-lg:hidden"} relative lg:sticky lg:top-20 lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:h-[calc(100dvh-4rem)] max-lg:z-30 max-lg:block" : "max-lg:hidden"} relative lg:sticky lg:top-20 lg:self-start lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.5rem)] lg:max-h-[calc(100dvh-5.5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
           data-lenis-prevent
         >
           <div className="absolute inset-0">

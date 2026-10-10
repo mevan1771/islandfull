@@ -6,16 +6,16 @@ import { ReactNode } from 'react'
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const useNativeScroll = pathname === '/map'
+  const useNativeScroll = pathname === '/map' || pathname === '/destinations'
+
+  if (useNativeScroll) {
+    return <>{children}</>
+  }
 
   return (
     <ReactLenis
       root
-      options={
-        useNativeScroll
-          ? { lerp: 1, wheelMultiplier: 1, syncTouch: false }
-          : { lerp: 0.15, wheelMultiplier: 1.2, syncTouch: false }
-      }
+      options={{ lerp: 0.15, wheelMultiplier: 1.2, syncTouch: false }}
     >
       {children}
     </ReactLenis>
