@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { getHosts, createHost, updateHost, deleteHost } from "@/app/actions/hosts"
 import { adminCreateHostAccount, adminProvisionLegacyHost, adminResetHostPassword } from "@/app/actions/admin-auth"
 import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload } from "lucide-react"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
+import { AdminSearchInput } from "@/components/admin/AdminSearchInput"
+import { matchesAdminQuery } from "@/lib/admin-search"
 
 export default function HostsPage() {
   const [hosts, setHosts] = useState<any[]>([])
@@ -21,6 +23,21 @@ export default function HostsPage() {
   const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const filteredHosts = useMemo(
+    () =>
+      hosts.filter((host) =>
+        matchesAdminQuery(
+          searchQuery,
+          host.name,
+          host.contact_name,
+          host.phone,
+          host.email,
+          host.address
+        )
+      ),
+    [hosts, searchQuery]
+  )
 
   useEffect(() => {
     loadHosts()
@@ -180,7 +197,11 @@ export default function HostsPage() {
           </button>
         </div>
 
-
+        <AdminSearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by name or phone"
+        />
 
         <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
@@ -192,7 +213,13 @@ export default function HostsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {hosts.map((host) => (
+              {filteredHosts.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="p-12 text-center text-zinc-500">
+                    {hosts.length === 0 ? "No hosts found." : "No matches for that search."}
+                  </td>
+                </tr>
+              ) : filteredHosts.map((host) => (
                 <tr key={host.id} className="hover:bg-zinc-50/50 transition-colors">
                   <td className="p-4 pl-6 flex items-center gap-4">
                     {host.image_url ? (
@@ -234,13 +261,6 @@ export default function HostsPage() {
                   </td>
                 </tr>
               ))}
-              {hosts.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="p-8 text-center text-zinc-500">
-                    No hosts found.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
