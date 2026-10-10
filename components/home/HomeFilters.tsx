@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, ArrowRight, Compass, Hash, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -63,9 +63,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const tagScrollerRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
 
   const debouncedLocation = useDebounce(location, 300)
 
@@ -137,33 +134,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
-  }
-
-  const updateTagOverflow = () => {
-    const el = tagScrollerRef.current
-    if (!el) return
-    const max = el.scrollWidth - el.clientWidth
-    setCanScrollLeft(el.scrollLeft > 4)
-    setCanScrollRight(max > 4 && el.scrollLeft < max - 4)
-  }
-
-  useEffect(() => {
-    const el = tagScrollerRef.current
-    if (!el) return
-    updateTagOverflow()
-    const observer = new ResizeObserver(updateTagOverflow)
-    observer.observe(el)
-    window.addEventListener("resize", updateTagOverflow)
-    return () => {
-      observer.disconnect()
-      window.removeEventListener("resize", updateTagOverflow)
-    }
-  }, [dynamicCategories.length])
-
-  const jogTags = (direction: 1 | -1) => {
-    const el = tagScrollerRef.current
-    if (!el) return
-    el.scrollBy({ left: direction * Math.max(160, el.clientWidth * 0.7), behavior: "smooth" })
   }
 
   const handleSortChange = (sort: TourSort) => {
@@ -315,22 +285,8 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
       {/* Activity Grid Header / Filters */}
       <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900">
-        <div className="flex items-center w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0 pl-4 md:pl-0 pr-3 md:pr-0 h-10 md:h-11 min-w-0">
-          {canScrollLeft && (
-            <button
-              type="button"
-              aria-label="Previous tags"
-              onClick={() => jogTags(-1)}
-              className="shrink-0 mr-1.5 flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-full border border-gray-300 bg-white text-zinc-600"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-          )}
-          <div
-            ref={tagScrollerRef}
-            onScroll={updateTagOverflow}
-            className="flex min-w-0 flex-1 h-full overflow-x-auto flex-nowrap whitespace-nowrap gap-2 md:gap-3 items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
+        <div className="flex items-center w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0 pl-4 md:pl-0 pr-4 md:pr-0 h-10 md:h-11 min-w-0">
+          <div className="flex min-w-0 flex-1 h-full overflow-x-auto flex-nowrap whitespace-nowrap gap-2 md:gap-3 items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {CATEGORIES.map((cat) => {
               const Icon = (cat as any).icon || null;
               return (
@@ -352,16 +308,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               );
             })}
           </div>
-          {canScrollRight && (
-            <button
-              type="button"
-              aria-label="More tags"
-              onClick={() => jogTags(1)}
-              className="shrink-0 ml-1.5 flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-full border border-gray-300 bg-white text-zinc-600"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
     </>
