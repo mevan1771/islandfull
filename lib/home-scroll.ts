@@ -31,8 +31,16 @@ export function jumpHomeScroll(y: number) {
   document.body.scrollTop = y
   window.scrollTo({ top: y, left: 0, behavior: "instant" })
 
-  const lenis = (window as Window & { lenis?: { scrollTo?: Function; scroll?: number; animatedScroll?: number; targetScroll?: number } }).lenis
-    || (document.documentElement as HTMLElement & { __lenis?: { scrollTo?: Function; scroll?: number; animatedScroll?: number; targetScroll?: number } }).__lenis
+  const lenis = (
+    window as unknown as {
+      __islandfullLenis?: {
+        scrollTo?: (y: number, options?: { immediate?: boolean; force?: boolean }) => void
+        scroll?: number
+        animatedScroll?: number
+        targetScroll?: number
+      }
+    }
+  ).__islandfullLenis
 
   if (lenis) {
     if (typeof lenis.scrollTo === "function") {

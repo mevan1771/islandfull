@@ -9,10 +9,10 @@ function LenisBridge() {
   const lenis = useLenis()
 
   useEffect(() => {
-    const win = window as Window & { lenis?: typeof lenis }
-    win.lenis = lenis
+    const win = window as unknown as { __islandfullLenis?: typeof lenis }
+    win.__islandfullLenis = lenis
     return () => {
-      if (win.lenis === lenis) delete win.lenis
+      if (win.__islandfullLenis === lenis) delete win.__islandfullLenis
     }
   }, [lenis])
 
