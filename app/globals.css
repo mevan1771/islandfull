@@ -3,17 +3,17 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-rose-50: #fff8e6;
-  --color-rose-100: #feefc4;
-  --color-rose-200: #fde08a;
-  --color-rose-300: #fcd04e;
-  --color-rose-400: #fbc432;
-  --color-rose-500: #fab820;
-  --color-rose-600: #e09e12;
-  --color-rose-700: #b87e0d;
-  --color-rose-800: #8a5e0c;
-  --color-rose-900: #5c3e0a;
-  --color-rose-950: #3d2906;
+  --color-rose-50: #fff6e8;
+  --color-rose-100: #fee9c4;
+  --color-rose-200: #fdd08a;
+  --color-rose-300: #fbb54f;
+  --color-rose-400: #faa332;
+  --color-rose-500: #fa9420;
+  --color-rose-600: #e07e12;
+  --color-rose-700: #b8640d;
+  --color-rose-800: #8a4c0c;
+  --color-rose-900: #5c330a;
+  --color-rose-950: #3d2206;
 }
 
 @layer utilities {
@@ -44,7 +44,7 @@
   :root {
     --background: #fafafa;
     --foreground: #09090b;
-    --rdp-accent-color: #fab820;
+    --rdp-accent-color: #fa9420;
   }
 }
 
@@ -54,22 +54,22 @@ body {
 }
 
 .rdp {
-  --rdp-accent-color: #fab820 !important;
+  --rdp-accent-color: #fa9420 !important;
 }
 .rdp-nav_button, .rdp-nav_button_previous, .rdp-nav_button_next {
-  color: #fab820 !important;
+  color: #fa9420 !important;
 }
 .rdp-nav_icon {
-  fill: #fab820 !important;
-  stroke: #fab820 !important;
+  fill: #fa9420 !important;
+  stroke: #fa9420 !important;
 }
 .rdp-nav button {
-  color: #fab820 !important;
+  color: #fa9420 !important;
 }
 .rdp-nav svg, .rdp-button svg {
-  fill: #fab820 !important;
-  stroke: #fab820 !important;
-  color: #fab820 !important;
+  fill: #fa9420 !important;
+  stroke: #fa9420 !important;
+  color: #fa9420 !important;
 }
 
 
