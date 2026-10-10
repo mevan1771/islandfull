@@ -1,3 +1,5 @@
+import { RouteFallback } from "@/components/ui/RouteFallback"
+
 export default function Loading() {
-  return null
+  return <RouteFallback />
 }
