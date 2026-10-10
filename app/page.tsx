@@ -60,7 +60,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </Suspense>
 
       {/* Dynamic Filters UI */}
-      <Suspense fallback={<div className="h-40"></div>}>
+      <Suspense fallback={<div className="h-40 flex items-center gap-2 overflow-hidden px-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-10 w-24 shrink-0 rounded-full bg-zinc-200/80 animate-pulse" />
+          ))}
+        </div>}>
         <HomeFilters dynamicCategories={dynamicCategories} />
       </Suspense>
 
