@@ -594,10 +594,10 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                         ...base,
                         minHeight: '3.5rem',
                         borderRadius: '1rem',
-                        border: state.isFocused ? '2px solid #FCB026' : '2px solid #f4f4f5',
+                        border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
                         boxShadow: state.isFocused ? '0 0 0 4px rgba(244, 63, 94, 0.1)' : 'none',
                         '&:hover': {
-                          border: state.isFocused ? '2px solid #FCB026' : '2px solid #f4f4f5',
+                          border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
                         },
                         padding: '0 8px'
                       }),
@@ -634,10 +634,10 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                         ...base,
                         minHeight: '3.5rem',
                         borderRadius: '1rem',
-                        border: state.isFocused ? '2px solid #FCB026' : '2px solid #f4f4f5',
+                        border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
                         boxShadow: state.isFocused ? '0 0 0 4px rgba(244, 63, 94, 0.1)' : 'none',
                         '&:hover': {
-                          border: state.isFocused ? '2px solid #FCB026' : '2px solid #f4f4f5',
+                          border: state.isFocused ? '2px solid #f43f5e' : '2px solid #f4f4f5',
                         },
                         padding: '0 8px'
                       }),

@@ -55,7 +55,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
     const badges = (
         <h1 className="inline-flex items-center min-w-0 max-w-full gap-1.5 md:gap-3 text-[10px] md:text-sm font-bold leading-none bg-white rounded-full shadow-sm md:shadow-lg pl-1 pr-2.5 py-1 md:pl-1.5 md:pr-6 md:py-1.5">
             {location && (
-                <span className="shrink-0 rounded-full bg-rose-500 text-zinc-900 uppercase tracking-wider px-2.5 md:px-4 py-1 md:py-1.5">
+                <span className="shrink-0 rounded-full bg-rose-500 text-white uppercase tracking-wider px-2.5 md:px-4 py-1 md:py-1.5">
                     {location}
                 </span>
             )}

@@ -146,7 +146,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                 <div className="space-y-4 md:space-y-6 px-1 pb-6">
                   <div className="flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 max-w-full overflow-hidden w-full">
                     {(slide.badge_text || slide.location) && (
-                      <div className="shrink-0 inline-block bg-rose-500 text-zinc-900 text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 md:px-3 md:py-1 rounded-full shadow-sm tracking-wider md:mb-2">
+                      <div className="shrink-0 inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 md:px-3 md:py-1 rounded-full shadow-sm tracking-wider md:mb-2">
                         {slide.badge_text || slide.location}
                       </div>
                     )}
@@ -165,12 +165,12 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                   <div className="hidden md:block">
                     {slide.target_url ? (
                       <Link href={slide.target_url}>
-                        <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-zinc-900 px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                        <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                           {slide.button_text ? slide.button_text : 'Find More'}
                         </button>
                       </Link>
                     ) : (
-                      <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-zinc-900 px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                      <button className="mt-5 bg-rose-500 hover:bg-rose-600 text-white px-7 py-2.5 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                         {slide.button_text ? slide.button_text : 'Find More'}
                       </button>
                     )}
@@ -191,12 +191,12 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                 <div className="md:hidden flex justify-center mt-6 px-1">
                   {slide.target_url ? (
                     <Link href={slide.target_url}>
-                      <button className="bg-rose-500 hover:bg-rose-600 text-zinc-900 px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                      <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                         {slide.button_text ? slide.button_text : 'Find More'}
                       </button>
                     </Link>
                   ) : (
-                    <button className="bg-rose-500 hover:bg-rose-600 text-zinc-900 px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
+                    <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
                       {slide.button_text ? slide.button_text : 'Find More'}
                     </button>
                   )}
