@@ -3,9 +3,8 @@
 import { useState, useEffect, useMemo } from "react"
 import { getHosts, createHost, updateHost, deleteHost } from "@/app/actions/hosts"
 import { adminCreateHostAccount, adminProvisionLegacyHost, adminResetHostPassword } from "@/app/actions/admin-auth"
-import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload } from "lucide-react"
+import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload, X } from "lucide-react"
 import toast from "react-hot-toast"
-import Link from "next/link"
 import Image from "next/image"
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput"
 import { matchesAdminQuery } from "@/lib/admin-search"
@@ -24,6 +23,7 @@ export default function HostsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [viewingHost, setViewingHost] = useState<any>(null)
   const filteredHosts = useMemo(
     () =>
       hosts.filter((host) =>
@@ -221,25 +221,37 @@ export default function HostsPage() {
                 </tr>
               ) : filteredHosts.map((host) => (
                 <tr key={host.id} className="hover:bg-zinc-50/50 transition-colors">
-                  <td className="p-4 pl-6 flex items-center gap-4">
-                    {host.image_url ? (
-                      <div className="relative w-12 h-12 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200">
-                        <Image src={host.image_url} alt={host.name} fill className="object-cover" />
+                  <td className="p-4 pl-6">
+                    <button
+                      type="button"
+                      onClick={() => setViewingHost(host)}
+                      className="flex items-center gap-4 text-left w-full rounded-xl -ml-1 p-1 hover:bg-zinc-100/80 transition-colors"
+                      title="View details"
+                    >
+                      {host.image_url ? (
+                        <div className="relative w-12 h-12 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 shrink-0">
+                          <Image src={host.image_url} alt={host.name} fill className="object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
+                          <UserCircle className="w-6 h-6 text-zinc-400" />
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-bold text-zinc-900 hover:text-rose-600">{host.name}</div>
+                        <div className="text-xs text-zinc-500 mt-0.5">Joined {new Date(host.created_at).toLocaleDateString()}</div>
                       </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
-                        <UserCircle className="w-6 h-6 text-zinc-400" />
-                      </div>
-                    )}
-                    <div>
-                      <div className="font-bold text-zinc-900">{host.name}</div>
-                      <div className="text-xs text-zinc-500 mt-0.5">Joined {new Date(host.created_at).toLocaleDateString()}</div>
-                    </div>
+                    </button>
                   </td>
                   <td className="p-4">
-                    <span className="text-xs text-zinc-500 font-mono bg-zinc-100 px-2 py-1 rounded-md">
+                    <button
+                      type="button"
+                      onClick={() => setViewingHost(host)}
+                      className="text-xs text-zinc-500 font-mono bg-zinc-100 px-2 py-1 rounded-md hover:bg-zinc-200 transition-colors"
+                      title="View details"
+                    >
                       {host.id.split('-')[0]}
-                    </span>
+                    </button>
                   </td>
                   <td className="p-4 pr-6 text-right">
                     <div className="flex justify-end gap-2">
@@ -265,6 +277,117 @@ export default function HostsPage() {
           </table>
         </div>
       </div>
+
+      {viewingHost && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm"
+          onClick={() => setViewingHost(null)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="p-6 border-b border-zinc-100 shrink-0 flex items-start justify-between gap-4">
+              <div className="flex items-center gap-4 min-w-0">
+                {viewingHost.image_url ? (
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden bg-zinc-100 border border-zinc-200 shrink-0">
+                    <Image src={viewingHost.image_url} alt={viewingHost.name} fill className="object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
+                    <UserCircle className="w-7 h-7 text-zinc-400" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h2 className="text-xl font-bold text-zinc-900 truncate">{viewingHost.name}</h2>
+                  <p className="text-sm text-zinc-500 mt-0.5">
+                    Joined {new Date(viewingHost.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingHost(null)}
+                className="p-2 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <HostDetail label="Host ID" value={viewingHost.id} mono />
+                <HostDetail
+                  label="Login account"
+                  value={viewingHost.user_id ? "Provisioned" : "Not set up"}
+                />
+              </div>
+
+              {(viewingHost.avatar_url || viewingHost.image_url) && (
+                <div className="flex items-center gap-3">
+                  {viewingHost.avatar_url && (
+                    <img
+                      src={viewingHost.avatar_url}
+                      alt="Chat avatar"
+                      className="w-12 h-12 rounded-full border border-zinc-200 bg-zinc-50 object-cover"
+                    />
+                  )}
+                  <p className="text-xs text-zinc-500">
+                    {viewingHost.avatar_url ? "Chat avatar" : "Profile image"}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-sm font-bold text-zinc-900 mb-3">Contact</h3>
+                <div className="space-y-4">
+                  <HostDetail label="Contact name" value={viewingHost.contact_name} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <HostDetail
+                      label="Email"
+                      value={viewingHost.email}
+                      href={viewingHost.email ? `mailto:${viewingHost.email}` : undefined}
+                    />
+                    <HostDetail
+                      label="Phone"
+                      value={viewingHost.phone}
+                      href={viewingHost.phone ? `tel:${String(viewingHost.phone).replace(/\s/g, "")}` : undefined}
+                    />
+                  </div>
+                  <HostDetail label="Address" value={viewingHost.address} />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-bold text-zinc-900 mb-3">Payout / bank details</h3>
+                <HostDetail label="Internal notes" value={viewingHost.payout_notes} />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-zinc-100 shrink-0 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setViewingHost(null)}
+                className="flex-1 h-12 font-bold text-zinc-600 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition-colors"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const host = viewingHost
+                  setViewingHost(null)
+                  openModal(host)
+                }}
+                className="flex-1 h-12 font-bold text-white bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-colors"
+              >
+                Edit host
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Host Modal */}
       {isModalOpen && (
@@ -506,6 +629,34 @@ export default function HostsPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function HostDetail({
+  label,
+  value,
+  href,
+  mono,
+}: {
+  label: string
+  value?: string | null
+  href?: string
+  mono?: boolean
+}) {
+  const display = value?.toString().trim() ? value : "—"
+  return (
+    <div className="space-y-1">
+      <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{label}</div>
+      {href && value?.toString().trim() ? (
+        <a href={href} className="text-sm font-medium text-rose-600 hover:underline break-all">
+          {display}
+        </a>
+      ) : (
+        <div className={`text-sm font-medium text-zinc-900 whitespace-pre-wrap break-words ${mono ? "font-mono text-xs" : ""}`}>
+          {display}
         </div>
       )}
     </div>
