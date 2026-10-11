@@ -135,19 +135,6 @@ export default function HostsPage() {
         } else {
           res = await updateHost(editingHost.id, data)
         }
-      } else if (wantsLogin) {
-        data.append("login_email", formData.login_email.trim())
-        data.append("login_password", formData.login_password)
-        res = await adminCreateHostAccount(data)
-        if (!res?.success && /already has an IslandFull account|already been registered|already registered/i.test(res?.error || "")) {
-          res = await createHost(data)
-          if (res.success) {
-            toast.success("Host saved without a portal login — that email is already registered.")
-            closeModal()
-            await loadHosts()
-            return
-          }
-        }
       } else {
         res = await createHost(data)
       }
@@ -158,11 +145,7 @@ export default function HostsPage() {
         await loadHosts()
       } else {
         const message = res?.error || "Unknown error"
-        toast.error(
-          /already been registered|already registered|already exists/i.test(message)
-            ? "That login email already has an IslandFull account. Use a different login email, or leave login blank and save the host without a portal."
-            : "Error saving host: " + message
-        )
+        toast.error("Error saving host: " + message)
       }
     } catch (error: any) {
       toast.error(error.message || "An unexpected error occurred")
@@ -446,7 +429,7 @@ export default function HostsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
-              {(!editingHost || (editingHost && !editingHost.user_id)) && (
+              {editingHost && !editingHost.user_id && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
