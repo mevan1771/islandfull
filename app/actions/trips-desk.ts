@@ -1,7 +1,7 @@
 "use server"
 
 import { currentUser } from "@clerk/nextjs/server"
-import { fetchMyBookingsFor } from "@/app/actions/bookings"
+import { getMyBookings } from "@/app/actions/bookings"
 import { fetchMyOffersFor } from "@/app/actions/offers"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
 import type { HomepageActivity } from "@/lib/homepage-feed"
@@ -18,7 +18,7 @@ export async function getTripsDesk() {
   const [recommended, offers, bookings, saved] = await Promise.all([
     fetchRecommendedTours(favoriteIds),
     user ? fetchMyOffersFor(user.id, email) : Promise.resolve([]),
-    email ? fetchMyBookingsFor(email) : Promise.resolve([]),
+    user ? getMyBookings() : Promise.resolve([]),
     favoriteIds.length ? fetchActivitiesByIds(favoriteIds) : Promise.resolve([] as HomepageActivity[]),
   ])
   return {

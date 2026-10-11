@@ -119,24 +119,48 @@ export async function cancelMyBooking(id: string) {
   }
 }
 
+async function fetchUnpaidBookingsForEmails(emails: string[]) {
+  const rows: {
+    id: string
+    status: string
+    tourist_email: string | null
+    activity_id: string | null
+    travel_date: string | null
+    is_archived?: boolean | null
+  }[] = []
+  for (const email of emails) {
+    const { data, error } = await supabaseAdmin
+      .from("bookings")
+      .select("id, status, tourist_email, activity_id, travel_date, is_archived")
+      .eq("tourist_email", email)
+      .in("status", ["pending", "pending_payment"])
+      .limit(200)
+    if (error) {
+      console.error("fetchUnpaidBookingsForEmails error:", error)
+      continue
+    }
+    rows.push(...(data || []))
+    const { data: insensitive } = await supabaseAdmin
+      .from("bookings")
+      .select("id, status, tourist_email, activity_id, travel_date, is_archived")
+      .ilike("tourist_email", email.replace(/[\\%_]/g, "\\$&"))
+      .in("status", ["pending", "pending_payment"])
+      .limit(200)
+    rows.push(...(insensitive || []))
+  }
+  const seen = new Set<string>()
+  return rows.filter((row) => {
+    if (!row?.id || seen.has(row.id) || row.is_archived === true) return false
+    seen.add(row.id)
+    return emails.includes(normalizeEmail(row.tourist_email))
+  })
+}
+
 export async function cancelMyUnpaidBookings() {
   try {
     const emails = await clerkGuestEmails()
     if (emails.length === 0) return { success: false, error: "Sign in to clear unpaid bookings.", cancelled: 0 }
-    const { data: rows, error } = await supabaseAdmin
-      .from("bookings")
-      .select("id, status, tourist_email, activity_id, travel_date, is_archived")
-      .in("status", ["pending", "pending_payment"])
-      .order("created_at", { ascending: false })
-      .limit(200)
-    if (error) {
-      console.error("cancelMyUnpaidBookings fetch error:", error)
-      return { success: false, error: "Could not load unpaid bookings.", cancelled: 0 }
-    }
-    const mine = (rows || []).filter((booking) => {
-      if (booking.is_archived === true) return false
-      return emails.includes(normalizeEmail(booking.tourist_email))
-    })
+    const mine = await fetchUnpaidBookingsForEmails(emails)
     let cancelled = 0
     for (const booking of mine) {
       const result = await cancelUnpaidBookingRow(booking, emails)
@@ -152,13 +176,14 @@ export async function cancelMyUnpaidBookings() {
 }
 
 export async function fetchMyBookingsFor(email: string) {
-  const normalized = normalizeEmail(email)
+  const emails = Array.from(new Set([normalizeEmail(email)].filter(Boolean)))
+  if (emails.length === 0) return []
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
       "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, activities(title, slug, location, card_image_url, cover_image_url, category_type)"
     )
-    .ilike("tourist_email", normalized)
+    .eq("tourist_email", emails[0])
     .neq("status", "cancelled")
     .order("travel_date", { ascending: true })
     .limit(80)
@@ -168,7 +193,7 @@ export async function fetchMyBookingsFor(email: string) {
   }
   return (data || []).filter((row: any) => {
     if (row.is_archived === true) return false
-    if (normalizeEmail(row.tourist_email) !== normalized) return false
+    if (!emails.includes(normalizeEmail(row.tourist_email))) return false
     const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
     return listing?.category_type !== "place"
   })
@@ -176,10 +201,15 @@ export async function fetchMyBookingsFor(email: string) {
 
 export async function getMyBookings() {
   try {
-    const user = await currentUser()
-    const email = user?.primaryEmailAddress?.emailAddress?.toLowerCase()
-    if (!email) return []
-    return fetchMyBookingsFor(email)
+    const emails = await clerkGuestEmails()
+    if (emails.length === 0) return []
+    const lists = await Promise.all(emails.map((email) => fetchMyBookingsFor(email)))
+    const seen = new Set<string>()
+    return lists.flat().filter((row: any) => {
+      if (!row?.id || seen.has(row.id)) return false
+      seen.add(row.id)
+      return true
+    })
   } catch (err) {
     console.error("getMyBookings error:", err)
     return []
