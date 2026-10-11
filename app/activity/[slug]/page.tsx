@@ -363,6 +363,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             dealEndDate={activity.deal_end_date}
                             priceSuffix={activity.price_suffix}
                             allowOffers={!!activity.allow_offers}
+                            checkoutSlot="desktop"
                         />
                         )}
                     </div>
@@ -437,6 +438,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     dealEndDate={activity.deal_end_date}
                     priceSuffix={activity.price_suffix}
                     allowOffers={!!activity.allow_offers}
+                    checkoutSlot="mobile"
                 />
             </div>
             )}

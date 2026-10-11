@@ -16,6 +16,7 @@ import { useUser } from "@clerk/nextjs"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
 import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
+import { getAcceptedOfferForPay } from "@/app/actions/offers"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -47,6 +48,7 @@ interface BookingDrawerProps {
   dealEndDate?: string | null
   priceSuffix?: string | null
   allowOffers?: boolean
+  checkoutSlot?: "desktop" | "mobile"
 }
 
 export function BookingDrawer({
@@ -75,6 +77,7 @@ export function BookingDrawer({
   dealEndDate,
   priceSuffix,
   allowOffers = false,
+  checkoutSlot,
 }: BookingDrawerProps) {
   const { isSignedIn, user } = useUser()
   const firstName = user?.firstName || user?.fullName?.split(" ")[0] || ""
@@ -92,6 +95,16 @@ export function BookingDrawer({
   const [isOpen, setIsOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
+  const [acceptedOffer, setAcceptedOffer] = useState<{
+    id: string
+    offer_amount: number
+    travel_date: string
+    guest_count: number
+    guest_name?: string | null
+    guest_email?: string | null
+    guest_phone?: string | null
+    special_notes?: string | null
+  } | null>(null)
 
   // Form state
   const [date, setDate] = useState("")
@@ -120,6 +133,36 @@ export function BookingDrawer({
     bookingType === 'multi_day' ||
     pricingModel === 'per_day' ||
     (categoryType === 'transport' && bookingType !== 'point_to_point')
+
+  useEffect(() => {
+    if (!mounted) return
+    const offerId = new URLSearchParams(window.location.search).get("offer")
+    if (!offerId) return
+    const desktop = window.matchMedia("(min-width: 1024px)").matches
+    if (checkoutSlot === "desktop" && !desktop) return
+    if (checkoutSlot === "mobile" && desktop) return
+    let cancelled = false
+    getAcceptedOfferForPay(offerId, activityId).then((offer) => {
+      if (cancelled || !offer) return
+      setAcceptedOffer(offer)
+      setGuests(Math.max(minGuests, Number(offer.guest_count) || minGuests))
+      if (offer.guest_name) setTouristName(offer.guest_name)
+      if (offer.guest_email) setTouristEmail(offer.guest_email)
+      if (offer.guest_phone) setWhatsapp(offer.guest_phone)
+      const match = String(offer.special_notes || "").match(/Dates:\s*(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})/)
+      if (isDateRange) {
+        const from = parse(offer.travel_date, "yyyy-MM-dd", new Date())
+        const to = match?.[2] ? parse(match[2], "yyyy-MM-dd", new Date()) : from
+        setDateRange({ from, to })
+      } else {
+        setDate(offer.travel_date)
+      }
+      setIsOpen(true)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [mounted, activityId, checkoutSlot, isDateRange, minGuests])
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : (priceUsd || 0);
@@ -172,8 +215,9 @@ export function BookingDrawer({
     }
   }
 
-  const totalUsd = actualTotal
-  const groupSavings = matchingTierPrice !== null ? standardTotalForStay - (matchingTierPrice * dayMultiplier) : 0
+  const quotedTotal = acceptedOffer ? Number(acceptedOffer.offer_amount) : actualTotal
+  const totalUsd = quotedTotal
+  const groupSavings = !acceptedOffer && matchingTierPrice !== null ? standardTotalForStay - (matchingTierPrice * dayMultiplier) : 0
   const showGroupSavings = groupSavings > 0.009
 
   let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
@@ -210,7 +254,9 @@ export function BookingDrawer({
           selectedOption,
           totalUsd,
           pickupLocation,
-          specialRequests,
+          specialRequests: acceptedOffer
+            ? [`Accepted offer ${acceptedOffer.id}`, specialRequests].filter(Boolean).join("\n")
+            : specialRequests,
           fromLocation,
           toLocation,
           paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy,
@@ -496,7 +542,7 @@ export function BookingDrawer({
             className={`flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
           >
             <SheetGreetingHeader
-              title="Complete reservation"
+              title={acceptedOffer ? "Make payment" : "Complete reservation"}
               subtitle={title}
               onClose={resetAndClose}
               firstName={isSignedIn ? firstName || "there" : null}
@@ -507,6 +553,11 @@ export function BookingDrawer({
 
               {step === "details" && (
                 <div className="space-y-2">
+                  {acceptedOffer && (
+                    <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5 text-sm font-medium text-emerald-800">
+                      Paying your accepted offer of {formatUSD(Number(acceptedOffer.offer_amount))}. Dates and guests are locked.
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1 col-span-1 md:col-span-2">
@@ -515,7 +566,7 @@ export function BookingDrawer({
                           Travel Date
                         </label>
                         {/* Desktop View: Static Readonly Date */}
-                        <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
+                        <div className={`${acceptedOffer ? "flex" : "hidden md:flex"} w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed`}>
                           <span className="font-medium text-sm text-zinc-900">
                             {isDateRange
                               ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "PP") : "No dates selected")
@@ -525,7 +576,7 @@ export function BookingDrawer({
                         </div>
 
                         {/* Mobile View: Interactive Popover Calendar */}
-                        <div className="md:hidden">
+                        <div className={acceptedOffer ? "hidden" : "md:hidden"}>
                           <Popover.Root>
                             <Popover.Trigger asChild>
                               <button
@@ -651,7 +702,7 @@ export function BookingDrawer({
                             <button
                               onClick={(e) => { e.preventDefault(); setGuests(Math.max(minGuests, guests - 1)); }}
                               className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                              disabled={guests <= minGuests}
+                              disabled={!!acceptedOffer || guests <= minGuests}
                             >
                               -
                             </button>
@@ -659,7 +710,7 @@ export function BookingDrawer({
                             <button
                               onClick={(e) => { e.preventDefault(); setGuests(Math.min(maxCapacity, guests + 1)); }}
                               className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                              disabled={guests >= maxCapacity}
+                              disabled={!!acceptedOffer || guests >= maxCapacity}
                             >
                               +
                             </button>
@@ -900,7 +951,7 @@ export function BookingDrawer({
                       <span className="text-zinc-800 font-bold">
                         Total (USD){isDateRange && totalDays > 0 ? ` · ${dayCountLabel(totalDays)}` : ""}
                       </span>
-                      <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, actualTotal - discountUsd))}</span>
+                      <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, quotedTotal - discountUsd))}</span>
                     </div>
                     <div className="flex justify-between items-center mt-0.5">
                       <span className="text-zinc-500 text-xs">≈ {formatLKR(Math.max(0, totalLkr - (discountUsd * (priceUsd > 0 ? priceLkrApprox / priceUsd : 300))))} LKR</span>
@@ -921,9 +972,15 @@ export function BookingDrawer({
                   <Button
                     onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
                     disabled={(isDateRange ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
-                    className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
+                    className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all ${
+                      acceptedOffer
+                        ? "bg-[#22c55e] hover:bg-[#16a34a] text-white shadow-xl shadow-emerald-500/25"
+                        : "shadow-xl shadow-rose-500/20"
+                    }`}
                   >
-                    {priceUsd === 0
+                    {acceptedOffer
+                      ? "Make payment"
+                      : priceUsd === 0
                       ? "Complete Reservation"
                       : paymentStrategy === 'no_card' || paymentStrategy === 'manual_hold'
                         ? "Confirm Reservation"

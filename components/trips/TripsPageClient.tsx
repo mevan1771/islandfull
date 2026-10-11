@@ -34,7 +34,7 @@ function OfferStatus({ status }: { status: string }) {
 }
 
 function offerStatusCopy(offer: any) {
-  if (offer.status === "accepted") return "Accepted · reserve to confirm"
+  if (offer.status === "accepted") return "Accepted · make payment to confirm"
   if (offer.status === "countered") {
     return offer.admin_counter_amount != null
       ? `Host suggested $${Number(offer.admin_counter_amount)}`
@@ -63,7 +63,7 @@ function OfferCard({ offer }: { offer: any }) {
   const listing = offerListing(offer)
   const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
   const slug = listing?.slug as string | undefined
-  const cta = offer.status === "accepted" ? "Reserve" : "View listing"
+  const cta = offer.status === "accepted" ? "Make payment" : "View listing"
   const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
   const body = (
     <>
@@ -96,7 +96,7 @@ function OfferCard({ offer }: { offer: any }) {
           </div>
           <span
             className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
-              offer.status === "accepted" ? "bg-emerald-600 text-white" : "bg-zinc-900 text-white"
+              offer.status === "accepted" ? "bg-[#22c55e] hover:bg-[#16a34a] text-white" : "bg-zinc-900 text-white"
             }`}
           >
             {cta}
@@ -112,7 +112,11 @@ function OfferCard({ offer }: { offer: any }) {
   if (!slug) return <div className={className}>{body}</div>
 
   return (
-    <Link href={`/activity/${slug}`} onClick={() => markPageReturn("/trips")} className={className}>
+    <Link
+      href={offer.status === "accepted" ? `/activity/${slug}?offer=${offer.id}` : `/activity/${slug}`}
+      onClick={() => markPageReturn("/trips")}
+      className={className}
+    >
       {body}
     </Link>
   )

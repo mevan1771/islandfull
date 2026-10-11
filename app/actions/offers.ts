@@ -240,6 +240,7 @@ async function sendOfferCreatedEmails(props: {
 }
 
 async function sendGuestDecisionEmail(offer: {
+  id?: string
   guest_name: string
   guest_email: string
   offer_amount: number
@@ -252,6 +253,8 @@ async function sendGuestDecisionEmail(offer: {
   const title = listing?.title || "your trip"
   const slug = listing?.slug
   const listingUrl = slug ? `${siteUrl()}/activity/${slug}` : siteUrl()
+  const payUrl =
+    slug && offer.id ? `${siteUrl()}/activity/${slug}?offer=${offer.id}` : listingUrl
   const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
   const { Resend } = await import("resend")
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -266,8 +269,8 @@ async function sendGuestDecisionEmail(offer: {
         <h2>Your offer was accepted</h2>
         <p>Hi ${offer.guest_name},</p>
         <p>Great news! Your offer of $${Number(offer.offer_amount).toFixed(2)} for <strong>${title}</strong> on ${travelLabel} was accepted.</p>
-        <p>Please open the listing to complete your reservation and arrange payment:</p>
-        <p><a href="${listingUrl}" style="display:inline-block;padding:14px 22px;background:#f43f5e;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;">Complete reservation</a></p>
+        <p>Your dates and guests are already set. The only step left is payment:</p>
+        <p><a href="${payUrl}" style="display:inline-block;padding:14px 22px;background:#22c55e;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;">Make payment</a></p>
         <p>Best,<br>IslandFull</p>
       </div>`,
     })
@@ -358,6 +361,22 @@ export async function getMyOffers() {
   }
 }
 
+export async function getAcceptedOfferForPay(id: string, activityId: string) {
+  if (!id || !activityId) return null
+  const { data, error } = await supabaseAdmin
+    .from("offers")
+    .select("id, activity_id, status, offer_amount, travel_date, guest_count, guest_name, guest_email, guest_phone, special_notes")
+    .eq("id", id)
+    .eq("activity_id", activityId)
+    .eq("status", "accepted")
+    .maybeSingle()
+  if (error) {
+    console.error("getAcceptedOfferForPay error:", error)
+    return null
+  }
+  return data
+}
+
 export async function getOffers() {
   const { data, error } = await supabaseAdmin
     .from("offers")
@@ -399,7 +418,7 @@ export async function updateOfferStatus(
     .from("offers")
     .update(update)
     .eq("id", id)
-    .select("guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug)")
+    .select("id, guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug)")
     .single()
 
   if (error) {
