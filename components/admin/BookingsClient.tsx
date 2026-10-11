@@ -3,12 +3,16 @@
 import { useState } from "react"
 import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check, Phone } from "lucide-react"
 import { updateStatus, archiveBooking } from "@/app/actions/bookings"
+import { updateOfferStatus } from "@/app/actions/offers"
+import { travelRangeFromOffer } from "@/lib/date-range-label"
 import toast from "react-hot-toast"
 
-export default function BookingsClient({ initialBookings }: { initialBookings: any[] }) {
+export default function BookingsClient({ initialBookings, initialOffers = [] }: { initialBookings: any[], initialOffers?: any[] }) {
   const [bookings, setBookings] = useState(initialBookings)
-  const [filter, setFilter] = useState<'default' | 'all' | 'active' | 'pending' | 'cancelled'>('all')
+  const [offers, setOffers] = useState(initialOffers)
+  const [filter, setFilter] = useState<'default' | 'all' | 'active' | 'pending' | 'cancelled' | 'offers'>('all')
   const [loadingInvoice, setLoadingInvoice] = useState<string | null>(null)
+  const [busyOffer, setBusyOffer] = useState<string | null>(null)
   
   const handleSendInvoice = async (bookingId: string) => {
     setLoadingInvoice(bookingId)
@@ -68,7 +72,22 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
     document.body.removeChild(a);
   }
 
+  const pendingOfferCount = offers.filter((o) => o.status === "pending").length
+
+  const handleOffer = async (id: string, status: "accepted" | "declined") => {
+    setBusyOffer(id)
+    const res = await updateOfferStatus(id, status)
+    setBusyOffer(null)
+    if (!res.success) {
+      toast.error(res.error || "Could not update offer")
+      return
+    }
+    setOffers((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
+    toast.success(status === "accepted" ? "Offer accepted. Guest will be emailed." : "Offer declined.")
+  }
+
   const filteredBookings = bookings.filter(b => {
+    if (filter === 'offers') return false
     if (filter === 'default') return b.status === 'confirmed' || b.status.toLowerCase().includes('pending') || b.status === 'completed';
     if (filter === 'active') return b.status === 'confirmed' || b.status === 'completed';
     if (filter === 'pending') return b.status.toLowerCase().includes('pending');
@@ -76,12 +95,18 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
     return true; // all
   });
 
+  const visibleOffers = offers.filter((o) => {
+    if (filter === "offers") return true
+    if (filter === "all" || filter === "default" || filter === "pending") return o.status === "pending"
+    return false
+  })
+
   return (
     <>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Admin Operations</h1>
-          <p className="text-zinc-500 mt-1">Manage all live bookings and communicate with guests.</p>
+          <p className="text-zinc-500 mt-1">Manage bookings and guest offers from one inbox.</p>
         </div>
         <div className="flex gap-4">
           <button 
@@ -91,6 +116,15 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
             <Download className="w-4 h-4" />
             Export Data
           </button>
+          {pendingOfferCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setFilter("offers")}
+              className="px-4 py-2 bg-[#faca20] rounded-lg text-zinc-900 font-semibold shadow-sm text-sm"
+            >
+              {pendingOfferCount} open offer{pendingOfferCount === 1 ? "" : "s"}
+            </button>
+          )}
           <div className="px-4 py-2 bg-rose-50 rounded-lg text-rose-600 font-semibold border border-rose-100 shadow-sm text-sm flex items-center">
             Total Bookings: {bookings.length}
           </div>
@@ -128,6 +162,12 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
         >
           Cancelled
         </button>
+        <button
+          onClick={() => setFilter("offers")}
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${filter === "offers" ? "bg-[#faca20] text-zinc-900" : "bg-[#fff4c2] text-amber-800 border border-[#faca20]/60 hover:bg-[#faca20]/40"}`}
+        >
+          Offers{pendingOfferCount ? ` (${pendingOfferCount})` : ""}
+        </button>
       </div>
 
       <div className="bg-white rounded-3xl shadow-sm border border-zinc-200 overflow-hidden">
@@ -143,14 +183,96 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filteredBookings.length === 0 ? (
+              {visibleOffers.length === 0 && filteredBookings.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
                     No bookings found in this view.
                   </td>
                 </tr>
               ) : (
-                filteredBookings.map((b: any) => (
+                <>
+                {visibleOffers.map((offer: any) => {
+                  const listing = offer.activities
+                  const phone = (offer.guest_phone || "").replace(/\D/g, "")
+                  return (
+                    <tr key={`offer-${offer.id}`} className="bg-[#FFF8DC] border-l-4 border-l-[#faca20]">
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-[#faca20] text-zinc-900 border-[#e0b400]">
+                          OFFER · {String(offer.status).toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-bold text-zinc-900">{offer.guest_name}</div>
+                        <div className="text-zinc-500">{offer.guest_email}</div>
+                        {offer.guest_phone && (
+                          <div className="flex items-center gap-1.5 text-zinc-500 text-sm mt-0.5">
+                            <Phone className="w-3.5 h-3.5 text-zinc-400" />
+                            <span>{offer.guest_phone}</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-zinc-800 max-w-[200px] truncate" title={listing?.title}>
+                          {listing?.title || "Listing"}
+                        </div>
+                        <div className="text-rose-500 font-bold mt-0.5">${Number(offer.offer_amount)}</div>
+                        {listing?.price_usd != null && (
+                          <div className="text-[11px] text-zinc-500">List ${Number(listing.price_usd)}</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2 text-zinc-600 mb-1">
+                          <CalendarDays className="w-4 h-4 text-zinc-400" />
+                          <span className="font-medium">{travelRangeFromOffer(offer.travel_date, offer.special_notes)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-zinc-600">
+                          <Users className="w-4 h-4 text-zinc-400" />
+                          <span className="font-medium">{offer.guest_count} Pax</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-zinc-500 mt-1.5">
+                          <Clock className="w-4 h-4 text-zinc-400" />
+                          <span className="font-medium text-xs">Offered: {new Date(offer.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {offer.status === "pending" && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={busyOffer === offer.id}
+                                onClick={() => handleOffer(offer.id, "accepted")}
+                                className="h-9 px-3 rounded-lg bg-emerald-600 text-white text-xs font-bold disabled:opacity-50"
+                              >
+                                {busyOffer === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Accept"}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={busyOffer === offer.id}
+                                onClick={() => handleOffer(offer.id, "declined")}
+                                className="h-9 px-3 rounded-lg bg-white text-red-600 border border-red-200 text-xs font-bold disabled:opacity-50"
+                              >
+                                Decline
+                              </button>
+                            </>
+                          )}
+                          {phone && (
+                            <a
+                              href={`https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${offer.guest_name}, this is IslandFull about your offer for ${listing?.title || "the listing"}.`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20 rounded-lg border border-[#25D366]/20"
+                              title="Chat on WhatsApp"
+                            >
+                              <MessageCircle className="w-5 h-5" />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+                {filteredBookings.map((b: any) => (
                   <tr key={b.id} className="hover:bg-zinc-50/50 transition-colors">
                     {/* Status */}
                     <td className="px-4 py-3">
@@ -272,7 +394,8 @@ export default function BookingsClient({ initialBookings }: { initialBookings: a
                       </div>
                     </td>
                   </tr>
-                ))
+                ))}
+                </>
               )}
             </tbody>
           </table>

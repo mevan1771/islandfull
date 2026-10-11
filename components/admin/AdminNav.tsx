@@ -34,14 +34,19 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
         if (link.adminOnly && !isAdmin) return null
 
         const isActive = pathname === link.href
+        const isOffers = link.href === '/admin/offers'
 
         return (
           <Link
             key={link.href}
             href={link.href}
             className={`pb-3 border-b-2 px-1 transition-colors ${isActive
-              ? 'border-zinc-900 font-bold text-zinc-900'
-              : 'border-transparent font-bold text-zinc-500 hover:text-zinc-900'
+              ? isOffers
+                ? 'border-[#faca20] font-bold text-zinc-900'
+                : 'border-zinc-900 font-bold text-zinc-900'
+              : isOffers
+                ? 'border-transparent font-bold text-amber-600 hover:text-amber-700'
+                : 'border-transparent font-bold text-zinc-500 hover:text-zinc-900'
               }`}
           >
             {link.name}

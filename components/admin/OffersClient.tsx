@@ -15,7 +15,7 @@ function waLink(phone?: string | null) {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  pending: "bg-[#faca20] text-zinc-900 border-[#e0b400]",
   accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
   countered: "bg-sky-50 text-sky-700 border-sky-200",
   declined: "bg-zinc-100 text-zinc-600 border-zinc-200",
@@ -79,7 +79,7 @@ export function OffersClient({ initialOffers }: { initialOffers: any[] }) {
                     const listing = offer.activities
                     const phoneLink = waLink(offer.guest_phone)
                     return (
-                      <tr key={offer.id} className="align-top">
+                      <tr key={offer.id} className={`align-top ${offer.status === "pending" ? "bg-[#FFF8DC]" : ""}`}>
                         <td className="px-5 py-4 whitespace-nowrap text-zinc-600">
                           {new Date(offer.created_at).toLocaleString()}
                         </td>

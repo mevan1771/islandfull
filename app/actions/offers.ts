@@ -140,6 +140,7 @@ export async function createOffer(input: {
     }).catch((err) => console.error("Offer email failed:", err))
 
     revalidatePath("/admin/offers")
+    revalidatePath("/admin")
     return { success: true, offerId: offer.id }
   } catch (err: any) {
     console.error("createOffer error:", err)
@@ -323,6 +324,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
   sendGuestDecisionEmail({ ...offer, status }).catch((err) => console.error("Guest decision email failed:", err))
   revalidatePath("/admin/offers")
+  revalidatePath("/admin")
   redirect(`/offers/processed?status=${status === "accepted" ? "accepted" : "declined"}`)
 }
 
@@ -380,5 +382,6 @@ export async function updateOfferStatus(
   }
 
   revalidatePath("/admin/offers")
+  revalidatePath("/admin")
   return { success: true }
 }
