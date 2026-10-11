@@ -24,18 +24,41 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://islandfull.com"),
   title: "IslandFull | Sri Lanka Tours & Activities",
   description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/circle-3.png.webp",
-    shortcut: "/circle-3.png.webp",
-    apple: "/circle-3.png.webp",
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+    shortcut: "/icon.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "IslandFull",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://islandfull.com",
+    siteName: "IslandFull",
+    title: "IslandFull | Sri Lanka Tours & Activities",
+    description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "IslandFull",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IslandFull | Sri Lanka Tours & Activities",
+    description: "Inspiration, Planning, And Booking — All In One Travel Experience.",
+    images: ["/og.jpg"],
   },
 };
 
