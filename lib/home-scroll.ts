@@ -14,19 +14,11 @@ function safeHomeHref(href: string | null): string {
 }
 
 function currentScrollY() {
-  try {
-    const lenis = (
-      window as unknown as {
-        __islandfullLenis?: { scroll?: number }
-      }
-    ).__islandfullLenis
-    if (typeof lenis?.scroll === "number" && Number.isFinite(lenis.scroll)) {
-      return Math.round(lenis.scroll)
-    }
-  } catch {
-    // Fall through to native scroll.
-  }
-  return Math.round(window.scrollY || window.pageYOffset || 0)
+  // Lenis is not synced to touch on mobile (syncTouch: false), so its
+  // virtual scroll is often 0 while window.scrollY is the real position.
+  return Math.round(
+    window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0
+  )
 }
 
 export function markHomeScrollForRestore(slug?: string) {
@@ -117,9 +109,12 @@ export function consumeHomeScrollRestore(): number | null {
 
 export function jumpHomeScroll(y: number) {
   if (typeof window === "undefined") return
+  const top = Math.max(0, Math.round(y))
 
   try {
-    window.scrollTo(0, y)
+    window.scrollTo(0, top)
+    document.documentElement.scrollTop = top
+    document.body.scrollTop = top
   } catch {
     // Ignore browsers that reject programmatic scroll.
   }
@@ -128,11 +123,12 @@ export function jumpHomeScroll(y: number) {
     const lenis = (
       window as unknown as {
         __islandfullLenis?: {
-          scrollTo?: (top: number, options?: { immediate?: boolean; force?: boolean }) => void
+          scrollTo?: (value: number, options?: { immediate?: boolean; force?: boolean }) => void
         }
       }
     ).__islandfullLenis
-    lenis?.scrollTo?.(y, { immediate: true, force: true })
+    // Keep Lenis in sync so it does not overwrite native scroll with 0.
+    lenis?.scrollTo?.(top, { immediate: true, force: true })
   } catch {
     // Lenis can throw if it is mid-destroy during route changes.
   }
@@ -153,6 +149,18 @@ export function restoreHomeScroll(): boolean {
   if (y == null) return false
   jumpHomeScroll(y)
   return document.documentElement.scrollHeight >= y + window.innerHeight * 0.4 || y < 40
+}
+
+export function installHomeScrollPopstate() {
+  if (typeof window === "undefined") return
+  const win = window as unknown as { __islandfullHomePopstate?: boolean }
+  if (win.__islandfullHomePopstate) return
+  win.__islandfullHomePopstate = true
+  window.addEventListener("popstate", () => {
+    if (window.location.pathname !== "/") return
+    const y = peekHomeScrollRestore()
+    if (y != null) jumpHomeScroll(y)
+  })
 }
 
 const PAGE_RETURN_KEY = "islandfull:page-return-stack"

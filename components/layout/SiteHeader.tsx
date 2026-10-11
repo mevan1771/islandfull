@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect } from "react"
-import { consumePageReturn, peekHomeReturnHref } from "@/lib/home-scroll"
+import { canBackToHomeScroll, consumePageReturn, peekHomeReturnHref } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -107,6 +107,10 @@ export default function SiteHeader() {
                                     }
                                 } catch {
                                     // Ignore storage failures and go home.
+                                }
+                                if (canBackToHomeScroll()) {
+                                    window.history.back()
+                                    return
                                 }
                                 router.push(from || peekHomeReturnHref(), { scroll: false })
                             }}

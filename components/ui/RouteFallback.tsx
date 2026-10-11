@@ -82,10 +82,7 @@ function ActivitySkeleton() {
 }
 
 export function RouteFallback({ variant = "home" }: { variant?: "home" | "activity" }) {
-  const restoringHome = variant === "home" && peekHomeScrollRestore() != null
-
   useLayoutEffect(() => {
-    if (restoringHome) return
     document.documentElement.setAttribute("data-route-fallback", "")
     if (peekHomeScrollRestore() == null) {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" })
@@ -93,9 +90,7 @@ export function RouteFallback({ variant = "home" }: { variant?: "home" | "activi
     return () => {
       document.documentElement.removeAttribute("data-route-fallback")
     }
-  }, [restoringHome])
-
-  if (restoringHome) return null
+  }, [])
 
   return variant === "activity" ? <ActivitySkeleton /> : <HomeSkeleton />
 }

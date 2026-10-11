@@ -3,12 +3,10 @@
 import "lenis/dist/lenis.css"
 import { ReactLenis, useLenis } from "lenis/react"
 import { usePathname } from "next/navigation"
-import { ReactNode, useEffect } from "react"
-import { peekHomeScrollRestore } from "@/lib/home-scroll"
+import { ReactNode, useEffect, useState } from "react"
 
 function LenisBridge() {
   const lenis = useLenis()
-  const pathname = usePathname()
 
   useEffect(() => {
     const win = window as unknown as { __islandfullLenis?: typeof lenis }
@@ -18,19 +16,23 @@ function LenisBridge() {
     }
   }, [lenis])
 
-  useEffect(() => {
-    if (pathname !== "/" || !lenis) return
-    const y = peekHomeScrollRestore()
-    if (y == null) return
-    lenis.scrollTo(y, { immediate: true, force: true })
-  }, [lenis, pathname])
-
   return null
 }
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const useNativeScroll = pathname === "/map" || pathname === "/destinations"
+  const [coarsePointer, setCoarsePointer] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)")
+    const sync = () => setCoarsePointer(mq.matches)
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
+
+  const useNativeScroll =
+    coarsePointer || pathname === "/map" || pathname === "/destinations"
 
   if (useNativeScroll) {
     return <>{children}</>
