@@ -159,7 +159,7 @@ export default function SiteHeader() {
                                 }
                                 suppressHomeHeader()
                                 blockHomeClicks()
-                                router.push(from || peekHomeReturnHref(), { scroll: false })
+                                router.replace(from || peekHomeReturnHref(), { scroll: false })
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"
                             aria-label="Back to previous page"

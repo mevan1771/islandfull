@@ -56,6 +56,7 @@ export function ActivityCard({
   const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
+  const pointerStart = useRef({ x: 0, y: 0 })
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const hasGroupTiers = hasPricingTiers(pricingTiers)
@@ -98,6 +99,7 @@ export function ActivityCard({
       className="block group h-full"
       data-home-card={slug}
       onPointerDown={(event) => {
+        pointerStart.current = { x: event.clientX, y: event.clientY }
         if (homeClicksBlocked()) {
           event.preventDefault()
           event.stopPropagation()
@@ -107,7 +109,10 @@ export function ActivityCard({
         markPageReturn()
       }}
       onClick={(event) => {
-        if (homeClicksBlocked()) {
+        const moved =
+          Math.abs(event.clientX - pointerStart.current.x) > 12 ||
+          Math.abs(event.clientY - pointerStart.current.y) > 12
+        if (homeClicksBlocked() || moved) {
           event.preventDefault()
           event.stopPropagation()
           return

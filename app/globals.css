@@ -40,6 +40,7 @@
 html {
   scrollbar-gutter: stable;
   overflow-y: scroll;
+  overscroll-behavior-x: none;
 }
 
 footer + footer {
@@ -49,6 +50,7 @@ footer + footer {
 body {
   color: var(--foreground);
   background: var(--background);
+  overscroll-behavior-x: none;
 }
 
 /* Force React Day Picker Chevrons to Rose-500 */
