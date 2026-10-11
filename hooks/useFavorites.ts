@@ -2,13 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
+import { getFavoriteIds, saveFavoriteIds } from "@/app/actions/favorites"
 
 const STORAGE_KEY = "islandfull_favorites"
+const LEGACY_KEY = "islandfull_liked_tours"
 
-function readLocal(): string[] {
+function readKey(key: string): string[] {
   if (typeof window === "undefined") return []
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = localStorage.getItem(key)
     if (!stored) return []
     const parsed = JSON.parse(stored)
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : []
@@ -17,13 +19,12 @@ function readLocal(): string[] {
   }
 }
 
-function writeLocal(ids: string[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
+function readLocal(): string[] {
+  return mergeIds(readKey(STORAGE_KEY), readKey(LEGACY_KEY))
 }
 
-function readRemote(metadata: Record<string, unknown> | undefined): string[] {
-  const raw = metadata?.favoriteIds
-  return Array.isArray(raw) ? raw.filter((id): id is string => typeof id === "string") : []
+function writeLocal(ids: string[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
 }
 
 function mergeIds(primary: string[], extra: string[]) {
@@ -47,57 +48,55 @@ export function useFavorites() {
   const { user, isLoaded } = useUser()
   const [favorites, setFavorites] = useState<string[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
-  const mergedUserId = useRef<string | null>(null)
   const userRef = useRef(user)
   userRef.current = user
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const persistAccount = useCallback(async (ids: string[]) => {
-    const current = userRef.current
-    if (!current) return
-    if (sameIds(readRemote(current.unsafeMetadata), ids)) return
-    await current.update({
-      unsafeMetadata: {
-        ...current.unsafeMetadata,
-        favoriteIds: ids,
-      },
-    })
+  const persistAccount = useCallback((ids: string[]) => {
+    writeLocal(ids)
+    if (!userRef.current) return
+    if (persistTimer.current) clearTimeout(persistTimer.current)
+    persistTimer.current = setTimeout(() => {
+      void saveFavoriteIds(ids)
+    }, 200)
   }, [])
 
   useEffect(() => {
     if (!isLoaded) return
+    let cancelled = false
 
-    const local = readLocal()
-
-    if (!user) {
-      mergedUserId.current = null
-      setFavorites(local)
+    async function hydrate() {
+      const local = readLocal()
+      if (!user) {
+        if (!cancelled) {
+          setFavorites(local)
+          setIsHydrated(true)
+        }
+        return
+      }
+      const remote = await getFavoriteIds()
+      if (cancelled) return
+      const merged = mergeIds(remote, local)
+      setFavorites(merged)
+      writeLocal(merged)
       setIsHydrated(true)
-      return
+      if (!sameIds(merged, remote)) void saveFavoriteIds(merged)
     }
 
-    if (mergedUserId.current === user.id) {
-      setIsHydrated(true)
-      return
+    void hydrate()
+    return () => {
+      cancelled = true
     }
-
-    mergedUserId.current = user.id
-    const remote = readRemote(user.unsafeMetadata)
-    const merged = mergeIds(remote, local)
-    setFavorites(merged)
-    writeLocal(merged)
-    setIsHydrated(true)
-    void persistAccount(merged)
-  }, [isLoaded, user, persistAccount])
+  }, [isLoaded, user?.id])
 
   const toggleFavorite = useCallback((activityId: string) => {
     setFavorites((prev) => {
       const next = prev.includes(activityId)
         ? prev.filter((id) => id !== activityId)
         : [...prev, activityId]
-      writeLocal(next)
       queueMicrotask(() => {
         window.dispatchEvent(new Event("favoritesChanged"))
-        void persistAccount(next)
+        persistAccount(next)
       })
       return next
     })

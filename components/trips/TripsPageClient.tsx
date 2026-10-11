@@ -9,7 +9,27 @@ import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
+import { getMyOffers } from "@/app/actions/offers"
+import { travelRangeFromOffer } from "@/lib/date-range-label"
 import type { HomepageActivity } from "@/lib/homepage-feed"
+
+function offerListing(offer: any) {
+  const listing = offer?.activities
+  return Array.isArray(listing) ? listing[0] : listing
+}
+
+function OfferStatus({ status }: { status: string }) {
+  if (status === "accepted") {
+    return <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-emerald-800">Accepted</span>
+  }
+  if (status === "declined") {
+    return <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-600">Declined</span>
+  }
+  if (status === "countered") {
+    return <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-sky-800">Host replied</span>
+  }
+  return <span className="inline-flex rounded-full bg-[#ffd54a] px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-900">Pending</span>
+}
 
 function CardFromItem({ act }: { act: HomepageActivity }) {
   return (
@@ -45,6 +65,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
   const [saved, setSaved] = useState<HomepageActivity[]>([])
   const [ideas, setIdeas] = useState(recommended)
   const [loadingSaved, setLoadingSaved] = useState(true)
+  const [offers, setOffers] = useState<any[]>([])
 
   const newestFirst = useMemo(() => [...favorites].reverse(), [favorites])
 
@@ -76,6 +97,20 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
       cancelled = true
     }
   }, [isHydrated, favorites, recommended])
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setOffers([])
+      return
+    }
+    let cancelled = false
+    getMyOffers().then((rows) => {
+      if (!cancelled) setOffers(rows)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [isSignedIn])
 
   const locations = [...new Set(saved.map((a) => a.location.replace(", Sri Lanka", "")))]
   const firstName = user?.firstName || "there"
@@ -113,7 +148,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-3 py-1.5 text-xs font-semibold">
               <CalendarDays className="w-3.5 h-3.5" />
-              0 upcoming
+              {offers.filter((o) => o.status === "pending" || o.status === "accepted" || o.status === "countered").length} upcoming
             </span>
           </div>
         </div>
@@ -203,6 +238,63 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
           </section>
         ) : (
           <section>
+            {offers.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-xl font-bold text-zinc-900 mb-2">Your offers</h2>
+                <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when the host replies.</p>
+                <div className="space-y-3">
+                  {offers.map((offer) => {
+                    const listing = offerListing(offer)
+                    const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
+                    const slug = listing?.slug
+                    return (
+                      <div
+                        key={offer.id}
+                        className={`rounded-2xl border bg-white p-3 md:p-4 flex gap-3 md:gap-4 ${
+                          offer.status === "accepted"
+                            ? "border-emerald-200"
+                            : offer.status === "pending"
+                              ? "border-[#ffd54a]/80"
+                              : "border-zinc-200"
+                        }`}
+                      >
+                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-zinc-100 shrink-0">
+                          <Image src={image} alt="" fill className="object-cover" sizes="96px" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <OfferStatus status={offer.status} />
+                            <span className="text-sm font-bold text-rose-500">${Number(offer.offer_amount)}</span>
+                          </div>
+                          <h3 className="font-bold text-zinc-900 truncate">{listing?.title || "Listing"}</h3>
+                          <p className="text-xs text-zinc-500 mt-0.5">
+                            {travelRangeFromOffer(offer.travel_date, offer.special_notes)} · {offer.guest_count} guest{offer.guest_count === 1 ? "" : "s"}
+                          </p>
+                          <p className="text-sm text-zinc-600 mt-2">
+                            {offer.status === "pending" && "Waiting for the host. No payment yet."}
+                            {offer.status === "accepted" && "The host accepted your price. Complete the reservation to lock it in."}
+                            {offer.status === "countered" && `The host suggested ${offer.admin_counter_amount != null ? `$${Number(offer.admin_counter_amount)}` : "another price"}. Open the listing to continue.`}
+                            {offer.status === "declined" && "The host couldn’t take this price. You can still book the listing at the listed rate."}
+                          </p>
+                          {slug && (
+                            <Link
+                              href={`/activity/${slug}`}
+                              className={`inline-flex mt-3 min-h-10 items-center rounded-full px-4 text-sm font-semibold ${
+                                offer.status === "accepted"
+                                  ? "bg-emerald-600 text-white"
+                                  : "bg-zinc-900 text-white"
+                              }`}
+                            >
+                              {offer.status === "accepted" ? "Complete reservation" : "View listing"}
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
             <h2 className="text-xl font-bold text-zinc-900 mb-2">Upcoming bookings</h2>
             <p className="text-sm text-zinc-500 mb-5">Confirmed reservations will appear here after checkout.</p>
             <div className="rounded-3xl border border-zinc-200 bg-white p-8 md:p-12">

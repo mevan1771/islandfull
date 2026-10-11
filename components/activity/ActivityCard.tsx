@@ -161,14 +161,14 @@ export function ActivityCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           )}
-          <FavoriteButton activityId={id} className={alwaysShowFavorite ? undefined : "hidden md:flex"} />
+          <FavoriteButton activityId={id} />
           {isPlace && (
             <span className="absolute bottom-2 right-2 z-10 rounded-md bg-white/95 px-1.5 py-px text-[9px] sm:text-[10px] font-bold text-zinc-800 leading-4 shadow-sm">
               Must see
             </span>
           )}
           {!isPlace && allowOffers && (
-            <span className="absolute bottom-2 right-2 md:bottom-2.5 md:right-2.5 z-10 rounded-full bg-[#F4FF00] px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs font-black tracking-wide text-zinc-950 leading-none ring-1 ring-black/20 shadow-[0_0_10px_rgba(244,255,0,0.85)] md:shadow-[0_0_16px_rgba(244,255,0,0.95)]">
+            <span className="absolute bottom-2 right-2 md:bottom-3 md:right-3 z-10 rounded-md bg-[#ffd54a] px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs font-bold text-zinc-900 leading-none shadow-md">
               Make offer
             </span>
           )}

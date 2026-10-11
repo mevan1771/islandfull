@@ -5,6 +5,7 @@ import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { SpotlightCarousel } from "@/components/home/SpotlightCarousel"
 import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
+import { fetchActivitiesByIds } from "@/app/actions/wishlist"
 import {
   HOMEPAGE_PAGE_SIZE,
   type HomepageActivity,
@@ -105,18 +106,30 @@ export function ActivityGrid({
 }: ActivityGridProps) {
   const { favorites, isHydrated } = useFavorites()
   const [items, setItems] = useState(activities)
+  const [savedItems, setSavedItems] = useState<HomepageActivity[] | null>(null)
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setItems(activities)
   }, [activities])
 
+  useEffect(() => {
+    if (currentCategory !== "saved" || !isHydrated) return
+    let cancelled = false
+    fetchActivitiesByIds(favorites).then((rows) => {
+      if (!cancelled) setSavedItems(rows)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [currentCategory, isHydrated, favorites])
+
   let displayActivities = items
   if (currentCategory === "saved") {
-    if (!isHydrated) {
+    if (!isHydrated || savedItems === null) {
       return <div className="h-40"></div>
     }
-    displayActivities = items.filter((act) => favorites.includes(act.id))
+    displayActivities = savedItems
   }
 
   const injectPlaces =

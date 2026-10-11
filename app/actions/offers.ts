@@ -141,6 +141,7 @@ export async function createOffer(input: {
 
     revalidatePath("/admin/offers")
     revalidatePath("/admin")
+    revalidatePath("/trips")
     return { success: true, offerId: offer.id }
   } catch (err: any) {
     console.error("createOffer error:", err)
@@ -325,7 +326,36 @@ export async function confirmOfferFromEmail(formData: FormData) {
   sendGuestDecisionEmail({ ...offer, status }).catch((err) => console.error("Guest decision email failed:", err))
   revalidatePath("/admin/offers")
   revalidatePath("/admin")
+  revalidatePath("/trips")
   redirect(`/offers/processed?status=${status === "accepted" ? "accepted" : "declined"}`)
+}
+
+export async function getMyOffers() {
+  try {
+    const user = await currentUser()
+    if (!user) return []
+    const email = user.primaryEmailAddress?.emailAddress?.toLowerCase() || null
+    const select =
+      "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url)"
+    const [{ data: byUser }, { data: byEmail }] = await Promise.all([
+      supabaseAdmin.from("offers").select(select).eq("clerk_user_id", user.id).order("created_at", { ascending: false }),
+      email
+        ? supabaseAdmin.from("offers").select(select).eq("guest_email", email).order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] as any[] }),
+    ])
+    const seen = new Set<string>()
+    const rows: any[] = []
+    for (const row of [...(byUser || []), ...(byEmail || [])]) {
+      if (!row?.id || seen.has(row.id)) continue
+      seen.add(row.id)
+      rows.push(row)
+    }
+    rows.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
+    return rows
+  } catch (err) {
+    console.error("getMyOffers error:", err)
+    return []
+  }
 }
 
 export async function getOffers() {
@@ -383,5 +413,6 @@ export async function updateOfferStatus(
 
   revalidatePath("/admin/offers")
   revalidatePath("/admin")
+  revalidatePath("/trips")
   return { success: true }
 }
