@@ -138,9 +138,20 @@ export function consumeHomeScrollRestore(): number | null {
   return y
 }
 
+let clicksBlockedUntil = 0
+
+export function blockHomeClicks(ms = 800) {
+  clicksBlockedUntil = Date.now() + ms
+}
+
+export function homeClicksBlocked() {
+  return Date.now() < clicksBlockedUntil
+}
+
 export function jumpHomeScroll(y: number) {
   if (typeof window === "undefined") return
   const top = Math.max(0, Math.round(y))
+  blockHomeClicks()
 
   try {
     window.scrollTo(0, top)
@@ -158,7 +169,6 @@ export function jumpHomeScroll(y: number) {
         }
       }
     ).__islandfullLenis
-    // Keep Lenis in sync so it does not overwrite native scroll with 0.
     lenis?.scrollTo?.(top, { immediate: true, force: true })
   } catch {
     // Lenis can throw if it is mid-destroy during route changes.
@@ -167,19 +177,10 @@ export function jumpHomeScroll(y: number) {
 
 export function restoreHomeScroll(): boolean {
   if (typeof window === "undefined") return false
-  const slug = peekHomeScrollSlug()
-  if (slug) {
-    const el = document.querySelector<HTMLElement>(`[data-home-card="${CSS.escape(slug)}"]`)
-    if (el) {
-      const top = Math.max(0, Math.round(el.getBoundingClientRect().top + currentScrollY() - 80))
-      jumpHomeScroll(top)
-      return true
-    }
-  }
   const y = peekHomeScrollRestore()
   if (y == null) return false
   jumpHomeScroll(y)
-  return document.documentElement.scrollHeight >= y + window.innerHeight * 0.4 || y < 40
+  return true
 }
 
 export function installHomeScrollPopstate() {

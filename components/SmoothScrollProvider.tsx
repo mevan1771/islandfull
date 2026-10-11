@@ -3,7 +3,7 @@
 import "lenis/dist/lenis.css"
 import { ReactLenis, useLenis } from "lenis/react"
 import { usePathname } from "next/navigation"
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useEffect } from "react"
 
 function LenisBridge() {
   const lenis = useLenis()
@@ -21,18 +21,7 @@ function LenisBridge() {
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const [coarsePointer, setCoarsePointer] = useState(false)
-
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: coarse)")
-    const sync = () => setCoarsePointer(mq.matches)
-    sync()
-    mq.addEventListener("change", sync)
-    return () => mq.removeEventListener("change", sync)
-  }, [])
-
-  const useNativeScroll =
-    coarsePointer || pathname === "/map" || pathname === "/destinations"
+  const useNativeScroll = pathname === "/map" || pathname === "/destinations"
 
   if (useNativeScroll) {
     return <>{children}</>

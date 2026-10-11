@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
+    blockHomeClicks,
     canBackToHomeScroll,
     consumePageReturn,
     isHomeHeaderSuppressed,
@@ -53,7 +54,15 @@ export default function SiteHeader() {
     useEffect(() => {
         if (pathname !== "/") return
 
-        const applyUserScroll = (direction: "up" | "down") => {
+        const coarse = window.matchMedia("(pointer: coarse)")
+
+        const onScroll = () => {
+            const y = window.scrollY
+            setIsScrolled(y > 50 || isHomeHeaderSuppressed())
+        }
+
+        const onWheel = (event: WheelEvent) => {
+            if (coarse.matches || event.deltaY === 0) return
             const y = window.scrollY
             setIsScrolled(y > 50)
             if (y <= 50) {
@@ -61,7 +70,7 @@ export default function SiteHeader() {
                 setIsVisible(true)
                 return
             }
-            if (direction === "down") {
+            if (event.deltaY > 0) {
                 setIsVisible(false)
                 return
             }
@@ -70,39 +79,11 @@ export default function SiteHeader() {
             setIsVisible(true)
         }
 
-        const onWheel = (event: WheelEvent) => {
-            if (event.deltaY === 0) return
-            applyUserScroll(event.deltaY > 0 ? "down" : "up")
-        }
-
-        let touchY = 0
-        const onTouchStart = (event: TouchEvent) => {
-            touchY = event.touches[0]?.clientY ?? 0
-        }
-        const onTouchMove = (event: TouchEvent) => {
-            const y = event.touches[0]?.clientY ?? 0
-            const dy = y - touchY
-            touchY = y
-            if (Math.abs(dy) < 6) return
-            applyUserScroll(dy > 0 ? "up" : "down")
-        }
-
-        const onScroll = () => {
-            const y = window.scrollY
-            if (isHomeHeaderSuppressed() || y > 50) setIsScrolled(true)
-            else setIsScrolled(false)
-            if (isHomeHeaderSuppressed()) setIsVisible(false)
-        }
-
-        window.addEventListener("wheel", onWheel, { passive: true })
-        window.addEventListener("touchstart", onTouchStart, { passive: true })
-        window.addEventListener("touchmove", onTouchMove, { passive: true })
         window.addEventListener("scroll", onScroll, { passive: true })
+        window.addEventListener("wheel", onWheel, { passive: true })
         return () => {
-            window.removeEventListener("wheel", onWheel)
-            window.removeEventListener("touchstart", onTouchStart)
-            window.removeEventListener("touchmove", onTouchMove)
             window.removeEventListener("scroll", onScroll)
+            window.removeEventListener("wheel", onWheel)
         }
     }, [pathname])
 
@@ -163,6 +144,12 @@ export default function SiteHeader() {
                         <button
                             type="button"
                             onClick={() => {
+                                if (canBackToHomeScroll()) {
+                                    suppressHomeHeader()
+                                    blockHomeClicks()
+                                    window.history.back()
+                                    return
+                                }
                                 const from = consumePageReturn()
                                 if (from && from.split("?")[0] !== "/") {
                                     router.push(from, { scroll: false })
@@ -176,11 +163,6 @@ export default function SiteHeader() {
                                     }
                                 } catch {
                                     // Ignore storage failures and go home.
-                                }
-                                if (canBackToHomeScroll()) {
-                                    suppressHomeHeader()
-                                    window.history.back()
-                                    return
                                 }
                                 router.push(from || peekHomeReturnHref(), { scroll: false })
                             }}

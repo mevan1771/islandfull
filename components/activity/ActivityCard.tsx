@@ -7,7 +7,7 @@ import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { formatUSD } from "@/lib/utils"
-import { markHomeScrollForRestore, markPageReturn } from "@/lib/home-scroll"
+import { homeClicksBlocked, markHomeScrollForRestore, markPageReturn } from "@/lib/home-scroll"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
 interface ActivityCardProps {
@@ -97,11 +97,21 @@ export function ActivityCard({
       prefetch={true}
       className="block group h-full"
       data-home-card={slug}
-      onPointerDown={() => {
+      onPointerDown={(event) => {
+        if (homeClicksBlocked()) {
+          event.preventDefault()
+          event.stopPropagation()
+          return
+        }
         markHomeScrollForRestore(slug)
         markPageReturn()
       }}
-      onClick={() => {
+      onClick={(event) => {
+        if (homeClicksBlocked()) {
+          event.preventDefault()
+          event.stopPropagation()
+          return
+        }
         markHomeScrollForRestore(slug)
         markPageReturn()
       }}
