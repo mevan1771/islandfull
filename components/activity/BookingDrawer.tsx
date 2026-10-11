@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { CalendarDays, Users, Phone, X, CheckCircle2, MapPin, FileText, Gem, MessageCircle, CreditCard } from "lucide-react"
+import { CalendarDays, Users, Phone, CheckCircle2, MapPin, FileText, Gem, MessageCircle, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
 import { validatePromoCode } from "@/app/actions/promo"
@@ -12,7 +12,9 @@ import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from
 import { dayCountLabel, formatDateRangeWithDays } from "@/lib/date-range-label"
 import { chargesByDay } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
+import { useUser } from "@clerk/nextjs"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
 import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
@@ -74,10 +76,19 @@ export function BookingDrawer({
   priceSuffix,
   allowOffers = false,
 }: BookingDrawerProps) {
+  const { isSignedIn, user } = useUser()
+  const firstName = user?.firstName || user?.fullName?.split(" ")[0] || ""
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
+  useEffect(() => {
+    if (!isSignedIn || !user) return
+    const name = user.fullName || firstName
+    const email = user.primaryEmailAddress?.emailAddress || ""
+    if (name) setTouristName(name)
+    if (email) setTouristEmail(email)
+  }, [isSignedIn, user, firstName])
   const [isOpen, setIsOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
@@ -484,16 +495,13 @@ export function BookingDrawer({
           <div
             className={`flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl transition-transform duration-300 ${isOpen ? "translate-y-0" : "translate-y-full md:translate-y-[150%]"}`}
           >
-            <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Complete Reservation</h2>
-              <button
-                type="button"
-                onClick={resetAndClose}
-                className="p-2 rounded-full hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-center text-zinc-500"
-              >
-                <X className="w-5 h-5 pointer-events-none" />
-              </button>
-            </div>
+            <SheetGreetingHeader
+              title="Complete reservation"
+              subtitle={title}
+              onClose={resetAndClose}
+              firstName={isSignedIn ? firstName || "there" : null}
+              imageUrl={user?.imageUrl}
+            />
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
 
@@ -629,7 +637,7 @@ export function BookingDrawer({
                         </div>
                       )}
 
-                      <div className="grid grid-cols-[115px_1fr] gap-3 col-span-1 md:col-span-2">
+                      <div className={`grid gap-3 col-span-1 md:col-span-2 ${isSignedIn ? "" : "grid-cols-[115px_1fr]"}`}>
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                             <Users className="w-3.5 h-3.5 text-rose-500" />
@@ -658,6 +666,7 @@ export function BookingDrawer({
                           </div>
                         </div>
 
+                        {!isSignedIn && (
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                             Full Name
@@ -671,10 +680,12 @@ export function BookingDrawer({
                             required
                           />
                         </div>
+                        )}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className={`grid gap-3 ${isSignedIn ? "grid-cols-1" : "grid-cols-2"}`}>
+                      {!isSignedIn && (
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                           Email Address
@@ -688,6 +699,7 @@ export function BookingDrawer({
                           required
                         />
                       </div>
+                      )}
 
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">

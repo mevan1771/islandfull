@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
-import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
+import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react"
+import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
@@ -122,7 +123,8 @@ export function MakeAnOfferModal({
 
   if (!mounted || !open) return null
 
-  const signedName = user?.fullName || user?.firstName || "you"
+  const firstName = user?.firstName || user?.fullName?.split(" ")[0] || ""
+  const signedName = user?.fullName || firstName || "you"
   const signedEmail = user?.primaryEmailAddress?.emailAddress || ""
   const travelStart = isMulti
     ? (dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : "")
@@ -176,20 +178,13 @@ export function MakeAnOfferModal({
         onClick={onClose}
       />
       <div className="flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl sm:w-full sm:max-w-lg sm:top-1/2 sm:-translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:rounded-2xl shadow-2xl">
-        <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Make an offer</h2>
-            <p className="text-sm text-zinc-500 line-clamp-1">{title}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-zinc-500"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <SheetGreetingHeader
+          title="Make an offer"
+          subtitle={title}
+          onClose={onClose}
+          firstName={isSignedIn ? firstName || "there" : null}
+          imageUrl={user?.imageUrl}
+        />
 
         {sent ? (
           <div className="p-4 space-y-3">
@@ -212,12 +207,7 @@ export function MakeAnOfferModal({
                 </p>
               )}
 
-              {isSignedIn ? (
-                <p className="text-xs text-zinc-400">
-                  Offering as <span className="font-medium text-zinc-600">{signedName}</span>
-                  {signedEmail ? ` · ${signedEmail}` : ""}
-                </p>
-              ) : (
+              {isSignedIn ? null : (
                 <div className="grid grid-cols-2 gap-3">
                   <label className="space-y-1">
                     <span className={labelClass}>Full name</span>
