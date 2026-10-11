@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
@@ -30,37 +30,6 @@ interface ActivityCardProps {
   alwaysShowFavorite?: boolean
   variant?: "tour" | "place"
   allowOffers?: boolean
-}
-
-function useGpuEntryAnimation<T extends HTMLElement>() {
-  const [isActive, setIsActive] = useState(false);
-  const ref = useRef<T>(null);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsActive(true);
-          observer.unobserve(element);
-        }
-      },
-      {
-        rootMargin: '0px 0px -10% 0px',
-        threshold: 0
-      }
-    );
-
-    observer.observe(element);
-
-    return () => {
-      if (element) observer.unobserve(element);
-    };
-  }, []);
-
-  return { ref, isActive };
 }
 
 export function ActivityCard({
@@ -122,8 +91,6 @@ export function ActivityCard({
       .replace(/\.(jpg|jpeg|png|webp|avif)$/i, '.mp4')
   }
 
-  const { ref: animRef, isActive } = useGpuEntryAnimation<HTMLDivElement>();
-
   return (
     <Link
       href={`/activity/${slug}`}
@@ -139,12 +106,7 @@ export function ActivityCard({
         markPageReturn()
       }}
     >
-      <div 
-        ref={animRef}
-        className={`flex flex-col gap-2 h-full transition-all duration-300 ease-in-out transform-gpu md:opacity-100 md:scale-100 md:!translate-y-0 ${
-          isActive ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
-        }`}
-      >
+      <div className="flex flex-col gap-2 h-full">
         {/* Image / Video Container */}
         <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-zinc-100 shadow-md md:shadow-lg hover:shadow-xl transition-shadow duration-300">
           {videoUrl && !isPlace ? (

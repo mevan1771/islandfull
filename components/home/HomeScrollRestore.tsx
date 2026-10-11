@@ -1,26 +1,32 @@
 "use client"
 
 import { useLayoutEffect } from "react"
-import { consumeHomeScrollRestore, peekHomeScrollRestore, restoreHomeScroll } from "@/lib/home-scroll"
+import {
+  consumeHomeScrollRestore,
+  jumpHomeScroll,
+  peekHomeScrollRestore,
+  restoreHomeScroll,
+} from "@/lib/home-scroll"
 
 export function HomeScrollRestore() {
   useLayoutEffect(() => {
-    if (peekHomeScrollRestore() == null) return
+    const saved = peekHomeScrollRestore()
+    if (saved == null) return
+
+    jumpHomeScroll(saved)
 
     let cancelled = false
-    const started = Date.now()
-    let foundAt = 0
+    let frames = 0
 
     const apply = () => {
       if (cancelled) return
       try {
-        if (restoreHomeScroll() && !foundAt) foundAt = Date.now()
+        restoreHomeScroll()
       } catch {
         // Never crash the home page over scroll restore.
       }
-      const elapsed = Date.now() - started
-      const lockLenis = foundAt !== 0 && Date.now() - foundAt < 500
-      if ((!foundAt && elapsed < 2800) || lockLenis) {
+      frames += 1
+      if (frames < 12) {
         requestAnimationFrame(apply)
         return
       }
@@ -30,7 +36,10 @@ export function HomeScrollRestore() {
     apply()
 
     const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted && peekHomeScrollRestore() != null) apply()
+      if (event.persisted && peekHomeScrollRestore() != null) {
+        const y = peekHomeScrollRestore()
+        if (y != null) jumpHomeScroll(y)
+      }
     }
     window.addEventListener("pageshow", onPageShow)
 
