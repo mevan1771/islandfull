@@ -5,12 +5,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { CalendarDays, ChevronRight, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
+import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
+import { format, parseISO } from "date-fns"
+import { dayCountLabel, inclusiveDays } from "@/lib/date-range-label"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
 import { getMyOffers } from "@/app/actions/offers"
-import { travelRangeFromOffer } from "@/lib/date-range-label"
 import { markPageReturn } from "@/lib/home-scroll"
 import type { HomepageActivity } from "@/lib/homepage-feed"
 
@@ -33,77 +34,85 @@ function OfferStatus({ status }: { status: string }) {
 }
 
 function offerStatusCopy(offer: any) {
-  if (offer.status === "accepted") return "Your price was accepted. Reserve to lock it in."
+  if (offer.status === "accepted") return "Accepted · reserve to confirm"
   if (offer.status === "countered") {
     return offer.admin_counter_amount != null
-      ? `Host suggested $${Number(offer.admin_counter_amount)}.`
-      : "The host sent another price."
+      ? `Host suggested $${Number(offer.admin_counter_amount)}`
+      : "Host sent another price"
   }
-  if (offer.status === "declined") return "Host couldn’t take this price."
-  return "Waiting on the host · no payment yet"
+  if (offer.status === "declined") return "Host couldn’t take this price"
+  return "Waiting on host"
+}
+
+function offerTravelLabel(offer: any) {
+  const match = String(offer.special_notes || "").match(/Dates:\s*(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})/)
+  const start = parseISO(offer.travel_date)
+  if (Number.isNaN(start.getTime())) return String(offer.travel_date || "")
+  const end = match?.[2] ? parseISO(match[2]) : start
+  if (Number.isNaN(end.getTime()) || format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd")) {
+    return format(start, "d MMM")
+  }
+  const days = dayCountLabel(inclusiveDays(start, end))
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${format(start, "d")}–${format(end, "d MMM")} · ${days}`
+  }
+  return `${format(start, "d MMM")} – ${format(end, "d MMM")} · ${days}`
 }
 
 function OfferCard({ offer }: { offer: any }) {
   const listing = offerListing(offer)
   const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
   const slug = listing?.slug as string | undefined
-  const cta = offer.status === "accepted" ? "Reserve" : "View"
+  const cta = offer.status === "accepted" ? "Reserve" : "View listing"
+  const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
   const body = (
-    <div className="flex gap-3 md:gap-5 items-center">
-      <div className="relative w-16 h-16 md:w-[7.5rem] md:h-[7.5rem] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-100 shrink-0">
-        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 64px, 120px" />
+    <>
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+        <div className="absolute top-2.5 left-2.5">
+          <OfferStatus status={offer.status} />
+        </div>
       </div>
-      <div className="min-w-0 flex-1">
-        <OfferStatus status={offer.status} />
-        <h3 className="mt-1 font-semibold text-[15px] md:text-lg text-zinc-900 leading-snug line-clamp-1">
+      <div className="p-3.5 md:p-4 flex flex-col flex-1">
+        <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
           {listing?.title || "Listing"}
         </h3>
-        {listing?.location && (
-          <p className="hidden md:block text-sm text-zinc-500 truncate mt-0.5">{String(listing.location).replace(", Sri Lanka", "")}</p>
-        )}
-        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] md:text-xs text-zinc-500">
+        {location ? <p className="text-xs text-zinc-500 mt-0.5 truncate">{location}</p> : null}
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
           <span className="inline-flex items-center gap-1">
             <CalendarDays className="w-3.5 h-3.5 text-zinc-400" />
-            {travelRangeFromOffer(offer.travel_date, offer.special_notes)}
+            {offerTravelLabel(offer)}
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="w-3.5 h-3.5 text-zinc-400" />
             {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
           </span>
         </div>
-        <p className="mt-1 md:mt-1.5 text-xs md:text-sm text-zinc-500 line-clamp-1">{offerStatusCopy(offer)}</p>
-      </div>
-      <div className="shrink-0 flex flex-col items-end justify-center gap-2 pl-1">
-        <div className="text-right">
-          <p className="text-base md:text-xl font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
-          <p className="text-[10px] md:text-[11px] text-zinc-400">your offer</p>
-        </div>
-        {slug && (
+        <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer)}</p>
+        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
+            <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
+          </div>
           <span
-            className={`hidden md:inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
-              offer.status === "accepted"
-                ? "bg-emerald-600 text-white"
-                : "border border-zinc-200 bg-white text-zinc-800"
+            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
+              offer.status === "accepted" ? "bg-emerald-600 text-white" : "bg-zinc-900 text-white"
             }`}
           >
             {cta}
           </span>
-        )}
-        <ChevronRight className="md:hidden w-4 h-4 text-zinc-400" />
+        </div>
       </div>
-    </div>
+    </>
   )
 
-  if (!slug) {
-    return <div className="rounded-2xl border border-zinc-200 bg-white p-3 md:p-4">{body}</div>
-  }
+  const className =
+    "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
+
+  if (!slug) return <div className={className}>{body}</div>
 
   return (
-    <Link
-      href={`/activity/${slug}`}
-      onClick={() => markPageReturn("/trips")}
-      className="block rounded-2xl border border-zinc-200 bg-white p-3 md:p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
-    >
+    <Link href={`/activity/${slug}`} onClick={() => markPageReturn("/trips")} className={className}>
       {body}
     </Link>
   )
@@ -320,7 +329,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
               <div className="mb-10">
                 <h2 className="text-xl font-bold text-zinc-900 mb-2">Your offers</h2>
                 <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when the host replies.</p>
-                <div className="space-y-2.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
                   {offers.map((offer) => (
                     <OfferCard key={offer.id} offer={offer} />
                   ))}
