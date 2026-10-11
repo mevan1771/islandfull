@@ -131,11 +131,12 @@ export default function HostsPage() {
         } else {
           res = await updateHost(editingHost.id, data)
         }
-      } else {
-        // It's a new host, append the login details for provisioning
-        data.append("login_email", formData.login_email)
+      } else if (formData.login_email.trim() && formData.login_password.trim()) {
+        data.append("login_email", formData.login_email.trim())
         data.append("login_password", formData.login_password)
         res = await adminCreateHostAccount(data)
+      } else {
+        res = await createHost(data)
       }
 
       if (res && res.success) {
@@ -143,7 +144,12 @@ export default function HostsPage() {
         closeModal()
         await loadHosts()
       } else {
-        toast.error("Error saving host: " + (res?.error || "Unknown error"))
+        const message = res?.error || "Unknown error"
+        toast.error(
+          /already been registered|already registered|already exists/i.test(message)
+            ? "That login email already has an IslandFull account. Use a different login email, or leave login blank and save the host without a portal."
+            : "Error saving host: " + message
+        )
       }
     } catch (error: any) {
       toast.error(error.message || "An unexpected error occurred")
@@ -429,14 +435,13 @@ export default function HostsPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
               {(!editingHost || (editingHost && !editingHost.user_id)) && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
-                  <h3 className="text-lg font-bold text-zinc-900">Provision Login Account</h3>
-                  <p className="text-sm text-zinc-500 mb-4">Set up a secure login account for the tour operator to access the portal.</p>
+                  <h3 className="text-lg font-bold text-zinc-900">Host portal login (optional)</h3>
+                  <p className="text-sm text-zinc-500 mb-4">Only needed if this host should log in. Contact email below is not a login. Leave these blank to save the profile only.</p>
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-zinc-800">Login Email or Phone Number</label>
                     <input
                       type="text"
-                      required={!editingHost}
                       value={formData.login_email}
                       onChange={(e) => setFormData({ ...formData, login_email: e.target.value })}
                       placeholder="operator@company.com or 0771234567"
@@ -447,7 +452,6 @@ export default function HostsPage() {
                     <label className="text-sm font-bold text-zinc-800">Temporary Password</label>
                     <input
                       type="text"
-                      required={!editingHost}
                       value={formData.login_password}
                       onChange={(e) => setFormData({ ...formData, login_password: e.target.value })}
                       placeholder="Secure temporary password"

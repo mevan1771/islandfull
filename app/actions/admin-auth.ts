@@ -67,7 +67,13 @@ export async function adminCreateHostAccount(formData: FormData) {
     })
 
     if (authError || !authUser.user) {
-      return { success: false, error: authError?.message || "Failed to create auth user" }
+      const already = /already been registered|already registered|already exists/i.test(authError?.message || "")
+      return {
+        success: false,
+        error: already
+          ? "That login email already has an IslandFull account. Use a different login email, or leave login blank."
+          : authError?.message || "Failed to create auth user",
+      }
     }
 
     const userId = authUser.user.id
@@ -201,7 +207,13 @@ export async function adminProvisionLegacyHost(hostId: string, formData: FormDat
     })
 
     if (authError || !authUser.user) {
-      return { success: false, error: authError?.message || "Failed to create auth user" }
+      const already = /already been registered|already registered|already exists/i.test(authError?.message || "")
+      return {
+        success: false,
+        error: already
+          ? "That login email already has an IslandFull account. Use a different login email, or leave login blank."
+          : authError?.message || "Failed to create auth user",
+      }
     }
 
     const userId = authUser.user.id
