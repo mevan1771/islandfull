@@ -45,9 +45,24 @@ export async function archiveBooking(id: string) {
 
 const UNPAID_STATUSES = new Set(["pending", "pending_payment"])
 
-async function clerkGuestEmail() {
+function normalizeEmail(value: string | null | undefined) {
+  return String(value || "").trim().toLowerCase()
+}
+
+function isUnpaidStatus(status: string | null | undefined) {
+  return UNPAID_STATUSES.has(String(status || "").trim().toLowerCase())
+}
+
+async function clerkGuestEmails() {
   const user = await currentUser()
-  return user?.primaryEmailAddress?.emailAddress?.toLowerCase() || null
+  const emails = new Set<string>()
+  const primary = normalizeEmail(user?.primaryEmailAddress?.emailAddress)
+  if (primary) emails.add(primary)
+  for (const row of user?.emailAddresses || []) {
+    const value = normalizeEmail(row.emailAddress)
+    if (value) emails.add(value)
+  }
+  return [...emails]
 }
 
 async function cancelUnpaidBookingRow(booking: {
@@ -56,9 +71,12 @@ async function cancelUnpaidBookingRow(booking: {
   tourist_email: string | null
   activity_id: string | null
   travel_date: string | null
-}, email: string) {
-  if (booking.tourist_email?.toLowerCase() !== email) return { ok: false as const, error: "That booking is not on this account." }
-  if (!UNPAID_STATUSES.has(String(booking.status || ""))) {
+}, emails: string[]) {
+  const bookingEmail = normalizeEmail(booking.tourist_email)
+  if (!bookingEmail || !emails.includes(bookingEmail)) {
+    return { ok: false as const, error: "That booking is not on this account." }
+  }
+  if (!isUnpaidStatus(booking.status)) {
     return { ok: false as const, error: "Paid trips need a host to cancel. Email us if you need help." }
   }
   if (booking.activity_id && booking.travel_date) {
@@ -69,21 +87,28 @@ async function cancelUnpaidBookingRow(booking: {
       console.error("Failed to unblock date:", e)
     }
   }
-  await supabaseAdmin.from("bookings").update({ status: "cancelled" }).eq("id", booking.id)
+  const { error } = await supabaseAdmin
+    .from("bookings")
+    .update({ status: "cancelled", is_archived: true })
+    .eq("id", booking.id)
+  if (error) {
+    console.error("cancelUnpaidBookingRow update error:", error)
+    return { ok: false as const, error: "Could not cancel that booking." }
+  }
   return { ok: true as const }
 }
 
 export async function cancelMyBooking(id: string) {
   try {
-    const email = await clerkGuestEmail()
-    if (!email) return { success: false, error: "Sign in to cancel a booking." }
+    const emails = await clerkGuestEmails()
+    if (emails.length === 0) return { success: false, error: "Sign in to cancel a booking." }
     const { data: booking } = await supabaseAdmin
       .from("bookings")
       .select("id, status, tourist_email, activity_id, travel_date")
       .eq("id", id)
       .maybeSingle()
     if (!booking) return { success: false, error: "Booking not found." }
-    const result = await cancelUnpaidBookingRow(booking, email)
+    const result = await cancelUnpaidBookingRow(booking, emails)
     if (!result.ok) return { success: false, error: result.error }
     revalidatePath("/trips")
     revalidatePath("/admin")
@@ -96,17 +121,25 @@ export async function cancelMyBooking(id: string) {
 
 export async function cancelMyUnpaidBookings() {
   try {
-    const email = await clerkGuestEmail()
-    if (!email) return { success: false, error: "Sign in to clear unpaid bookings.", cancelled: 0 }
-    const { data: rows } = await supabaseAdmin
+    const emails = await clerkGuestEmails()
+    if (emails.length === 0) return { success: false, error: "Sign in to clear unpaid bookings.", cancelled: 0 }
+    const { data: rows, error } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, tourist_email, activity_id, travel_date")
-      .eq("tourist_email", email)
+      .select("id, status, tourist_email, activity_id, travel_date, is_archived")
       .in("status", ["pending", "pending_payment"])
-      .neq("is_archived", true)
+      .order("created_at", { ascending: false })
+      .limit(200)
+    if (error) {
+      console.error("cancelMyUnpaidBookings fetch error:", error)
+      return { success: false, error: "Could not load unpaid bookings.", cancelled: 0 }
+    }
+    const mine = (rows || []).filter((booking) => {
+      if (booking.is_archived === true) return false
+      return emails.includes(normalizeEmail(booking.tourist_email))
+    })
     let cancelled = 0
-    for (const booking of rows || []) {
-      const result = await cancelUnpaidBookingRow(booking, email)
+    for (const booking of mine) {
+      const result = await cancelUnpaidBookingRow(booking, emails)
       if (result.ok) cancelled += 1
     }
     revalidatePath("/trips")
@@ -119,21 +152,23 @@ export async function cancelMyUnpaidBookings() {
 }
 
 export async function fetchMyBookingsFor(email: string) {
+  const normalized = normalizeEmail(email)
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
-      "id, status, travel_date, end_date, pax_count, total_usd, created_at, activities(title, slug, location, card_image_url, cover_image_url, category_type)"
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, activities(title, slug, location, card_image_url, cover_image_url, category_type)"
     )
-    .eq("tourist_email", email)
-    .neq("is_archived", true)
+    .ilike("tourist_email", normalized)
     .neq("status", "cancelled")
     .order("travel_date", { ascending: true })
-    .limit(40)
+    .limit(80)
   if (error) {
     console.error("fetchMyBookingsFor error:", error)
     return []
   }
   return (data || []).filter((row: any) => {
+    if (row.is_archived === true) return false
+    if (normalizeEmail(row.tourist_email) !== normalized) return false
     const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
     return listing?.category_type !== "place"
   })

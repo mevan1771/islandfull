@@ -83,6 +83,7 @@ function BookingCard({
   const status = String(booking.status || "")
   const unpaid = isUnpaidBooking(status)
   const [pending, startTransition] = useTransition()
+  const router = useRouter()
 
   function cancelThis() {
     if (!window.confirm("Cancel this unpaid booking? You can reserve again later.")) return
@@ -94,6 +95,7 @@ function BookingCard({
       }
       onCancelled(booking.id)
       toast.success("Booking cancelled")
+      router.refresh()
     })
   }
 
@@ -460,8 +462,13 @@ export function TripsPageClient({
                         toast.error(result.error || "Could not clear unpaid bookings.")
                         return
                       }
+                      if (!result.cancelled) {
+                        toast.error("Those unpaid bookings could not be removed. Try again.")
+                        return
+                      }
                       setBookings((prev) => prev.filter((b) => !isUnpaidBooking(String(b.status || ""))))
-                      toast.success(result.cancelled ? `Cleared ${result.cancelled} unpaid booking${result.cancelled === 1 ? "" : "s"}` : "Nothing unpaid to clear")
+                      router.refresh()
+                      toast.success(`Cleared ${result.cancelled} unpaid booking${result.cancelled === 1 ? "" : "s"}`)
                     })
                   }}
                   className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
