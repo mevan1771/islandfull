@@ -4,11 +4,13 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import CreatableSelect from "react-select/creatable"
 import { ArrowLeft, Loader2, Plus, Save, Trash2, Upload } from "lucide-react"
 import imageCompression from "browser-image-compression"
 import { createHotel, updateHotel } from "@/app/actions/hotels"
 import { uploadToCloudinary } from "@/app/actions/upload"
 import { emptyRoomType, HOTEL_AMENITIES, PROPERTY_TYPES, ROOM_AMENITIES, type HotelRoomTypeInput } from "@/lib/hotels"
+import { locationSelectOptions } from "@/lib/locations"
 
 async function uploadImage(file: File) {
   const compressed = await imageCompression(file, {
@@ -57,7 +59,31 @@ function AmenityPicks({
   )
 }
 
-export default function HotelForm({ initialData, hosts = [] }: { initialData?: any; hosts?: any[] }) {
+const locationSelectStyles = {
+  control: (base: any, state: any) => ({
+    ...base,
+    minHeight: "3rem",
+    borderRadius: "1rem",
+    border: state.isFocused ? "2px solid #f43f5e" : "2px solid #f4f4f5",
+    boxShadow: state.isFocused ? "0 0 0 4px rgba(244, 63, 94, 0.1)" : "none",
+    "&:hover": {
+      border: state.isFocused ? "2px solid #f43f5e" : "2px solid #f4f4f5",
+    },
+    padding: "0 8px",
+  }),
+  valueContainer: (base: any) => ({ ...base, padding: "0 8px" }),
+  input: (base: any) => ({ ...base, margin: 0, padding: 0 }),
+}
+
+export default function HotelForm({
+  initialData,
+  hosts = [],
+  existingLocations = [],
+}: {
+  initialData?: any
+  hosts?: any[]
+  existingLocations?: string[]
+}) {
   const router = useRouter()
   const isEditing = !!initialData
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,6 +91,9 @@ export default function HotelForm({ initialData, hosts = [] }: { initialData?: a
   const [cover, setCover] = useState(initialData?.cover_image_url || "")
   const [gallery, setGallery] = useState<string[]>(initialData?.gallery_urls || [])
   const [uploading, setUploading] = useState(false)
+  const [location, setLocation] = useState(
+    initialData?.location ? { label: initialData.location, value: initialData.location } : null
+  )
   const [rooms, setRooms] = useState<HotelRoomTypeInput[]>(
     initialData?.rooms?.length
       ? initialData.rooms.map((room: any) => ({
@@ -95,6 +124,12 @@ export default function HotelForm({ initialData, hosts = [] }: { initialData?: a
     setIsSubmitting(true)
     setError(null)
     const formData = new FormData(e.currentTarget)
+    if (!location?.value) {
+      setError("Choose a location, or type a new one")
+      setIsSubmitting(false)
+      return
+    }
+    formData.set("location", location.value)
     formData.set("cover_image_url", cover)
     formData.set("gallery_urls_json", JSON.stringify(gallery))
     formData.set("rooms_json", JSON.stringify(rooms))
@@ -141,7 +176,17 @@ export default function HotelForm({ initialData, hosts = [] }: { initialData?: a
           </label>
           <label className="space-y-1.5">
             <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Location</span>
-            <input name="location" required defaultValue={initialData?.location || ""} placeholder="Mirissa, Sri Lanka" className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
+            <CreatableSelect
+              instanceId="hotel-location-select"
+              placeholder="e.g. Ella or Tissamaharama"
+              options={locationSelectOptions(existingLocations)}
+              value={location}
+              onChange={(next) => setLocation(next as { label: string; value: string } | null)}
+              isClearable
+              className="react-select-container font-medium text-zinc-900"
+              classNamePrefix="react-select"
+              styles={locationSelectStyles}
+            />
           </label>
           <label className="space-y-1.5">
             <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Property type</span>

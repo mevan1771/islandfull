@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import TourForm from "@/components/admin/TourForm"
+import { fetchExistingLocations } from "@/lib/admin-locations"
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -22,12 +23,7 @@ export default async function NewTourPage({
     .select('*')
     .order('cutoff_hours', { ascending: true });
 
-  const { data: locationsData } = await supabase
-    .from('activities')
-    .select('location')
-    .not('location', 'is', 'null');
-    
-  const existingLocations = locationsData ? Array.from(new Set(locationsData.map((t: any) => t.location))) : [];
+  const existingLocations = await fetchExistingLocations()
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">

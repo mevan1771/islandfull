@@ -13,6 +13,7 @@ import "react-day-picker/dist/style.css"
 import CreatableSelect from "react-select/creatable"
 import { ImageCropperModal } from "./ImageCropperModal"
 import imageCompression from 'browser-image-compression'
+import { locationSelectOptions } from "@/lib/locations"
 
 const TOTAL_STEPS = 5;
 
@@ -569,22 +570,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                     instanceId="tour-location-select"
                     name="location"
                     placeholder="e.g. Ella or Tissamaharama"
-                    options={[
-                      {
-                        label: 'System Defaults',
-                        options: ["Ella", "Mirissa", "Hiriketiya", "Sigiriya", "Kandy", "Arugam Bay", "Colombo"].map(loc => ({ label: loc, value: loc }))
-                      },
-                      ...(existingLocations.length > 0 ? [{
-                        label: 'Other Locations',
-                        options: existingLocations
-                          .map(loc => loc.trim())
-                          .filter(Boolean)
-                          .map(loc => loc.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
-                          .filter((loc, i, arr) => arr.indexOf(loc) === i)
-                          .filter(loc => !["Ella", "Mirissa", "Hiriketiya", "Sigiriya", "Kandy", "Arugam Bay", "Colombo"].includes(loc))
-                          .map(loc => ({ label: loc, value: loc }))
-                      }] : [])
-                    ]}
+                    options={locationSelectOptions(existingLocations)}
                     defaultValue={initialData?.location ? { label: initialData.location, value: initialData.location } : null}
                     isClearable
                     className="react-select-container font-medium text-lg text-zinc-900"

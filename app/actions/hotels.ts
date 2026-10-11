@@ -3,6 +3,7 @@
 import { supabase, supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 import type { HotelRoomTypeInput } from "@/lib/hotels"
+import { uniqueLocations } from "@/lib/locations"
 
 function generateSlug(title: string): string {
   return title
@@ -66,7 +67,7 @@ function hotelPayload(formData: FormData) {
   return {
     title: String(formData.get("title") || "").trim(),
     host_id: (formData.get("host_id") as string) || null,
-    location: String(formData.get("location") || "").trim(),
+    location: uniqueLocations([String(formData.get("location") || "")])[0] || String(formData.get("location") || "").trim(),
     address: String(formData.get("address") || "").trim() || null,
     description: String(formData.get("description") || "").trim(),
     property_type: String(formData.get("property_type") || "boutique"),
