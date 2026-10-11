@@ -169,7 +169,7 @@ export function ActivityCard({
           )}
           {!isPlace && allowOffers && (
             <span className="absolute bottom-2 right-2 z-10 rounded-md bg-[#faca20] px-1.5 py-px text-[9px] sm:text-[10px] font-bold text-zinc-900 leading-4 shadow-sm">
-              Offer
+              Make offer
             </span>
           )}
         </div>
