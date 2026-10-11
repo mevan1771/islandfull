@@ -142,7 +142,7 @@ export function MakeAnOfferModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-xl shadow-2xl flex flex-col overflow-hidden"
+        className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-xl shadow-2xl flex flex-col overflow-hidden max-h-[90dvh]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
@@ -173,8 +173,9 @@ export function MakeAnOfferModal({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col">
-            <div className="p-4 space-y-2 overflow-y-auto max-h-[70vh]">
+          <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+            <div className="relative min-h-[340px] flex-1">
+              <div className="p-4 space-y-2 overflow-y-auto h-full">
               {listPrice > 0 && (
                 <p className="text-xs font-medium text-zinc-400">
                   Listed from {formatUSD(listPrice)}
@@ -211,34 +212,82 @@ export function MakeAnOfferModal({
                 </div>
               )}
 
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <span className={labelClass}>{isMulti ? "Travel dates" : "Travel date"}</span>
-                    <button
-                      type="button"
-                      onClick={() => setCalOpen((open) => !open)}
-                      className={`${fieldClass} flex items-center justify-between text-left`}
-                    >
-                      {dateLabel || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
-                      <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
-                    </button>
-                  </div>
-                  <label className="space-y-1">
-                    <span className={labelClass}>Guests</span>
+              <div className="space-y-1">
+                <span className={labelClass}>{isMulti ? "Travel dates" : "Travel date"}</span>
+                <button
+                  type="button"
+                  onClick={() => setCalOpen((open) => !open)}
+                  className={`${fieldClass} flex items-center justify-between text-left`}
+                >
+                  {dateLabel || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
+                  <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="space-y-1">
+                  <span className={labelClass}>Guests</span>
+                  <input
+                    required
+                    type="number"
+                    min={minGuests}
+                    max={maxGuests}
+                    value={guestCount}
+                    onChange={(e) => setGuestCount(Number(e.target.value))}
+                    className={fieldClass}
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className={labelClass}>Your offer (USD)</span>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">$</span>
                     <input
                       required
                       type="number"
-                      min={minGuests}
-                      max={maxGuests}
-                      value={guestCount}
-                      onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className={fieldClass}
+                      min="1"
+                      step="1"
+                      value={offerAmount}
+                      onChange={(e) => setOfferAmount(e.target.value)}
+                      className={`${fieldClass} pl-8 font-bold`}
                     />
-                  </label>
-                </div>
-                {calOpen && (
-                  <div className="rounded-xl border border-zinc-200 bg-white p-2 flex justify-center">
+                  </div>
+                </label>
+              </div>
+
+              <label className="block space-y-1">
+                <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
+                <input
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  placeholder="+94 77 123 4567"
+                  className={fieldClass}
+                />
+              </label>
+
+              <label className="block space-y-1">
+                <span className={labelClass}>Special requests <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
+                <textarea
+                  value={specialNotes}
+                  onChange={(e) => setSpecialNotes(e.target.value)}
+                  rows={2}
+                  className="w-full h-auto p-3 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900 resize-none"
+                />
+              </label>
+
+              {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
+              </div>
+
+              {calOpen && (
+                <div className="absolute inset-0 z-20 bg-white px-3 pt-3 pb-2 flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setCalOpen(false)}
+                    className={`${fieldClass} flex items-center justify-between text-left shrink-0 mb-2`}
+                  >
+                    {dateLabel || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
+                    <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
+                  </button>
+                  <div className="flex-1 min-h-0 flex items-start justify-center overflow-hidden">
                     {isMulti ? (
                       <DayPicker
                         className="mx-auto"
@@ -265,47 +314,8 @@ export function MakeAnOfferModal({
                       />
                     )}
                   </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <label className="space-y-1">
-                  <span className={labelClass}>Your offer (USD)</span>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">$</span>
-                    <input
-                      required
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={offerAmount}
-                      onChange={(e) => setOfferAmount(e.target.value)}
-                      className={`${fieldClass} pl-8 font-bold`}
-                    />
-                  </div>
-                </label>
-                <label className="space-y-1">
-                  <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
-                  <input
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
-                    placeholder="+94 77 123 4567"
-                    className={fieldClass}
-                  />
-                </label>
-              </div>
-
-              <label className="block space-y-1">
-                <span className={labelClass}>Special requests <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
-                <textarea
-                  value={specialNotes}
-                  onChange={(e) => setSpecialNotes(e.target.value)}
-                  rows={2}
-                  className="w-full h-auto p-3 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900 resize-none"
-                />
-              </label>
-
-              {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
+                </div>
+              )}
             </div>
 
             <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-2">
