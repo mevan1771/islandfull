@@ -22,6 +22,7 @@ export default function HostsPage() {
   const [editingHost, setEditingHost] = useState<any>(null)
   const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [serviceTypes, setServiceTypes] = useState<HostServiceType[]>(["tour"])
+  const [createPortalLogin, setCreatePortalLogin] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -69,10 +70,12 @@ export default function HostsPage() {
         login_password: ""
       })
       setServiceTypes(parseServiceTypes(host.service_types))
+      setCreatePortalLogin(false)
     } else {
       setEditingHost(null)
       setFormData({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
       setServiceTypes(["tour"])
+      setCreatePortalLogin(false)
     }
     setImageFile(null)
     setAvatarFile(null)
@@ -119,10 +122,11 @@ export default function HostsPage() {
       if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
       if (avatarFile) data.append("avatar_file", avatarFile)
 
-      let res;
+      const wantsLogin = createPortalLogin && formData.login_email.trim() && formData.login_password.trim()
+      let res
       if (editingHost) {
-        if (!editingHost.user_id && formData.login_email && formData.login_password) {
-          data.append("login_email", formData.login_email)
+        if (!editingHost.user_id && wantsLogin) {
+          data.append("login_email", formData.login_email.trim())
           data.append("login_password", formData.login_password)
           res = await adminProvisionLegacyHost(editingHost.id, data)
           if (res.success) {
@@ -131,10 +135,19 @@ export default function HostsPage() {
         } else {
           res = await updateHost(editingHost.id, data)
         }
-      } else if (formData.login_email.trim() && formData.login_password.trim()) {
+      } else if (wantsLogin) {
         data.append("login_email", formData.login_email.trim())
         data.append("login_password", formData.login_password)
         res = await adminCreateHostAccount(data)
+        if (!res?.success && /already has an IslandFull account|already been registered|already registered/i.test(res?.error || "")) {
+          res = await createHost(data)
+          if (res.success) {
+            toast.success("Host saved without a portal login — that email is already registered.")
+            closeModal()
+            await loadHosts()
+            return
+          }
+        }
       } else {
         res = await createHost(data)
       }
@@ -435,13 +448,27 @@ export default function HostsPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
               {(!editingHost || (editingHost && !editingHost.user_id)) && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
-                  <h3 className="text-lg font-bold text-zinc-900">Host portal login (optional)</h3>
-                  <p className="text-sm text-zinc-500 mb-4">Only needed if this host should log in. Contact email below is not a login. Leave these blank to save the profile only.</p>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      checked={createPortalLogin}
+                      onChange={(e) => setCreatePortalLogin(e.target.checked)}
+                    />
+                    <span>
+                      <span className="block text-lg font-bold text-zinc-900">Create host portal login</span>
+                      <span className="block text-sm text-zinc-500 mt-0.5">Leave off to save the host profile only. Contact email below is not a login.</span>
+                    </span>
+                  </label>
 
+                  {createPortalLogin && (
+                  <>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-zinc-800">Login Email or Phone Number</label>
                     <input
                       type="text"
+                      name="host_portal_email"
+                      autoComplete="off"
                       value={formData.login_email}
                       onChange={(e) => setFormData({ ...formData, login_email: e.target.value })}
                       placeholder="operator@company.com or 0771234567"
@@ -452,6 +479,8 @@ export default function HostsPage() {
                     <label className="text-sm font-bold text-zinc-800">Temporary Password</label>
                     <input
                       type="text"
+                      name="host_portal_password"
+                      autoComplete="new-password"
                       value={formData.login_password}
                       onChange={(e) => setFormData({ ...formData, login_password: e.target.value })}
                       placeholder="Secure temporary password"
@@ -459,6 +488,8 @@ export default function HostsPage() {
                     />
                     <p className="text-xs text-zinc-500 mt-1">They will be able to change this later.</p>
                   </div>
+                  </>
+                  )}
                 </div>
               )}
 
