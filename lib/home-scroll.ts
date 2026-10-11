@@ -1,5 +1,15 @@
 const SCROLL_KEY = "islandfull:home-scroll"
 const RESTORE_KEY = "islandfull:home-scroll-restore"
+const HREF_KEY = "islandfull:home-return-href"
+
+function safeHomeHref(href: string | null): string {
+  if (!href || !href.startsWith("/") || href.startsWith("//") || href.includes("://")) {
+    return "/"
+  }
+  const path = href.split("?")[0]
+  if (path !== "/") return "/"
+  return href
+}
 
 export function markHomeScrollForRestore() {
   if (typeof window === "undefined") return
@@ -7,8 +17,19 @@ export function markHomeScrollForRestore() {
   try {
     sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY)))
     sessionStorage.setItem(RESTORE_KEY, "1")
+    sessionStorage.setItem(HREF_KEY, safeHomeHref(window.location.pathname + window.location.search))
   } catch {
     // Ignore private-mode storage failures.
+  }
+}
+
+export function consumeHomeReturnHref(): string {
+  try {
+    const href = sessionStorage.getItem(HREF_KEY)
+    sessionStorage.removeItem(HREF_KEY)
+    return safeHomeHref(href)
+  } catch {
+    return "/"
   }
 }
 

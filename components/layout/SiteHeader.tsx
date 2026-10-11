@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect } from "react"
+import { consumeHomeReturnHref } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -102,7 +103,7 @@ export default function SiteHeader() {
                                 } catch {
                                     // Ignore storage failures and go home.
                                 }
-                                router.push("/")
+                                router.push(consumeHomeReturnHref())
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"
                             aria-label="Back to previous page"
