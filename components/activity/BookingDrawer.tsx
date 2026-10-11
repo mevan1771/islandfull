@@ -314,32 +314,32 @@ export function BookingDrawer({
             </div>
           </div>
 
-          {/* Mobile: one bar — compact price/chat, solid action buttons */}
-          <div className="flex md:hidden items-center gap-1.5 w-full">
+          {/* Mobile: one bar — roomy when only Reserve, compact when Offer is present */}
+          <div className={`flex md:hidden items-center w-full ${allowOffers ? "gap-1.5" : "gap-2.5"}`}>
             <div className="flex flex-col min-w-0 shrink-0">
               {priceUsd === 0 ? (
-                <span className="text-base font-black text-emerald-500 tracking-tight uppercase">Free</span>
+                <span className={`${allowOffers ? "text-base" : "text-xl"} font-black text-emerald-500 tracking-tight uppercase`}>Free</span>
               ) : isDealActive && discountPrice ? (
                 <div className="flex items-center gap-0.5">
-                  <span className="text-base font-bold text-rose-600 leading-none">{formatUSD(discountPrice)}</span>
-                  <span className="text-[10px] font-medium text-gray-400 line-through leading-none">{formatUSD(priceUsd)}</span>
+                  <span className={`${allowOffers ? "text-base" : "text-xl"} font-bold text-rose-600 leading-none`}>{formatUSD(discountPrice)}</span>
+                  <span className={`${allowOffers ? "text-[10px]" : "text-xs"} font-medium text-gray-400 line-through leading-none`}>{formatUSD(priceUsd)}</span>
                 </div>
               ) : showFromPrice ? (
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-[9px] font-medium text-zinc-500">From</span>
-                  <span className="text-base font-bold text-zinc-900 leading-none">{formatUSD(lowestFromTiers)}</span>
+                  <span className={`${allowOffers ? "text-[9px]" : "text-[11px]"} font-medium text-zinc-500`}>From</span>
+                  <span className={`${allowOffers ? "text-base" : "text-xl"} font-bold text-zinc-900 leading-none`}>{formatUSD(lowestFromTiers)}</span>
                 </div>
               ) : (
-                <span className="text-base font-bold text-zinc-900 leading-none">{formatUSD(priceUsd)}</span>
+                <span className={`${allowOffers ? "text-base" : "text-xl"} font-bold text-zinc-900 leading-none`}>{formatUSD(priceUsd)}</span>
               )}
               {cancellationTierData && (
                 <div className="leading-none mt-0.5">
                   {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
-                    <span className="text-[9px] font-bold text-green-600">Free cancel</span>
+                    <span className={`${allowOffers ? "text-[9px]" : "text-[10px]"} font-bold text-green-600`}>Free cancel</span>
                   ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
-                    <span className="text-[9px] font-bold text-green-600">Partial refund</span>
+                    <span className={`${allowOffers ? "text-[9px]" : "text-[10px]"} font-bold text-green-600`}>Partial refund</span>
                   ) : (
-                    <span className="text-[9px] font-medium text-zinc-400">Non-refundable</span>
+                    <span className={`${allowOffers ? "text-[9px]" : "text-[10px]"} font-medium text-zinc-400`}>Non-refundable</span>
                   )}
                 </div>
               )}
@@ -352,19 +352,19 @@ export function BookingDrawer({
               aria-label="Chat on WhatsApp"
             >
               {hostAvatar ? (
-                <img src={hostAvatar} alt={hostName || "Host"} className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-200" />
+                <img src={hostAvatar} alt={hostName || "Host"} className={`${allowOffers ? "w-8 h-8" : "w-10 h-10"} rounded-full object-cover ring-1 ring-zinc-200`} />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500">{hostName?.charAt(0) || 'H'}</div>
+                <div className={`${allowOffers ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm"} rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-500`}>{hostName?.charAt(0) || 'H'}</div>
               )}
-              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 border border-white"></span></span>
+              <span className={`absolute -top-0.5 -right-0.5 flex ${allowOffers ? "h-2.5 w-2.5" : "h-3 w-3"}`}><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className={`relative inline-flex rounded-full ${allowOffers ? "h-2.5 w-2.5" : "h-3 w-3"} bg-green-500 border border-white`}></span></span>
             </a>
-            <FavoriteButton activityId={activityId} variant="inline" className="w-8 h-8 shadow-none" />
-            <div className="flex flex-1 min-w-0 items-center gap-1.5">
+            <FavoriteButton activityId={activityId} variant="inline" className={`${allowOffers ? "w-8 h-8" : "w-10 h-10"} shadow-none`} />
+            <div className={`flex flex-1 min-w-0 items-center ${allowOffers ? "gap-1.5" : "gap-2"}`}>
               {allowOffers && (
                 <button
                   type="button"
                   onClick={() => setOfferOpen(true)}
-                  className="flex-1 h-10 px-2 rounded-xl bg-[#faca20] hover:bg-[#edbc12] text-zinc-900 text-[11px] font-bold shadow-md shadow-[#faca20]/40 border-0 active:scale-[0.98]"
+                  className="flex-1 h-10 px-1.5 rounded-xl bg-[#faca20] hover:bg-[#edbc12] text-zinc-900 text-[11px] font-bold shadow-md shadow-[#faca20]/40 border-0 active:scale-[0.98]"
                 >
                   Make Offer
                 </button>
@@ -372,7 +372,9 @@ export function BookingDrawer({
               <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="flex-1 h-10 px-2 rounded-xl bg-rose-500 text-white text-[11px] font-bold shadow-md shadow-rose-500/25 active:scale-[0.98]"
+                className={allowOffers
+                  ? "flex-1 h-10 px-1.5 rounded-xl bg-rose-500 text-white text-[11px] font-bold shadow-md shadow-rose-500/25 active:scale-[0.98]"
+                  : "flex-1 h-12 px-4 rounded-xl bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/25 active:scale-[0.98]"}
               >
                 Reserve Now
               </button>
