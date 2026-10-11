@@ -334,7 +334,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
 export async function fetchMyOffersFor(userId: string, email: string | null) {
   const select =
-    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url)"
+    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type)"
   const [{ data: byUser }, { data: byEmail }] = await Promise.all([
     supabaseAdmin.from("offers").select(select).eq("clerk_user_id", userId).order("created_at", { ascending: false }),
     email
@@ -349,9 +349,12 @@ export async function fetchMyOffersFor(userId: string, email: string | null) {
     rows.push(row)
   }
   rows.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
-  return rows.map((row) =>
-    row.status === "accepted" ? { ...row, payPath: offerPayPath(row.id) } : row
-  )
+  return rows
+    .filter((row) => {
+      const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
+      return listing?.category_type !== "place"
+    })
+    .map((row) => (row.status === "accepted" ? { ...row, payPath: offerPayPath(row.id) } : row))
 }
 
 export async function getMyOffers() {

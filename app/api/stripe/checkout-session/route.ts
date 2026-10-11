@@ -19,9 +19,13 @@ export async function POST(req: Request) {
     // 0. Fetch Commission Rate and Capacity
     const { data: activity } = await supabaseAdmin
       .from('activities')
-      .select('commission_rate, max_capacity, cover_image_url, hosts(name, email)')
+      .select('commission_rate, max_capacity, cover_image_url, category_type, hosts(name, email)')
       .eq('id', activityId)
       .single()
+
+    if (activity?.category_type === 'place') {
+      return new NextResponse('This place does not take reservations.', { status: 400 })
+    }
 
     const commissionRate = activity?.commission_rate || 15.00
     const maxCapacity = activity?.max_capacity || 10

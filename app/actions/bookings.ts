@@ -122,7 +122,7 @@ export async function fetchMyBookingsFor(email: string) {
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
-      "id, status, travel_date, end_date, pax_count, total_usd, created_at, activities(title, slug, location, card_image_url, cover_image_url)"
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, activities(title, slug, location, card_image_url, cover_image_url, category_type)"
     )
     .eq("tourist_email", email)
     .neq("is_archived", true)
@@ -133,7 +133,10 @@ export async function fetchMyBookingsFor(email: string) {
     console.error("fetchMyBookingsFor error:", error)
     return []
   }
-  return data || []
+  return (data || []).filter((row: any) => {
+    const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
+    return listing?.category_type !== "place"
+  })
 }
 
 export async function getMyBookings() {
