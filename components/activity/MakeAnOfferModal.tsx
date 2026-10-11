@@ -8,12 +8,10 @@ import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
 import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
-import { stayListTotal } from "@/lib/stay-price"
+import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
-import { formatUSD } from "@/lib/utils"
-
 const fieldClass =
   "w-full h-10 px-4 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900"
 const labelClass = "text-xs font-bold text-zinc-800 uppercase tracking-wide"
@@ -92,6 +90,24 @@ export function MakeAnOfferModal({
     bookingType,
   })
   const suggested = suggestedOfferAmount(listTotal)
+  const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
+  const listUnit = stayUnitFromTotal({
+    total: listTotal,
+    guests: guestCount,
+    days: stayDays,
+    pricingModel,
+    categoryType,
+    bookingType,
+  })
+  const offerTotal = Number(offerAmount)
+  const offerUnit = stayUnitFromTotal({
+    total: offerTotal,
+    guests: guestCount,
+    days: stayDays,
+    pricingModel,
+    categoryType,
+    bookingType,
+  })
 
   const isDateDisabled = (day: Date) => {
     const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0)
@@ -204,7 +220,8 @@ export function MakeAnOfferModal({
             <div className="p-4 space-y-2 overflow-y-auto flex-1">
               {listTotal > 0 && (
                 <p className="text-xs font-medium text-zinc-400">
-                  Listed {formatUSD(listTotal)}
+                  Listed {formatStayMoney(listTotal)}
+                  {rateSuffix !== "total" ? ` · ${formatStayMoney(listUnit)} ${rateSuffix}` : ""}
                 </p>
               )}
 
@@ -334,6 +351,24 @@ export function MakeAnOfferModal({
                   </div>
                 </label>
               </div>
+
+              {Number.isFinite(offerTotal) && offerTotal > 0 && rateSuffix !== "total" && (
+                <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-xs space-y-1">
+                  <div className="flex justify-between gap-3 text-zinc-500">
+                    <span>List {rateSuffix}</span>
+                    <span className="font-medium text-zinc-700">{formatStayMoney(listUnit)}</span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-zinc-800">
+                    <span className="font-semibold">Your offer {rateSuffix}</span>
+                    <span className="font-bold">{formatStayMoney(offerUnit)}</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    {formatStayMoney(offerTotal)} total
+                    {chargesByGuest(pricingModel) ? ` · ${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : ""}
+                    {stayDays > 1 ? ` · ${stayDays} days` : ""}
+                  </p>
+                </div>
+              )}
 
               <label className="block space-y-1">
                 <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>

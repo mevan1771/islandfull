@@ -7,7 +7,7 @@ import { currentUser } from "@clerk/nextjs/server"
 import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
 import { formatIsoRangeWithDays, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
-import { stayListTotal } from "@/lib/stay-price"
+import { formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
 import { parseISO } from "date-fns"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -104,6 +104,23 @@ export async function createOffer(input: {
     }
 
     const host = rel(activity.hosts as { email?: string } | { email?: string }[] | null)
+    const stayDays = travelEndDate ? inclusiveDays(parseISO(travelDate), parseISO(travelEndDate)) : 1
+    const listTotal = stayListTotal({
+      unitPrice: Number(activity.price_usd) || 0,
+      guests: boundedGuests,
+      days: stayDays,
+      pricingModel: activity.pricing_model,
+      categoryType: activity.category_type,
+      bookingType: activity.booking_type,
+    })
+    const rateSuffix = stayRateSuffix(activity.pricing_model, activity.category_type, activity.booking_type)
+    const rateArgs = {
+      guests: boundedGuests,
+      days: stayDays,
+      pricingModel: activity.pricing_model,
+      categoryType: activity.category_type,
+      bookingType: activity.booking_type,
+    }
     sendOfferCreatedEmails({
       offerId: offer.id,
       guestName,
@@ -115,14 +132,10 @@ export async function createOffer(input: {
       specialNotes: userNotes,
       activityTitle: activity.title,
       activitySlug: activity.slug,
-      basePrice: stayListTotal({
-        unitPrice: Number(activity.price_usd) || 0,
-        guests: boundedGuests,
-        days: travelEndDate ? inclusiveDays(parseISO(travelDate), parseISO(travelEndDate)) : 1,
-        pricingModel: activity.pricing_model,
-        categoryType: activity.category_type,
-        bookingType: activity.booking_type,
-      }),
+      basePrice: listTotal,
+      listRate: stayUnitFromTotal({ total: listTotal, ...rateArgs }),
+      offerRate: stayUnitFromTotal({ total: offerAmount, ...rateArgs }),
+      rateSuffix,
       hostEmail: host?.email || null,
     }).catch((err) => console.error("Offer email failed:", err))
 
@@ -144,11 +157,20 @@ function offerDetailsHtml(props: {
   specialNotes: string | null
   activityTitle: string
   basePrice: number
+  listRate?: number
+  offerRate?: number
+  rateSuffix?: string
 }) {
+  const rateLines =
+    props.rateSuffix && props.rateSuffix !== "total"
+      ? `<p><strong>List rate:</strong> ${formatStayMoney(props.listRate || 0)} ${props.rateSuffix}</p>
+    <p><strong>Offered rate:</strong> ${formatStayMoney(props.offerRate || 0)} ${props.rateSuffix}</p>`
+      : ""
   return `
     <p><strong>Listing:</strong> ${props.activityTitle}</p>
-    <p><strong>List price:</strong> $${props.basePrice.toFixed(2)}</p>
-    <p><strong>Offered price:</strong> $${props.offerAmount.toFixed(2)}</p>
+    <p><strong>List price:</strong> ${formatStayMoney(props.basePrice)}</p>
+    ${rateLines}
+    <p><strong>Offered price:</strong> ${formatStayMoney(props.offerAmount)}</p>
     <p><strong>Travel dates:</strong> ${props.travelDate}</p>
     <p><strong>Guests:</strong> ${props.guestCount}</p>
     <p><strong>Guest name:</strong> ${props.guestName}</p>
@@ -170,6 +192,9 @@ async function sendOfferCreatedEmails(props: {
   activityTitle: string
   activitySlug: string | null
   basePrice: number
+  listRate?: number
+  offerRate?: number
+  rateSuffix?: string
   hostEmail: string | null
 }) {
   const { Resend } = await import("resend")
