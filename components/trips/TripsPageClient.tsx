@@ -11,6 +11,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
 import { getMyOffers } from "@/app/actions/offers"
 import { travelRangeFromOffer } from "@/lib/date-range-label"
+import { markPageReturn } from "@/lib/home-scroll"
 import type { HomepageActivity } from "@/lib/homepage-feed"
 
 function offerListing(offer: any) {
@@ -279,6 +280,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
                           {slug && (
                             <Link
                               href={`/activity/${slug}`}
+                              onClick={() => markPageReturn("/trips")}
                               className={`inline-flex mt-3 min-h-10 items-center rounded-full px-4 text-sm font-semibold ${
                                 offer.status === "accepted"
                                   ? "bg-emerald-600 text-white"

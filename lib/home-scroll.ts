@@ -154,3 +154,49 @@ export function restoreHomeScroll(): boolean {
   jumpHomeScroll(y)
   return document.documentElement.scrollHeight >= y + window.innerHeight * 0.4 || y < 40
 }
+
+const PAGE_RETURN_KEY = "islandfull:page-return-stack"
+
+function safeAppHref(href: string | null): string | null {
+  if (!href || !href.startsWith("/") || href.startsWith("//") || href.includes("://")) return null
+  const path = href.split("?")[0]
+  if (path.startsWith("/admin") || path.startsWith("/host") || path.startsWith("/login")) return null
+  return href
+}
+
+function readReturnStack(): string[] {
+  try {
+    const raw = sessionStorage.getItem(PAGE_RETURN_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((h): h is string => typeof h === "string") : []
+  } catch {
+    return []
+  }
+}
+
+export function markPageReturn(href?: string) {
+  if (typeof window === "undefined") return
+  const value = safeAppHref(href || `${window.location.pathname}${window.location.search}`)
+  if (!value) return
+  const path = value.split("?")[0]
+  if (path.startsWith("/activity")) return
+  try {
+    const stack = readReturnStack().filter((h) => h !== value)
+    stack.push(value)
+    sessionStorage.setItem(PAGE_RETURN_KEY, JSON.stringify(stack.slice(-8)))
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+}
+
+export function consumePageReturn(): string | null {
+  try {
+    const stack = readReturnStack()
+    const href = stack.pop() || null
+    sessionStorage.setItem(PAGE_RETURN_KEY, JSON.stringify(stack))
+    return safeAppHref(href)
+  } catch {
+    return null
+  }
+}

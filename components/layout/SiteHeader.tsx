@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect } from "react"
-import { canBackToHomeScroll, peekHomeReturnHref } from "@/lib/home-scroll"
+import { canBackToHomeScroll, consumePageReturn, peekHomeReturnHref } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -94,6 +94,11 @@ export default function SiteHeader() {
                         <button
                             type="button"
                             onClick={() => {
+                                const from = consumePageReturn()
+                                if (from && from.split("?")[0] !== "/") {
+                                    router.push(from, { scroll: false })
+                                    return
+                                }
                                 try {
                                     const dest = sessionStorage.getItem("islandfull:return-dest")
                                     if (dest) {
@@ -107,7 +112,7 @@ export default function SiteHeader() {
                                     router.back()
                                     return
                                 }
-                                router.push(peekHomeReturnHref(), { scroll: false })
+                                router.push(from || peekHomeReturnHref(), { scroll: false })
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"
                             aria-label="Back to previous page"
