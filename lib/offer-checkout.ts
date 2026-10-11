@@ -33,31 +33,44 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
   const platformFeeUsd = (amount * commissionRate) / 100
   const hostPayoutUsd = amount - platformFeeUsd
 
-  const { data: booking, error: dbError } = await supabaseAdmin
+  const offerNote = `Accepted offer ${offer.id}`
+  const { data: existing } = await supabaseAdmin
     .from("bookings")
-    .insert({
-      activity_id: offer.activity_id,
-      tourist_name: offer.guest_name,
-      tourist_email: offer.guest_email,
-      tourist_whatsapp: offer.guest_phone || "",
-      pax_count: guests,
-      travel_date: date,
-      end_date: endDate,
-      total_usd: amount,
-      special_requests: `Accepted offer ${offer.id}`,
-      status: "pending",
-      payment_status: "unpaid",
-      platform_fee_usd: platformFeeUsd,
-      host_payout_usd: hostPayoutUsd,
-      commission_rate_applied: commissionRate,
-      exchange_rate_used: await getExchangeRate(),
-    })
     .select("id")
-    .single()
+    .eq("activity_id", offer.activity_id)
+    .eq("status", "pending")
+    .ilike("special_requests", `%${offerNote}%`)
+    .maybeSingle()
 
-  if (dbError || !booking) {
-    console.error("offer checkout booking error:", dbError)
-    return { error: "Could not start payment." }
+  let booking = existing
+  if (!booking) {
+    const { data: created, error: dbError } = await supabaseAdmin
+      .from("bookings")
+      .insert({
+        activity_id: offer.activity_id,
+        tourist_name: offer.guest_name,
+        tourist_email: offer.guest_email,
+        tourist_whatsapp: offer.guest_phone || "",
+        pax_count: guests,
+        travel_date: date,
+        end_date: endDate,
+        total_usd: amount,
+        special_requests: offerNote,
+        status: "pending",
+        payment_status: "unpaid",
+        platform_fee_usd: platformFeeUsd,
+        host_payout_usd: hostPayoutUsd,
+        commission_rate_applied: commissionRate,
+        exchange_rate_used: await getExchangeRate(),
+      })
+      .select("id")
+      .single()
+
+    if (dbError || !created) {
+      console.error("offer checkout booking error:", dbError)
+      return { error: "Could not start payment." }
+    }
+    booking = created
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {

@@ -89,8 +89,9 @@ async function cancelUnpaidBookingRow(booking: {
   }
   const { error } = await supabaseAdmin
     .from("bookings")
-    .update({ status: "cancelled", is_archived: true })
+    .update({ status: "cancelled" })
     .eq("id", booking.id)
+    .in("status", ["pending", "pending_payment"])
   if (error) {
     console.error("cancelUnpaidBookingRow update error:", error)
     return { ok: false as const, error: "Could not cancel that booking." }

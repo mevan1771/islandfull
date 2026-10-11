@@ -217,9 +217,12 @@ function OfferCard({ offer }: { offer: any }) {
 
   if (!slug) return <div className={className}>{body}</div>
 
+  const payHref = offer.status === "accepted" && offer.payPath ? offer.payPath : `/activity/${slug}`
+
   return (
     <Link
-      href={offer.status === "accepted" && offer.payPath ? offer.payPath : `/activity/${slug}`}
+      href={payHref}
+      prefetch={false}
       onClick={() => markPageReturn("/trips")}
       className={className}
     >
