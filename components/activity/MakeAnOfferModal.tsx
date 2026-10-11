@@ -7,6 +7,7 @@ import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
+import { formatDateRangeWithDays } from "@/lib/date-range-label"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
@@ -112,7 +113,7 @@ export function MakeAnOfferModal({
     : undefined
   const dateLabelFull = isMulti
     ? (dateRange?.from && dateRange?.to
-      ? `${format(dateRange.from, "PP")} - ${format(dateRange.to, "PP")}`
+      ? formatDateRangeWithDays(dateRange.from, dateRange.to, "PP")
       : dateRange?.from
         ? format(dateRange.from, "PP")
         : "No dates selected")
@@ -235,7 +236,7 @@ export function MakeAnOfferModal({
                         className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                       >
                         {isMulti
-                          ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, "MMM d")} - ${format(dateRange.to, "MMM d")}` : <span className="text-zinc-400">Select dates</span>)
+                          ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select dates</span>)
                           : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "PP") : <span className="text-zinc-400">Select date</span>)}
                         <CalendarDays className="w-4 h-4 text-zinc-400" />
                       </button>

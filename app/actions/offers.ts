@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { currentUser } from "@clerk/nextjs/server"
 import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
+import { formatIsoRangeWithDays, travelRangeFromOffer } from "@/lib/date-range-label"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ADMIN_INBOX = "info@islandfull.com"
@@ -44,7 +45,7 @@ export async function createOffer(input: {
     const rangeNote =
       travelEndDate && travelEndDate !== travelDate ? `Dates: ${travelDate} to ${travelEndDate}` : null
     const specialNotes = [rangeNote, userNotes].filter(Boolean).join("\n") || null
-    const travelLabel = rangeNote ? `${travelDate} to ${travelEndDate}` : travelDate
+    const travelLabel = formatIsoRangeWithDays(travelDate, travelEndDate || null)
 
     if (!input.activityId || !guestName || !EMAIL_RE.test(guestEmail) || !travelDate || !Number.isFinite(offerAmount) || offerAmount <= 0) {
       return { success: false, error: "Please fill in your name, a valid email, travel date, and offer amount." }
@@ -139,7 +140,7 @@ function offerDetailsHtml(props: {
     <p><strong>Listing:</strong> ${props.activityTitle}</p>
     <p><strong>List price:</strong> $${props.basePrice.toFixed(2)}</p>
     <p><strong>Offered price:</strong> $${props.offerAmount.toFixed(2)}</p>
-    <p><strong>Travel date:</strong> ${props.travelDate}</p>
+    <p><strong>Travel dates:</strong> ${props.travelDate}</p>
     <p><strong>Guests:</strong> ${props.guestCount}</p>
     <p><strong>Guest name:</strong> ${props.guestName}</p>
     <p><strong>Email:</strong> ${props.guestEmail}</p>
@@ -207,6 +208,7 @@ async function sendGuestDecisionEmail(offer: {
   guest_email: string
   offer_amount: number
   travel_date: string
+  special_notes?: string | null
   status: string
   activities?: { title?: string; slug?: string } | { title?: string; slug?: string }[] | null
 }) {
@@ -214,6 +216,7 @@ async function sendGuestDecisionEmail(offer: {
   const title = listing?.title || "your trip"
   const slug = listing?.slug
   const listingUrl = slug ? `${siteUrl()}/activity/${slug}` : siteUrl()
+  const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
   const { Resend } = await import("resend")
   const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -226,7 +229,7 @@ async function sendGuestDecisionEmail(offer: {
       html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
         <h2>Your offer was accepted</h2>
         <p>Hi ${offer.guest_name},</p>
-        <p>Great news! Your offer of $${Number(offer.offer_amount).toFixed(2)} for <strong>${title}</strong> on ${offer.travel_date} was accepted.</p>
+        <p>Great news! Your offer of $${Number(offer.offer_amount).toFixed(2)} for <strong>${title}</strong> on ${travelLabel} was accepted.</p>
         <p>Please open the listing to complete your reservation and arrange payment:</p>
         <p><a href="${listingUrl}" style="display:inline-block;padding:14px 22px;background:#f43f5e;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;">Complete reservation</a></p>
         <p>Best,<br>IslandFull</p>
@@ -264,7 +267,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
   const { data: offer } = await supabaseAdmin
     .from("offers")
-    .select("id, status, guest_name, guest_email, offer_amount, travel_date, activities(title, slug)")
+    .select("id, status, guest_name, guest_email, offer_amount, travel_date, special_notes, activities(title, slug)")
     .eq("id", id)
     .maybeSingle()
 
@@ -330,7 +333,7 @@ export async function updateOfferStatus(
     .from("offers")
     .update(update)
     .eq("id", id)
-    .select("guest_name, guest_email, offer_amount, travel_date, status, activities(title, slug)")
+    .select("guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug)")
     .single()
 
   if (error) {

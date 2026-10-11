@@ -9,6 +9,7 @@ import { validatePromoCode } from "@/app/actions/promo"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
+import { dayCountLabel, formatDateRangeWithDays } from "@/lib/date-range-label"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
@@ -507,7 +508,7 @@ export function BookingDrawer({
                         <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
                           <span className="font-medium text-sm text-zinc-900">
                             {isDateRange
-                              ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
+                              ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "PP") : "No dates selected")
                               : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
                           </span>
                           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -522,7 +523,7 @@ export function BookingDrawer({
                                 className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                               >
                                 {isDateRange
-                                  ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
+                                  ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select dates</span>)
                                   : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
                                 <CalendarDays className="w-4 h-4 text-zinc-400" />
                               </button>
@@ -882,7 +883,9 @@ export function BookingDrawer({
                       </div>
                     )}
                     <div className="flex justify-between items-center">
-                      <span className="text-zinc-800 font-bold">Total (USD)</span>
+                      <span className="text-zinc-800 font-bold">
+                        Total (USD){isDateRange && totalDays > 0 ? ` · ${dayCountLabel(totalDays)}` : ""}
+                      </span>
                       <span className="font-bold text-lg text-zinc-900">{formatUSD(Math.max(0, actualTotal - discountUsd))}</span>
                     </div>
                     <div className="flex justify-between items-center mt-0.5">

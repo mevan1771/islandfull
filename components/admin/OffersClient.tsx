@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import { updateOfferStatus } from "@/app/actions/offers"
 import { formatUSD } from "@/lib/utils"
+import { travelRangeFromOffer } from "@/lib/date-range-label"
 import toast from "react-hot-toast"
 
 function waLink(phone?: string | null) {
@@ -102,7 +103,7 @@ export function OffersClient({ initialOffers }: { initialOffers: any[] }) {
                           )}
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">
-                          <div>{offer.travel_date}</div>
+                          <div>{travelRangeFromOffer(offer.travel_date, offer.special_notes)}</div>
                           <div className="text-zinc-500">{offer.guest_count} guests</div>
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">

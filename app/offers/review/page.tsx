@@ -2,6 +2,7 @@ import { confirmOfferFromEmail } from "@/app/actions/offers"
 import { verifyOfferActionToken } from "@/lib/offer-token"
 import { supabaseAdmin } from "@/lib/supabase"
 import { formatUSD } from "@/lib/utils"
+import { travelRangeFromOffer } from "@/lib/date-range-label"
 import { redirect } from "next/navigation"
 
 export default async function OfferReviewPage({
@@ -18,7 +19,7 @@ export default async function OfferReviewPage({
 
   const { data: offer } = await supabaseAdmin
     .from("offers")
-    .select("id, status, guest_name, offer_amount, travel_date, guest_count, activities(title)")
+    .select("id, status, guest_name, offer_amount, travel_date, guest_count, special_notes, activities(title)")
     .eq("id", id)
     .maybeSingle()
 
@@ -39,7 +40,7 @@ export default async function OfferReviewPage({
         <ul className="mt-6 space-y-2 text-sm text-zinc-700">
           <li><span className="text-zinc-400">Guest</span> {offer.guest_name}</li>
           <li><span className="text-zinc-400">Offer</span> {formatUSD(Number(offer.offer_amount))}</li>
-          <li><span className="text-zinc-400">Date</span> {offer.travel_date}</li>
+          <li><span className="text-zinc-400">Dates</span> {travelRangeFromOffer(offer.travel_date, offer.special_notes)}</li>
           <li><span className="text-zinc-400">Guests</span> {offer.guest_count}</li>
         </ul>
         <form action={confirmOfferFromEmail} className="mt-8">
