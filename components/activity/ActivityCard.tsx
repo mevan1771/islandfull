@@ -167,6 +167,11 @@ export function ActivityCard({
               Must see
             </span>
           )}
+          {!isPlace && allowOffers && (
+            <span className="absolute bottom-2 left-2 z-10 rounded-md bg-[#faca20] px-1.5 py-px text-[9px] sm:text-[10px] font-bold text-zinc-900 leading-4 shadow-sm">
+              Offer
+            </span>
+          )}
         </div>
 
         {/* Content Details */}
@@ -204,11 +209,6 @@ export function ActivityCard({
             )}
 
             <span className="truncate">{displayLocation}</span>
-            {!isPlace && allowOffers && (
-              <span className="shrink-0 rounded-md bg-[#faca20] px-1.5 py-px text-[9px] sm:text-[10px] font-bold text-zinc-900 leading-4">
-                Offer
-              </span>
-            )}
           </div>
 
           <div className="flex flex-col mt-auto pt-1.5">
