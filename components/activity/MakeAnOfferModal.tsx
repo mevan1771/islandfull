@@ -8,7 +8,7 @@ import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
 import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
-import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
+import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
@@ -81,27 +81,11 @@ export function MakeAnOfferModal({
     isMulti && dateRange?.from
       ? inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
       : 1
-  const listTotal = stayListTotal({
-    unitPrice: listPrice,
-    guests: guestCount,
-    days: stayDays,
-    pricingModel,
-    categoryType,
-    bookingType,
-  })
-  const suggested = suggestedOfferAmount(listTotal)
   const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
-  const listUnit = stayUnitFromTotal({
-    total: listTotal,
-    guests: guestCount,
-    days: stayDays,
-    pricingModel,
-    categoryType,
-    bookingType,
-  })
-  const offerTotal = Number(offerAmount)
-  const offerUnit = stayUnitFromTotal({
-    total: offerTotal,
+  const suggested = suggestedOfferAmount(listPrice)
+  const offerUnit = Number(offerAmount)
+  const offerTotal = stayListTotal({
+    unitPrice: Number.isFinite(offerUnit) ? offerUnit : 0,
     guests: guestCount,
     days: stayDays,
     pricingModel,
@@ -160,6 +144,10 @@ export function MakeAnOfferModal({
       setError("Please pick your travel dates.")
       return
     }
+    if (!Number.isFinite(offerUnit) || offerUnit <= 0 || offerTotal <= 0) {
+      setError("Enter the price you want to offer.")
+      return
+    }
     setIsSending(true)
     setError(null)
     const result = await createOffer({
@@ -167,7 +155,7 @@ export function MakeAnOfferModal({
       guestName: isSignedIn ? signedName : guestName,
       guestEmail: isSignedIn ? signedEmail : guestEmail,
       guestPhone,
-      offerAmount: Number(offerAmount),
+      offerAmount: offerTotal,
       travelDate: travelStart,
       travelEndDate: travelEnd,
       guestCount,
@@ -218,10 +206,9 @@ export function MakeAnOfferModal({
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
             <div className="p-4 space-y-2 overflow-y-auto flex-1">
-              {listTotal > 0 && (
+              {listPrice > 0 && (
                 <p className="text-xs font-medium text-zinc-400">
-                  Listed {formatStayMoney(listTotal)}
-                  {rateSuffix !== "total" ? ` · ${formatStayMoney(listUnit)} ${rateSuffix}` : ""}
+                  Listed {formatStayMoney(listPrice)}{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
                 </p>
               )}
 
@@ -333,7 +320,9 @@ export function MakeAnOfferModal({
                   </div>
                 </div>
                 <label className="space-y-1">
-                  <span className={labelClass}>Your offer (USD)</span>
+                  <span className={labelClass}>
+                    Your offer{rateSuffix !== "total" ? ` (${rateSuffix})` : " (USD)"}
+                  </span>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">$</span>
                     <input
@@ -346,27 +335,22 @@ export function MakeAnOfferModal({
                         setOfferDirty(true)
                         setOfferAmount(e.target.value)
                       }}
-                      className={`${fieldClass} pl-8 font-bold`}
+                      className={`${fieldClass} pl-8 font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                     />
                   </div>
                 </label>
               </div>
 
-              {Number.isFinite(offerTotal) && offerTotal > 0 && rateSuffix !== "total" && (
-                <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-xs space-y-1">
-                  <div className="flex justify-between gap-3 text-zinc-500">
-                    <span>List {rateSuffix}</span>
-                    <span className="font-medium text-zinc-700">{formatStayMoney(listUnit)}</span>
-                  </div>
-                  <div className="flex justify-between gap-3 text-zinc-800">
-                    <span className="font-semibold">Your offer {rateSuffix}</span>
-                    <span className="font-bold">{formatStayMoney(offerUnit)}</span>
-                  </div>
-                  <p className="text-[11px] text-zinc-400">
-                    {formatStayMoney(offerTotal)} total
-                    {chargesByGuest(pricingModel) ? ` · ${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : ""}
-                    {stayDays > 1 ? ` · ${stayDays} days` : ""}
-                  </p>
+              {offerTotal > 0 && (
+                <div className="flex items-baseline justify-between rounded-xl bg-zinc-50 border border-zinc-100 px-3 py-2.5">
+                  <span className="text-xs font-medium text-zinc-500">
+                    {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
+                    {stayDays > 1 ? ` × ${stayDays} days` : ""}
+                  </span>
+                  <span className="text-base font-bold text-zinc-900">
+                    {formatStayMoney(offerTotal)}
+                    <span className="ml-1 text-xs font-medium text-zinc-400">total</span>
+                  </span>
                 </div>
               )}
 
