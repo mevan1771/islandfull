@@ -13,11 +13,15 @@ export function HomeScrollRestore() {
 
     const apply = () => {
       if (cancelled) return
-      jumpHomeScroll(y)
-      const height = document.documentElement.scrollHeight
-      const needed = y + window.innerHeight * 0.7
-      if (height < needed && Date.now() - started < 2000) {
-        requestAnimationFrame(apply)
+      try {
+        jumpHomeScroll(y)
+        const height = document.documentElement.scrollHeight
+        const needed = y + window.innerHeight * 0.7
+        if (height < needed && Date.now() - started < 2000) {
+          requestAnimationFrame(apply)
+        }
+      } catch {
+        // Never crash the home page over scroll restore.
       }
     }
 

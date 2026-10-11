@@ -5,8 +5,6 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect } from "react"
-import { shouldReturnViaHistory } from "@/lib/home-scroll"
-
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -95,14 +93,14 @@ export default function SiteHeader() {
                         <button
                             type="button"
                             onClick={() => {
-                                if (shouldReturnViaHistory()) {
-                                    router.back()
-                                    return
-                                }
-                                const dest = sessionStorage.getItem("islandfull:return-dest")
-                                if (dest) {
-                                    router.push(`/destinations?dest=${dest}`)
-                                    return
+                                try {
+                                    const dest = sessionStorage.getItem("islandfull:return-dest")
+                                    if (dest) {
+                                        router.push(`/destinations?dest=${dest}`)
+                                        return
+                                    }
+                                } catch {
+                                    // Ignore storage failures and go home.
                                 }
                                 router.push("/")
                             }}
