@@ -1,6 +1,8 @@
 import { Suspense } from "react"
-import { fetchRecommendedTours } from "@/app/actions/wishlist"
+import { getTripsDesk } from "@/app/actions/trips-desk"
 import { TripsPageClient } from "@/components/trips/TripsPageClient"
+
+export const dynamic = "force-dynamic"
 
 export const metadata = {
   title: "Trips & Wishlist | Islandfull",
@@ -8,7 +10,7 @@ export const metadata = {
 }
 
 export default async function TripsPage() {
-  const recommended = await fetchRecommendedTours()
+  const desk = await getTripsDesk()
 
   return (
     <Suspense
@@ -19,7 +21,7 @@ export default async function TripsPage() {
         </div>
       }
     >
-      <TripsPageClient recommended={recommended} />
+      <TripsPageClient desk={desk} />
     </Suspense>
   )
 }

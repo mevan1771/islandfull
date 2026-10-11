@@ -11,9 +11,9 @@ import { dayCountLabel, inclusiveDays } from "@/lib/date-range-label"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
-import { getMyOffers } from "@/app/actions/offers"
 import { markPageReturn } from "@/lib/home-scroll"
 import type { HomepageActivity } from "@/lib/homepage-feed"
+import type { TripsDesk } from "@/app/actions/trips-desk"
 
 function offerListing(offer: any) {
   const listing = offer?.activities
@@ -57,6 +57,61 @@ function offerTravelLabel(offer: any) {
     return `${format(start, "d")}–${format(end, "d MMM")} · ${days}`
   }
   return `${format(start, "d MMM")} – ${format(end, "d MMM")} · ${days}`
+}
+
+function bookingListing(booking: any) {
+  const listing = booking?.activities
+  return Array.isArray(listing) ? listing[0] : listing
+}
+
+function BookingCard({ booking }: { booking: any }) {
+  const listing = bookingListing(booking)
+  const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
+  const slug = listing?.slug as string | undefined
+  const status = String(booking.status || "")
+  const body = (
+    <>
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+        <div className="absolute top-2.5 left-2.5">
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+              status === "confirmed" || status === "completed"
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-amber-50 text-amber-800"
+            }`}
+          >
+            {status.replace("_", " ") || "Booking"}
+          </span>
+        </div>
+      </div>
+      <div className="p-3.5 md:p-4">
+        <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
+          {listing?.title || "Booking"}
+        </h3>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
+          <span className="inline-flex items-center gap-1">
+            <CalendarDays className="w-3.5 h-3.5 text-zinc-400" />
+            {booking.end_date && booking.end_date !== booking.travel_date
+              ? `${booking.travel_date} → ${booking.end_date}`
+              : booking.travel_date}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="w-3.5 h-3.5 text-zinc-400" />
+            {booking.pax_count} {booking.pax_count === 1 ? "guest" : "guests"}
+          </span>
+        </div>
+        <p className="mt-3 text-lg font-bold tracking-tight text-zinc-900">${Number(booking.total_usd || 0)}</p>
+      </div>
+    </>
+  )
+  const className = "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full"
+  if (!slug) return <div className={className}>{body}</div>
+  return (
+    <Link href={`/activity/${slug}`} onClick={() => markPageReturn("/trips")} className={`${className} hover:border-zinc-300 hover:shadow-md transition-all`}>
+      {body}
+    </Link>
+  )
 }
 
 function OfferCard({ offer }: { offer: any }) {
@@ -147,16 +202,21 @@ function CardFromItem({ act }: { act: HomepageActivity }) {
   )
 }
 
-export function TripsPageClient({ recommended }: { recommended: HomepageActivity[] }) {
+export function TripsPageClient({
+  desk,
+}: {
+  desk: TripsDesk
+}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tab = searchParams.get("tab") === "wishlist" ? "wishlist" : "trips"
   const { user, isSignedIn } = useUser()
   const { favorites, isHydrated } = useFavorites()
-  const [saved, setSaved] = useState<HomepageActivity[]>([])
-  const [ideas, setIdeas] = useState(recommended)
-  const [loadingSaved, setLoadingSaved] = useState(true)
-  const [offers, setOffers] = useState<any[]>([])
+  const [saved, setSaved] = useState<HomepageActivity[]>(desk.saved)
+  const [ideas, setIdeas] = useState(desk.recommended)
+  const [loadingSaved, setLoadingSaved] = useState(desk.saved.length === 0)
+  const [offers] = useState<any[]>(desk.offers)
+  const [bookings] = useState<any[]>(desk.bookings)
 
   const newestFirst = useMemo(() => [...favorites].reverse(), [favorites])
 
@@ -165,12 +225,19 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
     let cancelled = false
 
     async function load() {
+      const sameAsServer =
+        newestFirst.length === desk.favoriteIds.length &&
+        newestFirst.every((id) => desk.favoriteIds.includes(id))
+      if (sameAsServer) {
+        setSaved(desk.saved)
+        setIdeas(desk.recommended)
+        setLoadingSaved(false)
+        return
+      }
       if (newestFirst.length === 0) {
         setSaved([])
-        setIdeas(recommended)
+        setIdeas(desk.recommended)
         setLoadingSaved(false)
-        const extra = await fetchRecommendedTours([])
-        if (!cancelled && extra.length) setIdeas(extra)
         return
       }
       const [hearted, extra] = await Promise.all([
@@ -179,7 +246,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
       ])
       if (cancelled) return
       setSaved(hearted)
-      setIdeas(extra.length ? extra : recommended)
+      setIdeas(extra.length ? extra : desk.recommended)
       setLoadingSaved(false)
     }
 
@@ -187,24 +254,13 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
     return () => {
       cancelled = true
     }
-  }, [isHydrated, favorites, recommended])
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      setOffers([])
-      return
-    }
-    let cancelled = false
-    getMyOffers().then((rows) => {
-      if (!cancelled) setOffers(rows)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [isSignedIn])
+  }, [isHydrated, favorites, desk])
 
   const locations = [...new Set(saved.map((a) => a.location.replace(", Sri Lanka", "")))]
-  const firstName = user?.firstName || "there"
+  const firstName = user?.firstName || desk.firstName || "there"
+  const upcomingCount =
+    offers.filter((o) => o.status === "pending" || o.status === "accepted" || o.status === "countered").length +
+    bookings.length
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-16">
@@ -222,7 +278,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
         <div className="relative max-w-7xl mx-auto px-4 pt-28 pb-10 md:pt-32 md:pb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-white/70 mb-2">Your travel desk</p>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            {isSignedIn ? `Hello, ${firstName}` : "Your trips"}
+            {isSignedIn || desk.firstName ? `Hello, ${firstName}` : "Your trips"}
           </h1>
           <p className="mt-2 max-w-xl text-sm md:text-base text-white/75">
             Heart tours you love, then come back here to plan the days and book.
@@ -231,7 +287,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
           <div className="mt-6 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-3 py-1.5 text-xs font-semibold">
               <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
-              {isHydrated ? saved.length : "—"} saved
+              {isHydrated || desk.saved.length ? saved.length : "—"} saved
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-3 py-1.5 text-xs font-semibold">
               <Compass className="w-3.5 h-3.5" />
@@ -239,7 +295,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-3 py-1.5 text-xs font-semibold">
               <CalendarDays className="w-3.5 h-3.5" />
-              {offers.filter((o) => o.status === "pending" || o.status === "accepted" || o.status === "countered").length} upcoming
+              {upcomingCount} upcoming
             </span>
           </div>
         </div>
@@ -342,6 +398,13 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
             )}
             <h2 className="text-xl font-bold text-zinc-900 mb-2">Upcoming bookings</h2>
             <p className="text-sm text-zinc-500 mb-5">Confirmed reservations will appear here after checkout.</p>
+            {bookings.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
+                {bookings.map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} />
+                ))}
+              </div>
+            ) : (
             <div className="rounded-3xl border border-zinc-200 bg-white p-8 md:p-12">
               <div className="flex flex-col md:flex-row md:items-center gap-6">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 shrink-0">
@@ -363,6 +426,7 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
                 </div>
               </div>
             </div>
+            )}
           </section>
         )}
 

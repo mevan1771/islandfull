@@ -1,5 +1,6 @@
 "use server"
 
+import { currentUser } from "@clerk/nextjs/server"
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 import { logActivity } from "@/utils/auditLogger"
@@ -40,4 +41,34 @@ export async function archiveBooking(id: string) {
   await logActivity(user?.id, `Archived Booking`, 'bookings', id)
   
   revalidatePath('/admin');
+}
+
+export async function fetchMyBookingsFor(email: string) {
+  const { data, error } = await supabaseAdmin
+    .from("bookings")
+    .select(
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, activities(title, slug, location, card_image_url, cover_image_url)"
+    )
+    .eq("tourist_email", email)
+    .neq("is_archived", true)
+    .neq("status", "cancelled")
+    .order("travel_date", { ascending: true })
+    .limit(40)
+  if (error) {
+    console.error("fetchMyBookingsFor error:", error)
+    return []
+  }
+  return data || []
+}
+
+export async function getMyBookings() {
+  try {
+    const user = await currentUser()
+    const email = user?.primaryEmailAddress?.emailAddress?.toLowerCase()
+    if (!email) return []
+    return fetchMyBookingsFor(email)
+  } catch (err) {
+    console.error("getMyBookings error:", err)
+    return []
+  }
 }
