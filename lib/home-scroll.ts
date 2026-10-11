@@ -3,6 +3,7 @@ const RESTORE_KEY = "islandfull:home-scroll-restore"
 const HREF_KEY = "islandfull:home-return-href"
 const SLUG_KEY = "islandfull:home-scroll-slug"
 const HIST_KEY = "islandfull:home-scroll-hist"
+const HEADER_KEY = "islandfull:home-header-hidden"
 
 function safeHomeHref(href: string | null): string {
   if (!href || !href.startsWith("/") || href.startsWith("//") || href.includes("://")) {
@@ -31,6 +32,23 @@ export function markHomeScrollForRestore(slug?: string) {
     if (slug) sessionStorage.setItem(SLUG_KEY, slug)
     else sessionStorage.removeItem(SLUG_KEY)
     sessionStorage.setItem(HIST_KEY, String(window.history.length))
+    sessionStorage.setItem(HEADER_KEY, "1")
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+}
+
+export function peekHomeHeaderLocked() {
+  try {
+    return sessionStorage.getItem(HEADER_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
+export function unlockHomeHeaderHidden() {
+  try {
+    sessionStorage.removeItem(HEADER_KEY)
   } catch {
     // Ignore private-mode storage failures.
   }

@@ -4,8 +4,15 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
-import { useState, useEffect, useLayoutEffect } from "react"
-import { canBackToHomeScroll, consumePageReturn, hasHomeScrollRestore, peekHomeReturnHref } from "@/lib/home-scroll"
+import { useState, useEffect, useLayoutEffect, useRef } from "react"
+import {
+    canBackToHomeScroll,
+    consumePageReturn,
+    hasHomeScrollRestore,
+    peekHomeHeaderLocked,
+    peekHomeReturnHref,
+    unlockHomeHeaderHidden,
+} from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -16,18 +23,24 @@ export default function SiteHeader() {
 
     const [isVisible, setIsVisible] = useState(true)
     const [isScrolled, setIsScrolled] = useState(false)
-    const [motionReady, setMotionReady] = useState(true)
-    const restorePending = pathname === "/" && typeof window !== "undefined" && hasHomeScrollRestore()
+    const [motionReady, setMotionReady] = useState(false)
+    const prevPathname = useRef(pathname)
+    const fromTour = prevPathname.current.startsWith("/activity")
+    const headerLocked =
+        pathname === "/" &&
+        typeof window !== "undefined" &&
+        (fromTour || peekHomeHeaderLocked() || hasHomeScrollRestore())
 
     useLayoutEffect(() => {
-        const y = window.scrollY
-        const restoring = pathname === "/" && hasHomeScrollRestore()
-        const scrolled = y > 50 || restoring
+        const fromActivity = prevPathname.current.startsWith("/activity")
+        const restoring = pathname === "/" && (hasHomeScrollRestore() || peekHomeHeaderLocked() || fromActivity)
+        const scrolled = window.scrollY > 50 || restoring
         setIsScrolled(scrolled)
         setIsVisible(pathname !== "/" || !scrolled)
         setMotionReady(false)
-        const id = window.requestAnimationFrame(() => setMotionReady(true))
-        return () => window.cancelAnimationFrame(id)
+        prevPathname.current = pathname
+        const t = window.setTimeout(() => setMotionReady(true), 600)
+        return () => window.clearTimeout(t)
     }, [pathname])
 
     useEffect(() => {
@@ -39,7 +52,12 @@ export default function SiteHeader() {
             setIsScrolled(currentScrollY > 50)
 
             if (Math.abs(delta) > 80) {
-                setIsVisible(currentScrollY <= 50)
+                if (currentScrollY <= 50) {
+                    unlockHomeHeaderHidden()
+                    setIsVisible(true)
+                } else {
+                    setIsVisible(false)
+                }
                 lastScrollY = currentScrollY
                 return
             }
@@ -48,9 +66,11 @@ export default function SiteHeader() {
                 if (currentScrollY > lastScrollY) {
                     setIsVisible(false)
                 } else {
+                    unlockHomeHeaderHidden()
                     setIsVisible(true)
                 }
             } else {
+                unlockHomeHeaderHidden()
                 setIsVisible(true)
             }
             lastScrollY = currentScrollY
@@ -81,8 +101,9 @@ export default function SiteHeader() {
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const homeScrolled = isScrolled || restorePending
-    const homeHeaderVisible = isVisible && !restorePending
+    const homeScrolled = isScrolled || headerLocked
+    const homeHeaderVisible = isVisible && !headerLocked
+    const allowHeaderMotion = motionReady && !fromTour && !headerLocked
     const shouldForceDarkTextDesktop = isHomePage && homeScrolled
     const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
     const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : useDarkTextMobile))
@@ -101,7 +122,7 @@ export default function SiteHeader() {
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
-            motionReady ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
+            allowHeaderMotion ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
           } ${
             homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
           } ${
