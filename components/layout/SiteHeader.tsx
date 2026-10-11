@@ -7,7 +7,6 @@ import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
     blockHomeClicks,
-    canBackToHomeScroll,
     consumePageReturn,
     isHomeHeaderSuppressed,
     peekHomeReturnHref,
@@ -144,12 +143,6 @@ export default function SiteHeader() {
                         <button
                             type="button"
                             onClick={() => {
-                                if (canBackToHomeScroll()) {
-                                    suppressHomeHeader()
-                                    blockHomeClicks()
-                                    window.history.back()
-                                    return
-                                }
                                 const from = consumePageReturn()
                                 if (from && from.split("?")[0] !== "/") {
                                     router.push(from, { scroll: false })
@@ -164,6 +157,8 @@ export default function SiteHeader() {
                                 } catch {
                                     // Ignore storage failures and go home.
                                 }
+                                suppressHomeHeader()
+                                blockHomeClicks()
                                 router.push(from || peekHomeReturnHref(), { scroll: false })
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"

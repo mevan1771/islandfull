@@ -49,7 +49,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   }
 
   return (
-    <div className="pb-24" data-home-page>
+    <div className="pb-24 [overflow-anchor:none]" data-home-page>
       <HomeScrollRestore />
       {/* Hero Section */}
       <HeroCarousel carouselSlides={carouselSlides} />

@@ -16,11 +16,28 @@ function safeHomeHref(href: string | null): string {
   return href
 }
 
+function lenisScrollY() {
+  try {
+    const value = (
+      window as unknown as {
+        __islandfullLenis?: { scroll?: number }
+      }
+    ).__islandfullLenis?.scroll
+    return typeof value === "number" && Number.isFinite(value) ? value : 0
+  } catch {
+    return 0
+  }
+}
+
 function currentScrollY() {
-  // Lenis is not synced to touch on mobile (syncTouch: false), so its
-  // virtual scroll is often 0 while window.scrollY is the real position.
   return Math.round(
-    window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0
+    Math.max(
+      window.scrollY || 0,
+      window.pageYOffset || 0,
+      document.documentElement.scrollTop || 0,
+      document.body.scrollTop || 0,
+      lenisScrollY()
+    )
   )
 }
 
@@ -154,11 +171,15 @@ export function jumpHomeScroll(y: number) {
   blockHomeClicks()
 
   try {
-    window.scrollTo(0, top)
+    window.scrollTo({ top, left: 0, behavior: "instant" })
     document.documentElement.scrollTop = top
     document.body.scrollTop = top
   } catch {
-    // Ignore browsers that reject programmatic scroll.
+    try {
+      window.scrollTo(0, top)
+    } catch {
+      // Ignore browsers that reject programmatic scroll.
+    }
   }
 
   try {
@@ -166,6 +187,8 @@ export function jumpHomeScroll(y: number) {
       window as unknown as {
         __islandfullLenis?: {
           scrollTo?: (value: number, options?: { immediate?: boolean; force?: boolean }) => void
+          stop?: () => void
+          start?: () => void
         }
       }
     ).__islandfullLenis
@@ -180,7 +203,7 @@ export function restoreHomeScroll(): boolean {
   const y = peekHomeScrollRestore()
   if (y == null) return false
   jumpHomeScroll(y)
-  return true
+  return Math.abs(currentScrollY() - y) < 48
 }
 
 export function installHomeScrollPopstate() {
