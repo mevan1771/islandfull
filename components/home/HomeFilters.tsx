@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Calendar, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, Compass, Hash } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, Compass, Hash, BedDouble } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -169,6 +169,12 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
               className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
             >
               <Bike className="w-4 h-4" /> Transport
+            </button>
+            <button
+              onClick={() => handleVerticalClick('hotel')}
+              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'hotel' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
+            >
+              <BedDouble className="w-4 h-4" /> Hotels
             </button>
           </div>
 

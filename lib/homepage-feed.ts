@@ -18,6 +18,7 @@ export type HomepageActivity = {
   maxGuests: number
   pricingTiers: unknown
   allowOffers?: boolean
+  listingHref?: string
 }
 
 export type HomepageActivityFilters = {

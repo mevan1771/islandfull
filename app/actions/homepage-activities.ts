@@ -70,11 +70,72 @@ function applySort(query: any, filters: HomepageActivityFilters, usePopularity: 
     .order("created_at", { ascending: false })
 }
 
+async function fetchHomepageHotels(
+  filters: HomepageActivityFilters,
+  offset = 0,
+  limit = HOMEPAGE_PAGE_SIZE
+): Promise<{ activities: HomepageActivity[]; total: number }> {
+  let query = supabase
+    .from("hotels")
+    .select("id, title, slug, location, cover_image_url, star_rating, property_type, hotel_room_types(nightly_rate_usd, is_active, max_occupancy)", { count: "exact" })
+    .eq("status", "published")
+    .eq("is_paused", false)
+
+  if (filters.location) {
+    const q = filters.location.toLowerCase().replace(/[^\p{L}\p{N}\s.,-]/gu, "").trim()
+    if (q) query = query.or(`title.ilike.%${q}%,location.ilike.%${q}%,description.ilike.%${q}%`)
+  }
+  if (filters.category && filters.category !== "saved" && filters.category !== "all") {
+    query = query.eq("property_type", filters.category)
+  }
+  if (filters.sort === "newest") query = query.order("created_at", { ascending: false })
+  else query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false })
+
+  const { data, error, count } = await query.range(offset, offset + limit - 1)
+  if (error) {
+    console.error("Hotels homepage query error:", error)
+    return { activities: [], total: 0 }
+  }
+
+  return {
+    total: count ?? 0,
+    activities: (data || []).map((hotel: any) => {
+      const rates = (hotel.hotel_room_types || [])
+        .filter((room: any) => room.is_active)
+        .map((room: any) => Number(room.nightly_rate_usd) || 0)
+      const occupancy = (hotel.hotel_room_types || []).map((room: any) => Number(room.max_occupancy) || 0)
+      return {
+        id: hotel.id,
+        title: hotel.title,
+        slug: hotel.slug,
+        location: hotel.location || "",
+        duration: hotel.star_rating ? `${hotel.star_rating}★ hotel` : "Hotel",
+        priceUsd: rates.length ? Math.min(...rates) : 0,
+        price_suffix: " / night",
+        discount_price: null,
+        deal_end_date: null,
+        coverImage: hotel.cover_image_url || "/placeholder.jpg",
+        isHiddenGem: false,
+        rating: undefined,
+        reviewCount: 0,
+        pricingModel: "flat_rate",
+        maxGuests: occupancy.length ? Math.max(...occupancy) : 2,
+        pricingTiers: null,
+        listingHref: `/hotel/${hotel.slug}`,
+      }
+    }),
+  }
+}
+
 export async function fetchHomepageActivities(
   filters: HomepageActivityFilters,
   offset = 0,
   limit = HOMEPAGE_PAGE_SIZE
 ): Promise<{ activities: HomepageActivity[]; total: number }> {
+  if (filters.vertical === "hotel") {
+    return fetchHomepageHotels(filters, offset, limit)
+  }
+
   const countQuery = applySearchAndCategory(
     supabase.from("activities").select("id, categories!inner(slug)", { count: "exact", head: true }),
     filters

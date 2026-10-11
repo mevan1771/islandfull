@@ -12,6 +12,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Tours', href: '/admin/tours' },
     { name: 'Events', href: '/admin/events' },
     { name: 'Transport', href: '/admin/transport' },
+    { name: 'Hotels', href: '/admin/hotels' },
     { name: 'Places', href: '/admin/places' },
     { name: 'Hero Carousel', href: '/admin/carousel' },
     { name: 'Spotlight', href: '/admin/spotlight' },
@@ -33,7 +34,10 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
       {links.map((link) => {
         if (link.adminOnly && !isAdmin) return null
 
-        const isActive = pathname === link.href
+        const isActive =
+          link.href === "/admin"
+            ? pathname === "/admin"
+            : pathname === link.href || pathname.startsWith(`${link.href}/`)
         const isOffers = link.href === '/admin/offers'
 
         return (

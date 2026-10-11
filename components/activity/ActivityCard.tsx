@@ -30,6 +30,7 @@ interface ActivityCardProps {
   alwaysShowFavorite?: boolean
   variant?: "tour" | "place"
   allowOffers?: boolean
+  href?: string
 }
 
 export function ActivityCard({
@@ -52,6 +53,7 @@ export function ActivityCard({
   alwaysShowFavorite = false,
   variant = "tour",
   allowOffers = false,
+  href,
 }: ActivityCardProps) {
   const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
@@ -94,7 +96,7 @@ export function ActivityCard({
 
   return (
     <Link
-      href={`/activity/${slug}`}
+      href={href || `/activity/${slug}`}
       prefetch={true}
       className="block group h-full"
       data-home-card={slug}

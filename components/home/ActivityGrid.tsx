@@ -55,6 +55,7 @@ function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
       dealEndDate={act.deal_end_date || undefined}
       pricingTiers={act.pricingTiers}
       allowOffers={act.allowOffers}
+      href={act.listingHref}
     />
   )
 }
@@ -185,8 +186,14 @@ export function ActivityGrid({
 
     return (
       <div className="text-center py-20 bg-zinc-50 rounded-3xl border border-zinc-100">
-        <h3 className="text-xl font-bold text-zinc-900 mb-2">No activities found</h3>
-        <p className="text-zinc-500">Try adjusting your search filters to see more results.</p>
+        <h3 className="text-xl font-bold text-zinc-900 mb-2">
+          {currentCategory === "saved" ? "No activities found" : filters.vertical === "hotel" ? "No hotels listed yet" : "No activities found"}
+        </h3>
+        <p className="text-zinc-500">
+          {filters.vertical === "hotel"
+            ? "Published hotels will show up here after they are added in admin."
+            : "Try adjusting your search filters to see more results."}
+        </p>
       </div>
     )
   }
