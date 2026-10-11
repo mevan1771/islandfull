@@ -378,7 +378,7 @@ export function BookingDrawer({
                 <button
                   type="button"
                   onClick={() => setOfferOpen(true)}
-                  className="flex-1 h-10 px-1.5 rounded-xl bg-[#faca20] hover:bg-[#edbc12] text-zinc-900 text-[11px] font-bold shadow-md shadow-[#faca20]/40 border-0 active:scale-[0.98]"
+                  className="flex-1 h-10 px-1.5 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 text-[11px] font-bold shadow-md shadow-[#FFC72C]/40 border-0 active:scale-[0.98]"
                 >
                   Make Offer
                 </button>
@@ -444,7 +444,7 @@ export function BookingDrawer({
                 variant="outline"
                 onClick={() => setOfferOpen(true)}
                 disabled={isDateRange ? !dateRange?.from : !date}
-                className="flex-1 h-[52px] rounded-xl font-bold text-base bg-[#faca20] hover:bg-[#edbc12] text-zinc-900 border-0 shadow-md shadow-[#faca20]/40"
+                className="flex-1 h-[52px] rounded-xl font-bold text-base bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 border-0 shadow-md shadow-[#FFC72C]/40"
               >
                 Make an Offer
               </Button>

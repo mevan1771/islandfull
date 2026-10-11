@@ -28,7 +28,7 @@ function OfferStatus({ status }: { status: string }) {
   if (status === "countered") {
     return <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-sky-800">Host replied</span>
   }
-  return <span className="inline-flex rounded-full bg-[#ffd54a] px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-900">Pending</span>
+  return <span className="inline-flex rounded-full bg-[#FFC72C] px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-900">Pending</span>
 }
 
 function CardFromItem({ act }: { act: HomepageActivity }) {

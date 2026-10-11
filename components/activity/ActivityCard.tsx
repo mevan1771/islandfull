@@ -168,7 +168,7 @@ export function ActivityCard({
             </span>
           )}
           {!isPlace && allowOffers && (
-            <span className="absolute bottom-2 right-2 md:bottom-3 md:right-3 z-10 rounded-md bg-[#ffd54a] px-2 py-0.5 md:px-2.5 md:py-1 text-[10px] md:text-xs font-bold text-zinc-900 leading-none shadow-md">
+            <span className="absolute bottom-2 right-2 md:bottom-3 md:right-3 z-10 inline-flex items-center rounded-full bg-[#FFC72C] px-2.5 h-6 md:h-7 md:px-3 text-[11px] md:text-xs font-bold text-zinc-900 shadow-md">
               Make offer
             </span>
           )}

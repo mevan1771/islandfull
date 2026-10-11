@@ -381,7 +381,7 @@ export function MakeAnOfferModal({
               <button
                 type="submit"
                 disabled={isSending}
-                className="w-full h-11 rounded-xl bg-[#faca20] hover:bg-[#edbc12] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2 shadow-xl shadow-[#faca20]/30"
+                className="w-full h-11 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2 shadow-xl shadow-[#FFC72C]/30"
               >
                 {isSending && <Loader2 className="w-4 h-4 animate-spin" />}
                 {isSending ? "Sending..." : "Send Offer"}
