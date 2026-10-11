@@ -28,7 +28,7 @@ export async function sendPendingEmail(props: SendPendingEmailProps) {
     }));
 
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <bookings@islandfull.com>',
+      from: 'IslandFull <info@islandfull.com>',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Booking Request Received: ${props.activityTitle}`,
@@ -69,7 +69,7 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
     }));
 
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <bookings@islandfull.com>',
+      from: 'IslandFull <info@islandfull.com>',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `Your Tickets: ${props.activityTitle}`,
@@ -117,7 +117,7 @@ export async function sendHostEmail(props: SendHostEmailProps) {
     `;
 
     const { data, error } = await resend.emails.send({
-      from: 'IslandFull <bookings@islandfull.com>',
+      from: 'IslandFull <info@islandfull.com>',
       replyTo: 'islandfull@gmail.com',
       to: [props.toEmail],
       subject: `New Booking: ${props.activityTitle}`,

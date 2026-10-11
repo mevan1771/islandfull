@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 async function test() {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'IslandFull <bookings@islandfull.com>',
+            from: 'IslandFull <info@islandfull.com>',
             to: ['mevan1771@gmail.com'],
             subject: 'Test Email',
             html: '<p>This is a test email.</p>',
