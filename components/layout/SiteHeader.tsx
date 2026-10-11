@@ -8,10 +8,10 @@ import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
     canBackToHomeScroll,
     consumePageReturn,
-    hasHomeScrollRestore,
-    peekHomeHeaderLocked,
+    isHomeHeaderSuppressed,
     peekHomeReturnHref,
-    unlockHomeHeaderHidden,
+    revealHomeHeader,
+    suppressHomeHeader,
 } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
@@ -23,61 +23,87 @@ export default function SiteHeader() {
 
     const [isVisible, setIsVisible] = useState(true)
     const [isScrolled, setIsScrolled] = useState(false)
-    const [motionReady, setMotionReady] = useState(false)
+    const [allowMotion, setAllowMotion] = useState(false)
     const prevPathname = useRef(pathname)
-    const fromTour = prevPathname.current.startsWith("/activity")
-    const headerLocked =
-        pathname === "/" &&
-        typeof window !== "undefined" &&
-        (fromTour || peekHomeHeaderLocked() || hasHomeScrollRestore())
+    const arrivingFromTour = pathname === "/" && prevPathname.current.startsWith("/activity")
+    const hideHomeHeader = arrivingFromTour || (pathname === "/" && isHomeHeaderSuppressed())
 
     useLayoutEffect(() => {
         const fromActivity = prevPathname.current.startsWith("/activity")
-        const restoring = pathname === "/" && (hasHomeScrollRestore() || peekHomeHeaderLocked() || fromActivity)
-        const scrolled = window.scrollY > 50 || restoring
-        setIsScrolled(scrolled)
-        setIsVisible(pathname !== "/" || !scrolled)
-        setMotionReady(false)
         prevPathname.current = pathname
-        const t = window.setTimeout(() => setMotionReady(true), 600)
-        return () => window.clearTimeout(t)
+        setAllowMotion(false)
+
+        if (pathname !== "/") {
+            setIsVisible(true)
+            setIsScrolled(false)
+            return
+        }
+
+        if (fromActivity || isHomeHeaderSuppressed() || window.scrollY > 50) {
+            suppressHomeHeader()
+            setIsVisible(false)
+            setIsScrolled(true)
+            return
+        }
+
+        setIsVisible(true)
+        setIsScrolled(false)
     }, [pathname])
 
     useEffect(() => {
-        let lastScrollY = window.scrollY
+        if (pathname !== "/") return
 
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY
-            const delta = currentScrollY - lastScrollY
-            setIsScrolled(currentScrollY > 50)
-
-            if (Math.abs(delta) > 80) {
-                if (currentScrollY <= 50) {
-                    unlockHomeHeaderHidden()
-                    setIsVisible(true)
-                } else {
-                    setIsVisible(false)
-                }
-                lastScrollY = currentScrollY
+        const applyUserScroll = (direction: "up" | "down") => {
+            const y = window.scrollY
+            setIsScrolled(y > 50)
+            if (y <= 50) {
+                revealHomeHeader()
+                setIsVisible(true)
                 return
             }
-
-            if (currentScrollY > 50) {
-                if (currentScrollY > lastScrollY) {
-                    setIsVisible(false)
-                } else {
-                    unlockHomeHeaderHidden()
-                    setIsVisible(true)
-                }
-            } else {
-                unlockHomeHeaderHidden()
-                setIsVisible(true)
+            if (direction === "down") {
+                setIsVisible(false)
+                return
             }
-            lastScrollY = currentScrollY
+            revealHomeHeader()
+            setAllowMotion(true)
+            setIsVisible(true)
         }
 
-        window.addEventListener("scroll", handleScroll, { passive: true })
-        return () => window.removeEventListener("scroll", handleScroll)
+        const onWheel = (event: WheelEvent) => {
+            if (event.deltaY === 0) return
+            applyUserScroll(event.deltaY > 0 ? "down" : "up")
+        }
+
+        let touchY = 0
+        const onTouchStart = (event: TouchEvent) => {
+            touchY = event.touches[0]?.clientY ?? 0
+        }
+        const onTouchMove = (event: TouchEvent) => {
+            const y = event.touches[0]?.clientY ?? 0
+            const dy = y - touchY
+            touchY = y
+            if (Math.abs(dy) < 6) return
+            applyUserScroll(dy > 0 ? "up" : "down")
+        }
+
+        const onScroll = () => {
+            const y = window.scrollY
+            if (isHomeHeaderSuppressed() || y > 50) setIsScrolled(true)
+            else setIsScrolled(false)
+            if (isHomeHeaderSuppressed()) setIsVisible(false)
+        }
+
+        window.addEventListener("wheel", onWheel, { passive: true })
+        window.addEventListener("touchstart", onTouchStart, { passive: true })
+        window.addEventListener("touchmove", onTouchMove, { passive: true })
+        window.addEventListener("scroll", onScroll, { passive: true })
+        return () => {
+            window.removeEventListener("wheel", onWheel)
+            window.removeEventListener("touchstart", onTouchStart)
+            window.removeEventListener("touchmove", onTouchMove)
+            window.removeEventListener("scroll", onScroll)
+        }
     }, [pathname])
 
     // Do not render the main site header on host or admin portals
@@ -101,9 +127,8 @@ export default function SiteHeader() {
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const homeScrolled = isScrolled || headerLocked
-    const homeHeaderVisible = isVisible && !headerLocked
-    const allowHeaderMotion = motionReady && !fromTour && !headerLocked
+    const homeScrolled = isScrolled || hideHomeHeader
+    const homeHeaderVisible = isVisible && !hideHomeHeader
     const shouldForceDarkTextDesktop = isHomePage && homeScrolled
     const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
     const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : useDarkTextMobile))
@@ -122,11 +147,11 @@ export default function SiteHeader() {
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
-            allowHeaderMotion ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
+            allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
           } ${
             homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
           } ${
-            homeHeaderVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
+            homeHeaderVisible ? 'md:translate-y-0' : 'md:-translate-y-full md:invisible'
           }`
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
@@ -153,6 +178,7 @@ export default function SiteHeader() {
                                     // Ignore storage failures and go home.
                                 }
                                 if (canBackToHomeScroll()) {
+                                    suppressHomeHeader()
                                     window.history.back()
                                     return
                                 }
