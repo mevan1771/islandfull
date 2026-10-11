@@ -30,33 +30,61 @@ async function uploadImage(file: File) {
 function AmenityPicks({
   options,
   selected,
-  name,
   onToggle,
 }: {
   options: readonly string[]
   selected: string[]
-  name?: string
-  onToggle?: (value: string) => void
+  onToggle: (value: string) => void
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((item) => {
         const on = selected.includes(item)
         return (
-          <label
+          <button
             key={item}
-            className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm font-medium ${
-              on ? "border-rose-500 bg-rose-50 text-rose-700" : "border-zinc-200 bg-white text-zinc-600"
+            type="button"
+            onClick={() => onToggle(item)}
+            className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
+              on ? "border-rose-500 bg-rose-50 text-rose-700" : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
             }`}
           >
-            {name ? <input type="checkbox" name={name} value={item} defaultChecked={on} className="sr-only" /> : (
-              <input type="checkbox" checked={on} onChange={() => onToggle?.(item)} className="sr-only" />
-            )}
             {item}
-          </label>
+          </button>
         )
       })}
     </div>
+  )
+}
+
+function toggleItem(list: string[], value: string) {
+  return list.includes(value) ? list.filter((item) => item !== value) : [...list, value]
+}
+
+function NumberField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}) {
+  return (
+    <label className="space-y-1.5">
+      <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">{label}</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/[^\d.]/g, ""))}
+        className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4"
+      />
+    </label>
   )
 }
 
@@ -95,6 +123,7 @@ export default function HotelForm({
   const [location, setLocation] = useState(
     initialData?.location ? { label: initialData.location, value: initialData.location } : null
   )
+  const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || [])
   const [rooms, setRooms] = useState<HotelRoomTypeInput[]>(
     initialData?.rooms?.length
       ? initialData.rooms.map((room: any) => ({
@@ -103,13 +132,13 @@ export default function HotelForm({
           description: room.description || "",
           cover_image_url: room.cover_image_url || "",
           bed_config: room.bed_config || "1 King",
-          room_size_sqm: room.room_size_sqm?.toString() || "",
-          max_adults: room.max_adults || 2,
-          max_children: room.max_children || 0,
-          max_occupancy: room.max_occupancy || 2,
-          quantity: room.quantity || 1,
-          nightly_rate_usd: Number(room.nightly_rate_usd) || 0,
-          extra_adult_rate_usd: room.extra_adult_rate_usd?.toString() || "",
+          room_size_sqm: room.room_size_sqm != null && room.room_size_sqm !== "" ? String(room.room_size_sqm) : "",
+          max_adults: room.max_adults != null ? String(room.max_adults) : "2",
+          max_children: room.max_children ? String(room.max_children) : "",
+          max_occupancy: room.max_occupancy != null ? String(room.max_occupancy) : "2",
+          quantity: room.quantity != null ? String(room.quantity) : "1",
+          nightly_rate_usd: room.nightly_rate_usd ? String(room.nightly_rate_usd) : "",
+          extra_adult_rate_usd: room.extra_adult_rate_usd ? String(room.extra_adult_rate_usd) : "",
           amenities: room.amenities || [],
           is_active: room.is_active !== false,
         }))
@@ -133,6 +162,8 @@ export default function HotelForm({
     formData.set("location", location.value)
     formData.set("cover_image_url", cover)
     formData.set("gallery_urls_json", JSON.stringify(gallery))
+    formData.delete("amenities")
+    for (const item of amenities) formData.append("amenities", item)
     formData.set("rooms_json", JSON.stringify(rooms))
     const result = isEditing ? await updateHotel(initialData.id, formData) : await createHotel(formData)
     if (result.success) {
@@ -145,7 +176,7 @@ export default function HotelForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
+    <form onSubmit={onSubmit} autoComplete="off" className="space-y-8">
       <div className="flex items-center justify-between gap-4">
         <Link href="/admin/hotels" className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-zinc-900">
           <ArrowLeft className="w-4 h-4" />
@@ -297,7 +328,11 @@ export default function HotelForm({
 
       <section className="rounded-3xl border border-zinc-200 bg-white p-6 space-y-4">
         <h2 className="text-lg font-bold">Hotel amenities</h2>
-        <AmenityPicks options={HOTEL_AMENITIES} selected={initialData?.amenities || []} name="amenities" />
+        <AmenityPicks
+          options={HOTEL_AMENITIES}
+          selected={amenities}
+          onToggle={(value) => setAmenities((prev) => toggleItem(prev, value))}
+        />
       </section>
 
       <section className="space-y-4">
@@ -324,41 +359,26 @@ export default function HotelForm({
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-1.5 md:col-span-2">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Name</span>
-                <input value={room.name} onChange={(e) => updateRoom(index, { name: e.target.value })} placeholder="Deluxe Double" className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
+                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Room type</span>
+                <input
+                  autoComplete="off"
+                  value={room.name}
+                  onChange={(e) => updateRoom(index, { name: e.target.value })}
+                  placeholder="Deluxe Double"
+                  className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4"
+                />
               </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Nightly rate USD</span>
-                <input type="number" min="0" step="1" value={room.nightly_rate_usd} onChange={(e) => updateRoom(index, { nightly_rate_usd: Number(e.target.value) })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">How many rooms</span>
-                <input type="number" min="1" value={room.quantity} onChange={(e) => updateRoom(index, { quantity: Number(e.target.value) })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
+              <NumberField label="Nightly rate USD" placeholder="e.g. 85" value={room.nightly_rate_usd} onChange={(value) => updateRoom(index, { nightly_rate_usd: value })} />
+              <NumberField label="How many rooms" placeholder="1" value={room.quantity} onChange={(value) => updateRoom(index, { quantity: value })} />
               <label className="space-y-1.5">
                 <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Beds</span>
-                <input value={room.bed_config} onChange={(e) => updateRoom(index, { bed_config: e.target.value })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
+                <input autoComplete="off" value={room.bed_config} onChange={(e) => updateRoom(index, { bed_config: e.target.value })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
               </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Size m²</span>
-                <input value={room.room_size_sqm} onChange={(e) => updateRoom(index, { room_size_sqm: e.target.value })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Adults</span>
-                <input type="number" min="1" value={room.max_adults} onChange={(e) => updateRoom(index, { max_adults: Number(e.target.value) })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Children</span>
-                <input type="number" min="0" value={room.max_children} onChange={(e) => updateRoom(index, { max_children: Number(e.target.value) })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Max occupancy</span>
-                <input type="number" min="1" value={room.max_occupancy} onChange={(e) => updateRoom(index, { max_occupancy: Number(e.target.value) })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
-              <label className="space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Extra adult USD</span>
-                <input type="number" min="0" value={room.extra_adult_rate_usd} onChange={(e) => updateRoom(index, { extra_adult_rate_usd: e.target.value })} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4" />
-              </label>
+              <NumberField label="Size m²" value={room.room_size_sqm} onChange={(value) => updateRoom(index, { room_size_sqm: value })} />
+              <NumberField label="Adults" value={room.max_adults} onChange={(value) => updateRoom(index, { max_adults: value })} />
+              <NumberField label="Children" value={room.max_children} onChange={(value) => updateRoom(index, { max_children: value })} />
+              <NumberField label="Max occupancy" value={room.max_occupancy} onChange={(value) => updateRoom(index, { max_occupancy: value })} />
+              <NumberField label="Extra adult USD" value={room.extra_adult_rate_usd} onChange={(value) => updateRoom(index, { extra_adult_rate_usd: value })} />
               <label className="space-y-1.5 md:col-span-2">
                 <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Room notes</span>
                 <textarea value={room.description} onChange={(e) => updateRoom(index, { description: e.target.value })} rows={3} className="w-full rounded-2xl border-2 border-zinc-100 px-4 py-3" />
@@ -373,13 +393,7 @@ export default function HotelForm({
               <AmenityPicks
                 options={ROOM_AMENITIES}
                 selected={room.amenities}
-                onToggle={(value) =>
-                  updateRoom(index, {
-                    amenities: room.amenities.includes(value)
-                      ? room.amenities.filter((item) => item !== value)
-                      : [...room.amenities, value],
-                  })
-                }
+                onToggle={(value) => updateRoom(index, { amenities: toggleItem(room.amenities, value) })}
               />
             </div>
             <label className="relative flex h-24 w-36 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50">

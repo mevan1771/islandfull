@@ -46,11 +46,11 @@ export type HotelRoomTypeInput = {
   cover_image_url: string
   bed_config: string
   room_size_sqm: string
-  max_adults: number
-  max_children: number
-  max_occupancy: number
-  quantity: number
-  nightly_rate_usd: number
+  max_adults: string
+  max_children: string
+  max_occupancy: string
+  quantity: string
+  nightly_rate_usd: string
   extra_adult_rate_usd: string
   amenities: string[]
   is_active: boolean
@@ -63,13 +63,13 @@ export function emptyRoomType(): HotelRoomTypeInput {
     cover_image_url: "",
     bed_config: "1 King",
     room_size_sqm: "",
-    max_adults: 2,
-    max_children: 0,
-    max_occupancy: 2,
-    quantity: 1,
-    nightly_rate_usd: 0,
+    max_adults: "2",
+    max_children: "",
+    max_occupancy: "2",
+    quantity: "1",
+    nightly_rate_usd: "",
     extra_adult_rate_usd: "",
-    amenities: ["WiFi", "Air conditioning"],
+    amenities: [],
     is_active: true,
   }
 }
