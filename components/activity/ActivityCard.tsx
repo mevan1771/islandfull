@@ -129,7 +129,9 @@ export function ActivityCard({
       href={`/activity/${slug}`}
       prefetch={true}
       className="block group h-full"
-      onClick={markHomeScrollForRestore}
+      data-home-card={slug}
+      onPointerDown={() => markHomeScrollForRestore(slug)}
+      onClick={() => markHomeScrollForRestore(slug)}
     >
       <div 
         ref={animRef}

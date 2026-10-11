@@ -1,6 +1,8 @@
 const SCROLL_KEY = "islandfull:home-scroll"
 const RESTORE_KEY = "islandfull:home-scroll-restore"
 const HREF_KEY = "islandfull:home-return-href"
+const SLUG_KEY = "islandfull:home-scroll-slug"
+const HIST_KEY = "islandfull:home-scroll-hist"
 
 function safeHomeHref(href: string | null): string {
   if (!href || !href.startsWith("/") || href.startsWith("//") || href.includes("://")) {
@@ -11,15 +13,61 @@ function safeHomeHref(href: string | null): string {
   return href
 }
 
-export function markHomeScrollForRestore() {
+function currentScrollY() {
+  try {
+    const lenis = (
+      window as unknown as {
+        __islandfullLenis?: { scroll?: number }
+      }
+    ).__islandfullLenis
+    if (typeof lenis?.scroll === "number" && Number.isFinite(lenis.scroll)) {
+      return Math.round(lenis.scroll)
+    }
+  } catch {
+    // Fall through to native scroll.
+  }
+  return Math.round(window.scrollY || window.pageYOffset || 0)
+}
+
+export function markHomeScrollForRestore(slug?: string) {
   if (typeof window === "undefined") return
   if (window.location.pathname !== "/") return
   try {
-    sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY)))
+    sessionStorage.setItem(SCROLL_KEY, String(currentScrollY()))
     sessionStorage.setItem(RESTORE_KEY, "1")
     sessionStorage.setItem(HREF_KEY, safeHomeHref(window.location.pathname + window.location.search))
+    if (slug) sessionStorage.setItem(SLUG_KEY, slug)
+    else sessionStorage.removeItem(SLUG_KEY)
+    sessionStorage.setItem(HIST_KEY, String(window.history.length))
   } catch {
     // Ignore private-mode storage failures.
+  }
+}
+
+export function hasHomeScrollRestore() {
+  try {
+    return sessionStorage.getItem(RESTORE_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
+export function canBackToHomeScroll() {
+  try {
+    if (sessionStorage.getItem(RESTORE_KEY) !== "1") return false
+    const marked = Number.parseInt(sessionStorage.getItem(HIST_KEY) || "", 10)
+    if (!Number.isFinite(marked)) return window.history.length > 1
+    return window.history.length >= marked && window.history.length > 1
+  } catch {
+    return false
+  }
+}
+
+export function peekHomeReturnHref(): string {
+  try {
+    return safeHomeHref(sessionStorage.getItem(HREF_KEY))
+  } catch {
+    return "/"
   }
 }
 
@@ -45,12 +93,22 @@ export function peekHomeScrollRestore(): number | null {
   }
 }
 
+export function peekHomeScrollSlug(): string | null {
+  try {
+    if (sessionStorage.getItem(RESTORE_KEY) !== "1") return null
+    return sessionStorage.getItem(SLUG_KEY)
+  } catch {
+    return null
+  }
+}
+
 export function consumeHomeScrollRestore(): number | null {
   const y = peekHomeScrollRestore()
   if (y == null) return null
   try {
     sessionStorage.removeItem(RESTORE_KEY)
     sessionStorage.removeItem(SCROLL_KEY)
+    sessionStorage.removeItem(SLUG_KEY)
   } catch {
     // Ignore private-mode storage failures.
   }
@@ -78,4 +136,21 @@ export function jumpHomeScroll(y: number) {
   } catch {
     // Lenis can throw if it is mid-destroy during route changes.
   }
+}
+
+export function restoreHomeScroll(): boolean {
+  if (typeof window === "undefined") return false
+  const slug = peekHomeScrollSlug()
+  if (slug) {
+    const el = document.querySelector<HTMLElement>(`[data-home-card="${CSS.escape(slug)}"]`)
+    if (el) {
+      const top = Math.max(0, Math.round(el.getBoundingClientRect().top + currentScrollY() - 80))
+      jumpHomeScroll(top)
+      return true
+    }
+  }
+  const y = peekHomeScrollRestore()
+  if (y == null) return false
+  jumpHomeScroll(y)
+  return document.documentElement.scrollHeight >= y + window.innerHeight * 0.4 || y < 40
 }
