@@ -113,7 +113,7 @@ function OfferCard({ offer }: { offer: any }) {
 
   return (
     <Link
-      href={offer.status === "accepted" ? `/activity/${slug}?offer=${offer.id}` : `/activity/${slug}`}
+      href={offer.status === "accepted" && offer.payPath ? offer.payPath : `/activity/${slug}`}
       onClick={() => markPageReturn("/trips")}
       className={className}
     >

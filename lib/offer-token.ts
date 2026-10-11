@@ -12,7 +12,7 @@ export function siteUrl() {
   ).replace(/\/$/, "")
 }
 
-export function offerActionToken(offerId: string, action: "accept" | "decline") {
+export function offerActionToken(offerId: string, action: "accept" | "decline" | "pay") {
   return createHmac("sha256", secret()).update(`${offerId}:${action}`).digest("hex")
 }
 
@@ -22,10 +22,19 @@ export function offerActionUrl(offerId: string, action: "accept" | "decline") {
   return `${siteUrl()}/offers/review?${params.toString()}`
 }
 
+export function offerPayPath(offerId: string) {
+  const token = offerActionToken(offerId, "pay")
+  return `/offers/pay?id=${encodeURIComponent(offerId)}&token=${token}`
+}
+
+export function offerPayUrl(offerId: string) {
+  return `${siteUrl()}${offerPayPath(offerId)}`
+}
+
 export function verifyOfferActionToken(offerId: string, action: string, token: string) {
-  if (action !== "accept" && action !== "decline") return false
+  if (action !== "accept" && action !== "decline" && action !== "pay") return false
   if (!offerId || !token) return false
-  const expected = offerActionToken(offerId, action)
+  const expected = offerActionToken(offerId, action as "accept" | "decline" | "pay")
   const a = Buffer.from(expected)
   const b = Buffer.from(token)
   if (a.length !== b.length) return false

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { currentUser } from "@clerk/nextjs/server"
 import { createClient } from "@/utils/supabase/server"
-import { offerActionUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
+import { offerActionUrl, offerPayPath, offerPayUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
 import { formatIsoRangeWithDays, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
 import { formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
 import { parseISO } from "date-fns"
@@ -253,8 +253,7 @@ async function sendGuestDecisionEmail(offer: {
   const title = listing?.title || "your trip"
   const slug = listing?.slug
   const listingUrl = slug ? `${siteUrl()}/activity/${slug}` : siteUrl()
-  const payUrl =
-    slug && offer.id ? `${siteUrl()}/activity/${slug}?offer=${offer.id}` : listingUrl
+  const payUrl = offer.id ? offerPayUrl(offer.id) : listingUrl
   const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
   const { Resend } = await import("resend")
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -354,7 +353,9 @@ export async function getMyOffers() {
       rows.push(row)
     }
     rows.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
-    return rows
+    return rows.map((row) =>
+      row.status === "accepted" ? { ...row, payPath: offerPayPath(row.id) } : row
+    )
   } catch (err) {
     console.error("getMyOffers error:", err)
     return []
