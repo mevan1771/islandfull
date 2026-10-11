@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
+import { CalendarDays, ChevronRight, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
@@ -21,15 +21,92 @@ function offerListing(offer: any) {
 
 function OfferStatus({ status }: { status: string }) {
   if (status === "accepted") {
-    return <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-emerald-800">Accepted</span>
+    return <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Accepted</span>
   }
   if (status === "declined") {
-    return <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-600">Declined</span>
+    return <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">Declined</span>
   }
   if (status === "countered") {
-    return <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-sky-800">Host replied</span>
+    return <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-700">Host replied</span>
   }
-  return <span className="inline-flex rounded-full bg-[#FFC72C] px-2.5 py-0.5 text-[11px] font-bold uppercase text-zinc-900">Pending</span>
+  return <span className="inline-flex items-center rounded-full bg-[#FFC72C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-900">Pending</span>
+}
+
+function offerStatusCopy(offer: any) {
+  if (offer.status === "accepted") return "Your price was accepted. Reserve to lock it in."
+  if (offer.status === "countered") {
+    return offer.admin_counter_amount != null
+      ? `Host suggested $${Number(offer.admin_counter_amount)}.`
+      : "The host sent another price."
+  }
+  if (offer.status === "declined") return "Host couldn’t take this price."
+  return "Waiting on the host · no payment yet"
+}
+
+function OfferCard({ offer }: { offer: any }) {
+  const listing = offerListing(offer)
+  const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
+  const slug = listing?.slug as string | undefined
+  const cta = offer.status === "accepted" ? "Reserve" : "View"
+  const body = (
+    <div className="flex gap-3 md:gap-5 items-center">
+      <div className="relative w-16 h-16 md:w-[7.5rem] md:h-[7.5rem] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-100 shrink-0">
+        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 64px, 120px" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <OfferStatus status={offer.status} />
+        <h3 className="mt-1 font-semibold text-[15px] md:text-lg text-zinc-900 leading-snug line-clamp-1">
+          {listing?.title || "Listing"}
+        </h3>
+        {listing?.location && (
+          <p className="hidden md:block text-sm text-zinc-500 truncate mt-0.5">{String(listing.location).replace(", Sri Lanka", "")}</p>
+        )}
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] md:text-xs text-zinc-500">
+          <span className="inline-flex items-center gap-1">
+            <CalendarDays className="w-3.5 h-3.5 text-zinc-400" />
+            {travelRangeFromOffer(offer.travel_date, offer.special_notes)}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="w-3.5 h-3.5 text-zinc-400" />
+            {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
+          </span>
+        </div>
+        <p className="mt-1 md:mt-1.5 text-xs md:text-sm text-zinc-500 line-clamp-1">{offerStatusCopy(offer)}</p>
+      </div>
+      <div className="shrink-0 flex flex-col items-end justify-center gap-2 pl-1">
+        <div className="text-right">
+          <p className="text-base md:text-xl font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
+          <p className="text-[10px] md:text-[11px] text-zinc-400">your offer</p>
+        </div>
+        {slug && (
+          <span
+            className={`hidden md:inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
+              offer.status === "accepted"
+                ? "bg-emerald-600 text-white"
+                : "border border-zinc-200 bg-white text-zinc-800"
+            }`}
+          >
+            {cta}
+          </span>
+        )}
+        <ChevronRight className="md:hidden w-4 h-4 text-zinc-400" />
+      </div>
+    </div>
+  )
+
+  if (!slug) {
+    return <div className="rounded-2xl border border-zinc-200 bg-white p-3 md:p-4">{body}</div>
+  }
+
+  return (
+    <Link
+      href={`/activity/${slug}`}
+      onClick={() => markPageReturn("/trips")}
+      className="block rounded-2xl border border-zinc-200 bg-white p-3 md:p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
+    >
+      {body}
+    </Link>
+  )
 }
 
 function CardFromItem({ act }: { act: HomepageActivity }) {
@@ -243,57 +320,10 @@ export function TripsPageClient({ recommended }: { recommended: HomepageActivity
               <div className="mb-10">
                 <h2 className="text-xl font-bold text-zinc-900 mb-2">Your offers</h2>
                 <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when the host replies.</p>
-                <div className="space-y-3">
-                  {offers.map((offer) => {
-                    const listing = offerListing(offer)
-                    const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
-                    const slug = listing?.slug
-                    return (
-                      <div
-                        key={offer.id}
-                        className={`rounded-2xl border bg-white p-3 md:p-4 flex gap-3 md:gap-4 ${
-                          offer.status === "accepted"
-                            ? "border-emerald-200"
-                            : offer.status === "pending"
-                              ? "border-[#ffd54a]/80"
-                              : "border-zinc-200"
-                        }`}
-                      >
-                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-zinc-100 shrink-0">
-                          <Image src={image} alt="" fill className="object-cover" sizes="96px" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <OfferStatus status={offer.status} />
-                            <span className="text-sm font-bold text-rose-500">${Number(offer.offer_amount)}</span>
-                          </div>
-                          <h3 className="font-bold text-zinc-900 truncate">{listing?.title || "Listing"}</h3>
-                          <p className="text-xs text-zinc-500 mt-0.5">
-                            {travelRangeFromOffer(offer.travel_date, offer.special_notes)} · {offer.guest_count} guest{offer.guest_count === 1 ? "" : "s"}
-                          </p>
-                          <p className="text-sm text-zinc-600 mt-2">
-                            {offer.status === "pending" && "Waiting for the host. No payment yet."}
-                            {offer.status === "accepted" && "The host accepted your price. Complete the reservation to lock it in."}
-                            {offer.status === "countered" && `The host suggested ${offer.admin_counter_amount != null ? `$${Number(offer.admin_counter_amount)}` : "another price"}. Open the listing to continue.`}
-                            {offer.status === "declined" && "The host couldn’t take this price. You can still book the listing at the listed rate."}
-                          </p>
-                          {slug && (
-                            <Link
-                              href={`/activity/${slug}`}
-                              onClick={() => markPageReturn("/trips")}
-                              className={`inline-flex mt-3 min-h-10 items-center rounded-full px-4 text-sm font-semibold ${
-                                offer.status === "accepted"
-                                  ? "bg-emerald-600 text-white"
-                                  : "bg-zinc-900 text-white"
-                              }`}
-                            >
-                              {offer.status === "accepted" ? "Complete reservation" : "View listing"}
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
+                <div className="space-y-2.5">
+                  {offers.map((offer) => (
+                    <OfferCard key={offer.id} offer={offer} />
+                  ))}
                 </div>
               </div>
             )}
