@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { parseServiceTypes } from "@/lib/host-services"
 
 const hostSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -63,6 +64,7 @@ export async function createHost(formData: FormData) {
       return { success: false, error: "Invalid data payload" }
     }
     const { name, email, phone, contact_name, address, payout_notes } = parsed.data
+    const service_types = parseServiceTypes(formData.getAll("service_types"))
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
     let avatar_url = formData.get("avatar_url") as string
@@ -102,7 +104,7 @@ export async function createHost(formData: FormData) {
 
     const { error } = await supabaseAdmin
       .from('hosts')
-      .insert([{ name, email, phone, contact_name, address, payout_notes, image_url: image_url || null, avatar_url: avatar_url || null }])
+      .insert([{ name, email, phone, contact_name, address, payout_notes, image_url: image_url || null, avatar_url: avatar_url || null, service_types }])
 
     if (error) throw error
 
@@ -150,6 +152,7 @@ export async function updateHost(id: string, formData: FormData) {
       return { success: false, error: "Invalid data payload" }
     }
     const { name, email, phone, contact_name, address, payout_notes } = parsed.data
+    const service_types = parseServiceTypes(formData.getAll("service_types"))
     let image_url = formData.get("image_url") as string
     const imageFile = formData.get("image_file") as File
     let avatar_url = formData.get("avatar_url") as string
@@ -187,7 +190,7 @@ export async function updateHost(id: string, formData: FormData) {
       avatar_url = publicUrlData.publicUrl
     }
 
-    const updateData: any = { name, email, phone, contact_name, address, payout_notes }
+    const updateData: any = { name, email, phone, contact_name, address, payout_notes, service_types }
     if (image_url) {
       updateData.image_url = image_url
     }

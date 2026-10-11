@@ -8,6 +8,7 @@ import toast from "react-hot-toast"
 import Image from "next/image"
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput"
 import { matchesAdminQuery } from "@/lib/admin-search"
+import { HOST_SERVICE_TYPES, parseServiceTypes, type HostServiceType } from "@/lib/host-services"
 
 export default function HostsPage() {
   const [hosts, setHosts] = useState<any[]>([])
@@ -20,6 +21,7 @@ export default function HostsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingHost, setEditingHost] = useState<any>(null)
   const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
+  const [serviceTypes, setServiceTypes] = useState<HostServiceType[]>(["tour"])
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -33,7 +35,8 @@ export default function HostsPage() {
           host.contact_name,
           host.phone,
           host.email,
-          host.address
+          host.address,
+          parseServiceTypes(host.service_types).join(" ")
         )
       ),
     [hosts, searchQuery]
@@ -65,9 +68,11 @@ export default function HostsPage() {
         login_email: "",
         login_password: ""
       })
+      setServiceTypes(parseServiceTypes(host.service_types))
     } else {
       setEditingHost(null)
       setFormData({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
+      setServiceTypes(["tour"])
     }
     setImageFile(null)
     setAvatarFile(null)
@@ -108,6 +113,7 @@ export default function HostsPage() {
       if (formData.phone) data.append("phone", formData.phone)
       if (formData.address) data.append("address", formData.address)
       if (formData.payout_notes) data.append("payout_notes", formData.payout_notes)
+      for (const type of serviceTypes) data.append("service_types", type)
       if (formData.image_url) data.append("image_url", formData.image_url)
       if (imageFile) data.append("image_file", imageFile)
       if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
@@ -186,7 +192,7 @@ export default function HostsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Admin Operations</h1>
-            <p className="text-zinc-500 mt-1">Manage tour operators and their profile information.</p>
+            <p className="text-zinc-500 mt-1">Mark whether each operator runs tours, transport, hotels, or all three.</p>
           </div>
           <button
             onClick={() => openModal()}
@@ -208,6 +214,7 @@ export default function HostsPage() {
             <thead>
               <tr className="bg-zinc-50/50 border-b border-zinc-100">
                 <th className="p-4 pl-6 text-xs font-bold text-zinc-400 uppercase tracking-wider">Host Profile</th>
+                <th className="p-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">Offers</th>
                 <th className="p-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">ID</th>
                 <th className="p-4 pr-6 text-xs font-bold text-zinc-400 uppercase tracking-wider text-right">Actions</th>
               </tr>
@@ -215,7 +222,7 @@ export default function HostsPage() {
             <tbody className="divide-y divide-zinc-100">
               {filteredHosts.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="p-12 text-center text-zinc-500">
+                  <td colSpan={4} className="p-12 text-center text-zinc-500">
                     {hosts.length === 0 ? "No hosts found." : "No matches for that search."}
                   </td>
                 </tr>
@@ -242,6 +249,15 @@ export default function HostsPage() {
                         <div className="text-xs text-zinc-500 mt-0.5">Joined {new Date(host.created_at).toLocaleDateString()}</div>
                       </div>
                     </button>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex flex-wrap gap-1">
+                      {parseServiceTypes(host.service_types).map((type) => (
+                        <span key={type} className="inline-flex rounded-full bg-zinc-100 border border-zinc-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-600">
+                          {HOST_SERVICE_TYPES.find((item) => item.id === type)?.label}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="p-4">
                     <button
@@ -338,6 +354,17 @@ export default function HostsPage() {
                   </p>
                 </div>
               )}
+
+              <div>
+                <h3 className="text-sm font-bold text-zinc-900 mb-3">Offers</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {parseServiceTypes(viewingHost.service_types).map((type) => (
+                    <span key={type} className="inline-flex rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-xs font-bold text-zinc-700">
+                      {HOST_SERVICE_TYPES.find((item) => item.id === type)?.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
               <div>
                 <h3 className="text-sm font-bold text-zinc-900 mb-3">Contact</h3>
@@ -454,6 +481,38 @@ export default function HostsPage() {
                   </div>
                 </div>
               )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-zinc-800">What they offer</label>
+                <p className="text-xs text-zinc-500">Tap one or more. A host can run tours, transport, and hotels together.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {HOST_SERVICE_TYPES.map((item) => {
+                    const on = serviceTypes.includes(item.id)
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setServiceTypes((prev) => {
+                            if (prev.includes(item.id)) {
+                              const next = prev.filter((id) => id !== item.id)
+                              return next.length ? next : prev
+                            }
+                            return [...prev, item.id]
+                          })
+                        }}
+                        className={`h-11 rounded-xl border text-sm font-bold transition-colors ${
+                          on
+                            ? "border-zinc-900 bg-zinc-900 text-white"
+                            : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-zinc-800">Business / Host Name</label>

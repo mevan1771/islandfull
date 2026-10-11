@@ -11,6 +11,7 @@ import { createHotel, updateHotel } from "@/app/actions/hotels"
 import { uploadToCloudinary } from "@/app/actions/upload"
 import { emptyRoomType, HOTEL_AMENITIES, PROPERTY_TYPES, ROOM_AMENITIES, type HotelRoomTypeInput } from "@/lib/hotels"
 import { locationSelectOptions } from "@/lib/locations"
+import { hostOffers } from "@/lib/host-services"
 
 async function uploadImage(file: File) {
   const compressed = await imageCompression(file, {
@@ -217,7 +218,9 @@ export default function HotelForm({
             <span className="text-xs font-bold uppercase tracking-wide text-zinc-600">Host</span>
             <select name="host_id" defaultValue={initialData?.host_id || ""} className="w-full h-12 rounded-2xl border-2 border-zinc-100 px-4 bg-white">
               <option value="">No host linked yet</option>
-              {hosts.map((host: any) => (
+              {hosts
+                .filter((host: any) => hostOffers(host, "hotel") || host.id === initialData?.host_id)
+                .map((host: any) => (
                 <option key={host.id} value={host.id}>{host.name}</option>
               ))}
             </select>

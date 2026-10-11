@@ -14,6 +14,7 @@ import CreatableSelect from "react-select/creatable"
 import { ImageCropperModal } from "./ImageCropperModal"
 import imageCompression from 'browser-image-compression'
 import { locationSelectOptions } from "@/lib/locations"
+import { hostOffers } from "@/lib/host-services"
 
 const TOTAL_STEPS = 5;
 
@@ -482,7 +483,11 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                   required
                 >
                   <option value="" disabled>Select a host...</option>
-                  {hosts.map(host => (
+                  {hosts
+                    .filter((host) =>
+                      hostOffers(host, categoryType === "transport" ? "transport" : "tour") || host.id === hostId
+                    )
+                    .map((host) => (
                     <option key={host.id} value={host.id}>{host.name}</option>
                   ))}
                 </select>

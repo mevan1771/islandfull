@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { createClient as createServerClient } from '@/utils/supabase/server'
+import { parseServiceTypes } from "@/lib/host-services"
 
 // Initialize the admin client using the service role key to bypass RLS and not log the current user out
 const supabaseAdmin = createClient(
@@ -141,7 +142,8 @@ export async function adminCreateHostAccount(formData: FormData) {
         address,
         payout_notes,
         image_url,
-        avatar_url
+        avatar_url,
+        service_types: parseServiceTypes(formData.getAll("service_types")),
       })
 
     if (hostError) {
