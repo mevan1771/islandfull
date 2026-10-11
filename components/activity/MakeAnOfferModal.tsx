@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
 import { DayPicker, DateRange } from "react-day-picker"
-import { addDays, format, isBefore, startOfToday } from "date-fns"
+import { addDays, format, isBefore, isSameDay, startOfToday } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
@@ -307,19 +307,24 @@ export function MakeAnOfferModal({
                   <div className="flex-1 min-h-0 flex items-start justify-center overflow-hidden">
                     {isMulti ? (
                       <DayPicker
-                        className="mx-auto"
+                        className="mx-auto w-full max-w-[300px] flex justify-center"
                         mode="range"
                         selected={dateRange}
                         onSelect={(range) => {
+                          // react-day-picker sets from === to on the first tap.
+                          // Closing here made every offer a single day.
+                          if (range?.from && range?.to && isSameDay(range.from, range.to)) {
+                            setDateRange({ from: range.from, to: undefined })
+                            return
+                          }
                           setDateRange(range)
-                          if (range?.from && range?.to) setCalOpen(false)
                         }}
                         disabled={isDateDisabled}
                         modifiersClassNames={dayPickerClassNames}
                       />
                     ) : (
                       <DayPicker
-                        className="mx-auto"
+                        className="mx-auto w-full max-w-[300px] flex justify-center"
                         mode="single"
                         selected={date ? new Date(`${date}T12:00:00`) : undefined}
                         onSelect={(day) => {
