@@ -163,7 +163,7 @@ export function ActivityCard({
           )}
           <FavoriteButton activityId={id} className={alwaysShowFavorite ? undefined : "hidden md:flex"} />
           {isPlace && (
-            <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-[10px] md:text-xs font-bold uppercase tracking-wide text-zinc-800 shadow-sm">
+            <span className="absolute bottom-2 right-2 z-10 rounded-md bg-white/95 px-1.5 py-px text-[9px] sm:text-[10px] font-bold text-zinc-800 leading-4 shadow-sm">
               Must see
             </span>
           )}
