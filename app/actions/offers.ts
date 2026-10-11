@@ -247,7 +247,17 @@ async function sendGuestDecisionEmail(offer: {
   travel_date: string
   special_notes?: string | null
   status: string
-  activities?: { title?: string; slug?: string } | { title?: string; slug?: string }[] | null
+  activities?: {
+    title?: string
+    slug?: string
+    card_image_url?: string | null
+    cover_image_url?: string | null
+  } | {
+    title?: string
+    slug?: string
+    card_image_url?: string | null
+    cover_image_url?: string | null
+  }[] | null
 }) {
   const listing = rel(offer.activities)
   const title = listing?.title || "your trip"
@@ -255,8 +265,25 @@ async function sendGuestDecisionEmail(offer: {
   const listingUrl = slug ? `${siteUrl()}/activity/${slug}` : siteUrl()
   const payUrl = offer.id ? offerPayUrl(offer.id) : listingUrl
   const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
+  const status = offer.status === "accepted" ? "accepted" : "declined"
   const { Resend } = await import("resend")
+  const { render } = await import("@react-email/components")
+  const React = await import("react")
+  const { OfferDecisionEmail } = await import("@/components/emails/OfferDecisionEmail")
   const resend = new Resend(process.env.RESEND_API_KEY)
+  const html = await render(
+    React.createElement(OfferDecisionEmail, {
+      guestName: offer.guest_name,
+      activityTitle: title,
+      travelLabel,
+      amount: Number(offer.offer_amount),
+      status,
+      listingUrl,
+      payUrl,
+      imageUrl: listing?.card_image_url || listing?.cover_image_url || null,
+      logoUrl: `${siteUrl()}/logo_dark.png`,
+    })
+  )
 
   if (offer.status === "accepted") {
     await resend.emails.send({
@@ -264,14 +291,7 @@ async function sendGuestDecisionEmail(offer: {
       replyTo: ADMIN_INBOX,
       to: [offer.guest_email],
       subject: `Great news — your offer for ${title} was accepted`,
-      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-        <h2>Your offer was accepted</h2>
-        <p>Hi ${offer.guest_name},</p>
-        <p>Great news! Your offer of $${Number(offer.offer_amount).toFixed(2)} for <strong>${title}</strong> on ${travelLabel} was accepted.</p>
-        <p>Your dates and guests are already set. The only step left is payment:</p>
-        <p><a href="${payUrl}" style="display:inline-block;padding:14px 22px;background:#22c55e;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;">Make payment</a></p>
-        <p>Best,<br>IslandFull</p>
-      </div>`,
+      html,
     })
     return
   }
@@ -282,14 +302,7 @@ async function sendGuestDecisionEmail(offer: {
       replyTo: ADMIN_INBOX,
       to: [offer.guest_email],
       subject: `Update on your offer for ${title}`,
-      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-        <h2>Offer update</h2>
-        <p>Hi ${offer.guest_name},</p>
-        <p>Thanks for offering on <strong>${title}</strong>. The host couldn’t accept this price this time.</p>
-        <p>You’re welcome to browse other dates or listings, or send a new offer.</p>
-        <p><a href="${listingUrl}">View listing</a></p>
-        <p>Best,<br>IslandFull</p>
-      </div>`,
+      html,
     })
   }
 }
@@ -305,7 +318,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
   const { data: offer } = await supabaseAdmin
     .from("offers")
-    .select("id, status, guest_name, guest_email, offer_amount, travel_date, special_notes, activities(title, slug)")
+    .select("id, status, guest_name, guest_email, offer_amount, travel_date, special_notes, activities(title, slug, card_image_url, cover_image_url)")
     .eq("id", id)
     .maybeSingle()
 
@@ -426,7 +439,7 @@ export async function updateOfferStatus(
     .from("offers")
     .update(update)
     .eq("id", id)
-    .select("id, guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug)")
+    .select("id, guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug, card_image_url, cover_image_url)")
     .single()
 
   if (error) {
