@@ -843,6 +843,23 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
                 </div>
               </div>
 
+              {!isPlace && categoryType !== "event" && (
+                <label className="flex items-start gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="allow_offers"
+                    defaultChecked={!!initialData?.allow_offers}
+                    className="mt-1 h-5 w-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold text-zinc-900">Enable Make an Offer</span>
+                    <span className="block text-sm text-zinc-500 mt-0.5">
+                      Guests can bid a price with name and email only. No card, no login required.
+                    </span>
+                  </span>
+                </label>
+              )}
+
               <div className="p-6 rounded-2xl border-2 border-rose-100 bg-rose-50/50 space-y-6">
                 <div className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-rose-500" />

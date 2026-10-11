@@ -90,9 +90,10 @@ export async function createTour(formData: FormData) {
     const price_suffix = formData.get("price_suffix") as string || ""
     const price_lkr_approx = 0 // Automatically calculated via global rate now
     const is_featured = formData.get("is_featured") === "on"
+    const category_type = formData.get("category_type") as string || "tour"
+    const allow_offers = (category_type === "tour" || category_type === "transport") && formData.get("allow_offers") === "on"
 
     // Commission & Category
-    const category_type = formData.get("category_type") as string || "tour"
     const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
@@ -235,7 +236,8 @@ export async function createTour(formData: FormData) {
       min_notice_days,
       approx_lat,
       approx_lng,
-      private_meeting_instructions
+      private_meeting_instructions,
+      allow_offers,
     };
 
     // Insert into Supabase
@@ -325,6 +327,7 @@ export async function updateTour(id: string, formData: FormData) {
 
     // Commission & Category
     const category_type = formData.get("category_type") as string || oldTour?.category_type || "tour"
+    const allow_offers = (category_type === "tour" || category_type === "transport") && formData.get("allow_offers") === "on"
     const commission_rate = parseFloat(formData.get("commission_rate") as string || "15")
     const is_custom_commission = formData.get("is_custom_commission") === "true"
 
@@ -469,7 +472,8 @@ export async function updateTour(id: string, formData: FormData) {
       min_notice_days,
       approx_lat,
       approx_lng,
-      private_meeting_instructions
+      private_meeting_instructions,
+      allow_offers,
     };
 
     const { error } = await supabaseAdmin.from('activities').update(updateData).eq('id', id)

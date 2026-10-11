@@ -11,6 +11,7 @@ import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
+import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -34,12 +35,14 @@ interface BookingDrawerProps {
   minNoticeDays?: number
   bookingType?: 'single_day' | 'multi_day' | 'point_to_point'
   pricingModel?: 'per_person' | 'per_day' | 'flat_rate'
+  categoryType?: string
   hostAvatar?: string
   hostName?: string
   cancellationTierData?: CancellationTierData | null
   discountPrice?: number | null
   dealEndDate?: string | null
   priceSuffix?: string | null
+  allowOffers?: boolean
 }
 
 export function BookingDrawer({
@@ -60,18 +63,21 @@ export function BookingDrawer({
   minNoticeDays = 1,
   bookingType = 'single_day',
   pricingModel = 'per_person',
+  categoryType,
   hostAvatar,
   hostName,
   cancellationTierData,
   discountPrice,
   dealEndDate,
-  priceSuffix
+  priceSuffix,
+  allowOffers = false,
 }: BookingDrawerProps) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
   }, [])
   const [isOpen, setIsOpen] = useState(false)
+  const [offerOpen, setOfferOpen] = useState(false)
   const [step, setStep] = useState<"details" | "processing" | "success">("details")
 
   // Form state
@@ -97,6 +103,11 @@ export function BookingDrawer({
 
   // Policy Agreement State (Removed)
 
+  const isDateRange =
+    bookingType === 'multi_day' ||
+    pricingModel === 'per_day' ||
+    (categoryType === 'transport' && bookingType !== 'point_to_point')
+
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : (priceUsd || 0);
   const lowestFromTiers = getLowestPerPersonFromTiers(pricingTiers)
@@ -112,7 +123,7 @@ export function BookingDrawer({
 
   // Calculate Totals using Tiered Pricing if available
   const totalDays = (() => {
-    if (bookingType !== 'multi_day') return 1;
+    if (!isDateRange) return 1;
     if (!dateRange?.from) return 0;
     const endDate = dateRange.to || dateRange.from;
     return differenceInDays(endDate, dateRange.from) + 1;
@@ -153,11 +164,11 @@ export function BookingDrawer({
 
   let totalLkr = totalUsd * (priceUsd > 0 ? (priceLkrApprox / priceUsd) : 300);
 
-  const selectedDateForPolicy = bookingType === 'multi_day' ? dateRange?.from : (date ? parse(date, 'yyyy-MM-dd', new Date()) : null);
+  const selectedDateForPolicy = isDateRange ? dateRange?.from : (date ? parse(date, 'yyyy-MM-dd', new Date()) : null);
   const cancellationPolicy = selectedDateForPolicy ? getCancellationPolicyText(selectedDateForPolicy, cancellationTierData || null) : null;
 
   const handleStripeCheckout = async () => {
-    const isMulti = bookingType === 'multi_day';
+    const isMulti = isDateRange;
     const finalDate = isMulti ? (dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : "") : date;
     const resolvedEndDate = isMulti ? (dateRange?.to || dateRange?.from) : undefined;
     const finalEndDate = resolvedEndDate ? format(resolvedEndDate, 'yyyy-MM-dd') : "";
@@ -237,60 +248,46 @@ export function BookingDrawer({
     <>
       {/* Sticky Bottom Widget Trigger */}
       <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-zinc-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 md:relative md:border border-zinc-200 md:rounded-3xl md:shadow-xl md:p-6 md:bg-white md:z-auto">
-        <div className="max-w-md mx-auto flex flex-row md:flex-col items-center md:items-stretch justify-between gap-4">
-          <div className="flex items-center justify-between w-full md:w-auto">
+        <div className="max-w-md mx-auto flex flex-col items-stretch justify-between md:gap-4">
+          {/* Desktop: price + rating */}
+          <div className="hidden md:flex items-center justify-between w-full">
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
                 {priceUsd === 0 ? (
-                  <span className="text-lg md:text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
+                  <span className="text-3xl font-black text-emerald-500 tracking-tight uppercase">Free</span>
                 ) : (
                   <div className="flex flex-col">
                     {isDealActive && discountPrice ? (
                       <div className="flex items-center gap-1">
-                        <span className="text-lg md:text-3xl font-bold text-rose-600 leading-none">{formatUSD(discountPrice)}</span>
-                        <span className="text-sm md:text-lg font-medium text-gray-400 line-through leading-none">{formatUSD(priceUsd)}</span>
-                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
+                        <span className="text-3xl font-bold text-rose-600 leading-none">{formatUSD(discountPrice)}</span>
+                        <span className="text-lg font-medium text-gray-400 line-through leading-none">{formatUSD(priceUsd)}</span>
+                        <span className="text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
                       </div>
                     ) : showFromPrice ? (
                       <div className="flex items-baseline gap-1">
-                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">From</span>
-                        <span className="text-lg md:text-3xl font-bold text-zinc-900 leading-none">{formatUSD(lowestFromTiers)}</span>
-                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
+                        <span className="text-sm font-medium text-zinc-500 leading-none">From</span>
+                        <span className="text-3xl font-bold text-zinc-900 leading-none">{formatUSD(lowestFromTiers)}</span>
+                        <span className="text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1">
-                        <span className="text-lg md:text-3xl font-bold text-zinc-900 leading-none">{formatUSD(priceUsd)}</span>
-                        <span className="text-xs md:text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
+                        <span className="text-3xl font-bold text-zinc-900 leading-none">{formatUSD(priceUsd)}</span>
+                        <span className="text-sm font-medium text-zinc-500 leading-none">{getPricingSuffix()}</span>
                       </div>
                     )}
                   </div>
                 )}
 
-                {paymentStrategy === 'deposit_15' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
-                {paymentStrategy === 'manual_hold' && <span className="hidden md:inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
-              </div>
-              <div className="flex flex-col gap-0 mt-0">
-                {/* Short Cancellation Policy (Mobile Only) */}
-                {cancellationTierData && (
-                  <div className="md:hidden leading-none">
-                    {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
-                      <span className="text-[10px] font-bold text-green-600">Free cancellation</span>
-                    ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
-                      <span className="text-[10px] font-bold text-green-600">Partial refund</span>
-                    ) : (
-                      <span className="text-[10px] font-medium text-zinc-400">Non-refundable</span>
-                    )}
-                  </div>
-                )}
+                {paymentStrategy === 'deposit_15' && <span className="inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[10px] font-black uppercase tracking-wider">🔥 Pay 15% Today</span>}
+                {paymentStrategy === 'manual_hold' && <span className="inline-flex px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">🔒 Pay Later</span>}
               </div>
               {isDealActive && dealEndDate && (
-                <div className="mt-1 hidden md:flex">
+                <div className="mt-1">
                   <CountdownTimer targetDate={dealEndDate} />
                 </div>
               )}
             </div>
-            {/* Rating (Desktop Only) */}
-            <div className="hidden md:flex flex-col items-end">
+            <div className="flex flex-col items-end">
               {isHiddenGem ? (
                 <div className="px-3 py-1 rounded-full bg-rose-50 border border-rose-100 flex items-center shadow-sm">
                   <span className="flex items-center gap-1 text-sm font-bold text-rose-500 tracking-wide">
@@ -315,32 +312,76 @@ export function BookingDrawer({
                 </>
               )}
             </div>
+          </div>
 
-            {/* Mobile Button: Side-by-side with price */}
-            <div className="flex md:hidden items-center gap-3">
-              <a
-                href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative shrink-0 active:scale-95 transition-transform"
+          {/* Mobile: one bar — compact price/chat, solid action buttons */}
+          <div className="flex md:hidden items-center gap-1.5 w-full">
+            <div className="flex flex-col min-w-0 shrink-0">
+              {priceUsd === 0 ? (
+                <span className="text-base font-black text-emerald-500 tracking-tight uppercase">Free</span>
+              ) : isDealActive && discountPrice ? (
+                <div className="flex items-center gap-0.5">
+                  <span className="text-base font-bold text-rose-600 leading-none">{formatUSD(discountPrice)}</span>
+                  <span className="text-[10px] font-medium text-gray-400 line-through leading-none">{formatUSD(priceUsd)}</span>
+                </div>
+              ) : showFromPrice ? (
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-[9px] font-medium text-zinc-500">From</span>
+                  <span className="text-base font-bold text-zinc-900 leading-none">{formatUSD(lowestFromTiers)}</span>
+                </div>
+              ) : (
+                <span className="text-base font-bold text-zinc-900 leading-none">{formatUSD(priceUsd)}</span>
+              )}
+              {cancellationTierData && (
+                <div className="leading-none mt-0.5">
+                  {cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage === 100 ? (
+                    <span className="text-[9px] font-bold text-green-600">Free cancel</span>
+                  ) : cancellationTierData.id !== 'NON_REFUNDABLE' && cancellationTierData.refund_percentage > 0 ? (
+                    <span className="text-[9px] font-bold text-green-600">Partial refund</span>
+                  ) : (
+                    <span className="text-[9px] font-medium text-zinc-400">Non-refundable</span>
+                  )}
+                </div>
+              )}
+            </div>
+            <a
+              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative shrink-0 active:scale-95 transition-transform"
+              aria-label="Chat on WhatsApp"
+            >
+              {hostAvatar ? (
+                <img src={hostAvatar} alt={hostName || "Host"} className="w-8 h-8 rounded-full object-cover ring-1 ring-zinc-200" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-500">{hostName?.charAt(0) || 'H'}</div>
+              )}
+              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 border border-white"></span></span>
+            </a>
+            <FavoriteButton activityId={activityId} variant="inline" className="w-8 h-8 shadow-none" />
+            <div className="flex flex-1 min-w-0 items-center gap-1.5">
+              {allowOffers && (
+                <button
+                  type="button"
+                  onClick={() => setOfferOpen(true)}
+                  className="flex-1 h-10 px-2 rounded-xl bg-white text-zinc-900 text-[11px] font-bold border border-zinc-300 shadow-sm active:scale-[0.98]"
+                >
+                  Make Offer
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className="flex-1 h-10 px-2 rounded-xl bg-rose-500 text-white text-[11px] font-bold shadow-md shadow-rose-500/25 active:scale-[0.98]"
               >
-                {hostAvatar ? (
-                  <img src={hostAvatar} alt={hostName || "Host"} className="w-10 h-10 rounded-full object-cover shadow-sm" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
-                )}
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
-              </a>
-              <FavoriteButton activityId={activityId} variant="inline" />
-              <Button onClick={() => setIsOpen(true)} className="flex-1 h-[44px] px-5 text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20">
                 Reserve Now
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Desktop Only: Inline Calendar */}
           <div className="hidden md:flex justify-center border-t border-zinc-100 pt-4 mt-2">
-            {bookingType === 'multi_day' ? (
+            {isDateRange ? (
               <DayPicker
                 className="mx-auto w-full max-w-[300px] flex justify-center"
                 mode="range"
@@ -380,29 +421,41 @@ export function BookingDrawer({
             )}
           </div>
 
-          {/* Desktop Button: Disabled if no date */}
           <div className="hidden md:flex items-center gap-2 mt-4 w-full">
-            <a
-              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 h-[52px] cursor-pointer transition shrink-0"
-            >
+            {allowOffers && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOfferOpen(true)}
+                className="flex-1 h-[52px] rounded-xl font-bold text-base"
+              >
+                Make an Offer
+              </Button>
+            )}
+            <Button onClick={() => setIsOpen(true)} disabled={isDateRange ? !dateRange?.from : !date} className={`h-[52px] shadow-lg shadow-rose-500/20 text-base font-bold ${allowOffers ? "flex-1" : "w-full"}`}>
+              Reserve Now
+            </Button>
+          </div>
+          <a
+            href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center justify-center gap-2.5 h-12 text-sm font-semibold text-zinc-700 hover:text-zinc-900 transition"
+          >
+            <span className="relative shrink-0">
               {hostAvatar ? (
                 <img src={hostAvatar} alt={hostName || "Host"} className="w-10 h-10 rounded-full object-cover shadow-sm" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-sm font-bold text-zinc-500 shadow-sm">{hostName?.charAt(0) || 'H'}</div>
               )}
-              <span className="text-base font-semibold text-gray-800">Chat Now</span>
-            </a>
-            <Button onClick={() => setIsOpen(true)} disabled={bookingType === 'multi_day' ? !dateRange?.from : !date} className="flex-1 h-[52px] shadow-lg shadow-rose-500/20 text-lg font-bold">
-              Reserve Now
-            </Button>
-          </div>
+              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span></span>
+            </span>
+            Chat Now
+          </a>
 
           <p className="hidden md:block text-center text-sm font-medium text-zinc-400 mt-1">
             {priceUsd === 0 ? "Complete Reservation" :
-              paymentStrategy === 'no_card' ? "Reserve now. We'll send your invoice later." :
+              paymentStrategy === 'no_card' ? "Reserve now, no credit card." :
                 paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
                   paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
                     "Secure checkout with Stripe."}
@@ -450,7 +503,7 @@ export function BookingDrawer({
                         {/* Desktop View: Static Readonly Date */}
                         <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
                           <span className="font-medium text-sm text-zinc-900">
-                            {bookingType === 'multi_day'
+                            {isDateRange
                               ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'PP')} - ${format(dateRange.to, 'PP')}` : "No dates selected")
                               : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : "No date selected")}
                           </span>
@@ -465,7 +518,7 @@ export function BookingDrawer({
                                 type="button"
                                 className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
                               >
-                                {bookingType === 'multi_day'
+                                {isDateRange
                                   ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}` : <span className="text-zinc-400">Select dates</span>)
                                   : (date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'PP') : <span className="text-zinc-400">Select date</span>)}
                                 <CalendarDays className="w-4 h-4 text-zinc-400" />
@@ -473,7 +526,7 @@ export function BookingDrawer({
                             </Popover.Trigger>
                             <Popover.Portal>
                               <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center">
-                                {bookingType === 'multi_day' ? (
+                                {isDateRange ? (
                                   <DayPicker
                                     className="mx-auto w-full max-w-[300px] flex justify-center"
                                     mode="range"
@@ -847,7 +900,7 @@ export function BookingDrawer({
                   )}
                   <Button
                     onClick={(e) => { e.preventDefault(); handleStripeCheckout(); }}
-                    disabled={(bookingType === 'multi_day' ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
+                    disabled={(isDateRange ? !dateRange?.from : !date) || !whatsapp || !touristName || !touristEmail}
                     className={`w-full md:w-auto shrink-0 px-6 py-3 text-lg font-bold rounded-xl transition-all shadow-xl shadow-rose-500/20`}
                   >
                     {priceUsd === 0
@@ -870,6 +923,20 @@ export function BookingDrawer({
         </>,
         document.body
       )}
+      <MakeAnOfferModal
+        open={offerOpen}
+        onClose={() => setOfferOpen(false)}
+        activityId={activityId}
+        title={title}
+        listPrice={effectivePriceUsd}
+        minGuests={minGuests}
+        maxGuests={maxCapacity}
+        bookingType={bookingType}
+        pricingModel={pricingModel}
+        categoryType={categoryType}
+        minNoticeDays={minNoticeDays}
+        blackoutDates={blackoutDates}
+      />
     </>
   )
 }

@@ -33,15 +33,48 @@ function HomeSkeleton() {
 
 function ActivitySkeleton() {
   return (
-    <div className="min-h-[100dvh] w-full bg-zinc-50" data-route-fallback>
-      <div className="mx-auto max-w-3xl px-4 pt-20 md:pt-8">
-        <Pulse className="aspect-[4/3] w-full rounded-2xl" />
-        <Pulse className="mt-6 h-8 w-2/3 rounded-lg" />
-        <Pulse className="mt-3 h-4 w-1/3 rounded" />
-        <div className="mt-8 space-y-3">
-          <Pulse className="h-4 w-full rounded" />
-          <Pulse className="h-4 w-full rounded" />
-          <Pulse className="h-4 w-5/6 rounded" />
+    <div className="min-h-[100dvh] w-full bg-white" data-route-fallback>
+      <div className="px-4 mx-auto max-w-7xl pt-16 md:pt-20">
+        <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-2 md:gap-2.5 h-[35svh] md:h-[480px]">
+          <Pulse className="h-full min-h-0 rounded-2xl sm:rounded-3xl" />
+          <div className="hidden md:grid grid-cols-2 grid-rows-2 gap-2 md:gap-2.5 h-full min-h-0">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Pulse key={i} className="h-full min-h-0 rounded-2xl sm:rounded-3xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
+        <div className="flex-1 space-y-6 md:space-y-8">
+          <div className="space-y-3">
+            <Pulse className="h-8 md:h-10 w-2/3 rounded-lg" />
+            <div className="flex flex-wrap gap-2">
+              <Pulse className="h-8 w-24 rounded-full" />
+              <Pulse className="h-8 w-14 rounded-full" />
+              <Pulse className="h-8 w-16 rounded-full" />
+              <Pulse className="h-8 w-14 rounded-full" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Pulse className="h-6 w-48 rounded" />
+            <Pulse className="h-4 w-full rounded" />
+            <Pulse className="h-4 w-full rounded" />
+            <Pulse className="h-4 w-5/6 rounded" />
+            <Pulse className="h-4 w-4/6 rounded" />
+          </div>
+          <Pulse className="h-[14px] w-44 rounded-2xl md:h-20" />
+        </div>
+        <div className="hidden md:block w-full max-w-[360px] shrink-0">
+          <div className="rounded-3xl border border-zinc-200 p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <Pulse className="h-9 w-24 rounded-lg" />
+              <Pulse className="h-7 w-14 rounded-full" />
+            </div>
+            <Pulse className="h-[280px] w-full rounded-2xl" />
+            <Pulse className="h-[52px] w-full rounded-xl" />
+            <Pulse className="h-4 w-40 mx-auto rounded" />
+          </div>
         </div>
       </div>
     </div>

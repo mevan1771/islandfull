@@ -78,6 +78,18 @@ body {
   }
 }
 
+.cl-modalBackdrop,
+.cl-dialogBackdrop,
+.cl-drawerBackdrop {
+  z-index: 200000 !important;
+}
+.cl-modal,
+.cl-dialog,
+.cl-modalContent,
+.cl-drawerRoot {
+  z-index: 200001 !important;
+}
+
 .destination-mosaic-pop {
   animation: destination-mosaic-pop 0.42s ease both;
 }

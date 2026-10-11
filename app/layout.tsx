@@ -46,7 +46,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-clip`}>
-        <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
+        <ClerkProvider
+          signInUrl="/sign-in"
+          signUpUrl="/sign-up"
+          appearance={{
+            elements: {
+              modalBackdrop: { zIndex: "200000" },
+              modalContent: { zIndex: "200001" },
+            },
+          }}
+        >
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <SplashGate />
