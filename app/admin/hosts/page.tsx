@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { getHosts, createHost, updateHost, deleteHost } from "@/app/actions/hosts"
-import { adminCreateHostAccount, adminProvisionLegacyHost, adminResetHostPassword } from "@/app/actions/admin-auth"
+import { adminProvisionLegacyHost, adminResetHostPassword } from "@/app/actions/admin-auth"
 import { Loader2, Plus, Edit2, Trash2, UserCircle, Upload, X } from "lucide-react"
 import toast from "react-hot-toast"
 import Image from "next/image"
