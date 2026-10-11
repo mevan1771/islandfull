@@ -114,22 +114,24 @@ export function ActivityGrid({
   }, [activities])
 
   useEffect(() => {
-    if (currentCategory !== "saved" || !isHydrated) return
+    if (currentCategory !== "saved") {
+      setSavedItems(null)
+      return
+    }
+    if (!isHydrated) return
     let cancelled = false
+    setSavedItems((prev) => prev ?? activities.filter((a) => favorites.includes(a.id)))
     fetchActivitiesByIds(favorites).then((rows) => {
       if (!cancelled) setSavedItems(rows)
     })
     return () => {
       cancelled = true
     }
-  }, [currentCategory, isHydrated, favorites])
+  }, [currentCategory, isHydrated, favorites, activities])
 
   let displayActivities = items
   if (currentCategory === "saved") {
-    if (!isHydrated || savedItems === null) {
-      return <div className="h-40"></div>
-    }
-    displayActivities = savedItems
+    displayActivities = savedItems ?? items.filter((a) => favorites.includes(a.id))
   }
 
   const injectPlaces =
@@ -170,6 +172,9 @@ export function ActivityGrid({
 
   if (displayActivities.length === 0) {
     if (currentCategory === "saved") {
+      if (!isHydrated || (favorites.length > 0 && savedItems === null)) {
+        return <div className="h-40" />
+      }
       return (
         <div className="text-center py-20 bg-zinc-50 rounded-3xl border border-zinc-100 max-w-2xl mx-auto">
           <h3 className="text-xl font-bold text-zinc-900 mb-2">You haven't saved any tours yet.</h3>

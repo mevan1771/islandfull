@@ -58,7 +58,7 @@ function LoggedOutActions() {
 function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
   const { signOut } = useClerk()
   const item =
-    "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors"
+    "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors cursor-pointer"
 
   return (
     <nav className="flex flex-col gap-0.5">

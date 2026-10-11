@@ -35,6 +35,11 @@
     --foreground: #09090b;
     --rdp-accent-color: #f43f5e; /* Tailwind rose-500 */
   }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }
 
 html {

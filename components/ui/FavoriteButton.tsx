@@ -23,18 +23,11 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
 
     const iconColor = `${useDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
 
-    if (!isHydrated) {
-        return (
-            <button className={twMerge(defaultClasses, "opacity-50 cursor-default", className)}>
-                <Heart className={twMerge("w-4 h-4 sm:w-5 sm:h-5", variant === 'overlay' ? iconColor : "text-slate-700/80")} />
-            </button>
-        )
-    }
-
-    const isSaved = favorites.includes(activityId)
+    const isSaved = isHydrated && favorites.includes(activityId)
 
     return (
         <button
+            type="button"
             onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -50,7 +43,7 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
             }}
             className={twMerge(
                 defaultClasses,
-                "transition-all duration-300 hover:scale-105 active:scale-95",
+                "cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95",
                 variant === 'overlay' ? (
                     isSaved
                         ? "bg-black/20 sm:bg-rose-500 sm:border-rose-500 sm:hover:bg-rose-600"

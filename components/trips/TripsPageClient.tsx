@@ -361,7 +361,7 @@ export function TripsPageClient({
           <button
             type="button"
             onClick={() => router.replace("/trips?tab=trips", { scroll: false })}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+            className={`cursor-pointer px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               tab === "trips" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
             }`}
           >
@@ -370,7 +370,7 @@ export function TripsPageClient({
           <button
             type="button"
             onClick={() => router.replace("/trips?tab=wishlist", { scroll: false })}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+            className={`cursor-pointer px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               tab === "wishlist" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
             }`}
           >

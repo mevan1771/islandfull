@@ -1,11 +1,15 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react"
 import { useUser } from "@clerk/nextjs"
-import { getFavoriteIds, saveFavoriteIds } from "@/app/actions/favorites"
+import { saveFavoriteIds } from "@/app/actions/favorites"
 
 const STORAGE_KEY = "islandfull_favorites"
 const LEGACY_KEY = "islandfull_liked_tours"
+
+function asIds(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.filter((id): id is string => typeof id === "string") : []
+}
 
 function readKey(key: string): string[] {
   if (typeof window === "undefined") return []
@@ -13,7 +17,7 @@ function readKey(key: string): string[] {
     const stored = localStorage.getItem(key)
     if (!stored) return []
     const parsed = JSON.parse(stored)
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : []
+    return asIds(parsed)
   } catch {
     return []
   }
@@ -44,7 +48,15 @@ function sameIds(a: string[], b: string[]) {
   return a.every((id, i) => id === b[i])
 }
 
-export function useFavorites() {
+type FavoritesContextValue = {
+  favorites: string[]
+  toggleFavorite: (activityId: string) => void
+  isHydrated: boolean
+}
+
+const FavoritesContext = createContext<FavoritesContextValue | null>(null)
+
+export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { user, isLoaded } = useUser()
   const [favorites, setFavorites] = useState<string[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
@@ -61,32 +73,18 @@ export function useFavorites() {
     }, 200)
   }, [])
 
+  useLayoutEffect(() => {
+    setFavorites(readLocal())
+    setIsHydrated(true)
+  }, [])
+
   useEffect(() => {
-    if (!isLoaded) return
-    let cancelled = false
-
-    async function hydrate() {
-      const local = readLocal()
-      if (!user) {
-        if (!cancelled) {
-          setFavorites(local)
-          setIsHydrated(true)
-        }
-        return
-      }
-      const remote = await getFavoriteIds()
-      if (cancelled) return
-      const merged = mergeIds(remote, local)
-      setFavorites(merged)
-      writeLocal(merged)
-      setIsHydrated(true)
-      if (!sameIds(merged, remote)) void saveFavoriteIds(merged)
-    }
-
-    void hydrate()
-    return () => {
-      cancelled = true
-    }
+    if (!isLoaded || !user) return
+    const remote = asIds(user.unsafeMetadata?.favoriteIds)
+    const merged = mergeIds(remote, readLocal())
+    setFavorites(merged)
+    writeLocal(merged)
+    if (!sameIds(merged, remote)) void saveFavoriteIds(merged)
   }, [isLoaded, user?.id])
 
   const toggleFavorite = useCallback((activityId: string) => {
@@ -112,5 +110,17 @@ export function useFavorites() {
     }
   }, [])
 
-  return { favorites, toggleFavorite, isHydrated }
+  return (
+    <FavoritesContext.Provider value={{ favorites, toggleFavorite, isHydrated }}>
+      {children}
+    </FavoritesContext.Provider>
+  )
+}
+
+export function useFavorites() {
+  const ctx = useContext(FavoritesContext)
+  if (!ctx) {
+    throw new Error("useFavorites must be used within FavoritesProvider")
+  }
+  return ctx
 }

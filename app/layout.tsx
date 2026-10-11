@@ -9,6 +9,7 @@ import { RootScroll } from "@/components/layout/RootScroll";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import NextTopLoader from 'nextjs-toploader';
 import { ClerkProvider } from "@clerk/nextjs";
+import { FavoritesProvider } from "@/hooks/useFavorites";
 import { SplashGate } from "@/components/ui/SplashGate";
 import "./globals.css";
 
@@ -56,6 +57,7 @@ export default function RootLayout({
             },
           }}
         >
+        <FavoritesProvider>
         <SmoothScrollProvider>
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <SplashGate />
@@ -68,6 +70,7 @@ export default function RootLayout({
           </main>
         </SmoothScrollProvider>
         <ConditionalFooter />
+        </FavoritesProvider>
         </ClerkProvider>
       </body>
     </html>
