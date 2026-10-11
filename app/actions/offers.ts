@@ -6,7 +6,9 @@ import { redirect } from "next/navigation"
 import { currentUser } from "@clerk/nextjs/server"
 import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
-import { formatIsoRangeWithDays, travelRangeFromOffer } from "@/lib/date-range-label"
+import { formatIsoRangeWithDays, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
+import { stayListTotal } from "@/lib/stay-price"
+import { parseISO } from "date-fns"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ADMIN_INBOX = "info@islandfull.com"
@@ -53,7 +55,7 @@ export async function createOffer(input: {
 
     const { data: activity, error: activityError } = await supabaseAdmin
       .from("activities")
-      .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, hosts(email)")
+      .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, hosts(email)")
       .eq("id", input.activityId)
       .single()
 
@@ -113,7 +115,14 @@ export async function createOffer(input: {
       specialNotes: userNotes,
       activityTitle: activity.title,
       activitySlug: activity.slug,
-      basePrice: Number(activity.price_usd) || 0,
+      basePrice: stayListTotal({
+        unitPrice: Number(activity.price_usd) || 0,
+        guests: boundedGuests,
+        days: travelEndDate ? inclusiveDays(parseISO(travelDate), parseISO(travelEndDate)) : 1,
+        pricingModel: activity.pricing_model,
+        categoryType: activity.category_type,
+        bookingType: activity.booking_type,
+      }),
       hostEmail: host?.email || null,
     }).catch((err) => console.error("Offer email failed:", err))
 

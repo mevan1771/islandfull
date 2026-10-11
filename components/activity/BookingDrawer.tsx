@@ -10,6 +10,7 @@ import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { format, parse, isBefore, startOfToday, addDays, differenceInDays } from "date-fns"
 import { dayCountLabel, formatDateRangeWithDays } from "@/lib/date-range-label"
+import { chargesByDay } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
@@ -144,8 +145,9 @@ export function BookingDrawer({
     actualTotal = standardTotal
   }
 
-  // Multiply by days if it's a rental (per_day model)
-  const dayMultiplier = pricingModel === 'per_day' ? totalDays : 1
+  const dayMultiplier = chargesByDay(pricingModel, categoryType, bookingType)
+    ? Math.max(1, totalDays)
+    : 1
   const standardTotalForStay = standardTotal * dayMultiplier
   actualTotal = actualTotal * dayMultiplier
 

@@ -7,7 +7,8 @@ import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
 import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
-import { formatDateRangeWithDays } from "@/lib/date-range-label"
+import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
+import { stayListTotal } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
@@ -72,12 +73,25 @@ export function MakeAnOfferModal({
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [guestCount, setGuestCount] = useState(minGuests)
   const [offerAmount, setOfferAmount] = useState("")
+  const [offerDirty, setOfferDirty] = useState(false)
   const [specialNotes, setSpecialNotes] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
 
-  const suggested = suggestedOfferAmount(listPrice)
+  const stayDays =
+    isMulti && dateRange?.from
+      ? inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
+      : 1
+  const listTotal = stayListTotal({
+    unitPrice: listPrice,
+    guests: guestCount,
+    days: stayDays,
+    pricingModel,
+    categoryType,
+    bookingType,
+  })
+  const suggested = suggestedOfferAmount(listTotal)
 
   const isDateDisabled = (day: Date) => {
     const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0)
@@ -94,12 +108,17 @@ export function MakeAnOfferModal({
     setDate(selectedDate || "")
     setDateRange(selectedRange)
     setGuestCount(minGuests)
-    setOfferAmount(suggested > 0 ? String(suggested) : "")
+    setOfferDirty(false)
     if (isSignedIn && user) {
       setGuestName(user.fullName || user.firstName || "")
       setGuestEmail(user.primaryEmailAddress?.emailAddress || "")
     }
-  }, [open, isSignedIn, user, minGuests, suggested, selectedDate, selectedRange])
+  }, [open, isSignedIn, user, minGuests, selectedDate, selectedRange])
+
+  useEffect(() => {
+    if (!open || offerDirty) return
+    setOfferAmount(suggested > 0 ? String(suggested) : "")
+  }, [open, offerDirty, suggested])
 
   if (!mounted || !open) return null
 
@@ -183,10 +202,9 @@ export function MakeAnOfferModal({
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
             <div className="p-4 space-y-2 overflow-y-auto flex-1">
-              {listPrice > 0 && (
+              {listTotal > 0 && (
                 <p className="text-xs font-medium text-zinc-400">
-                  Listed from {formatUSD(listPrice)}
-                  {suggested > 0 && suggested < listPrice ? ` · starting at ${formatUSD(suggested)}` : ""}
+                  Listed {formatUSD(listTotal)}
                 </p>
               )}
 
@@ -275,18 +293,28 @@ export function MakeAnOfferModal({
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <label className="space-y-1">
+                <div className="space-y-1">
                   <span className={labelClass}>Guests</span>
-                  <input
-                    required
-                    type="number"
-                    min={minGuests}
-                    max={maxGuests}
-                    value={guestCount}
-                    onChange={(e) => setGuestCount(Number(e.target.value))}
-                    className={fieldClass}
-                  />
-                </label>
+                  <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                      disabled={guestCount <= minGuests}
+                    >
+                      -
+                    </button>
+                    <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                      disabled={guestCount >= maxGuests}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
                 <label className="space-y-1">
                   <span className={labelClass}>Your offer (USD)</span>
                   <div className="relative">
@@ -297,7 +325,10 @@ export function MakeAnOfferModal({
                       min="1"
                       step="1"
                       value={offerAmount}
-                      onChange={(e) => setOfferAmount(e.target.value)}
+                      onChange={(e) => {
+                        setOfferDirty(true)
+                        setOfferAmount(e.target.value)
+                      }}
                       className={`${fieldClass} pl-8 font-bold`}
                     />
                   </div>
