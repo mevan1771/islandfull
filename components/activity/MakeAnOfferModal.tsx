@@ -4,8 +4,9 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
+import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
-import { addDays, format, isBefore, isSameDay, startOfToday } from "date-fns"
+import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 import { suggestedOfferAmount } from "@/lib/suggested-offer"
@@ -14,12 +15,16 @@ import { formatUSD } from "@/lib/utils"
 const fieldClass =
   "w-full h-10 px-4 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900"
 const labelClass = "text-xs font-bold text-zinc-800 uppercase tracking-wide"
-const dayPickerClassNames = {
+const rangePickerClassNames = {
   selected: "bg-rose-500 text-white font-bold hover:bg-rose-600",
   today: "text-rose-500 font-bold",
   range_start: "bg-rose-500 text-white font-bold rounded-l-md rounded-r-none",
   range_end: "bg-rose-500 text-white font-bold rounded-r-md rounded-l-none",
   range_middle: "bg-rose-100 text-rose-900 rounded-none hover:bg-rose-200",
+}
+const singlePickerClassNames = {
+  selected: "bg-rose-500 text-white font-bold hover:bg-rose-600",
+  today: "text-rose-500 font-bold",
 }
 
 export function MakeAnOfferModal({
@@ -64,7 +69,6 @@ export function MakeAnOfferModal({
   const [guestPhone, setGuestPhone] = useState("")
   const [date, setDate] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
-  const [calOpen, setCalOpen] = useState(false)
   const [guestCount, setGuestCount] = useState(minGuests)
   const [offerAmount, setOfferAmount] = useState("")
   const [specialNotes, setSpecialNotes] = useState("")
@@ -86,7 +90,6 @@ export function MakeAnOfferModal({
     if (!open) return
     setError(null)
     setSent(false)
-    setCalOpen(false)
     setDate(selectedDate || "")
     setDateRange(selectedRange)
     setGuestCount(minGuests)
@@ -107,13 +110,6 @@ export function MakeAnOfferModal({
   const travelEnd = isMulti
     ? (dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : "")
     : undefined
-  const dateLabelShort = isMulti
-    ? (dateRange?.from && dateRange?.to
-      ? `${format(dateRange.from, "MMM d")} – ${format(dateRange.to, "MMM d")}`
-      : dateRange?.from
-        ? format(dateRange.from, "MMM d")
-        : null)
-    : (date ? format(new Date(`${date}T12:00:00`), "PP") : null)
   const dateLabelFull = isMulti
     ? (dateRange?.from && dateRange?.to
       ? `${format(dateRange.from, "PP")} - ${format(dateRange.to, "PP")}`
@@ -150,14 +146,12 @@ export function MakeAnOfferModal({
   }
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-zinc-900/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <>
       <div
-        className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-xl shadow-2xl flex flex-col overflow-hidden max-h-[90dvh]"
-        onClick={(event) => event.stopPropagation()}
-      >
+        className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999]"
+        onClick={onClose}
+      />
+      <div className="flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl sm:w-full sm:max-w-lg sm:top-1/2 sm:-translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:rounded-2xl shadow-2xl">
         <div className="shrink-0 p-4 border-b border-gray-100 flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-zinc-900 tracking-tight">Make an offer</h2>
@@ -187,8 +181,7 @@ export function MakeAnOfferModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-            <div className="relative min-h-[340px] flex-1">
-              <div className="p-4 space-y-2 overflow-y-auto h-full">
+            <div className="p-4 space-y-2 overflow-y-auto flex-1">
               {listPrice > 0 && (
                 <p className="text-xs font-medium text-zinc-400">
                   Listed from {formatUSD(listPrice)}
@@ -226,19 +219,58 @@ export function MakeAnOfferModal({
               )}
 
               <div className="space-y-1">
-                <span className={labelClass}>{isMulti ? "Travel dates" : "Travel date"}</span>
-                <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between">
+                <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                  <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
+                  Travel Date
+                </label>
+                <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
                   <span className="font-medium text-sm text-zinc-900">{dateLabelFull}</span>
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setCalOpen((open) => !open)}
-                  className={`${fieldClass} md:hidden flex items-center justify-between text-left`}
-                >
-                  {dateLabelShort || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
-                  <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
-                </button>
+                <div className="md:hidden">
+                  <Popover.Root>
+                    <Popover.Trigger asChild>
+                      <button
+                        type="button"
+                        className="w-full h-10 px-4 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between"
+                      >
+                        {isMulti
+                          ? (dateRange?.from && dateRange?.to ? `${format(dateRange.from, "MMM d")} - ${format(dateRange.to, "MMM d")}` : <span className="text-zinc-400">Select dates</span>)
+                          : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "PP") : <span className="text-zinc-400">Select date</span>)}
+                        <CalendarDays className="w-4 h-4 text-zinc-400" />
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal container={document.body}>
+                      <Popover.Content
+                        align="center"
+                        side="bottom"
+                        sideOffset={8}
+                        onOpenAutoFocus={(event) => event.preventDefault()}
+                        className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center"
+                      >
+                        {isMulti ? (
+                          <DayPicker
+                            className="mx-auto w-full max-w-[300px] flex justify-center"
+                            mode="range"
+                            selected={dateRange}
+                            onSelect={setDateRange}
+                            disabled={isDateDisabled}
+                            modifiersClassNames={rangePickerClassNames}
+                          />
+                        ) : (
+                          <DayPicker
+                            className="mx-auto w-full max-w-[300px] flex justify-center"
+                            mode="single"
+                            selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
+                            onSelect={(day) => setDate(day ? format(day, "yyyy-MM-dd") : "")}
+                            disabled={isDateDisabled}
+                            modifiersClassNames={singlePickerClassNames}
+                          />
+                        )}
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -292,52 +324,6 @@ export function MakeAnOfferModal({
               </label>
 
               {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
-              </div>
-
-              {calOpen && (
-                <div className="absolute inset-0 z-20 bg-white px-3 pt-3 pb-2 flex flex-col">
-                  <button
-                    type="button"
-                    onClick={() => setCalOpen(false)}
-                    className={`${fieldClass} flex items-center justify-between text-left shrink-0 mb-2`}
-                  >
-                    {dateLabelShort || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
-                    <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
-                  </button>
-                  <div className="flex-1 min-h-0 flex items-start justify-center overflow-hidden">
-                    {isMulti ? (
-                      <DayPicker
-                        className="mx-auto w-full max-w-[300px] flex justify-center"
-                        mode="range"
-                        selected={dateRange}
-                        onSelect={(range) => {
-                          // react-day-picker sets from === to on the first tap.
-                          // Closing here made every offer a single day.
-                          if (range?.from && range?.to && isSameDay(range.from, range.to)) {
-                            setDateRange({ from: range.from, to: undefined })
-                            return
-                          }
-                          setDateRange(range)
-                        }}
-                        disabled={isDateDisabled}
-                        modifiersClassNames={dayPickerClassNames}
-                      />
-                    ) : (
-                      <DayPicker
-                        className="mx-auto w-full max-w-[300px] flex justify-center"
-                        mode="single"
-                        selected={date ? new Date(`${date}T12:00:00`) : undefined}
-                        onSelect={(day) => {
-                          setDate(day ? format(day, "yyyy-MM-dd") : "")
-                          if (day) setCalOpen(false)
-                        }}
-                        disabled={isDateDisabled}
-                        modifiersClassNames={dayPickerClassNames}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-2">
@@ -363,7 +349,7 @@ export function MakeAnOfferModal({
           </form>
         )}
       </div>
-    </div>,
+    </>,
     document.body
   )
 }
