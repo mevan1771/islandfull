@@ -1,19 +1,25 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
 import { format, parseISO } from "date-fns"
+import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays } from "@/lib/date-range-label"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
+import { cancelMyBooking, cancelMyUnpaidBookings } from "@/app/actions/bookings"
 import { markPageReturn } from "@/lib/home-scroll"
 import type { HomepageActivity } from "@/lib/homepage-feed"
 import type { TripsDesk } from "@/app/actions/trips-desk"
+
+function isUnpaidBooking(status: string) {
+  return status === "pending" || status === "pending_payment"
+}
 
 function offerListing(offer: any) {
   const listing = offer?.activities
@@ -64,11 +70,33 @@ function bookingListing(booking: any) {
   return Array.isArray(listing) ? listing[0] : listing
 }
 
-function BookingCard({ booking }: { booking: any }) {
+function BookingCard({
+  booking,
+  onCancelled,
+}: {
+  booking: any
+  onCancelled: (id: string) => void
+}) {
   const listing = bookingListing(booking)
   const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
   const slug = listing?.slug as string | undefined
   const status = String(booking.status || "")
+  const unpaid = isUnpaidBooking(status)
+  const [pending, startTransition] = useTransition()
+
+  function cancelThis() {
+    if (!window.confirm("Cancel this unpaid booking? You can reserve again later.")) return
+    startTransition(async () => {
+      const result = await cancelMyBooking(booking.id)
+      if (!result.success) {
+        toast.error(result.error || "Could not cancel.")
+        return
+      }
+      onCancelled(booking.id)
+      toast.success("Booking cancelled")
+    })
+  }
+
   const body = (
     <>
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
@@ -85,7 +113,7 @@ function BookingCard({ booking }: { booking: any }) {
           </span>
         </div>
       </div>
-      <div className="p-3.5 md:p-4">
+      <div className="p-3.5 md:p-4 flex flex-col flex-1">
         <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
           {listing?.title || "Booking"}
         </h3>
@@ -102,11 +130,32 @@ function BookingCard({ booking }: { booking: any }) {
           </span>
         </div>
         <p className="mt-3 text-lg font-bold tracking-tight text-zinc-900">${Number(booking.total_usd || 0)}</p>
+        {unpaid ? (
+          <div className="mt-auto pt-3 flex items-center gap-2">
+            {slug ? (
+              <Link
+                href={`/activity/${slug}`}
+                onClick={() => markPageReturn("/trips")}
+                className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white"
+              >
+                View listing
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={cancelThis}
+              disabled={pending}
+              className="inline-flex h-9 flex-1 items-center justify-center rounded-full border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:border-zinc-400 disabled:opacity-60"
+            >
+              {pending ? "Cancelling…" : "Cancel"}
+            </button>
+          </div>
+        ) : null}
       </div>
     </>
   )
   const className = "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full"
-  if (!slug) return <div className={className}>{body}</div>
+  if (unpaid || !slug) return <div className={className}>{body}</div>
   return (
     <Link href={`/activity/${slug}`} onClick={() => markPageReturn("/trips")} className={`${className} hover:border-zinc-300 hover:shadow-md transition-all`}>
       {body}
@@ -216,7 +265,8 @@ export function TripsPageClient({
   const [ideas, setIdeas] = useState(desk.recommended)
   const [loadingSaved, setLoadingSaved] = useState(desk.saved.length === 0)
   const [offers] = useState<any[]>(desk.offers)
-  const [bookings] = useState<any[]>(desk.bookings)
+  const [bookings, setBookings] = useState<any[]>(desk.bookings)
+  const [clearingUnpaid, startClearUnpaid] = useTransition()
 
   const newestFirst = useMemo(() => [...favorites].reverse(), [favorites])
 
@@ -396,12 +446,39 @@ export function TripsPageClient({
                 </div>
               </div>
             )}
-            <h2 className="text-xl font-bold text-zinc-900 mb-2">Upcoming bookings</h2>
-            <p className="text-sm text-zinc-500 mb-5">Confirmed reservations will appear here after checkout.</p>
+            <div className="flex items-end justify-between gap-4 mb-2">
+              <h2 className="text-xl font-bold text-zinc-900">Upcoming bookings</h2>
+              {bookings.some((b) => isUnpaidBooking(String(b.status || ""))) ? (
+                <button
+                  type="button"
+                  disabled={clearingUnpaid}
+                  onClick={() => {
+                    if (!window.confirm("Remove every unpaid booking from your trips? Confirmed paid trips stay.")) return
+                    startClearUnpaid(async () => {
+                      const result = await cancelMyUnpaidBookings()
+                      if (!result.success) {
+                        toast.error(result.error || "Could not clear unpaid bookings.")
+                        return
+                      }
+                      setBookings((prev) => prev.filter((b) => !isUnpaidBooking(String(b.status || ""))))
+                      toast.success(result.cancelled ? `Cleared ${result.cancelled} unpaid booking${result.cancelled === 1 ? "" : "s"}` : "Nothing unpaid to clear")
+                    })
+                  }}
+                  className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
+                >
+                  {clearingUnpaid ? "Clearing…" : "Clear unpaid"}
+                </button>
+              ) : null}
+            </div>
+            <p className="text-sm text-zinc-500 mb-5">Unpaid holds stay until you pay or cancel. Confirmed trips appear after checkout.</p>
             {bookings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
                 {bookings.map((booking) => (
-                  <BookingCard key={booking.id} booking={booking} />
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onCancelled={(id) => setBookings((prev) => prev.filter((b) => b.id !== id))}
+                  />
                 ))}
               </div>
             ) : (
