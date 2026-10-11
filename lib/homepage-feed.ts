@@ -17,6 +17,7 @@ export type HomepageActivity = {
   pricingModel: string
   maxGuests: number
   pricingTiers: unknown
+  allowOffers?: boolean
 }
 
 export type HomepageActivityFilters = {

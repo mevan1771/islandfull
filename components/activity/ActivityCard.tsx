@@ -29,6 +29,7 @@ interface ActivityCardProps {
   pricingTiers?: Record<string, number> | unknown
   alwaysShowFavorite?: boolean
   variant?: "tour" | "place"
+  allowOffers?: boolean
 }
 
 function useGpuEntryAnimation<T extends HTMLElement>() {
@@ -81,6 +82,7 @@ export function ActivityCard({
   pricingTiers,
   alwaysShowFavorite = false,
   variant = "tour",
+  allowOffers = false,
 }: ActivityCardProps) {
   const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
@@ -163,6 +165,11 @@ export function ActivityCard({
           {isPlace && (
             <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-[10px] md:text-xs font-bold uppercase tracking-wide text-zinc-800 shadow-sm">
               Must see
+            </span>
+          )}
+          {!isPlace && allowOffers && (
+            <span className="absolute bottom-3 left-3 z-10 rounded-full bg-[#faca20] px-2 py-1 text-[10px] md:text-xs font-bold text-zinc-900 shadow-sm whitespace-nowrap">
+              Make an offer
             </span>
           )}
         </div>

@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase"
 import type { HomepageActivity } from "@/lib/homepage-feed"
 
 const SELECT =
-  "id, title, slug, location, duration, price_usd, price_suffix, discount_price, deal_end_date, card_image_url, cover_image_url, is_hidden_gem, pricing_model, max_capacity, pricing_tiers, reviews(rating)"
+  "id, title, slug, location, duration, price_usd, price_suffix, discount_price, deal_end_date, card_image_url, cover_image_url, is_hidden_gem, pricing_model, max_capacity, pricing_tiers, allow_offers, reviews(rating)"
 
 function mapActivity(d: any): HomepageActivity {
   const rating =
@@ -29,6 +29,7 @@ function mapActivity(d: any): HomepageActivity {
     pricingModel: d.pricing_model,
     maxGuests: d.max_capacity,
     pricingTiers: d.pricing_tiers,
+    allowOffers: !!d.allow_offers,
   }
 }
 

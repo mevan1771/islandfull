@@ -31,6 +31,7 @@ function CardFromItem({ act }: { act: HomepageActivity }) {
       dealEndDate={act.deal_end_date || undefined}
       pricingTiers={act.pricingTiers}
       alwaysShowFavorite
+      allowOffers={act.allowOffers}
     />
   )
 }

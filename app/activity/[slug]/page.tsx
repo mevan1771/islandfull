@@ -133,7 +133,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
             const { data: tours } = await supabase
                 .from("activities")
-                .select("id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, approx_lat, approx_lng, reviews(rating)")
+                .select("id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, allow_offers, approx_lat, approx_lng, reviews(rating)")
                 .eq("category_type", "tour")
                 .eq("status", "published")
                 .eq("is_paused_by_host", false)
@@ -152,7 +152,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         } else if (activity.host_id) {
             const { data: moreData } = await supabase
                 .from('activities')
-                .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, reviews(rating)')
+                .select('id, title, slug, location, duration, price_usd, price_suffix, card_image_url, cover_image_url, is_hidden_gem, max_capacity, pricing_model, pricing_tiers, allow_offers, reviews(rating)')
                 .eq('host_id', activity.host_id)
                 .eq('status', 'published')
                 .eq('is_paused_by_host', false)
@@ -399,6 +399,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                         rating={rating}
                                         reviewCount={d.reviews ? d.reviews.length : 0}
                                         pricingTiers={d.pricing_tiers}
+                                        allowOffers={!!d.allow_offers}
                                     />
                                 )
                             })}

@@ -53,6 +53,7 @@ function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
       discountPrice={act.discount_price || undefined}
       dealEndDate={act.deal_end_date || undefined}
       pricingTiers={act.pricingTiers}
+      allowOffers={act.allowOffers}
     />
   )
 }
