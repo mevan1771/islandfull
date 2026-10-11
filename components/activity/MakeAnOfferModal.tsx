@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
-import { CalendarDays, Loader2, X } from "lucide-react"
+import { CalendarDays, CheckCircle2, Loader2, X } from "lucide-react"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, startOfToday } from "date-fns"
 import "react-day-picker/dist/style.css"
@@ -35,6 +35,8 @@ export function MakeAnOfferModal({
   categoryType,
   minNoticeDays = 1,
   blackoutDates = [],
+  selectedDate = "",
+  selectedRange,
 }: {
   open: boolean
   onClose: () => void
@@ -48,6 +50,8 @@ export function MakeAnOfferModal({
   categoryType?: string
   minNoticeDays?: number
   blackoutDates?: string[]
+  selectedDate?: string
+  selectedRange?: DateRange
 }) {
   const { user, isSignedIn } = useUser()
   const isMulti =
@@ -83,13 +87,15 @@ export function MakeAnOfferModal({
     setError(null)
     setSent(false)
     setCalOpen(false)
+    setDate(selectedDate || "")
+    setDateRange(selectedRange)
     setGuestCount(minGuests)
     setOfferAmount(suggested > 0 ? String(suggested) : "")
     if (isSignedIn && user) {
       setGuestName(user.fullName || user.firstName || "")
       setGuestEmail(user.primaryEmailAddress?.emailAddress || "")
     }
-  }, [open, isSignedIn, user, minGuests, suggested])
+  }, [open, isSignedIn, user, minGuests, suggested, selectedDate, selectedRange])
 
   if (!mounted || !open) return null
 
@@ -101,13 +107,20 @@ export function MakeAnOfferModal({
   const travelEnd = isMulti
     ? (dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : "")
     : undefined
-  const dateLabel = isMulti
+  const dateLabelShort = isMulti
     ? (dateRange?.from && dateRange?.to
       ? `${format(dateRange.from, "MMM d")} – ${format(dateRange.to, "MMM d")}`
       : dateRange?.from
         ? format(dateRange.from, "MMM d")
         : null)
     : (date ? format(new Date(`${date}T12:00:00`), "PP") : null)
+  const dateLabelFull = isMulti
+    ? (dateRange?.from && dateRange?.to
+      ? `${format(dateRange.from, "PP")} - ${format(dateRange.to, "PP")}`
+      : dateRange?.from
+        ? format(dateRange.from, "PP")
+        : "No dates selected")
+    : (date ? format(new Date(`${date}T12:00:00`), "PP") : "No date selected")
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -214,12 +227,16 @@ export function MakeAnOfferModal({
 
               <div className="space-y-1">
                 <span className={labelClass}>{isMulti ? "Travel dates" : "Travel date"}</span>
+                <div className="hidden md:flex w-full h-10 px-4 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between">
+                  <span className="font-medium text-sm text-zinc-900">{dateLabelFull}</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                </div>
                 <button
                   type="button"
                   onClick={() => setCalOpen((open) => !open)}
-                  className={`${fieldClass} flex items-center justify-between text-left`}
+                  className={`${fieldClass} md:hidden flex items-center justify-between text-left`}
                 >
-                  {dateLabel || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
+                  {dateLabelShort || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
                   <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
                 </button>
               </div>
@@ -284,7 +301,7 @@ export function MakeAnOfferModal({
                     onClick={() => setCalOpen(false)}
                     className={`${fieldClass} flex items-center justify-between text-left shrink-0 mb-2`}
                   >
-                    {dateLabel || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
+                    {dateLabelShort || <span className="text-zinc-400 font-medium">{isMulti ? "Select dates" : "Select date"}</span>}
                     <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
                   </button>
                   <div className="flex-1 min-h-0 flex items-start justify-center overflow-hidden">

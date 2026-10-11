@@ -427,6 +427,7 @@ export function BookingDrawer({
                 type="button"
                 variant="outline"
                 onClick={() => setOfferOpen(true)}
+                disabled={isDateRange ? !dateRange?.from : !date}
                 className="flex-1 h-[52px] rounded-xl font-bold text-base"
               >
                 Make an Offer
@@ -936,6 +937,8 @@ export function BookingDrawer({
         categoryType={categoryType}
         minNoticeDays={minNoticeDays}
         blackoutDates={blackoutDates}
+        selectedDate={date}
+        selectedRange={dateRange}
       />
     </>
   )
