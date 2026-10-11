@@ -102,14 +102,16 @@ export async function createHost(formData: FormData) {
       avatar_url = publicUrlData.publicUrl
     }
 
-    const { error } = await supabaseAdmin
+    const { data: created, error } = await supabaseAdmin
       .from('hosts')
       .insert([{ name, email, phone, contact_name, address, payout_notes, image_url: image_url || null, avatar_url: avatar_url || null, service_types }])
+      .select("id")
+      .single()
 
     if (error) throw error
 
     revalidatePath('/admin/hosts')
-    return { success: true }
+    return { success: true, id: created?.id }
   } catch (error: any) {
     console.error("Error creating host:", error)
     return { success: false, error: error.message }

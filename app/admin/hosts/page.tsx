@@ -22,7 +22,6 @@ export default function HostsPage() {
   const [editingHost, setEditingHost] = useState<any>(null)
   const [formData, setFormData] = useState({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
   const [serviceTypes, setServiceTypes] = useState<HostServiceType[]>(["tour"])
-  const [createPortalLogin, setCreatePortalLogin] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -70,12 +69,10 @@ export default function HostsPage() {
         login_password: ""
       })
       setServiceTypes(parseServiceTypes(host.service_types))
-      setCreatePortalLogin(false)
     } else {
       setEditingHost(null)
       setFormData({ name: "", image_url: "", avatar_url: "", contact_name: "", email: "", phone: "", address: "", payout_notes: "", login_email: "", login_password: "" })
       setServiceTypes(["tour"])
-      setCreatePortalLogin(false)
     }
     setImageFile(null)
     setAvatarFile(null)
@@ -122,21 +119,36 @@ export default function HostsPage() {
       if (formData.avatar_url) data.append("avatar_url", formData.avatar_url)
       if (avatarFile) data.append("avatar_file", avatarFile)
 
-      const wantsLogin = createPortalLogin && formData.login_email.trim() && formData.login_password.trim()
+      const loginEmail = formData.login_email.trim()
+      const loginPassword = formData.login_password.trim()
+      const wantsLogin = Boolean(loginEmail && loginPassword)
       let res
       if (editingHost) {
-        if (!editingHost.user_id && wantsLogin) {
-          data.append("login_email", formData.login_email.trim())
-          data.append("login_password", formData.login_password)
-          res = await adminProvisionLegacyHost(editingHost.id, data)
-          if (res.success) {
-            res = await updateHost(editingHost.id, data)
+        res = await updateHost(editingHost.id, data)
+        if (res.success && !editingHost.user_id && wantsLogin) {
+          data.append("login_email", loginEmail)
+          data.append("login_password", loginPassword)
+          const loginRes = await adminProvisionLegacyHost(editingHost.id, data)
+          if (!loginRes.success) {
+            toast.success("Host saved. Portal login was skipped: " + loginRes.error)
+            closeModal()
+            await loadHosts()
+            return
           }
-        } else {
-          res = await updateHost(editingHost.id, data)
         }
       } else {
         res = await createHost(data)
+        if (res.success && wantsLogin && res.id) {
+          data.append("login_email", loginEmail)
+          data.append("login_password", loginPassword)
+          const loginRes = await adminProvisionLegacyHost(res.id, data)
+          if (!loginRes.success) {
+            toast.success("Host saved. Portal login was skipped: " + loginRes.error)
+            closeModal()
+            await loadHosts()
+            return
+          }
+        }
       }
 
       if (res && res.success) {
@@ -429,23 +441,10 @@ export default function HostsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
-              {editingHost && !editingHost.user_id && (
+              {(!editingHost || !editingHost.user_id) && (
                 <div className="space-y-4 p-4 bg-zinc-50 border border-zinc-200 rounded-2xl mb-6">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={createPortalLogin}
-                      onChange={(e) => setCreatePortalLogin(e.target.checked)}
-                    />
-                    <span>
-                      <span className="block text-lg font-bold text-zinc-900">Create host portal login</span>
-                      <span className="block text-sm text-zinc-500 mt-0.5">Leave off to save the host profile only. Contact email below is not a login.</span>
-                    </span>
-                  </label>
-
-                  {createPortalLogin && (
-                  <>
+                  <h3 className="text-lg font-bold text-zinc-900">Host portal login</h3>
+                  <p className="text-sm text-zinc-500">Optional. This is their login, not the contact email below. Leave blank if they do not need the host portal yet.</p>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-zinc-800">Login Email or Phone Number</label>
                     <input
@@ -471,8 +470,6 @@ export default function HostsPage() {
                     />
                     <p className="text-xs text-zinc-500 mt-1">They will be able to change this later.</p>
                   </div>
-                  </>
-                  )}
                 </div>
               )}
 
