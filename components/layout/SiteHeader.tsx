@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
-import { useState, useEffect } from "react"
-import { canBackToHomeScroll, consumePageReturn, peekHomeReturnHref } from "@/lib/home-scroll"
+import { useState, useEffect, useLayoutEffect } from "react"
+import { canBackToHomeScroll, consumePageReturn, hasHomeScrollRestore, peekHomeReturnHref } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 
@@ -16,14 +16,33 @@ export default function SiteHeader() {
 
     const [isVisible, setIsVisible] = useState(true)
     const [isScrolled, setIsScrolled] = useState(false)
+    const [motionReady, setMotionReady] = useState(true)
+    const restorePending = pathname === "/" && typeof window !== "undefined" && hasHomeScrollRestore()
+
+    useLayoutEffect(() => {
+        const y = window.scrollY
+        const restoring = pathname === "/" && hasHomeScrollRestore()
+        const scrolled = y > 50 || restoring
+        setIsScrolled(scrolled)
+        setIsVisible(pathname !== "/" || !scrolled)
+        setMotionReady(false)
+        const id = window.requestAnimationFrame(() => setMotionReady(true))
+        return () => window.cancelAnimationFrame(id)
+    }, [pathname])
 
     useEffect(() => {
         let lastScrollY = window.scrollY
 
         const handleScroll = () => {
             const currentScrollY = window.scrollY
-
+            const delta = currentScrollY - lastScrollY
             setIsScrolled(currentScrollY > 50)
+
+            if (Math.abs(delta) > 80) {
+                setIsVisible(currentScrollY <= 50)
+                lastScrollY = currentScrollY
+                return
+            }
 
             if (currentScrollY > 50) {
                 if (currentScrollY > lastScrollY) {
@@ -39,7 +58,7 @@ export default function SiteHeader() {
 
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
+    }, [pathname])
 
     // Do not render the main site header on host or admin portals
     if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
@@ -62,7 +81,9 @@ export default function SiteHeader() {
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
 
-    const shouldForceDarkTextDesktop = isHomePage && isScrolled
+    const homeScrolled = isScrolled || restorePending
+    const homeHeaderVisible = isVisible && !restorePending
+    const shouldForceDarkTextDesktop = isHomePage && homeScrolled
     const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
     const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
@@ -79,10 +100,12 @@ export default function SiteHeader() {
         : isActivityPage
         ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
         : isHomePage
-        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none md:transition-transform md:duration-300 md:ease-in-out ${
-            isScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
+        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
+            motionReady ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
           } ${
-            isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
+            homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
+          } ${
+            homeHeaderVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
           }`
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
@@ -174,7 +197,7 @@ export default function SiteHeader() {
                 {/* Desktop Navigation */}
                 <nav
                     className={`hidden md:flex items-center text-sm ${
-                        isHomePage && !isScrolled
+                        isHomePage && !homeScrolled
                             ? "gap-0.5 rounded-full bg-white/90 backdrop-blur-md px-1.5 py-1 shadow-lg shadow-black/10 font-semibold text-slate-800"
                             : `gap-8 font-medium ${textColor}`
                     }`}
@@ -189,7 +212,7 @@ export default function SiteHeader() {
                             item.href === "/"
                                 ? pathname === "/"
                                 : pathname?.startsWith(item.href)
-                        const overlay = isHomePage && !isScrolled
+                        const overlay = isHomePage && !homeScrolled
 
                         return (
                             <Link
