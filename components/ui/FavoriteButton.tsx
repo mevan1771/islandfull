@@ -14,7 +14,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ activityId, className, variant = 'overlay', useDarkTextDesktop = false, useDarkTextMobile = false }: FavoriteButtonProps) {
-    const { favorites, toggleFavorite, isHydrated } = useFavorites()
+    const { favorites, toggleFavorite } = useFavorites()
 
     const overlayClasses = "absolute top-4 right-4 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-black/20 sm:bg-white/10 border-transparent sm:border sm:border-white/20 backdrop-blur-md sm:backdrop-blur-sm shadow-sm sm:shadow-xl z-10"
     const inlineClasses = "relative w-10 h-10 flex items-center justify-center rounded-full shadow-sm shrink-0 border transition-all duration-300"
@@ -23,11 +23,14 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
 
     const iconColor = `${useDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${useDarkTextDesktop ? 'md:text-slate-700/80' : 'md:text-white/90'}`
 
-    const isSaved = isHydrated && favorites.includes(activityId)
+    const isSaved = favorites.includes(activityId)
 
     return (
         <button
             type="button"
+            onPointerDown={(e) => {
+                e.stopPropagation()
+            }}
             onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -43,7 +46,7 @@ export function FavoriteButton({ activityId, className, variant = 'overlay', use
             }}
             className={twMerge(
                 defaultClasses,
-                "cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95",
+                "cursor-pointer touch-manipulation transition-transform duration-150 hover:scale-105 active:scale-90",
                 variant === 'overlay' ? (
                     isSaved
                         ? "bg-black/20 sm:bg-rose-500 sm:border-rose-500 sm:hover:bg-rose-600"

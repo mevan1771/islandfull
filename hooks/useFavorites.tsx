@@ -92,22 +92,16 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       const next = prev.includes(activityId)
         ? prev.filter((id) => id !== activityId)
         : [...prev, activityId]
-      queueMicrotask(() => {
-        window.dispatchEvent(new Event("favoritesChanged"))
-        persistAccount(next)
-      })
+      writeLocal(next)
+      persistAccount(next)
       return next
     })
   }, [persistAccount])
 
   useEffect(() => {
     const applyLocal = () => setFavorites(readLocal())
-    window.addEventListener("favoritesChanged", applyLocal)
     window.addEventListener("storage", applyLocal)
-    return () => {
-      window.removeEventListener("favoritesChanged", applyLocal)
-      window.removeEventListener("storage", applyLocal)
-    }
+    return () => window.removeEventListener("storage", applyLocal)
   }, [])
 
   return (

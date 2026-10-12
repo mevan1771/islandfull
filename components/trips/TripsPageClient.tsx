@@ -263,7 +263,8 @@ export function TripsPageClient({
 }) {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const tab = searchParams.get("tab") === "wishlist" ? "wishlist" : "trips"
+  const urlTab = searchParams.get("tab") === "wishlist" ? "wishlist" : "trips"
+  const [tab, setTab] = useState(urlTab)
   const { user, isSignedIn } = useUser()
   const { favorites, isHydrated } = useFavorites()
   const [saved, setSaved] = useState<HomepageActivity[]>(desk.saved)
@@ -272,8 +273,14 @@ export function TripsPageClient({
   const [offers] = useState<any[]>(desk.offers)
   const [bookings, setBookings] = useState<any[]>(desk.bookings)
   const [clearingUnpaid, startClearUnpaid] = useTransition()
+  const [, startTabNav] = useTransition()
 
   const newestFirst = useMemo(() => [...favorites].reverse(), [favorites])
+  const favoriteKey = newestFirst.join(",")
+
+  useEffect(() => {
+    setTab(urlTab)
+  }, [urlTab])
 
   useEffect(() => {
     if (!isHydrated) return
@@ -309,7 +316,7 @@ export function TripsPageClient({
     return () => {
       cancelled = true
     }
-  }, [isHydrated, favorites, desk])
+  }, [isHydrated, favoriteKey, desk])
 
   const locations = [...new Set(saved.map((a) => a.location.replace(", Sri Lanka", "")))]
   const firstName = user?.firstName || desk.firstName || "there"
@@ -360,18 +367,28 @@ export function TripsPageClient({
         <div className="inline-flex rounded-full bg-white p-1 shadow-md border border-zinc-100">
           <button
             type="button"
-            onClick={() => router.replace("/trips?tab=trips", { scroll: false })}
-            className={`cursor-pointer px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              tab === "trips" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
+            onClick={() => {
+              setTab("trips")
+              startTabNav(() => {
+                router.replace("/trips?tab=trips", { scroll: false })
+              })
+            }}
+            className={`cursor-pointer touch-manipulation px-4 py-2 rounded-full text-sm font-semibold transition-transform active:scale-[0.96] ${
+              tab === "trips" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
             }`}
           >
             My Trips
           </button>
           <button
             type="button"
-            onClick={() => router.replace("/trips?tab=wishlist", { scroll: false })}
-            className={`cursor-pointer px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-              tab === "wishlist" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900"
+            onClick={() => {
+              setTab("wishlist")
+              startTabNav(() => {
+                router.replace("/trips?tab=wishlist", { scroll: false })
+              })
+            }}
+            className={`cursor-pointer touch-manipulation px-4 py-2 rounded-full text-sm font-semibold transition-transform active:scale-[0.96] ${
+              tab === "wishlist" ? "bg-zinc-900 text-white" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
             }`}
           >
             Wishlist
@@ -392,7 +409,7 @@ export function TripsPageClient({
               </Link>
             </div>
 
-            {!isHydrated || loadingSaved ? (
+            {loadingSaved && saved.length === 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="aspect-square rounded-2xl bg-zinc-200/70 animate-pulse" />
