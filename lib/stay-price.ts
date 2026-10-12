@@ -6,12 +6,14 @@ export function chargesByDay(
 ) {
   return (
     pricingModel === "per_day" ||
+    pricingModel === "per_night" ||
+    categoryType === "hotel" ||
     (categoryType === "transport" && bookingType !== "point_to_point")
   )
 }
 
 export function chargesByGuest(pricingModel?: string) {
-  return pricingModel !== "per_day" && pricingModel !== "flat_rate"
+  return pricingModel !== "per_day" && pricingModel !== "per_night" && pricingModel !== "flat_rate"
 }
 
 export function stayListTotal({
@@ -63,6 +65,7 @@ export function stayUnitFromTotal({
 export function stayRateSuffix(pricingModel?: string, categoryType?: string, bookingType?: string) {
   const byGuest = chargesByGuest(pricingModel)
   const byDay = chargesByDay(pricingModel, categoryType, bookingType)
+  if (categoryType === "hotel" || pricingModel === "per_night") return "per night"
   if (byGuest && byDay) return "per person / day"
   if (byGuest) return "per person"
   if (byDay) return "per day"

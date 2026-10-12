@@ -437,6 +437,20 @@ export default function HotelForm({
           <input type="checkbox" name="is_featured" defaultChecked={!!initialData?.is_featured} />
           Featured
         </label>
+        <label className="md:col-span-3 flex items-start gap-3 p-4 rounded-2xl border-2 border-zinc-100 bg-white cursor-pointer">
+          <input
+            type="checkbox"
+            name="allow_offers"
+            defaultChecked={!!initialData?.allow_offers}
+            className="mt-1 h-5 w-5 rounded border-zinc-300 text-rose-500 focus:ring-rose-500"
+          />
+          <span>
+            <span className="block text-sm font-bold text-zinc-900">Enable Make an Offer</span>
+            <span className="block text-sm text-zinc-500 mt-0.5">
+              Guests can bid a nightly rate. No card, no login required.
+            </span>
+          </span>
+        </label>
       </section>
     </form>
   )

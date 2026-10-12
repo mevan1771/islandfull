@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, offerPayPath, offerPayUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
 import { formatIsoRangeWithDays, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
 import { formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
-import { parseISO } from "date-fns"
+import { differenceInDays, parseISO } from "date-fns"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ADMIN_INBOX = "info@islandfull.com"
@@ -25,7 +25,8 @@ function rel<T>(value: T | T[] | null | undefined): T | null {
 }
 
 export async function createOffer(input: {
-  activityId: string
+  activityId?: string
+  hotelId?: string
   guestName: string
   guestEmail: string
   guestPhone?: string
@@ -49,28 +50,83 @@ export async function createOffer(input: {
     const specialNotes = [rangeNote, userNotes].filter(Boolean).join("\n") || null
     const travelLabel = formatIsoRangeWithDays(travelDate, travelEndDate || null)
 
-    if (!input.activityId || !guestName || !EMAIL_RE.test(guestEmail) || !travelDate || !Number.isFinite(offerAmount) || offerAmount <= 0) {
+    if ((!input.activityId && !input.hotelId) || !guestName || !EMAIL_RE.test(guestEmail) || !travelDate || !Number.isFinite(offerAmount) || offerAmount <= 0) {
       return { success: false, error: "Please fill in your name, a valid email, travel date, and offer amount." }
     }
 
-    const { data: activity, error: activityError } = await supabaseAdmin
-      .from("activities")
-      .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, hosts(email)")
-      .eq("id", input.activityId)
-      .single()
+    let listingTitle = ""
+    let listingSlug = ""
+    let listingKind: "activity" | "hotel" = "activity"
+    let hostEmail: string | null = null
+    let minGuests = 1
+    let maxGuests = 20
+    let listUnit = 0
+    let pricingModel = "per_person"
+    let categoryType = "tour"
+    let bookingType = "single_day"
+    let activityId: string | null = null
+    let hotelId: string | null = null
 
-    if (activityError || !activity) {
-      return { success: false, error: "This listing is not available." }
-    }
-    if (!activity.allow_offers || activity.status !== "published") {
-      return { success: false, error: "Offers are not open for this listing." }
-    }
-    if (activity.category_type !== "tour" && activity.category_type !== "transport") {
-      return { success: false, error: "Offers are only available on tours and transport." }
+    if (input.hotelId) {
+      const { data: hotel, error: hotelError } = await supabaseAdmin
+        .from("hotels")
+        .select("id, title, slug, allow_offers, status, hosts(email)")
+        .eq("id", input.hotelId)
+        .single()
+      if (hotelError || !hotel) {
+        return { success: false, error: "This listing is not available." }
+      }
+      if (!hotel.allow_offers || hotel.status !== "published") {
+        return { success: false, error: "Offers are not open for this listing." }
+      }
+      listingKind = "hotel"
+      hotelId = hotel.id
+      listingTitle = hotel.title
+      listingSlug = hotel.slug
+      const host = rel(hotel.hosts as { email?: string } | { email?: string }[] | null)
+      hostEmail = host?.email || null
+      const { data: hotelRooms } = await supabaseAdmin
+        .from("hotel_room_types")
+        .select("nightly_rate_usd")
+        .eq("hotel_id", hotel.id)
+        .eq("is_active", true)
+      const rates = (hotelRooms || [])
+        .map((room: any) => Number(room.nightly_rate_usd) || 0)
+        .filter((n: number) => n > 0)
+      listUnit = rates.length ? Math.min(...rates) : 0
+      pricingModel = "per_night"
+      categoryType = "hotel"
+      bookingType = "multi_day"
+      maxGuests = 20
+    } else {
+      const { data: activity, error: activityError } = await supabaseAdmin
+        .from("activities")
+        .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, hosts(email)")
+        .eq("id", input.activityId)
+        .single()
+
+      if (activityError || !activity) {
+        return { success: false, error: "This listing is not available." }
+      }
+      if (!activity.allow_offers || activity.status !== "published") {
+        return { success: false, error: "Offers are not open for this listing." }
+      }
+      if (activity.category_type !== "tour" && activity.category_type !== "transport") {
+        return { success: false, error: "Offers are only available on tours and transport." }
+      }
+      activityId = activity.id
+      listingTitle = activity.title
+      listingSlug = activity.slug
+      listUnit = Number(activity.price_usd) || 0
+      minGuests = activity.min_guests || 1
+      maxGuests = activity.max_capacity || 20
+      pricingModel = activity.pricing_model
+      categoryType = activity.category_type
+      bookingType = activity.booking_type
+      const host = rel(activity.hosts as { email?: string } | { email?: string }[] | null)
+      hostEmail = host?.email || null
     }
 
-    const minGuests = activity.min_guests || 1
-    const maxGuests = activity.max_capacity || 20
     const boundedGuests = Math.min(maxGuests, Math.max(minGuests, guestCount))
 
     let clerkUserId: string | null = null
@@ -84,7 +140,8 @@ export async function createOffer(input: {
     const { data: offer, error } = await supabaseAdmin
       .from("offers")
       .insert({
-        activity_id: activity.id,
+        activity_id: activityId,
+        hotel_id: hotelId,
         clerk_user_id: clerkUserId,
         guest_name: guestName,
         guest_email: guestEmail,
@@ -103,23 +160,26 @@ export async function createOffer(input: {
       return { success: false, error: "Could not send your offer. Please try again." }
     }
 
-    const host = rel(activity.hosts as { email?: string } | { email?: string }[] | null)
-    const stayDays = travelEndDate ? inclusiveDays(parseISO(travelDate), parseISO(travelEndDate)) : 1
+    const stayDays = travelEndDate
+      ? listingKind === "hotel"
+        ? Math.max(1, differenceInDays(parseISO(travelEndDate), parseISO(travelDate)))
+        : inclusiveDays(parseISO(travelDate), parseISO(travelEndDate))
+      : 1
     const listTotal = stayListTotal({
-      unitPrice: Number(activity.price_usd) || 0,
+      unitPrice: listUnit,
       guests: boundedGuests,
       days: stayDays,
-      pricingModel: activity.pricing_model,
-      categoryType: activity.category_type,
-      bookingType: activity.booking_type,
+      pricingModel,
+      categoryType,
+      bookingType,
     })
-    const rateSuffix = stayRateSuffix(activity.pricing_model, activity.category_type, activity.booking_type)
+    const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
     const rateArgs = {
       guests: boundedGuests,
       days: stayDays,
-      pricingModel: activity.pricing_model,
-      categoryType: activity.category_type,
-      bookingType: activity.booking_type,
+      pricingModel,
+      categoryType,
+      bookingType,
     }
     sendOfferCreatedEmails({
       offerId: offer.id,
@@ -130,13 +190,13 @@ export async function createOffer(input: {
       travelDate: travelLabel,
       guestCount: boundedGuests,
       specialNotes: userNotes,
-      activityTitle: activity.title,
-      activitySlug: activity.slug,
+      activityTitle: listingTitle,
+      activitySlug: listingSlug,
       basePrice: listTotal,
       listRate: stayUnitFromTotal({ total: listTotal, ...rateArgs }),
       offerRate: stayUnitFromTotal({ total: offerAmount, ...rateArgs }),
       rateSuffix,
-      hostEmail: host?.email || null,
+      hostEmail,
     }).catch((err) => console.error("Offer email failed:", err))
 
     revalidatePath("/admin/offers")
@@ -252,17 +312,23 @@ async function sendGuestDecisionEmail(offer: {
     slug?: string
     card_image_url?: string | null
     cover_image_url?: string | null
+    listingPath?: string
   } | {
     title?: string
     slug?: string
     card_image_url?: string | null
     cover_image_url?: string | null
+    listingPath?: string
   }[] | null
 }) {
   const listing = rel(offer.activities)
   const title = listing?.title || "your trip"
   const slug = listing?.slug
-  const listingUrl = slug ? `${siteUrl()}/activity/${slug}` : siteUrl()
+  const listingUrl = listing?.listingPath
+    ? `${siteUrl()}${listing.listingPath}`
+    : slug
+      ? `${siteUrl()}/activity/${slug}`
+      : siteUrl()
   const payUrl = offer.id ? offerPayUrl(offer.id) : listingUrl
   const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
   const status = offer.status === "accepted" ? "accepted" : "declined"
@@ -401,14 +467,27 @@ export async function getAcceptedOfferForPay(id: string, activityId: string) {
 export async function getOffers() {
   const { data, error } = await supabaseAdmin
     .from("offers")
-    .select("*, activities(id, title, price_usd, category_type, slug)")
+    .select("*, activities(id, title, price_usd, category_type, slug), hotels(id, title, slug, cover_image_url)")
     .order("created_at", { ascending: false })
 
   if (error) {
     console.error("getOffers error:", error)
     return []
   }
-  return data || []
+  return (data || []).map((row: any) => {
+    const hotel = rel(row.hotels)
+    if (row.activities || !hotel) return row
+    return {
+      ...row,
+      activities: {
+        id: hotel.id,
+        title: hotel.title,
+        slug: hotel.slug,
+        price_usd: 0,
+        category_type: "hotel",
+      },
+    }
+  })
 }
 
 export async function updateOfferStatus(
@@ -439,7 +518,7 @@ export async function updateOfferStatus(
     .from("offers")
     .update(update)
     .eq("id", id)
-    .select("id, guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug, card_image_url, cover_image_url)")
+    .select("id, guest_name, guest_email, offer_amount, travel_date, special_notes, status, activities(title, slug, card_image_url, cover_image_url), hotels(title, slug, cover_image_url)")
     .single()
 
   if (error) {
@@ -448,7 +527,13 @@ export async function updateOfferStatus(
   }
 
   if (offer && (status === "accepted" || status === "declined")) {
-    sendGuestDecisionEmail(offer).catch((err) => console.error("Guest decision email failed:", err))
+    const hotel = rel((offer as any).hotels)
+    sendGuestDecisionEmail({
+      ...offer,
+      activities: rel(offer.activities) || (hotel
+        ? { title: hotel.title, slug: hotel.slug, cover_image_url: hotel.cover_image_url, listingPath: `/hotel/${hotel.slug}` }
+        : null),
+    }).catch((err) => console.error("Guest decision email failed:", err))
   }
 
   revalidatePath("/admin/offers")

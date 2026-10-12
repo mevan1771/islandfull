@@ -178,6 +178,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
         <div className="hidden lg:block w-full max-w-[420px]">
           <div className="sticky top-28">
             <HotelStayWidget
+              hotelId={hotel.id}
               title={hotel.title}
               rooms={rooms}
               checkInTime={hotel.check_in_time}
@@ -185,6 +186,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
               whatsapp={hotel.contact_whatsapp || hotel.contact_phone}
               hostName={host?.name}
               hostAvatar={host?.avatar_url || host?.image_url}
+              allowOffers={!!hotel.allow_offers}
               slot="desktop"
             />
           </div>
@@ -193,6 +195,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
 
       <div className="lg:hidden">
         <HotelStayWidget
+          hotelId={hotel.id}
           title={hotel.title}
           rooms={rooms}
           checkInTime={hotel.check_in_time}
@@ -200,6 +203,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
           whatsapp={hotel.contact_whatsapp || hotel.contact_phone}
           hostName={host?.name}
           hostAvatar={host?.avatar_url || host?.image_url}
+          allowOffers={!!hotel.allow_offers}
           slot="mobile"
         />
       </div>

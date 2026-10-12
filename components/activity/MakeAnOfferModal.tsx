@@ -6,7 +6,7 @@ import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react"
 import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
 import { DayPicker, DateRange } from "react-day-picker"
-import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
+import { addDays, differenceInDays, format, isBefore, parse, startOfToday } from "date-fns"
 import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
 import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
@@ -30,6 +30,7 @@ export function MakeAnOfferModal({
   open,
   onClose,
   activityId,
+  hotelId,
   title,
   listPrice,
   minGuests = 1,
@@ -44,7 +45,8 @@ export function MakeAnOfferModal({
 }: {
   open: boolean
   onClose: () => void
-  activityId: string
+  activityId?: string
+  hotelId?: string
   title: string
   listPrice: number
   minGuests?: number
@@ -58,7 +60,9 @@ export function MakeAnOfferModal({
   selectedRange?: DateRange
 }) {
   const { user, isSignedIn } = useUser()
+  const isHotel = !!hotelId || categoryType === "hotel" || pricingModel === "per_night"
   const isMulti =
+    isHotel ||
     bookingType === "multi_day" ||
     pricingModel === "per_day" ||
     (categoryType === "transport" && bookingType !== "point_to_point")
@@ -79,7 +83,9 @@ export function MakeAnOfferModal({
 
   const stayDays =
     isMulti && dateRange?.from
-      ? inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
+      ? isHotel
+        ? Math.max(1, differenceInDays(dateRange.to || dateRange.from, dateRange.from) || 1)
+        : inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
       : 1
   const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
   const listedAmount = listPrice > 0 ? String(Math.round(listPrice)) : ""
@@ -161,6 +167,7 @@ export function MakeAnOfferModal({
     setError(null)
     const result = await createOffer({
       activityId,
+      hotelId,
       guestName: isSignedIn ? signedName : guestName,
       guestEmail: isSignedIn ? signedEmail : guestEmail,
       guestPhone,

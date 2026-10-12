@@ -6,6 +6,7 @@ import { differenceInDays, format } from "date-fns"
 import { DateRange, DayPicker } from "react-day-picker"
 import { Clock } from "lucide-react"
 import { formatUSD } from "@/lib/utils"
+import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
 import "react-day-picker/dist/style.css"
 
 type Room = {
@@ -31,6 +32,8 @@ export function HotelStayWidget({
   whatsapp,
   hostName,
   hostAvatar,
+  hotelId,
+  allowOffers = false,
   slot = "desktop",
 }: {
   title: string
@@ -40,6 +43,8 @@ export function HotelStayWidget({
   whatsapp?: string | null
   hostName?: string | null
   hostAvatar?: string | null
+  hotelId: string
+  allowOffers?: boolean
   slot?: "desktop" | "mobile"
 }) {
   const activeRooms = rooms.filter((room) => Number(room.nightly_rate_usd) > 0)
@@ -47,6 +52,7 @@ export function HotelStayWidget({
   const [range, setRange] = useState<DateRange | undefined>()
   const [guests, setGuests] = useState(2)
   const [open, setOpen] = useState(false)
+  const [offerOpen, setOfferOpen] = useState(false)
 
   const room = activeRooms.find((item) => item.id === roomId) || activeRooms[0] || rooms[0]
   const rate = Number(room?.nightly_rate_usd) || 0
@@ -144,14 +150,25 @@ export function HotelStayWidget({
         </div>
       )}
 
-      <a
-        href={inquireHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex h-12 items-center justify-center rounded-xl bg-rose-500 text-white font-bold shadow-lg shadow-rose-500/25 active:scale-[0.98]"
-      >
-        Reserve now
-      </a>
+      <div className={`flex items-center ${allowOffers ? "gap-2" : ""}`}>
+        {allowOffers && (
+          <button
+            type="button"
+            onClick={() => setOfferOpen(true)}
+            className="flex-1 h-12 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold shadow-md shadow-[#FFC72C]/40 active:scale-[0.98] cursor-pointer touch-manipulation"
+          >
+            Make an offer
+          </button>
+        )}
+        <a
+          href={inquireHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${allowOffers ? "flex-1" : "w-full"} flex h-12 items-center justify-center rounded-xl bg-rose-500 text-white font-bold shadow-lg shadow-rose-500/25 active:scale-[0.98]`}
+        >
+          Reserve now
+        </a>
+      </div>
       <p className="text-center text-xs text-zinc-400">We’ll confirm dates with the host. No card charged yet.</p>
     </div>
   )
@@ -178,6 +195,21 @@ export function HotelStayWidget({
           </span>
           Chat now
         </a>
+        {allowOffers && (
+          <MakeAnOfferModal
+            open={offerOpen}
+            onClose={() => setOfferOpen(false)}
+            hotelId={hotelId}
+            title={title}
+            listPrice={rate}
+            minGuests={1}
+            maxGuests={maxGuests}
+            bookingType="multi_day"
+            pricingModel="per_night"
+            categoryType="hotel"
+            selectedRange={range}
+          />
+        )}
       </div>
     )
   }
@@ -190,10 +222,19 @@ export function HotelStayWidget({
             <span className="text-xl font-bold text-zinc-900 leading-none">{rate ? formatUSD(rate) : "—"}</span>
             <span className="text-[11px] font-medium text-zinc-500">/ night</span>
           </div>
+          {allowOffers && (
+            <button
+              type="button"
+              onClick={() => setOfferOpen(true)}
+              className="flex-1 h-10 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 text-[11px] font-bold shadow-md shadow-[#FFC72C]/40 active:scale-[0.98] cursor-pointer touch-manipulation"
+            >
+              Make Offer
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex-1 h-12 rounded-xl bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/25 active:scale-[0.98] cursor-pointer touch-manipulation"
+            className={`${allowOffers ? "flex-1 h-10 text-[11px]" : "flex-1 h-12 text-sm"} rounded-xl bg-rose-500 text-white font-bold shadow-lg shadow-rose-500/25 active:scale-[0.98] cursor-pointer touch-manipulation`}
           >
             Reserve now
           </button>
@@ -215,6 +256,21 @@ export function HotelStayWidget({
           </>,
           document.body
         )}
+      {allowOffers && (
+        <MakeAnOfferModal
+          open={offerOpen}
+          onClose={() => setOfferOpen(false)}
+          hotelId={hotelId}
+          title={title}
+          listPrice={rate}
+          minGuests={1}
+          maxGuests={maxGuests}
+          bookingType="multi_day"
+          pricingModel="per_night"
+          categoryType="hotel"
+          selectedRange={range}
+        />
+      )}
     </>
   )
 }

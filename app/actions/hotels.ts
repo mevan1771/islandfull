@@ -85,6 +85,7 @@ function hotelPayload(formData: FormData) {
     is_custom_commission: formData.get("is_custom_commission") === "true",
     status: (formData.get("status") as string) === "published" ? "published" : "draft",
     is_featured: formData.get("is_featured") === "on",
+    allow_offers: formData.get("allow_offers") === "on",
   }
 }
 

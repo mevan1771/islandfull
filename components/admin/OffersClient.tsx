@@ -51,7 +51,7 @@ export function OffersClient({ initialOffers }: { initialOffers: any[] }) {
     <div className="min-h-screen bg-zinc-50 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Offers</h1>
-        <p className="text-zinc-500 mt-1 mb-6">Guest bids on tours and transport. No payment is taken until you confirm.</p>
+        <p className="text-zinc-500 mt-1 mb-6">Guest bids on tours, transport, and hotels. No payment is taken until you confirm.</p>
 
         <div className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
