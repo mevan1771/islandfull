@@ -12,7 +12,6 @@ import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
 import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
-import { suggestedOfferAmount } from "@/lib/suggested-offer"
 const fieldClass =
   "w-full h-10 px-4 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900"
 const labelClass = "text-xs font-bold text-zinc-800 uppercase tracking-wide"
@@ -83,12 +82,12 @@ export function MakeAnOfferModal({
       ? inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
       : 1
   const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
-  const suggested = suggestedOfferAmount(listPrice)
+  const listedAmount = listPrice > 0 ? String(Math.round(listPrice)) : ""
   const offerStep = listPrice >= 50 ? 5 : 1
   const bumpOffer = (direction: -1 | 1) => {
     setOfferDirty(true)
     const current = Number(offerAmount)
-    const base = Number.isFinite(current) && current > 0 ? current : suggested || offerStep
+    const base = Number.isFinite(current) && current > 0 ? current : Number(listedAmount) || offerStep
     setOfferAmount(String(Math.max(1, base + direction * offerStep)))
   }
   const offerUnit = Number(offerAmount)
@@ -125,8 +124,8 @@ export function MakeAnOfferModal({
 
   useEffect(() => {
     if (!open || offerDirty) return
-    setOfferAmount(suggested > 0 ? String(suggested) : "")
-  }, [open, offerDirty, suggested])
+    setOfferAmount(listedAmount)
+  }, [open, offerDirty, listedAmount])
 
   if (!mounted || !open) return null
 
@@ -234,10 +233,11 @@ export function MakeAnOfferModal({
 
               <div className="space-y-1">
                 <span className={labelClass}>Your offer</span>
-                <p className="text-xs font-medium text-zinc-500">
-                  Type any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}, or use + / −.
-                  {listPrice > 0 ? ` Listed ${formatStayMoney(listPrice)}${rateSuffix !== "total" ? ` ${rateSuffix}` : ""}.` : ""}
-                </p>
+                {listPrice > 0 && (
+                  <p className="text-sm font-medium text-zinc-700">
+                    Listed {formatStayMoney(listPrice)}{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
+                  </p>
+                )}
                 <div className="flex items-center gap-2 w-fit p-1 rounded-xl border border-zinc-200 bg-zinc-50">
                   <button
                     type="button"
@@ -248,7 +248,7 @@ export function MakeAnOfferModal({
                     -
                   </button>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-base font-semibold text-zinc-400">$</span>
+                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-base font-semibold text-zinc-900">$</span>
                     <input
                       required
                       type="text"
@@ -259,7 +259,7 @@ export function MakeAnOfferModal({
                         setOfferDirty(true)
                         setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
                       }}
-                      placeholder={suggested > 0 ? String(suggested) : "0"}
+                      placeholder={listedAmount || "0"}
                       className="w-[5.5rem] h-10 pl-6 pr-2 rounded-lg border-0 bg-transparent text-center text-xl font-bold text-zinc-900 outline-none"
                     />
                   </div>
