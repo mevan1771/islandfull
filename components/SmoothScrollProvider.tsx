@@ -4,7 +4,7 @@ import "lenis/dist/lenis.css"
 import { ReactLenis, useLenis } from "lenis/react"
 import { usePathname } from "next/navigation"
 import { ReactNode, useEffect, useLayoutEffect } from "react"
-import { peekHomeArriveTop, peekHomeScrollRestore } from "@/lib/home-scroll"
+import { peekHomeScrollRestore, shouldResetHomeToTop } from "@/lib/home-scroll"
 
 function LenisBridge() {
   const lenis = useLenis()
@@ -20,7 +20,7 @@ function LenisBridge() {
 
   useLayoutEffect(() => {
     if (pathname !== "/" || !lenis) return
-    if (peekHomeArriveTop()) {
+    if (shouldResetHomeToTop()) {
       lenis.scrollTo(0, { immediate: true, force: true })
       return
     }

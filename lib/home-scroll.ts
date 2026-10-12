@@ -5,6 +5,47 @@ const SLUG_KEY = "islandfull:home-scroll-slug"
 const HIST_KEY = "islandfull:home-scroll-hist"
 const HEADER_KEY = "islandfull:home-header-hidden"
 const TOP_KEY = "islandfull:home-scroll-top"
+const PATH_FROM_KEY = "islandfull:path-from"
+
+let rememberedPath = ""
+let rememberedFrom = ""
+
+export function rememberPathname(pathname: string) {
+  if (typeof window === "undefined" || !pathname) return
+  if (!rememberedPath) {
+    rememberedPath = pathname
+    try {
+      rememberedFrom = sessionStorage.getItem(PATH_FROM_KEY) || pathname
+    } catch {
+      rememberedFrom = pathname
+    }
+    return
+  }
+  if (pathname === rememberedPath) return
+  rememberedFrom = rememberedPath
+  rememberedPath = pathname
+  try {
+    sessionStorage.setItem(PATH_FROM_KEY, rememberedFrom)
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+}
+
+export function getPathFrom() {
+  if (rememberedFrom) return rememberedFrom
+  try {
+    return sessionStorage.getItem(PATH_FROM_KEY) || ""
+  } catch {
+    return ""
+  }
+}
+
+export function shouldResetHomeToTop() {
+  if (peekHomeArriveTop()) return true
+  const from = getPathFrom()
+  if (!from || from === "/") return false
+  return !from.startsWith("/activity")
+}
 
 let homeHeaderSuppressed = false
 

@@ -19,6 +19,7 @@ import { getDestinationGuide } from "@/lib/destinationGuides";
 import { formatUSD } from "@/lib/utils";
 import { SortBySelect } from "@/components/ui/SortBySelect";
 import { sortTours, type TourSort } from "@/lib/tour-sort";
+import { markHomeArriveTop } from "@/lib/home-scroll";
 
 function toMapTour(activity: any): MapTour {
   let rating = 4.9;
@@ -221,7 +222,8 @@ function DestinationsPage() {
         return;
       }
       event.preventDefault();
-      router.push("/");
+      markHomeArriveTop()
+      router.push("/", { scroll: false });
     };
 
     window.addEventListener("islandfull:destinations-back", onBack);

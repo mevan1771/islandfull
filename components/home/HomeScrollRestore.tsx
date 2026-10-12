@@ -5,14 +5,14 @@ import {
   consumeHomeArriveTop,
   consumeHomeScrollRestore,
   jumpHomeScroll,
-  peekHomeArriveTop,
   peekHomeScrollRestore,
   restoreHomeScroll,
+  shouldResetHomeToTop,
 } from "@/lib/home-scroll"
 
 export function HomeScrollRestore() {
   useLayoutEffect(() => {
-    const forceTop = peekHomeArriveTop()
+    const forceTop = shouldResetHomeToTop()
     if (!forceTop && peekHomeScrollRestore() == null) return
 
     let cancelled = false

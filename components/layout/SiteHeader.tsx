@@ -9,9 +9,12 @@ import {
     blockHomeClicks,
     consumePageReturn,
     isHomeHeaderSuppressed,
+    jumpHomeScroll,
     markHomeArriveTop,
     peekHomeReturnHref,
+    rememberPathname,
     revealHomeHeader,
+    shouldResetHomeToTop,
     suppressHomeHeader,
 } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
@@ -26,8 +29,9 @@ export default function SiteHeader() {
     const [isScrolled, setIsScrolled] = useState(false)
     const [allowMotion, setAllowMotion] = useState(false)
     const prevPathname = useRef(pathname)
+    rememberPathname(pathname)
     const arrivingFromTour = pathname === "/" && prevPathname.current.startsWith("/activity")
-    const hideHomeHeader = arrivingFromTour || (pathname === "/" && isHomeHeaderSuppressed())
+    const hideHomeHeader = arrivingFromTour || (pathname === "/" && isHomeHeaderSuppressed() && !shouldResetHomeToTop())
 
     useLayoutEffect(() => {
         const fromActivity = prevPathname.current.startsWith("/activity")
@@ -35,6 +39,14 @@ export default function SiteHeader() {
         setAllowMotion(false)
 
         if (pathname !== "/") {
+            setIsVisible(true)
+            setIsScrolled(false)
+            return
+        }
+
+        if (shouldResetHomeToTop()) {
+            revealHomeHeader()
+            jumpHomeScroll(0)
             setIsVisible(true)
             setIsScrolled(false)
             return
@@ -185,21 +197,26 @@ export default function SiteHeader() {
                             onClick={() => {
                                 const event = new CustomEvent("islandfull:destinations-back", { cancelable: true })
                                 if (!window.dispatchEvent(event)) return
-                                router.back()
+                                markHomeArriveTop()
+                                router.push("/", { scroll: false })
                             }}
-                            className="md:hidden flex items-center justify-center"
+                            className="md:hidden flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 active:scale-90 transition-transform cursor-pointer touch-manipulation"
                             aria-label="Go back"
                         >
                             <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
                         </button>
                     )}
                     {pathname === '/map' && (
-                        <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40">
+                        <Link href="/" scroll={false} onClick={() => markHomeArriveTop()} className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40 active:scale-90 cursor-pointer touch-manipulation">
                             <ArrowLeft className="w-4 h-4" />
                         </Link>
                     )}
                     <Link
                         href="/"
+                        scroll={false}
+                        onClick={() => {
+                            if (pathname !== "/") markHomeArriveTop()
+                        }}
                         className={`flex items-center cursor-pointer`}
                     >
                         <Image

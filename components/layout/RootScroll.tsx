@@ -1,7 +1,7 @@
 "use client"
 
 import { useLayoutEffect } from "react"
-import { homeClicksBlocked, installHomeScrollPopstate, jumpHomeScroll, peekHomeArriveTop } from "@/lib/home-scroll"
+import { homeClicksBlocked, installHomeScrollPopstate, jumpHomeScroll, shouldResetHomeToTop } from "@/lib/home-scroll"
 
 export function RootScroll() {
   useLayoutEffect(() => {
@@ -11,7 +11,7 @@ export function RootScroll() {
     installHomeScrollPopstate()
 
     const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted && peekHomeArriveTop()) jumpHomeScroll(0)
+      if (event.persisted && shouldResetHomeToTop()) jumpHomeScroll(0)
     }
     window.addEventListener("pageshow", onPageShow)
 
