@@ -1,5 +1,6 @@
 import { HomeFilters } from "@/components/home/HomeFilters"
 import { MobileSearch } from "@/components/home/MobileSearch"
+import { HomeVerticalBar } from "@/components/home/HomeVerticalBar"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { preload } from "react-dom"
@@ -49,7 +50,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   }
 
   return (
-    <div className="pb-24 [overflow-anchor:none]" data-home-page>
+    <div className="pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HomeScrollRestore />
       {/* Hero Section */}
       <HeroCarousel carouselSlides={carouselSlides} />
@@ -57,6 +58,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>
         <MobileSearch />
+        <HomeVerticalBar />
       </Suspense>
 
       {/* Dynamic Filters UI */}

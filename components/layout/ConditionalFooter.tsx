@@ -18,7 +18,7 @@ export function ConditionalFooter() {
   }
 
   return (
-    <div className={pathname === "/destinations" ? "pb-16 lg:pb-0" : undefined}>
+    <div className={pathname === "/destinations" ? "pb-16 lg:pb-0" : pathname === "/" ? "pb-20 sm:pb-0" : undefined}>
       <SiteFooter />
     </div>
   )

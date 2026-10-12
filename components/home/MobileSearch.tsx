@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash, BedDouble } from "lucide-react"
+import { Search, MapPin, Calendar, Users, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
 import locationPin from "@/components/ui/Location icon/354556546.jpg"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -17,9 +17,6 @@ export function MobileSearch() {
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  const [currentVertical, setCurrentVertical] = useState<'tour' | 'event' | 'transport' | 'hotel'>(
-    (searchParams.get("vertical") as any) || 'tour'
-  )
   const [location, setLocation] = useState(searchParams.get("location") || "")
   const [date, setDate] = useState(searchParams.get("date") || "")
   const [travelers, setTravelers] = useState(searchParams.get("travelers") || "")
@@ -59,15 +56,6 @@ export function MobileSearch() {
     }
   }, [debouncedLocation, isFocused])
 
-  const handleVerticalClick = (vertical: 'tour' | 'event' | 'transport' | 'hotel') => {
-    setCurrentVertical(vertical)
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("vertical", vertical)
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
-  }
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams(searchParams.toString())
@@ -99,35 +87,6 @@ export function MobileSearch() {
   return (
     <div className="sm:hidden px-4 -mt-5 relative z-20 w-full mb-3">
       <div className="bg-white rounded-xl shadow-md p-2.5">
-        {/* Tabs */}
-        <div className="flex overflow-x-auto no-scrollbar whitespace-nowrap w-full items-center gap-4 border-b border-zinc-100 mb-2 pb-1">
-          <button
-            onClick={() => handleVerticalClick('tour')}
-            className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-          >
-            <Map className="w-3.5 h-3.5" /> Tours
-          </button>
-          <button
-            onClick={() => handleVerticalClick('event')}
-            className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'event' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-          >
-            <Calendar className="w-3.5 h-3.5" /> Events
-          </button>
-            <button
-              onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Bike className="w-3.5 h-3.5" /> Transport
-            </button>
-            <button
-              onClick={() => handleVerticalClick('hotel')}
-              className={`flex items-center gap-1.5 text-xs font-semibold pb-2 transition-colors border-b-2 -mb-[1px] ${currentVertical === 'hotel' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <BedDouble className="w-3.5 h-3.5" /> Hotels
-            </button>
-        </div>
-
-        {/* Inputs */}
         <form onSubmit={handleSearch} className="flex flex-col gap-2">
           <div className="flex items-stretch h-11 rounded-full border border-zinc-200 bg-zinc-50 focus-within:border-rose-400 overflow-visible">
             <div ref={dropdownRef} className="relative flex min-w-0 flex-1 items-center pl-3.5 pr-2">
