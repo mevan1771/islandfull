@@ -84,6 +84,13 @@ export function MakeAnOfferModal({
       : 1
   const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
   const suggested = suggestedOfferAmount(listPrice)
+  const offerStep = listPrice >= 50 ? 5 : 1
+  const bumpOffer = (direction: -1 | 1) => {
+    setOfferDirty(true)
+    const current = Number(offerAmount)
+    const base = Number.isFinite(current) && current > 0 ? current : suggested || offerStep
+    setOfferAmount(String(Math.max(1, base + direction * offerStep)))
+  }
   const offerUnit = Number(offerAmount)
   const offerTotal = stayListTotal({
     unitPrice: Number.isFinite(offerUnit) ? offerUnit : 0,
@@ -228,24 +235,41 @@ export function MakeAnOfferModal({
               <div className="space-y-1">
                 <span className={labelClass}>Your offer</span>
                 <p className="text-xs font-medium text-zinc-500">
-                  Type any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}.
+                  Type any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}, or use + / −.
                   {listPrice > 0 ? ` Listed ${formatStayMoney(listPrice)}${rateSuffix !== "total" ? ` ${rateSuffix}` : ""}.` : ""}
                 </p>
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-zinc-400">$</span>
-                  <input
-                    required
-                    type="text"
-                    inputMode="decimal"
-                    autoComplete="off"
-                    value={offerAmount}
-                    onChange={(e) => {
-                      setOfferDirty(true)
-                      setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
-                    }}
-                    placeholder={suggested > 0 ? String(suggested) : "0"}
-                    className="w-full h-14 pl-10 pr-4 rounded-xl border border-zinc-200 bg-white text-2xl font-bold text-zinc-900 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-                  />
+                <div className="flex items-center gap-2 w-fit p-1 rounded-xl border border-zinc-200 bg-zinc-50">
+                  <button
+                    type="button"
+                    onClick={() => bumpOffer(-1)}
+                    className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95 transition-all disabled:opacity-50"
+                    disabled={Number(offerAmount) <= 1}
+                  >
+                    -
+                  </button>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-base font-semibold text-zinc-400">$</span>
+                    <input
+                      required
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      value={offerAmount}
+                      onChange={(e) => {
+                        setOfferDirty(true)
+                        setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
+                      }}
+                      placeholder={suggested > 0 ? String(suggested) : "0"}
+                      className="w-[5.5rem] h-10 pl-6 pr-2 rounded-lg border-0 bg-transparent text-center text-xl font-bold text-zinc-900 outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => bumpOffer(1)}
+                    className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95 transition-all"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 
@@ -271,14 +295,8 @@ export function MakeAnOfferModal({
                         <CalendarDays className="w-4 h-4 text-zinc-400" />
                       </button>
                     </Popover.Trigger>
-                    <Popover.Portal container={document.body}>
-                      <Popover.Content
-                        align="center"
-                        side="bottom"
-                        sideOffset={8}
-                        onOpenAutoFocus={(event) => event.preventDefault()}
-                        className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-[calc(100vw-2rem)] md:w-auto flex justify-center"
-                      >
+                    <Popover.Portal>
+                      <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-auto max-w-[300px] flex justify-center">
                         {isMulti ? (
                           <DayPicker
                             className="mx-auto w-full max-w-[300px] flex justify-center"
@@ -306,7 +324,7 @@ export function MakeAnOfferModal({
 
               <div className="space-y-1">
                 <span className={labelClass}>Guests</span>
-                <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
+                <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                   <button
                     type="button"
                     onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
@@ -315,7 +333,7 @@ export function MakeAnOfferModal({
                   >
                     -
                   </button>
-                  <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
+                  <span className="w-8 text-center font-bold text-base">{guestCount}</span>
                   <button
                     type="button"
                     onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
