@@ -5,7 +5,6 @@ import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react"
 import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
-import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, format, isBefore, parse, startOfToday } from "date-fns"
 import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
@@ -72,6 +71,7 @@ export function MakeAnOfferModal({
   const [guestCount, setGuestCount] = useState(minGuests)
   const [offerAmount, setOfferAmount] = useState("")
   const [offerDirty, setOfferDirty] = useState(false)
+  const [calOpen, setCalOpen] = useState(false)
   const [specialNotes, setSpecialNotes] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -116,6 +116,7 @@ export function MakeAnOfferModal({
     setDateRange(selectedRange)
     setGuestCount(minGuests)
     setOfferDirty(false)
+    setCalOpen(false)
     if (isSignedIn && user) {
       setGuestName(user.fullName || user.firstName || "")
       setGuestEmail(user.primaryEmailAddress?.emailAddress || "")
@@ -183,7 +184,7 @@ export function MakeAnOfferModal({
         className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[99999]"
         onClick={onClose}
       />
-      <div className="flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl sm:w-full sm:max-w-lg sm:top-1/2 sm:-translate-y-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:rounded-2xl shadow-2xl">
+      <div className="flex flex-col fixed inset-x-0 bottom-0 z-[99999] max-h-[90dvh] bg-white overflow-hidden rounded-t-xl md:w-full md:max-w-lg md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:bottom-auto md:rounded-2xl shadow-2xl">
         <SheetGreetingHeader
           title="Make an offer"
           subtitle={title}
@@ -273,80 +274,83 @@ export function MakeAnOfferModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-end">
-                <div className="space-y-1 min-w-0">
-                  <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                    <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
-                    Date
-                  </label>
-                  <div className="hidden md:flex w-full h-10 px-3 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
-                    <span className="font-medium text-sm text-zinc-900 truncate">{dateLabelFull}</span>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <div className="relative">
+                <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] gap-3 items-end">
+                  <div className="space-y-1 min-w-0">
+                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                      <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
+                      Date
+                    </label>
+                    <div className="hidden md:flex w-full h-10 px-3 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
+                      <span className="font-medium text-sm text-zinc-900 truncate">{dateLabelFull}</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCalOpen((openCal) => !openCal)}
+                      className="md:hidden w-full h-10 px-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between gap-2"
+                    >
+                      <span className="truncate">
+                        {isMulti
+                          ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select</span>)
+                          : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "MMM d") : <span className="text-zinc-400">Select</span>)}
+                      </span>
+                      <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
+                    </button>
                   </div>
-                  <div className="md:hidden">
-                    <Popover.Root>
-                      <Popover.Trigger asChild>
-                        <button
-                          type="button"
-                          className="w-full h-10 px-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between gap-2"
-                        >
-                          <span className="truncate">
-                            {isMulti
-                              ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select date</span>)
-                              : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "MMM d") : <span className="text-zinc-400">Select date</span>)}
-                          </span>
-                          <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
-                        </button>
-                      </Popover.Trigger>
-                      <Popover.Portal>
-                        <Popover.Content align="center" className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-3 outline-none w-auto max-w-[300px] flex justify-center">
-                          {isMulti ? (
-                            <DayPicker
-                              className="mx-auto w-full max-w-[300px] flex justify-center"
-                              mode="range"
-                              selected={dateRange}
-                              onSelect={setDateRange}
-                              disabled={isDateDisabled}
-                              modifiersClassNames={rangePickerClassNames}
-                            />
-                          ) : (
-                            <DayPicker
-                              className="mx-auto w-full max-w-[300px] flex justify-center"
-                              mode="single"
-                              selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
-                              onSelect={(day) => setDate(day ? format(day, "yyyy-MM-dd") : "")}
-                              disabled={isDateDisabled}
-                              modifiersClassNames={singlePickerClassNames}
-                            />
-                          )}
-                        </Popover.Content>
-                      </Popover.Portal>
-                    </Popover.Root>
-                  </div>
-                </div>
 
-                <div className="space-y-1">
-                  <span className={labelClass}>Guests</span>
-                  <div className="flex items-center gap-1 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
-                    <button
-                      type="button"
-                      onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
-                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guestCount <= minGuests}
-                    >
-                      -
-                    </button>
-                    <span className="w-6 text-center font-bold text-base">{guestCount}</span>
-                    <button
-                      type="button"
-                      onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
-                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guestCount >= maxGuests}
-                    >
-                      +
-                    </button>
+                  <div className="space-y-1 min-w-0">
+                    <span className={labelClass}>Guests</span>
+                    <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
+                      <button
+                        type="button"
+                        onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
+                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        disabled={guestCount <= minGuests}
+                      >
+                        -
+                      </button>
+                      <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
+                      <button
+                        type="button"
+                        onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
+                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                        disabled={guestCount >= maxGuests}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
+                {calOpen && (
+                  <div className="md:hidden absolute left-0 right-0 z-30 mt-2 rounded-xl border border-zinc-200 bg-white p-2 shadow-lg flex justify-center">
+                    {isMulti ? (
+                      <DayPicker
+                        className="mx-auto w-full max-w-[300px] flex justify-center"
+                        mode="range"
+                        selected={dateRange}
+                        onSelect={(range) => {
+                          setDateRange(range)
+                          if (range?.from && range?.to) setCalOpen(false)
+                        }}
+                        disabled={isDateDisabled}
+                        modifiersClassNames={rangePickerClassNames}
+                      />
+                    ) : (
+                      <DayPicker
+                        className="mx-auto w-full max-w-[300px] flex justify-center"
+                        mode="single"
+                        selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
+                        onSelect={(day) => {
+                          setDate(day ? format(day, "yyyy-MM-dd") : "")
+                          if (day) setCalOpen(false)
+                        }}
+                        disabled={isDateDisabled}
+                        modifiersClassNames={singlePickerClassNames}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
 
               {offerTotal > 0 && (
