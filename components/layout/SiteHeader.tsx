@@ -105,7 +105,8 @@ export default function SiteHeader() {
     }
 
     const isHomePage = pathname === '/'
-    const isActivityPage = pathname?.startsWith('/activity')
+    const isHotelPage = pathname?.startsWith('/hotel')
+    const isActivityPage = pathname?.startsWith('/activity') || isHotelPage
     const isDestinationsPage = pathname?.startsWith('/destinations')
     const isTripsPage = pathname?.startsWith('/trips')
 
@@ -159,6 +160,11 @@ export default function SiteHeader() {
                                 const from = consumePageReturn()
                                 if (from && from.split("?")[0] !== "/") {
                                     router.push(from, { scroll: false })
+                                    return
+                                }
+                                if (isHotelPage) {
+                                    markHomeArriveTop()
+                                    router.push("/?vertical=hotel", { scroll: false })
                                     return
                                 }
                                 try {

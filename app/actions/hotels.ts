@@ -220,7 +220,7 @@ export async function getHotelForAdmin(id: string) {
 export async function getPublishedHotel(slug: string) {
   const { data: hotel, error } = await supabase
     .from("hotels")
-    .select("*")
+    .select("*, hosts(name, image_url, avatar_url)")
     .eq("slug", slug)
     .eq("status", "published")
     .eq("is_paused", false)
