@@ -139,14 +139,6 @@ export function MakeAnOfferModal({
         ? format(dateRange.from, "PP")
         : "No dates selected")
     : (date ? format(new Date(`${date}T12:00:00`), "PP") : "No date selected")
-  const offerStep = listPrice >= 50 ? 5 : 1
-  const lowOffer = Math.max(1, Math.floor((listPrice * 0.8) / offerStep) * offerStep)
-  const listedOffer = Math.round(listPrice)
-  const offerChips = [
-    { label: `$${lowOffer}`, value: String(lowOffer) },
-    { label: `$${suggested}`, value: String(suggested) },
-    { label: `$${listedOffer} listed`, value: String(listedOffer) },
-  ].filter((chip, i, all) => Number(chip.value) > 0 && all.findIndex((item) => item.value === chip.value) === i)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -233,13 +225,14 @@ export function MakeAnOfferModal({
                 </div>
               )}
 
-              <div className="rounded-2xl border-2 border-[#FFC72C] bg-[#FFF8E1] p-4">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Your offer</p>
-                <p className="mt-0.5 text-xs text-zinc-600">
-                  Enter any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}. The listed price is only a starting point.
+              <div className="space-y-1">
+                <span className={labelClass}>Your offer</span>
+                <p className="text-xs font-medium text-zinc-500">
+                  Type any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}.
+                  {listPrice > 0 ? ` Listed ${formatStayMoney(listPrice)}${rateSuffix !== "total" ? ` ${rateSuffix}` : ""}.` : ""}
                 </p>
-                <div className="relative mt-3">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-zinc-400">$</span>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-zinc-400">$</span>
                   <input
                     required
                     type="text"
@@ -251,53 +244,9 @@ export function MakeAnOfferModal({
                       setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
                     }}
                     placeholder={suggested > 0 ? String(suggested) : "0"}
-                    className="w-full h-16 pl-10 pr-4 rounded-2xl border-2 border-[#FFC72C] bg-white text-3xl font-bold text-zinc-900 outline-none focus:ring-4 focus:ring-[#FFC72C]/30"
+                    className="w-full h-14 pl-10 pr-4 rounded-xl border border-zinc-200 bg-white text-2xl font-bold text-zinc-900 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                   />
                 </div>
-                {listPrice > 0 && (
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Listed {formatStayMoney(listPrice)}
-                    {rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
-                    {Number.isFinite(offerUnit) && offerUnit > 0 && offerUnit < listPrice
-                      ? ` · you are ${formatStayMoney(listPrice - offerUnit)} under`
-                      : Number.isFinite(offerUnit) && offerUnit > listPrice
-                        ? ` · ${formatStayMoney(offerUnit - listPrice)} above listed`
-                        : ""}
-                  </p>
-                )}
-                {listPrice > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {offerChips.map((chip) => (
-                      <button
-                        key={chip.value}
-                        type="button"
-                        onClick={() => {
-                          setOfferDirty(true)
-                          setOfferAmount(chip.value)
-                        }}
-                        className={`rounded-full px-3 h-8 text-xs font-bold border ${
-                          offerAmount === chip.value
-                            ? "bg-zinc-900 text-white border-zinc-900"
-                            : "bg-white text-zinc-700 border-zinc-200"
-                        }`}
-                      >
-                        {chip.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {offerTotal > 0 && (
-                  <div className="mt-3 flex items-baseline justify-between border-t border-amber-200/80 pt-3">
-                    <span className="text-xs font-medium text-zinc-500">
-                      {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
-                      {stayDays > 1 ? ` × ${stayDays} days` : ""}
-                    </span>
-                    <span className="text-base font-bold text-zinc-900">
-                      {formatStayMoney(offerTotal)}
-                      <span className="ml-1 text-xs font-medium text-zinc-500">total</span>
-                    </span>
-                  </div>
-                )}
               </div>
 
               <div className="space-y-1">
@@ -377,6 +326,19 @@ export function MakeAnOfferModal({
                   </button>
                 </div>
               </div>
+
+              {offerTotal > 0 && (
+                <div className="flex items-baseline justify-between px-0.5">
+                  <span className="text-xs font-medium text-zinc-500">
+                    {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
+                    {stayDays > 1 ? ` × ${stayDays} days` : ""}
+                  </span>
+                  <span className="text-base font-bold text-zinc-900">
+                    {formatStayMoney(offerTotal)}
+                    <span className="ml-1 text-xs font-medium text-zinc-400">total</span>
+                  </span>
+                </div>
+              )}
 
               <label className="block space-y-1">
                 <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
