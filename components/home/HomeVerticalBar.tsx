@@ -21,9 +21,8 @@ export function HomeVerticalBar() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
-  const urlVertical = isVertical(searchParams.get("vertical"))
-    ? searchParams.get("vertical")!
-    : "tour"
+  const paramVertical = searchParams.get("vertical")
+  const urlVertical: VerticalId = isVertical(paramVertical) ? paramVertical : "tour"
   const [active, setActive] = useState<VerticalId>(urlVertical)
 
   useEffect(() => {
