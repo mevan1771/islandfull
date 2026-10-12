@@ -4,6 +4,7 @@ const HREF_KEY = "islandfull:home-return-href"
 const SLUG_KEY = "islandfull:home-scroll-slug"
 const HIST_KEY = "islandfull:home-scroll-hist"
 const HEADER_KEY = "islandfull:home-header-hidden"
+const TOP_KEY = "islandfull:home-scroll-top"
 
 let homeHeaderSuppressed = false
 
@@ -82,6 +83,37 @@ export function revealHomeHeader() {
   } catch {
     // Ignore private-mode storage failures.
   }
+}
+
+export function markHomeArriveTop() {
+  if (typeof window === "undefined") return
+  try {
+    sessionStorage.setItem(TOP_KEY, "1")
+    sessionStorage.removeItem(RESTORE_KEY)
+    sessionStorage.removeItem(SCROLL_KEY)
+    sessionStorage.removeItem(SLUG_KEY)
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+  jumpHomeScroll(0)
+}
+
+export function peekHomeArriveTop() {
+  try {
+    return sessionStorage.getItem(TOP_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
+export function consumeHomeArriveTop() {
+  const marked = peekHomeArriveTop()
+  try {
+    sessionStorage.removeItem(TOP_KEY)
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+  return marked
 }
 
 export function hasHomeScrollRestore() {

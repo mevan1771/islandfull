@@ -1,7 +1,7 @@
 "use client"
 
 import { useLayoutEffect } from "react"
-import { homeClicksBlocked, installHomeScrollPopstate } from "@/lib/home-scroll"
+import { homeClicksBlocked, installHomeScrollPopstate, jumpHomeScroll, peekHomeArriveTop } from "@/lib/home-scroll"
 
 export function RootScroll() {
   useLayoutEffect(() => {
@@ -9,6 +9,11 @@ export function RootScroll() {
       history.scrollRestoration = "manual"
     }
     installHomeScrollPopstate()
+
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && peekHomeArriveTop()) jumpHomeScroll(0)
+    }
+    window.addEventListener("pageshow", onPageShow)
 
     const stopGhostClick = (event: Event) => {
       if (!homeClicksBlocked()) return
@@ -18,6 +23,7 @@ export function RootScroll() {
     document.addEventListener("click", stopGhostClick, true)
     document.addEventListener("pointerup", stopGhostClick, true)
     return () => {
+      window.removeEventListener("pageshow", onPageShow)
       document.removeEventListener("click", stopGhostClick, true)
       document.removeEventListener("pointerup", stopGhostClick, true)
     }

@@ -2,38 +2,48 @@
 
 import { useLayoutEffect } from "react"
 import {
+  consumeHomeArriveTop,
   consumeHomeScrollRestore,
+  jumpHomeScroll,
+  peekHomeArriveTop,
   peekHomeScrollRestore,
   restoreHomeScroll,
 } from "@/lib/home-scroll"
 
 export function HomeScrollRestore() {
   useLayoutEffect(() => {
-    if (peekHomeScrollRestore() == null) return
+    const forceTop = peekHomeArriveTop()
+    if (!forceTop && peekHomeScrollRestore() == null) return
 
     let cancelled = false
-    restoreHomeScroll()
-
     const apply = () => {
-      if (!cancelled) restoreHomeScroll()
+      if (cancelled) return
+      if (forceTop) jumpHomeScroll(0)
+      else restoreHomeScroll()
     }
+
+    apply()
 
     const frames = [
       requestAnimationFrame(apply),
       requestAnimationFrame(() => requestAnimationFrame(apply)),
     ]
-    const timers = [50, 120, 250, 450, 800].map((ms) => window.setTimeout(apply, ms))
+    const timers = [50, 120, 250, 450, 800, 1400].map((ms) => window.setTimeout(apply, ms))
     const done = window.setTimeout(() => {
-      if (!cancelled) consumeHomeScrollRestore()
-    }, 1000)
-
-    const stopWhenUserMoves = () => {
       if (cancelled) return
+      if (forceTop) consumeHomeArriveTop()
+      else consumeHomeScrollRestore()
+    }, 1600)
+
+    const ignoreGesturesUntil = Date.now() + 600
+    const stopWhenUserMoves = () => {
+      if (cancelled || Date.now() < ignoreGesturesUntil) return
       cancelled = true
-      consumeHomeScrollRestore()
+      if (forceTop) consumeHomeArriveTop()
+      else consumeHomeScrollRestore()
     }
-    window.addEventListener("touchstart", stopWhenUserMoves, { passive: true, once: true })
-    window.addEventListener("wheel", stopWhenUserMoves, { passive: true, once: true })
+    window.addEventListener("touchstart", stopWhenUserMoves, { passive: true })
+    window.addEventListener("wheel", stopWhenUserMoves, { passive: true })
 
     return () => {
       cancelled = true
