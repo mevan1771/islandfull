@@ -139,6 +139,14 @@ export function MakeAnOfferModal({
         ? format(dateRange.from, "PP")
         : "No dates selected")
     : (date ? format(new Date(`${date}T12:00:00`), "PP") : "No date selected")
+  const offerStep = listPrice >= 50 ? 5 : 1
+  const lowOffer = Math.max(1, Math.floor((listPrice * 0.8) / offerStep) * offerStep)
+  const listedOffer = Math.round(listPrice)
+  const offerChips = [
+    { label: `$${lowOffer}`, value: String(lowOffer) },
+    { label: `$${suggested}`, value: String(suggested) },
+    { label: `$${listedOffer} listed`, value: String(listedOffer) },
+  ].filter((chip, i, all) => Number(chip.value) > 0 && all.findIndex((item) => item.value === chip.value) === i)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -200,13 +208,7 @@ export function MakeAnOfferModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-            <div className="p-4 space-y-2 overflow-y-auto flex-1">
-              {listPrice > 0 && (
-                <p className="text-xs font-medium text-zinc-400">
-                  Listed {formatStayMoney(listPrice)}{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
-                </p>
-              )}
-
+            <div className="p-4 space-y-3 overflow-y-auto flex-1">
               {isSignedIn ? null : (
                 <div className="grid grid-cols-2 gap-3">
                   <label className="space-y-1">
@@ -230,6 +232,73 @@ export function MakeAnOfferModal({
                   </label>
                 </div>
               )}
+
+              <div className="rounded-2xl border-2 border-[#FFC72C] bg-[#FFF8E1] p-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-amber-900">Your offer</p>
+                <p className="mt-0.5 text-xs text-zinc-600">
+                  Enter any amount{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}. The listed price is only a starting point.
+                </p>
+                <div className="relative mt-3">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-zinc-400">$</span>
+                  <input
+                    required
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={offerAmount}
+                    onChange={(e) => {
+                      setOfferDirty(true)
+                      setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
+                    }}
+                    placeholder={suggested > 0 ? String(suggested) : "0"}
+                    className="w-full h-16 pl-10 pr-4 rounded-2xl border-2 border-[#FFC72C] bg-white text-3xl font-bold text-zinc-900 outline-none focus:ring-4 focus:ring-[#FFC72C]/30"
+                  />
+                </div>
+                {listPrice > 0 && (
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Listed {formatStayMoney(listPrice)}
+                    {rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
+                    {Number.isFinite(offerUnit) && offerUnit > 0 && offerUnit < listPrice
+                      ? ` · you are ${formatStayMoney(listPrice - offerUnit)} under`
+                      : Number.isFinite(offerUnit) && offerUnit > listPrice
+                        ? ` · ${formatStayMoney(offerUnit - listPrice)} above listed`
+                        : ""}
+                  </p>
+                )}
+                {listPrice > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {offerChips.map((chip) => (
+                      <button
+                        key={chip.value}
+                        type="button"
+                        onClick={() => {
+                          setOfferDirty(true)
+                          setOfferAmount(chip.value)
+                        }}
+                        className={`rounded-full px-3 h-8 text-xs font-bold border ${
+                          offerAmount === chip.value
+                            ? "bg-zinc-900 text-white border-zinc-900"
+                            : "bg-white text-zinc-700 border-zinc-200"
+                        }`}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {offerTotal > 0 && (
+                  <div className="mt-3 flex items-baseline justify-between border-t border-amber-200/80 pt-3">
+                    <span className="text-xs font-medium text-zinc-500">
+                      {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
+                      {stayDays > 1 ? ` × ${stayDays} days` : ""}
+                    </span>
+                    <span className="text-base font-bold text-zinc-900">
+                      {formatStayMoney(offerTotal)}
+                      <span className="ml-1 text-xs font-medium text-zinc-500">total</span>
+                    </span>
+                  </div>
+                )}
+              </div>
 
               <div className="space-y-1">
                 <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
@@ -286,63 +355,28 @@ export function MakeAnOfferModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <span className={labelClass}>Guests</span>
-                  <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
-                    <button
-                      type="button"
-                      onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
-                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guestCount <= minGuests}
-                    >
-                      -
-                    </button>
-                    <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
-                    <button
-                      type="button"
-                      onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
-                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                      disabled={guestCount >= maxGuests}
-                    >
-                      +
-                    </button>
-                  </div>
+              <div className="space-y-1">
+                <span className={labelClass}>Guests</span>
+                <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
+                  <button
+                    type="button"
+                    onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
+                    className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                    disabled={guestCount <= minGuests}
+                  >
+                    -
+                  </button>
+                  <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
+                    className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
+                    disabled={guestCount >= maxGuests}
+                  >
+                    +
+                  </button>
                 </div>
-                <label className="space-y-1">
-                  <span className={labelClass}>
-                    Your offer{rateSuffix !== "total" ? ` (${rateSuffix})` : " (USD)"}
-                  </span>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400">$</span>
-                    <input
-                      required
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={offerAmount}
-                      onChange={(e) => {
-                        setOfferDirty(true)
-                        setOfferAmount(e.target.value)
-                      }}
-                      className={`${fieldClass} pl-8 font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
-                    />
-                  </div>
-                </label>
               </div>
-
-              {offerTotal > 0 && (
-                <div className="flex items-baseline justify-between rounded-xl bg-zinc-50 border border-zinc-100 px-3 py-2.5">
-                  <span className="text-xs font-medium text-zinc-500">
-                    {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
-                    {stayDays > 1 ? ` × ${stayDays} days` : ""}
-                  </span>
-                  <span className="text-base font-bold text-zinc-900">
-                    {formatStayMoney(offerTotal)}
-                    <span className="ml-1 text-xs font-medium text-zinc-400">total</span>
-                  </span>
-                </div>
-              )}
 
               <label className="block space-y-1">
                 <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
