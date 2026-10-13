@@ -282,7 +282,7 @@ export function MakeAnOfferModal({
               </div>
 
               <div className="relative">
-                <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] gap-3 items-end">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-end">
                   <div className="space-y-1 min-w-0">
                     <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
                       <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
@@ -306,9 +306,9 @@ export function MakeAnOfferModal({
                     </button>
                   </div>
 
-                  <div className="space-y-1 min-w-0">
+                  <div className="space-y-1">
                     <span className={labelClass}>Guests</span>
-                    <div className="flex items-center gap-2 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-full h-10">
+                    <div className="flex items-center gap-1 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
                       <button
                         type="button"
                         onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
@@ -317,7 +317,7 @@ export function MakeAnOfferModal({
                       >
                         -
                       </button>
-                      <span className="flex-1 text-center font-bold text-base">{guestCount}</span>
+                      <span className="w-6 text-center font-bold text-base">{guestCount}</span>
                       <button
                         type="button"
                         onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
