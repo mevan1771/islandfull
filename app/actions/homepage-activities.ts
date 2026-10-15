@@ -77,7 +77,7 @@ async function fetchHomepageHotels(
 ): Promise<{ activities: HomepageActivity[]; total: number }> {
   let query = supabase
     .from("hotels")
-    .select("id, title, slug, location, cover_image_url, star_rating, property_type, hotel_room_types(nightly_rate_usd, is_active, max_occupancy)", { count: "exact" })
+    .select("id, title, slug, location, cover_image_url, star_rating, property_type, allow_offers, hotel_room_types(nightly_rate_usd, is_active, max_occupancy)", { count: "exact" })
     .eq("status", "published")
     .eq("is_paused", false)
 
@@ -121,6 +121,7 @@ async function fetchHomepageHotels(
         pricingModel: "flat_rate",
         maxGuests: occupancy.length ? Math.max(...occupancy) : 2,
         pricingTiers: null,
+        allowOffers: !!hotel.allow_offers,
         listingHref: `/hotel/${hotel.slug}`,
       }
     }),
