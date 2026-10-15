@@ -76,11 +76,6 @@ export function OfferCreatedEmail({
           </Section>
 
           <Section style={card}>
-            {photo ? (
-              <Img src={photo} alt={listingTitle} width="512" height="220" style={hero} />
-            ) : null}
-
-            <Section style={inner}>
               <Text style={kicker}>{host ? "New offer" : "Offer received"}</Text>
               <Text style={heading}>
                 {host ? `${shortName} made an offer` : `We've got it, ${shortName}`}
@@ -92,16 +87,27 @@ export function OfferCreatedEmail({
               </Text>
 
               <Section style={listingRow}>
-                <Text style={listingTitleText}>{listingTitle}</Text>
-                {checkIn && checkOut ? (
-                  <>
-                    <Text style={listingMeta}>Check-in {checkIn}</Text>
-                    <Text style={listingMeta}>Checkout {checkOut}</Text>
-                  </>
-                ) : (
-                  <Text style={listingMeta}>{travelLabel}</Text>
-                )}
-                <Text style={listingMeta}>{guestLabel}</Text>
+                <Row>
+                  <Column style={{ width: "88px", verticalAlign: "top" }}>
+                    {photo ? (
+                      <Img src={photo} alt={listingTitle} width="88" height="88" style={thumb} />
+                    ) : (
+                      <Section style={thumbFallback}>&nbsp;</Section>
+                    )}
+                  </Column>
+                  <Column style={{ verticalAlign: "middle", paddingLeft: "12px" }}>
+                    <Text style={listingTitleText}>{listingTitle}</Text>
+                    {checkIn && checkOut ? (
+                      <>
+                        <Text style={listingMeta}>Check-in {checkIn}</Text>
+                        <Text style={listingMeta}>Checkout {checkOut}</Text>
+                      </>
+                    ) : (
+                      <Text style={listingMeta}>{travelLabel}</Text>
+                    )}
+                    <Text style={listingMeta}>{guestLabel}</Text>
+                  </Column>
+                </Row>
               </Section>
 
               <Section style={priceBox}>
@@ -158,7 +164,6 @@ export function OfferCreatedEmail({
                   </Link>
                 )}
               </Section>
-            </Section>
           </Section>
 
           <Text style={footer}>
@@ -199,19 +204,21 @@ const logo = {
 const card = {
   backgroundColor: "#ffffff",
   borderRadius: "16px",
-  overflow: "hidden" as const,
+  padding: "28px 24px 32px",
   border: "1px solid #e4e4e7",
 }
 
-const hero = {
-  width: "100%",
-  height: "220px",
+const thumb = {
+  borderRadius: "10px",
   objectFit: "cover" as const,
   display: "block",
 }
 
-const inner = {
-  padding: "24px 24px 28px",
+const thumbFallback = {
+  width: "88px",
+  height: "88px",
+  backgroundColor: "#e4e4e7",
+  borderRadius: "10px",
 }
 
 const kicker = {
@@ -241,13 +248,13 @@ const bodyText = {
 const listingRow = {
   backgroundColor: "#fafafa",
   borderRadius: "12px",
-  padding: "14px 16px",
+  padding: "10px",
   border: "1px solid #f4f4f5",
   marginBottom: "14px",
 }
 
 const listingTitleText = {
-  margin: "0 0 8px",
+  margin: "0 0 4px",
   color: "#18181b",
   fontSize: "16px",
   fontWeight: 700,

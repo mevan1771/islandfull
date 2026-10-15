@@ -400,7 +400,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
   const { data: offer } = await supabaseAdmin
     .from("offers")
-    .select("id, status, guest_name, guest_email, offer_amount, travel_date, special_notes, activities(title, slug, card_image_url, cover_image_url)")
+    .select("id, status, guest_name, guest_email, offer_amount, travel_date, special_notes, activities(title, slug, card_image_url, cover_image_url), hotels(title, slug, cover_image_url)")
     .eq("id", id)
     .maybeSingle()
 
@@ -420,7 +420,14 @@ export async function confirmOfferFromEmail(formData: FormData) {
     redirect("/offers/processed?status=invalid")
   }
 
-  sendGuestDecisionEmail({ ...offer, status }).catch((err) => console.error("Guest decision email failed:", err))
+  const hotel = rel((offer as { hotels?: { title?: string; slug?: string; cover_image_url?: string | null } | { title?: string; slug?: string; cover_image_url?: string | null }[] | null }).hotels)
+  sendGuestDecisionEmail({
+    ...offer,
+    status,
+    activities: rel(offer.activities) || (hotel
+      ? { title: hotel.title, slug: hotel.slug, cover_image_url: hotel.cover_image_url, listingPath: `/hotel/${hotel.slug}` }
+      : null),
+  }).catch((err) => console.error("Guest decision email failed:", err))
   revalidatePath("/admin/offers")
   revalidatePath("/admin")
   revalidatePath("/trips")
