@@ -19,6 +19,27 @@ export function dayCountLabel(days: number) {
   return days === 1 ? "1 day" : `${days} days`
 }
 
+export function nightCountLabel(nights: number) {
+  return nights === 1 ? "1 night" : `${nights} nights`
+}
+
+export function formatStayRangeLabel(
+  start: string,
+  end?: string | null,
+  kind: "days" | "nights" = "days"
+) {
+  const from = parseISO(start)
+  if (Number.isNaN(from.getTime())) return start
+  if (!end || end === start) return format(from, "d MMM yyyy")
+  const to = parseISO(end)
+  if (Number.isNaN(to.getTime())) return `${start} to ${end}`
+  const count =
+    kind === "nights"
+      ? nightCountLabel(Math.max(1, differenceInDays(to, from)))
+      : dayCountLabel(inclusiveDays(from, to))
+  return `${format(from, "d MMM yyyy")} – ${format(to, "d MMM yyyy")} · ${count}`
+}
+
 export function formatDateRangeWithDays(from: Date, to: Date, dateFmt: string) {
   return `${format(from, dateFmt)} - ${format(to, dateFmt)} · ${dayCountLabel(inclusiveDays(from, to))}`
 }

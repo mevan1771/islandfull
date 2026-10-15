@@ -6,9 +6,9 @@ import { redirect } from "next/navigation"
 import { currentUser } from "@clerk/nextjs/server"
 import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, offerPayPath, offerPayUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
-import { formatIsoRangeWithDays, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
-import { formatStayMoney, stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
-import { differenceInDays, parseISO } from "date-fns"
+import { formatStayRangeLabel, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
+import { stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
+import { differenceInDays, format, parseISO } from "date-fns"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ADMIN_INBOX = "info@islandfull.com"
@@ -48,7 +48,11 @@ export async function createOffer(input: {
     const rangeNote =
       travelEndDate && travelEndDate !== travelDate ? `Dates: ${travelDate} to ${travelEndDate}` : null
     const specialNotes = [rangeNote, userNotes].filter(Boolean).join("\n") || null
-    const travelLabel = formatIsoRangeWithDays(travelDate, travelEndDate || null)
+    const travelLabel = formatStayRangeLabel(
+      travelDate,
+      travelEndDate || null,
+      input.hotelId ? "nights" : "days"
+    )
 
     if ((!input.activityId && !input.hotelId) || !guestName || !EMAIL_RE.test(guestEmail) || !travelDate || !Number.isFinite(offerAmount) || offerAmount <= 0) {
       return { success: false, error: "Please fill in your name, a valid email, travel date, and offer amount." }
@@ -56,6 +60,7 @@ export async function createOffer(input: {
 
     let listingTitle = ""
     let listingSlug = ""
+    let listingImage: string | null = null
     let listingKind: "activity" | "hotel" = "activity"
     let hostEmail: string | null = null
     let minGuests = 1
@@ -70,7 +75,7 @@ export async function createOffer(input: {
     if (input.hotelId) {
       const { data: hotel, error: hotelError } = await supabaseAdmin
         .from("hotels")
-        .select("id, title, slug, allow_offers, status, hosts(email)")
+        .select("id, title, slug, allow_offers, status, cover_image_url, gallery_urls, hosts(email)")
         .eq("id", input.hotelId)
         .single()
       if (hotelError || !hotel) {
@@ -83,6 +88,7 @@ export async function createOffer(input: {
       hotelId = hotel.id
       listingTitle = hotel.title
       listingSlug = hotel.slug
+      listingImage = firstListingPhoto(hotel.cover_image_url, hotel.gallery_urls)
       const host = rel(hotel.hosts as { email?: string } | { email?: string }[] | null)
       hostEmail = host?.email || null
       const { data: hotelRooms } = await supabaseAdmin
@@ -101,7 +107,7 @@ export async function createOffer(input: {
     } else {
       const { data: activity, error: activityError } = await supabaseAdmin
         .from("activities")
-        .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, hosts(email)")
+        .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, card_image_url, cover_image_url, hosts(email)")
         .eq("id", input.activityId)
         .single()
 
@@ -117,6 +123,7 @@ export async function createOffer(input: {
       activityId = activity.id
       listingTitle = activity.title
       listingSlug = activity.slug
+      listingImage = firstListingPhoto(activity.card_image_url, activity.cover_image_url)
       listUnit = Number(activity.price_usd) || 0
       minGuests = activity.min_guests || 1
       maxGuests = activity.max_capacity || 20
@@ -187,15 +194,18 @@ export async function createOffer(input: {
       guestEmail,
       guestPhone,
       offerAmount,
-      travelDate: travelLabel,
+      travelLabel,
+      checkIn: prettyOfferDate(travelDate),
+      checkOut: travelEndDate && travelEndDate !== travelDate ? prettyOfferDate(travelEndDate) : null,
       guestCount: boundedGuests,
       specialNotes: userNotes,
       activityTitle: listingTitle,
-      activitySlug: listingSlug,
+      listingUrl: listingKind === "hotel" ? `${siteUrl()}/hotel/${listingSlug}` : `${siteUrl()}/activity/${listingSlug}`,
+      imageUrl: listingImage,
       basePrice: listTotal,
-      listRate: stayUnitFromTotal({ total: listTotal, ...rateArgs }),
-      offerRate: stayUnitFromTotal({ total: offerAmount, ...rateArgs }),
-      rateSuffix,
+      listRate: stayDays > 1 ? stayUnitFromTotal({ total: listTotal, ...rateArgs }) : undefined,
+      offerRate: stayDays > 1 ? stayUnitFromTotal({ total: offerAmount, ...rateArgs }) : undefined,
+      rateSuffix: stayDays > 1 ? rateSuffix : undefined,
       hostEmail,
     }).catch((err) => console.error("Offer email failed:", err))
 
@@ -209,37 +219,24 @@ export async function createOffer(input: {
   }
 }
 
-function offerDetailsHtml(props: {
-  guestName: string
-  guestEmail: string
-  guestPhone: string | null
-  offerAmount: number
-  travelDate: string
-  guestCount: number
-  specialNotes: string | null
-  activityTitle: string
-  basePrice: number
-  listRate?: number
-  offerRate?: number
-  rateSuffix?: string
-}) {
-  const rateLines =
-    props.rateSuffix && props.rateSuffix !== "total"
-      ? `<p><strong>List rate:</strong> ${formatStayMoney(props.listRate || 0)} ${props.rateSuffix}</p>
-    <p><strong>Offered rate:</strong> ${formatStayMoney(props.offerRate || 0)} ${props.rateSuffix}</p>`
-      : ""
-  return `
-    <p><strong>Listing:</strong> ${props.activityTitle}</p>
-    <p><strong>List price:</strong> ${formatStayMoney(props.basePrice)}</p>
-    ${rateLines}
-    <p><strong>Offered price:</strong> ${formatStayMoney(props.offerAmount)}</p>
-    <p><strong>Travel dates:</strong> ${props.travelDate}</p>
-    <p><strong>Guests:</strong> ${props.guestCount}</p>
-    <p><strong>Guest name:</strong> ${props.guestName}</p>
-    <p><strong>Email:</strong> ${props.guestEmail}</p>
-    ${props.guestPhone ? `<p><strong>Phone:</strong> ${props.guestPhone}</p>` : ""}
-    ${props.specialNotes ? `<p><strong>Notes:</strong> ${props.specialNotes}</p>` : ""}
-  `
+function prettyOfferDate(iso: string) {
+  const day = parseISO(iso)
+  return Number.isNaN(day.getTime()) ? iso : format(day, "EEE d MMM yyyy")
+}
+
+function firstListingPhoto(...sources: unknown[]) {
+  const urls: string[] = []
+  for (const source of sources) {
+    if (!source) continue
+    if (Array.isArray(source)) {
+      for (const item of source) {
+        if (typeof item === "string" && item) urls.push(item)
+      }
+    } else if (typeof source === "string") {
+      urls.push(source)
+    }
+  }
+  return urls.find((url) => !/\.(mp4|webm|mov)$/i.test(url)) || null
 }
 
 async function sendOfferCreatedEmails(props: {
@@ -248,11 +245,14 @@ async function sendOfferCreatedEmails(props: {
   guestEmail: string
   guestPhone: string | null
   offerAmount: number
-  travelDate: string
+  travelLabel: string
+  checkIn: string
+  checkOut: string | null
   guestCount: number
   specialNotes: string | null
   activityTitle: string
-  activitySlug: string | null
+  listingUrl: string
+  imageUrl: string | null
   basePrice: number
   listRate?: number
   offerRate?: number
@@ -260,10 +260,41 @@ async function sendOfferCreatedEmails(props: {
   hostEmail: string | null
 }) {
   const { Resend } = await import("resend")
+  const { render } = await import("@react-email/components")
+  const React = await import("react")
+  const { OfferCreatedEmail } = await import("@/components/emails/OfferCreatedEmail")
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const details = offerDetailsHtml(props)
-  const acceptUrl = offerActionUrl(props.offerId, "accept")
-  const declineUrl = offerActionUrl(props.offerId, "decline")
+  const logoUrl = `${siteUrl()}/logo_dark.png`
+  const shared = {
+    guestName: props.guestName,
+    guestEmail: props.guestEmail,
+    guestPhone: props.guestPhone,
+    listingTitle: props.activityTitle,
+    listingUrl: props.listingUrl,
+    travelLabel: props.travelLabel,
+    checkIn: props.checkIn,
+    checkOut: props.checkOut,
+    guests: props.guestCount,
+    listTotal: props.basePrice,
+    offerTotal: props.offerAmount,
+    rateSuffix: props.rateSuffix,
+    listRate: props.listRate,
+    offerRate: props.offerRate,
+    notes: props.specialNotes,
+    imageUrl: props.imageUrl,
+    logoUrl,
+  }
+  const guestHtml = await render(
+    React.createElement(OfferCreatedEmail, { ...shared, variant: "guest" })
+  )
+  const hostHtml = await render(
+    React.createElement(OfferCreatedEmail, {
+      ...shared,
+      variant: "host",
+      acceptUrl: offerActionUrl(props.offerId, "accept"),
+      declineUrl: offerActionUrl(props.offerId, "decline"),
+    })
+  )
   const hostTo = Array.from(new Set([ADMIN_INBOX, props.hostEmail].filter(Boolean))) as string[]
 
   await Promise.allSettled([
@@ -272,29 +303,14 @@ async function sendOfferCreatedEmails(props: {
       replyTo: ADMIN_INBOX,
       to: [props.guestEmail],
       subject: `We received your offer: ${props.activityTitle}`,
-      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-        <h2>Offer received</h2>
-        <p>Hi ${props.guestName},</p>
-        <p>Thanks for your offer. We’ll review availability and email you when the host responds. No payment is needed yet.</p>
-        ${details}
-        <p>Best,<br>IslandFull</p>
-      </div>`,
+      html: guestHtml,
     }),
     resend.emails.send({
       from: "IslandFull <info@islandfull.com>",
       replyTo: props.guestEmail,
       to: hostTo,
       subject: `New offer: ${props.activityTitle} — $${props.offerAmount.toFixed(2)}`,
-      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-        <h2>New offer</h2>
-        ${details}
-        <p style="margin:28px 0 12px;">Tap a button to respond. You’ll confirm on the next page so the offer isn’t actioned by accident.</p>
-        <p>
-          <a href="${acceptUrl}" style="display:inline-block;padding:14px 22px;background:#059669;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;margin-right:10px;">Accept Offer</a>
-          <a href="${declineUrl}" style="display:inline-block;padding:14px 22px;background:#18181b;color:#ffffff;border-radius:10px;text-decoration:none;font-weight:700;">Decline Offer</a>
-        </p>
-        <p style="color:#71717a;font-size:13px;">You can also review it in Admin → Offers.</p>
-      </div>`,
+      html: hostHtml,
     }),
   ])
 }
