@@ -6,8 +6,8 @@ import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react"
 import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
 import { DayPicker, DateRange } from "react-day-picker"
-import { addDays, differenceInDays, format, isBefore, parse, startOfToday } from "date-fns"
-import { formatDateRangeWithDays, inclusiveDays } from "@/lib/date-range-label"
+import { addDays, differenceInDays, format, isBefore, isSameDay, parse, startOfToday } from "date-fns"
+import { formatDateRangeWithDays, inclusiveDays, withDefaultCheckout } from "@/lib/date-range-label"
 import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix } from "@/lib/stay-price"
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
@@ -337,8 +337,12 @@ export function MakeAnOfferModal({
                         mode="range"
                         selected={dateRange}
                         onSelect={(range) => {
-                          setDateRange(range)
-                          if (range?.from && range?.to) setCalOpen(false)
+                          const next = isHotel ? withDefaultCheckout(range) : range
+                          setDateRange(next)
+                          const pickedCheckout = Boolean(
+                            range?.from && range?.to && !isSameDay(range.from, range.to)
+                          )
+                          if (pickedCheckout || (!isHotel && next?.from && next?.to)) setCalOpen(false)
                         }}
                         disabled={isDateDisabled}
                         modifiersClassNames={rangePickerClassNames}

@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom"
-import { differenceInDays, format } from "date-fns"
+import { differenceInDays, format, isSameDay } from "date-fns"
 import { DateRange, DayPicker } from "react-day-picker"
+import { withDefaultCheckout } from "@/lib/date-range-label"
 import { formatUSD } from "@/lib/utils"
 import { MakeAnOfferModal } from "@/components/activity/MakeAnOfferModal"
 import "react-day-picker/dist/style.css"
@@ -104,8 +105,12 @@ export function HotelStayWidget({
               mode="range"
               selected={range}
               onSelect={(next) => {
-                setRange(next)
-                if (next?.from && next?.to) setCalOpen(false)
+                const stay = withDefaultCheckout(next)
+                setRange(stay)
+                const pickedCheckout = Boolean(
+                  next?.from && next?.to && !isSameDay(next.from, next.to)
+                )
+                if (pickedCheckout) setCalOpen(false)
               }}
               disabled={{ before: new Date() }}
               modifiersClassNames={pickerClassNames}
