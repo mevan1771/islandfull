@@ -178,6 +178,8 @@ export async function POST(req: Request) {
             toEmail: host.email,
             hostName: host.name || 'Host',
             touristName: touristName,
+            touristEmail: touristEmail,
+            touristPhone: whatsapp,
             activityTitle: `${title}${tourOptionStr}`,
             date: date,
             guests: guests,
@@ -233,13 +235,12 @@ export async function POST(req: Request) {
           paymentUrl: session.url || undefined
         });
 
-        // Send Host Email for pending booking
+        // Hold only — guest contact is sent after payment confirms the booking
         const host: any = Array.isArray(activity?.hosts) ? activity.hosts[0] : activity?.hosts;
         if (host?.email) {
           await sendHostEmail({
             toEmail: host.email,
             hostName: host.name || 'Host',
-            touristName: touristName,
             activityTitle: selectedOption ? `${title} (${selectedOption})` : title,
             date: date,
             guests: guests,

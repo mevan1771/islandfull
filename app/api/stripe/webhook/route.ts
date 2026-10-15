@@ -89,6 +89,8 @@ export async function POST(req: Request) {
             toEmail: host.email,
             hostName: host.name || 'Host',
             touristName: booking.tourist_name,
+            touristEmail: booking.tourist_email,
+            touristPhone: booking.tourist_whatsapp,
             activityTitle: `${activityTitle}${tourOption}`,
             date: booking.travel_date,
             guests: booking.pax_count,

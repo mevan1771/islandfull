@@ -307,7 +307,7 @@ async function sendOfferCreatedEmails(props: {
     }),
     resend.emails.send({
       from: "IslandFull <info@islandfull.com>",
-      replyTo: props.guestEmail,
+      replyTo: ADMIN_INBOX,
       to: hostTo,
       subject: `New offer: ${props.activityTitle} — $${props.offerAmount.toFixed(2)}`,
       html: hostHtml,

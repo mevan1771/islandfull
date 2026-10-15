@@ -91,7 +91,9 @@ export async function sendReceiptEmail(props: SendReceiptEmailProps) {
 interface SendHostEmailProps {
   toEmail: string;
   hostName: string;
-  touristName: string;
+  touristName?: string;
+  touristEmail?: string;
+  touristPhone?: string | null;
   activityTitle: string;
   date: string;
   guests: number;
@@ -100,15 +102,22 @@ interface SendHostEmailProps {
 
 export async function sendHostEmail(props: SendHostEmailProps) {
   try {
+    const contact = [
+      props.touristName && `<li><strong>Guest:</strong> ${props.touristName}</li>`,
+      props.touristEmail && `<li><strong>Email:</strong> ${props.touristEmail}</li>`,
+      props.touristPhone && `<li><strong>Phone:</strong> ${props.touristPhone}</li>`,
+    ].filter(Boolean).join("")
     const htmlString = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>New Booking Received!</h2>
+        <h2>${contact ? "Booking confirmed" : "New booking request"}</h2>
         <p>Hi ${props.hostName},</p>
-        <p>You have a new booking for <strong>${props.activityTitle}</strong>.</p>
+        <p>${contact
+          ? `Payment is in for <strong>${props.activityTitle}</strong>. Guest details are below so you can host them.`
+          : `A guest has a pending booking for <strong>${props.activityTitle}</strong>. Their contact will be shared after payment is confirmed.`}</p>
         <ul>
           <li><strong>Date:</strong> ${props.date}</li>
           <li><strong>Guests:</strong> ${props.guests}</li>
-          <li><strong>Tourist Name:</strong> ${props.touristName}</li>
+          ${contact}
           <li><strong>Expected Payout:</strong> $${props.totalPayout.toFixed(2)}</li>
         </ul>
         <p>Please check your host dashboard for more details.</p>

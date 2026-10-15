@@ -37,8 +37,6 @@ function listingPhoto(url?: string | null) {
 export function OfferCreatedEmail({
   variant,
   guestName,
-  guestEmail,
-  guestPhone,
   listingTitle,
   listingUrl,
   travelLabel,
@@ -78,19 +76,19 @@ export function OfferCreatedEmail({
           <Section style={card}>
               <Text style={kicker}>{host ? "New offer" : "Offer received"}</Text>
               <Text style={heading}>
-                {host ? `${shortName} made an offer` : `We've got it, ${shortName}`}
+                {host ? "A guest made an offer" : `We've got it, ${shortName}`}
               </Text>
               <Text style={bodyText}>
                 {host
-                  ? `A guest wants to stay at ${listingTitle}. Review the details and accept or decline below — you'll confirm on the next page so nothing is actioned by accident.`
+                  ? `Someone wants ${listingTitle}. Review the stay and price below — you'll confirm on the next page so nothing is actioned by accident. Guest name and contact are shared after they pay and the booking is confirmed.`
                   : `Thanks for your offer on ${listingTitle}. We'll email you as soon as the host responds. No payment is needed yet.`}
               </Text>
 
               <Section style={listingRow}>
                 <Row>
-                  <Column style={{ width: "88px", verticalAlign: "top" }}>
+                  <Column style={{ width: "128px", verticalAlign: "top" }}>
                     {photo ? (
-                      <Img src={photo} alt={listingTitle} width="88" height="88" style={thumb} />
+                      <Img src={photo} alt={listingTitle} width="128" height="128" style={thumb} />
                     ) : (
                       <Section style={thumbFallback}>&nbsp;</Section>
                     )}
@@ -136,15 +134,7 @@ export function OfferCreatedEmail({
                 ) : null}
               </Section>
 
-              {host ? (
-                <Section style={guestBox}>
-                  <Text style={guestHeading}>Guest</Text>
-                  <Text style={guestLine}>{guestName}</Text>
-                  <Text style={guestLine}>{guestEmail}</Text>
-                  {guestPhone ? <Text style={guestLine}>{guestPhone}</Text> : null}
-                  {notes ? <Text style={notesLine}>{notes}</Text> : null}
-                </Section>
-              ) : notes ? (
+              {!host && notes ? (
                 <Text style={notesGuest}>Your note: {notes}</Text>
               ) : null}
 
@@ -209,16 +199,16 @@ const card = {
 }
 
 const thumb = {
-  borderRadius: "10px",
+  borderRadius: "12px",
   objectFit: "cover" as const,
   display: "block",
 }
 
 const thumbFallback = {
-  width: "88px",
-  height: "88px",
+  width: "128px",
+  height: "128px",
   backgroundColor: "#e4e4e7",
-  borderRadius: "10px",
+  borderRadius: "12px",
 }
 
 const kicker = {
@@ -312,36 +302,6 @@ const rateHint = {
 const priceRule = {
   borderColor: "#f4f4f5",
   margin: "10px 0",
-}
-
-const guestBox = {
-  backgroundColor: "#fff7ed",
-  border: "1px solid #ffedd5",
-  borderRadius: "12px",
-  padding: "12px 16px",
-  marginBottom: "8px",
-}
-
-const guestHeading = {
-  margin: "0 0 6px",
-  color: "#c2410c",
-  fontSize: "11px",
-  fontWeight: 700,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase" as const,
-}
-
-const guestLine = {
-  margin: "0 0 2px",
-  color: "#18181b",
-  fontSize: "14px",
-}
-
-const notesLine = {
-  margin: "8px 0 0",
-  color: "#52525b",
-  fontSize: "13px",
-  lineHeight: "1.45",
 }
 
 const notesGuest = {
