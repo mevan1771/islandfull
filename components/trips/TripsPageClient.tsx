@@ -6,9 +6,9 @@ import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
-import { format, parseISO } from "date-fns"
+import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
-import { dayCountLabel, inclusiveDays } from "@/lib/date-range-label"
+import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
@@ -51,6 +51,7 @@ function offerStatusCopy(offer: any) {
 }
 
 function offerTravelLabel(offer: any) {
+  const listing = offerListing(offer)
   const match = String(offer.special_notes || "").match(/Dates:\s*(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})/)
   const start = parseISO(offer.travel_date)
   if (Number.isNaN(start.getTime())) return String(offer.travel_date || "")
@@ -58,7 +59,10 @@ function offerTravelLabel(offer: any) {
   if (Number.isNaN(end.getTime()) || format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd")) {
     return format(start, "d MMM")
   }
-  const days = dayCountLabel(inclusiveDays(start, end))
+  const days =
+    listing?.category_type === "hotel"
+      ? nightCountLabel(Math.max(1, differenceInDays(end, start)))
+      : dayCountLabel(inclusiveDays(start, end))
   if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
     return `${format(start, "d")}–${format(end, "d MMM")} · ${days}`
   }
@@ -167,14 +171,20 @@ function BookingCard({
 
 function OfferCard({ offer }: { offer: any }) {
   const listing = offerListing(offer)
-  const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
+  const image = listing?.card_image_url || listing?.cover_image_url || ""
   const slug = listing?.slug as string | undefined
-  const cta = offer.status === "accepted" ? "Make payment" : "View listing"
+  const listingHref =
+    listing?.listingPath ||
+    (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
+  const canPay = offer.status === "accepted" && offer.payPath
+  const cta = canPay ? "Make payment" : "View listing"
   const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
   const body = (
     <>
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
-        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+        {image ? (
+          <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+        ) : null}
         <div className="absolute top-2.5 left-2.5">
           <OfferStatus status={offer.status} />
         </div>
@@ -202,7 +212,7 @@ function OfferCard({ offer }: { offer: any }) {
           </div>
           <span
             className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
-              offer.status === "accepted" ? "bg-[#22c55e] hover:bg-[#16a34a] text-white" : "bg-zinc-900 text-white"
+              canPay ? "bg-[#22c55e] hover:bg-[#16a34a] text-white" : "bg-zinc-900 text-white"
             }`}
           >
             {cta}
@@ -215,13 +225,12 @@ function OfferCard({ offer }: { offer: any }) {
   const className =
     "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
 
-  if (!slug) return <div className={className}>{body}</div>
-
-  const payHref = offer.status === "accepted" && offer.payPath ? offer.payPath : `/activity/${slug}`
+  const href = canPay ? offer.payPath : listingHref
+  if (!href) return <div className={className}>{body}</div>
 
   return (
     <Link
-      href={payHref}
+      href={href}
       prefetch={false}
       onClick={() => markPageReturn("/trips")}
       className={className}

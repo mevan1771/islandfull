@@ -436,7 +436,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 
 export async function fetchMyOffersFor(userId: string, email: string | null) {
   const select =
-    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type)"
+    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type), hotels(id, title, slug, cover_image_url, gallery_urls)"
   const [{ data: byUser }, { data: byEmail }] = await Promise.all([
     supabaseAdmin.from("offers").select(select).eq("clerk_user_id", userId).order("created_at", { ascending: false }),
     email
@@ -452,11 +452,28 @@ export async function fetchMyOffersFor(userId: string, email: string | null) {
   }
   rows.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
   return rows
-    .filter((row) => {
-      const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
-      return listing?.category_type !== "place"
+    .map((row) => {
+      const activity = rel(row.activities)
+      const hotel = rel(row.hotels)
+      const photo = firstListingPhoto(hotel?.cover_image_url, hotel?.gallery_urls)
+      const listing = activity || (hotel
+        ? {
+            id: hotel.id,
+            title: hotel.title,
+            slug: hotel.slug,
+            location: null,
+            price_usd: 0,
+            card_image_url: photo,
+            cover_image_url: photo,
+            category_type: "hotel",
+            listingPath: `/hotel/${hotel.slug}`,
+          }
+        : null)
+      const mapped = { ...row, activities: listing }
+      if (mapped.status === "accepted" && activity) return { ...mapped, payPath: offerPayPath(mapped.id) }
+      return mapped
     })
-    .map((row) => (row.status === "accepted" ? { ...row, payPath: offerPayPath(row.id) } : row))
+    .filter((row) => row.activities?.category_type !== "place")
 }
 
 export async function getMyOffers() {
