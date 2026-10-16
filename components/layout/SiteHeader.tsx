@@ -256,7 +256,7 @@ export default function SiteHeader() {
                         { href: "/", label: "Home" },
                         { href: "/destinations", label: "Destinations" },
                         { href: "/trips", label: "Trips" },
-                        { href: "/about-us", label: "About Us" },
+                        { href: "/contact", label: "Contact Us" },
                     ].map((item) => {
                         const isActive =
                             item.href === "/"
