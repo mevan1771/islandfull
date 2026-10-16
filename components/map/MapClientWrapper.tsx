@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import { useLenis } from "lenis/react"
 import type { Map as MapboxMap } from "mapbox-gl"
 import type { MapTour } from "@/components/map/InteractiveMap"
 
@@ -18,9 +17,7 @@ interface MapClientWrapperProps {
 }
 
 export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, activeLocation = null, resizeToken }: MapClientWrapperProps) {
-    const lenis = useLenis()
     const rootRef = useRef<HTMLDivElement>(null)
-    const hoveringRef = useRef(false)
     const mapRef = useRef<MapboxMap | null>(null)
     const [mapReady, setMapReady] = useState(false)
 
@@ -74,35 +71,16 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
         const el = rootRef.current
         if (!el) return
 
-        const pausePageScroll = () => {
-            hoveringRef.current = true
-            lenis?.stop()
-        }
-
-        const resumePageScroll = () => {
-            hoveringRef.current = false
-            lenis?.start()
-        }
-
         const onWheel = (event: WheelEvent) => {
-            // Cancel page/Lenis scrolling, but do not stopPropagation so Mapbox still zooms.
             event.preventDefault()
         }
 
-        el.addEventListener("pointerenter", pausePageScroll)
-        el.addEventListener("pointerleave", resumePageScroll)
         el.addEventListener("wheel", onWheel, { passive: false, capture: true })
 
         return () => {
-            el.removeEventListener("pointerenter", pausePageScroll)
-            el.removeEventListener("pointerleave", resumePageScroll)
             el.removeEventListener("wheel", onWheel, { capture: true } as EventListenerOptions)
-            if (hoveringRef.current) {
-                lenis?.start()
-                hoveringRef.current = false
-            }
         }
-    }, [lenis])
+    }, [])
 
     return (
         <div
