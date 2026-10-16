@@ -3,7 +3,7 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
-import { parseServiceTypes } from "@/lib/host-services"
+import { countsFromListings, parseServiceTypes } from "@/lib/host-services"
 
 const hostSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -16,16 +16,27 @@ const hostSchema = z.object({
 
 export async function getHosts() {
   const { data, error } = await supabaseAdmin
-    .from('hosts')
-    .select('*')
-    .order('name')
+    .from("hosts")
+    .select("*, activities(category_type), hotels(id)")
+    .order("name")
 
   if (error) {
     console.error("Error fetching hosts:", error)
-    return []
+    const fallback = await supabaseAdmin.from("hosts").select("*").order("name")
+    if (fallback.error) {
+      console.error("Error fetching hosts fallback:", fallback.error)
+      return []
+    }
+    return fallback.data || []
   }
 
-  return data
+  return (data || []).map((host: any) => {
+    const { activities, hotels, ...rest } = host
+    return {
+      ...rest,
+      listing_counts: countsFromListings(activities, hotels),
+    }
+  })
 }
 
 export async function createHost(formData: FormData) {

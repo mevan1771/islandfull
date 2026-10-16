@@ -8,7 +8,31 @@ import toast from "react-hot-toast"
 import Image from "next/image"
 import { AdminSearchInput } from "@/components/admin/AdminSearchInput"
 import { matchesAdminQuery } from "@/lib/admin-search"
-import { HOST_SERVICE_TYPES, parseServiceTypes, type HostServiceType } from "@/lib/host-services"
+import { HOST_LISTING_BUBBLES, HOST_SERVICE_TYPES, parseServiceTypes, type HostListingCounts, type HostServiceType } from "@/lib/host-services"
+
+function HostListingBubbles({ counts }: { counts?: HostListingCounts | null }) {
+  const items = HOST_LISTING_BUBBLES.map((item) => ({
+    ...item,
+    n: Math.max(0, Number(counts?.[item.id]) || 0),
+  })).filter((item) => item.n > 0)
+
+  if (!items.length) {
+    return <span className="text-xs text-zinc-400">No listings yet</span>
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {items.map((item) => (
+        <span
+          key={item.id}
+          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-bold tabular-nums ${item.className}`}
+        >
+          {item.n} × {item.n === 1 ? item.one : item.many}
+        </span>
+      ))}
+    </div>
+  )
+}
 
 export default function HostsPage() {
   const [hosts, setHosts] = useState<any[]>([])
@@ -265,13 +289,7 @@ export default function HostsPage() {
                     </button>
                   </td>
                   <td className="p-4">
-                    <div className="flex flex-wrap gap-1">
-                      {parseServiceTypes(host.service_types).map((type) => (
-                        <span key={type} className="inline-flex rounded-full bg-zinc-100 border border-zinc-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-600">
-                          {HOST_SERVICE_TYPES.find((item) => item.id === type)?.label}
-                        </span>
-                      ))}
-                    </div>
+                    <HostListingBubbles counts={host.listing_counts} />
                   </td>
                   <td className="p-4">
                     <button
@@ -370,14 +388,8 @@ export default function HostsPage() {
               )}
 
               <div>
-                <h3 className="text-sm font-bold text-zinc-900 mb-3">Offers</h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {parseServiceTypes(viewingHost.service_types).map((type) => (
-                    <span key={type} className="inline-flex rounded-full bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-xs font-bold text-zinc-700">
-                      {HOST_SERVICE_TYPES.find((item) => item.id === type)?.label}
-                    </span>
-                  ))}
-                </div>
+                <h3 className="text-sm font-bold text-zinc-900 mb-3">Listings</h3>
+                <HostListingBubbles counts={viewingHost.listing_counts} />
               </div>
 
               <div>
