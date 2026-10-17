@@ -140,7 +140,7 @@ export function MapPreviewDrawer({ tour, onClose, contained = false }: MapPrevie
             </div>
 
             <Link
-              href={`/activity/${currentTour.slug || currentTour.id}`}
+              href={currentTour.listingHref || `/activity/${currentTour.slug || currentTour.id}`}
               className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-black text-white py-3.5 rounded-xl font-semibold transition-colors mt-2 flex-shrink-0"
             >
               View Details

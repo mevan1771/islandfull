@@ -132,7 +132,7 @@ export function UserNavMenu({
       strokeWidth={isBar ? "1.75" : "2"}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={iconClassName || "w-5 h-5"}
+      className={iconClassName || (isBar ? "w-[18px] h-[18px]" : "w-5 h-5")}
     >
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
@@ -148,7 +148,7 @@ export function UserNavMenu({
         onClick={() => setOpen((value) => !value)}
         className={
           isBar
-            ? `flex flex-col items-center justify-center gap-1 w-full h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75 ${open ? "text-rose-500" : "text-zinc-400"}`
+            ? `flex items-center justify-center w-full h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75 ${open ? "text-zinc-900" : "text-zinc-700"}`
             : `min-w-11 min-h-11 md:min-w-10 md:min-h-10 overflow-hidden ${triggerClassName || ""}`
         }
       >
@@ -157,14 +157,15 @@ export function UserNavMenu({
           <img
             src={imageUrl}
             alt=""
-            className={isBar ? "w-5 h-5 rounded-full object-cover" : "w-full h-full rounded-full object-cover"}
+            className={isBar ? "w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm" : "w-full h-full rounded-full object-cover"}
           />
+        ) : isBar ? (
+          <span className="flex items-center justify-center w-9 h-9 rounded-full bg-zinc-100 text-zinc-700">
+            {personIcon}
+          </span>
         ) : (
           personIcon
         )}
-        {isBar ? (
-          <span className={`text-[10px] leading-none tracking-wide ${open ? "font-bold" : "font-semibold"}`}>You</span>
-        ) : null}
       </button>
 
       {open && (

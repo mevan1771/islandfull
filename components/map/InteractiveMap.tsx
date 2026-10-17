@@ -30,6 +30,7 @@ export interface MapTour {
   tags?: string[]
   created_at?: string | null
   popularity_score?: number | null
+  listingHref?: string
 }
 
 interface InteractiveMapProps {
@@ -210,6 +211,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       let themeColor = 'rose-500'; // Default for tours
       if (tour.category_type === 'event') themeColor = 'indigo-500';
       if (tour.category_type === 'transport') themeColor = 'emerald-500';
+      if (tour.category_type === 'hotel') themeColor = 'teal-600';
       if (tour.category_type === 'place') themeColor = 'zinc-800';
 
       const hasImage = !!tour.cover_image_url;
