@@ -10,8 +10,9 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
+import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 
-export function MobileSearch() {
+export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string }[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
@@ -240,16 +241,26 @@ export function MobileSearch() {
 
   return (
     <>
-      <div ref={cardRef} className="sm:hidden px-4 -mt-5 relative z-20 w-full mb-3">
+      <div ref={cardRef} className="sm:hidden px-4 -mt-5 relative z-20 w-full">
         <div className="bg-white rounded-xl shadow-md p-2.5">{searchForm}</div>
+      </div>
+
+      <div className="sm:hidden pt-3 pb-1">
+        {stuck ? (
+          <div className="h-9" aria-hidden />
+        ) : (
+          <div className="pl-4 pr-3">
+            <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
+          </div>
+        )}
       </div>
 
       {stuck && (
         <div
           data-home-sticky
-          className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white/95 backdrop-blur-md border-b border-zinc-200/80"
+          className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
         >
-          <div className="px-3 py-2">
+          <div className="px-3 pt-2">
             {pillOpen ? (
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-2.5">{searchForm}</div>
             ) : (
@@ -262,6 +273,9 @@ export function MobileSearch() {
                 <span className="min-w-0 truncate text-sm font-semibold text-zinc-800">{pillSummary}</span>
               </button>
             )}
+          </div>
+          <div className="pl-4 pr-3 pt-2 pb-2">
+            <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
           </div>
         </div>
       )}

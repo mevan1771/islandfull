@@ -1,29 +1,14 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Users, Map, Heart, Loader2, SlidersHorizontal, Bike, Compass, Hash, BedDouble } from "lucide-react"
+import { Search, MapPin, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash, BedDouble } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
-
-
-type CategoryType = {
-  id: string
-  name: string
-  icon?: any
-}
-
-const CATEGORIES: CategoryType[] = [
-  { id: "all", name: "All" },
-  { id: "saved", name: "", icon: Heart },
-  { id: "surf", name: "Surfing" },
-  { id: "wildlife-safaris", name: "Wildlife Safaris" },
-  { id: "hiking-treks", name: "Hiking & Treks" },
-  { id: "culture-history", name: "Culture & History" },
-]
+import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 
 export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
   const router = useRouter()
@@ -31,16 +16,10 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   const [isPending, startTransition] = useTransition()
 
   const currentVertical = searchParams.get("vertical") || "tour"
-  const currentCategory = searchParams.get("category") || "all"
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
 
-  const [optimisticCategory, setOptimisticCategory] = useState(currentCategory)
   const [optimisticVertical, setOptimisticVertical] = useState(currentVertical)
-
-  useEffect(() => {
-    setOptimisticCategory(currentCategory)
-  }, [currentCategory])
 
   useEffect(() => {
     setOptimisticVertical(currentVertical)
@@ -94,12 +73,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     }
   }, [debouncedLocation, isFocused])
 
-  const CATEGORIES = [
-    { id: "all", name: "All" },
-    { id: "saved", name: "", icon: Heart },
-    ...dynamicCategories.map(c => ({ id: c.slug, name: c.name }))
-  ]
-
   const handleSearch = (e?: FormEvent) => {
     if (e) e.preventDefault()
 
@@ -109,18 +82,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     else params.delete("location")
 
     params.delete("category")
-
-    startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
-    })
-  }
-
-  const handleCategoryClick = (categoryId: string) => {
-    setOptimisticCategory(categoryId) // Optimistic UI update
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (categoryId !== "all") params.set("category", categoryId)
-    else params.delete("category")
 
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
@@ -286,31 +247,9 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
         </div>
       </div>
 
-      {/* Activity Grid Header / Filters */}
-      <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-16 mb-2 md:mb-6 text-zinc-900">
-        <div className="flex items-center w-[calc(100%+2rem)] md:w-full -mx-4 md:mx-0 pl-4 md:pl-0 pr-4 md:pr-0 h-10 md:h-11 min-w-0">
-          <div className="flex min-w-0 flex-1 h-full overflow-x-auto flex-nowrap whitespace-nowrap gap-2 md:gap-3 items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {CATEGORIES.map((cat) => {
-              const Icon = (cat as any).icon || null;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategoryClick(cat.id)}
-                  className={`flex items-center justify-center shrink-0 h-10 md:h-11 rounded-full transition-all duration-300 ease-out active:scale-95 border cursor-pointer ${cat.id === "saved" ? "w-10 md:w-11 p-0" : "gap-2 px-4 text-sm md:text-base font-medium"
-                    } ${optimisticCategory === cat.id
-                      ? "bg-black text-white border-black shadow-md"
-                      : "bg-white text-zinc-600 border-gray-300 hover:border-gray-900 hover:bg-zinc-100"
-                    }`}
-                >
-                  {Icon && <Icon className={`w-4 h-4 ${cat.id === 'saved'
-                    ? (optimisticCategory === cat.id ? "fill-rose-500 text-rose-500" : "text-zinc-600")
-                    : (optimisticCategory === cat.id ? "fill-white" : "")
-                    }`} />}
-                  {cat.name}
-                </button>
-              );
-            })}
-          </div>
+      <div className="hidden sm:block max-w-7xl mx-auto px-4 mt-16 mb-6 text-zinc-900">
+        <div className="flex items-center min-w-0">
+          <HomeCategoryChips dynamicCategories={dynamicCategories} />
         </div>
       </div>
     </>

@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>
-        <MobileSearch />
+        <MobileSearch dynamicCategories={dynamicCategories} />
         <HomeVerticalBar />
       </Suspense>
 
