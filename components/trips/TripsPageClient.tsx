@@ -162,16 +162,16 @@ function StayCardShell({
 }) {
   return (
     <>
-      <div className="flex flex-1 gap-3 p-2.5 md:flex-col md:gap-0 md:p-0">
-        <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
+      <div className="flex flex-1 gap-2.5 p-2 md:flex-col md:gap-0 md:p-0">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
           {image ? (
-            <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 92px, 50vw" />
+            <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 80px, 50vw" />
           ) : null}
           <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-20 bg-gradient-to-b from-black/35 to-transparent md:block" />
-          {badge ? <div className="absolute top-1 left-1 z-10 origin-top-left scale-90 md:top-3 md:left-3 md:scale-100">{badge}</div> : null}
-          {overlay ? <div className="absolute top-1 right-1 z-10 origin-top-right scale-[0.62] md:top-3 md:right-3 md:scale-100">{overlay}</div> : null}
+          {badge ? <div className="absolute top-3 left-3 z-10 hidden md:block">{badge}</div> : null}
+          {overlay ? <div className="absolute top-3 right-3 z-10 hidden md:block">{overlay}</div> : null}
         </div>
-        <div className="flex min-w-0 flex-1 flex-col py-0.5 md:p-3.5">
+        <div className="flex min-w-0 flex-1 flex-col justify-center md:p-3.5 md:justify-start">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-1 md:text-[15px] md:line-clamp-2">{title}</h3>
@@ -181,15 +181,15 @@ function StayCardShell({
                   <span className="truncate">{location}</span>
                 </p>
               ) : null}
-              <p className="mt-1 text-[12px] text-zinc-500 md:mt-1.5 md:text-[13px]">{meta}</p>
+              <p className="mt-0.5 text-[12px] text-zinc-500 md:mt-1.5 md:text-[13px]">{meta}</p>
             </div>
             {aside}
           </div>
-          <div className="mt-auto pt-2 flex items-center justify-between gap-2 md:pt-3 md:gap-3">
-            <div>
-              <p className="text-[16px] font-semibold tracking-tight text-zinc-900 md:text-[17px]">${Number(price)}</p>
-              <p className="text-[11px] text-zinc-400 -mt-0.5 md:text-[12px]">{priceHint}</p>
-            </div>
+          <div className="mt-1.5 flex items-center justify-between gap-2 md:mt-auto md:pt-3 md:gap-3">
+            <p className="text-[15px] font-semibold tracking-tight text-zinc-900 md:text-[17px]">
+              ${Number(price)}
+              {priceHint ? <span className="hidden md:block text-[12px] font-normal text-zinc-400 -mt-0.5">{priceHint}</span> : null}
+            </p>
             {actions}
           </div>
         </div>
@@ -371,13 +371,13 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
       }
       footer={
         canPay ? (
-          <div className="flex items-center justify-between gap-2 bg-[#FFC72C] px-3.5 py-2">
-            <span className="inline-flex items-center gap-1.5 min-w-0">
-              <Sparkles className="h-3.5 w-3.5 shrink-0 text-zinc-900" />
-              <span className="truncate text-[12px] font-bold uppercase tracking-[0.14em] text-zinc-900">Offer accepted</span>
+          <div className="flex items-center justify-between gap-2 bg-[#FFC72C] px-3 py-1.5 md:px-3.5 md:py-2">
+            <span className="inline-flex items-center gap-1 min-w-0">
+              <Sparkles className="h-3 w-3 shrink-0 text-zinc-900 md:h-3.5 md:w-3.5" />
+              <span className="truncate text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-900 md:text-[12px] md:tracking-[0.14em]">Offer accepted</span>
             </span>
             {msLeft != null ? (
-              <span className={`shrink-0 text-[12px] font-bold tabular-nums ${urgency === "red" ? "text-rose-700" : "text-zinc-900"}`}>
+              <span className={`shrink-0 text-[11px] font-bold tabular-nums md:text-[12px] ${urgency === "red" ? "text-rose-700" : "text-zinc-900"}`}>
                 Expires in {formatPayHms(msLeft)}
               </span>
             ) : null}
