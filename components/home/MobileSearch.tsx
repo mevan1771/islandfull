@@ -11,6 +11,7 @@ import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
+import { peekHomeListingsPin } from "@/lib/home-scroll"
 
 export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string }[] }) {
   const router = useRouter()
@@ -35,10 +36,20 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   useOnClickOutside(dropdownRef, () => setIsDropdownOpen(false))
 
   useEffect(() => {
+    const onPin = () => setStuck(true)
+    window.addEventListener("islandfull:listings-pin", onPin)
+    return () => window.removeEventListener("islandfull:listings-pin", onPin)
+  }, [])
+
+  useEffect(() => {
     const el = cardRef.current
     if (!el) return
     const io = new IntersectionObserver(
       ([entry]) => {
+        if (peekHomeListingsPin()) {
+          setStuck(true)
+          return
+        }
         const off = !entry.isIntersecting
         setStuck(off)
         if (!off) setPillOpen(false)
@@ -245,14 +256,14 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
         <div className="bg-white rounded-xl shadow-md p-2.5">{searchForm}</div>
       </div>
 
-      <div className="sm:hidden pt-3 pb-1">
-        {stuck ? (
-          <div className="h-9" aria-hidden />
-        ) : (
-          <div className="pl-4 pr-3">
-            <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
-          </div>
-        )}
+      <div
+        id="home-browse"
+        className={`sm:hidden pt-3 pb-1 ${stuck ? "invisible pointer-events-none" : ""}`}
+        aria-hidden={stuck}
+      >
+        <div className="pl-4 pr-3">
+          <HomeCategoryChips dynamicCategories={dynamicCategories} compact passive={stuck} />
+        </div>
       </div>
 
       {stuck && (

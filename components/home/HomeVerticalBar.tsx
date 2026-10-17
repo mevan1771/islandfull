@@ -47,7 +47,6 @@ export function HomeVerticalBar() {
 
     setActive(vertical)
     markHomeListingsPin()
-    scrollHomeListingsToStart({ blockClicks: false })
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category")

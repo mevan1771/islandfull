@@ -13,9 +13,11 @@ type Chip = {
 export function HomeCategoryChips({
   dynamicCategories = [],
   compact = false,
+  passive = false,
 }: {
   dynamicCategories?: { slug?: string; name?: string }[]
   compact?: boolean
+  passive?: boolean
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -28,12 +30,13 @@ export function HomeCategoryChips({
   }, [currentCategory])
 
   useEffect(() => {
+    if (passive) return
     const grid = document.getElementById("activity-grid-container")
     if (!grid) return
     grid.style.opacity = isPending ? "0.5" : "1"
     grid.style.pointerEvents = isPending ? "none" : "auto"
     grid.style.transition = "opacity 0.2s"
-  }, [isPending])
+  }, [isPending, passive])
 
   const categories: Chip[] = [
     { id: "all", name: "All" },

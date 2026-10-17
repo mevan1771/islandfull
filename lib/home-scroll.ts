@@ -258,6 +258,7 @@ export function markHomeListingsPin() {
   } catch {
     // Ignore private-mode storage failures.
   }
+  window.dispatchEvent(new Event("islandfull:listings-pin"))
 }
 
 export function peekHomeListingsPin() {
@@ -278,16 +279,28 @@ export function consumeHomeListingsPin() {
   return marked
 }
 
+function documentOffsetTop(el: HTMLElement) {
+  let y = 0
+  let node: HTMLElement | null = el
+  while (node) {
+    y += node.offsetTop
+    node = node.offsetParent as HTMLElement | null
+  }
+  return y
+}
+
 export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
+  const browse = document.getElementById("home-browse")
   const grid = document.getElementById("activity-grid-container")
-  if (!grid) {
+  const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
+  const target = (sticky ? grid : browse) || grid || browse
+  if (!target) {
     jumpHomeScroll(0, options)
     return
   }
-  const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
   const offset = sticky ? Math.ceil(sticky.getBoundingClientRect().height) : 0
-  const y = Math.max(0, Math.round(window.scrollY + grid.getBoundingClientRect().top - offset - 8))
+  const y = Math.max(0, Math.round(documentOffsetTop(target) - offset))
   const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
   jumpHomeScroll(Math.min(y, max), options)
 }

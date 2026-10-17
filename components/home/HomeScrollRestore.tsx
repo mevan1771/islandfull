@@ -85,10 +85,21 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
     if (prevListingKey.current === listingKey) return
     prevListingKey.current = listingKey
 
-    return pinUntilSettled(
-      () => scrollHomeListingsToStart({ blockClicks: false }),
-      () => consumeHomeListingsPin()
-    )
+    let cancelled = false
+    const apply = () => {
+      if (cancelled) return
+      scrollHomeListingsToStart({ blockClicks: false })
+    }
+    apply()
+    const frame = requestAnimationFrame(apply)
+    const done = window.setTimeout(() => {
+      if (!cancelled) consumeHomeListingsPin()
+    }, 120)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frame)
+      window.clearTimeout(done)
+    }
   }, [listingKey])
 
   return null
