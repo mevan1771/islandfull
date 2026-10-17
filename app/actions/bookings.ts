@@ -182,7 +182,7 @@ export async function fetchMyBookingsFor(email: string) {
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
-      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, activities(title, slug, location, card_image_url, cover_image_url, category_type), hotels(title, slug, cover_image_url, gallery_urls)"
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, offer_id, activities(title, slug, location, card_image_url, cover_image_url, category_type), hotels(title, slug, cover_image_url, gallery_urls)"
     )
     .eq("tourist_email", emails[0])
     .neq("status", "cancelled")
@@ -216,6 +216,72 @@ export async function fetchMyBookingsFor(email: string) {
     const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities
     return listing?.category_type !== "place"
   })
+}
+
+export async function startPaymentForMyBooking(id: string) {
+  try {
+    const emails = await clerkGuestEmails()
+    if (emails.length === 0) return { error: "Sign in to pay." }
+    const { data: booking } = await supabaseAdmin
+      .from("bookings")
+      .select(
+        "id, status, tourist_email, tourist_name, total_usd, pax_count, travel_date, end_date, tour_option, activities(title), hotels(title)"
+      )
+      .eq("id", id)
+      .maybeSingle()
+    if (!booking) return { error: "Booking not found." }
+    if (!emails.includes(normalizeEmail(booking.tourist_email))) {
+      return { error: "That booking is not on this account." }
+    }
+    if (!isUnpaidStatus(booking.status)) return { error: "This booking is already paid." }
+    const amount = Number(booking.total_usd)
+    if (!Number.isFinite(amount) || amount <= 0) return { error: "This booking has no amount to pay." }
+
+    const activity = Array.isArray(booking.activities) ? booking.activities[0] : booking.activities
+    const hotel = Array.isArray((booking as any).hotels) ? (booking as any).hotels[0] : (booking as any).hotels
+    const title = activity?.title || hotel?.title || "IslandFull booking"
+    const guests = Math.max(1, Number(booking.pax_count) || 1)
+    const dateLabel =
+      booking.end_date && booking.end_date !== booking.travel_date
+        ? `${booking.travel_date} → ${booking.end_date}`
+        : booking.travel_date
+    const Stripe = (await import("stripe")).default
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+      apiVersion: "2024-06-20" as any,
+    })
+    const base = (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "https://islandfull.com"
+    ).replace(/\/$/, "")
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: booking.tour_option ? `${title} (${booking.tour_option})` : title,
+              description: `${guests} guest${guests === 1 ? "" : "s"} · ${dateLabel}`,
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${base}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${base}/trips`,
+      client_reference_id: booking.id,
+      customer_email: booking.tourist_email,
+      metadata: { booking_id: booking.id },
+    })
+    if (!session.url) return { error: "Could not start Stripe." }
+    return { url: session.url }
+  } catch (err) {
+    console.error("startPaymentForMyBooking error:", err)
+    return { error: "Could not start payment." }
+  }
 }
 
 export async function getMyBookings() {

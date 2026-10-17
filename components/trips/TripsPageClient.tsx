@@ -13,7 +13,7 @@ import { formatPayHms, formatPayRingHours, isAcceptedOfferLive, offerMsLeft, pay
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
-import { cancelMyBooking, cancelMyUnpaidBookings } from "@/app/actions/bookings"
+import { cancelMyBooking, cancelMyUnpaidBookings, startPaymentForMyBooking } from "@/app/actions/bookings"
 import { markPageReturn } from "@/lib/home-scroll"
 import type { HomepageActivity } from "@/lib/homepage-feed"
 import type { TripsDesk } from "@/app/actions/trips-desk"
@@ -103,7 +103,19 @@ function BookingCard({
   const status = String(booking.status || "")
   const unpaid = isUnpaidBooking(status)
   const [pending, startTransition] = useTransition()
+  const [paying, startPay] = useTransition()
   const router = useRouter()
+
+  function payThis() {
+    startPay(async () => {
+      const result = await startPaymentForMyBooking(booking.id)
+      if (result.url) {
+        window.location.href = result.url
+        return
+      }
+      toast.error(result.error || "Could not start payment.")
+    })
+  }
 
   function cancelThis() {
     if (!window.confirm("Cancel this unpaid booking? You can reserve again later.")) return
@@ -154,15 +166,14 @@ function BookingCard({
         <p className="mt-3 text-lg font-bold tracking-tight text-zinc-900">${Number(booking.total_usd || 0)}</p>
         {unpaid ? (
           <div className="mt-auto pt-3 flex items-center gap-2">
-            {listingHref ? (
-              <Link
-                href={listingHref}
-                onClick={() => markPageReturn("/trips")}
-                className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white"
-              >
-                View listing
-              </Link>
-            ) : null}
+            <button
+              type="button"
+              onClick={payThis}
+              disabled={paying}
+              className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[#22c55e] px-3 text-xs font-semibold text-white hover:bg-[#16a34a] disabled:opacity-60"
+            >
+              {paying ? "Opening pay…" : "Make payment"}
+            </button>
             <button
               type="button"
               onClick={cancelThis}
@@ -437,7 +448,14 @@ export function TripsPageClient({
   const pastOffers = offers.filter(
     (o) => o.status === "declined" || o.status === "expired" || o.status === "paid" || (o.status === "accepted" && !isAcceptedOfferLive(o, now))
   )
-  const upcomingCount = needsYou.length + waitingOnHost.length + bookings.length
+  const liveOfferIds = new Set(needsYou.map((o) => o.id))
+  const unpaidBookings = bookings.filter((b) => {
+    if (!isUnpaidBooking(String(b.status || ""))) return false
+    if (b.offer_id && liveOfferIds.has(b.offer_id)) return false
+    return true
+  })
+  const confirmedBookings = bookings.filter((b) => !isUnpaidBooking(String(b.status || "")))
+  const upcomingCount = needsYou.length + waitingOnHost.length + unpaidBookings.length + confirmedBookings.length
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-16">
@@ -572,75 +590,88 @@ export function TripsPageClient({
           </section>
         ) : (
           <section>
-            {offers.length > 0 && (
-              <div className="mb-10 space-y-8">
-                {needsYou.length > 0 ? (
-                  <div>
-                    <h2 className="text-xl font-bold text-zinc-900 mb-1">Pay to confirm</h2>
-                    <p className="text-sm text-zinc-500 mb-5">The host said yes. Pay before the clock runs out to lock the stay.</p>
-                    <OfferGrid offers={needsYou} now={now} />
-                  </div>
-                ) : null}
-                {waitingOnHost.length > 0 ? (
-                  <div>
-                    <h2 className="text-xl font-bold text-zinc-900 mb-1">Waiting on host</h2>
-                    <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when they reply.</p>
-                    <OfferGrid offers={waitingOnHost} now={now} />
-                  </div>
-                ) : null}
-                {pastOffers.length > 0 ? (
-                  <div>
+            {(needsYou.length > 0 || unpaidBookings.length > 0) && (
+              <div className="mb-10">
+                <div className="flex items-end justify-between gap-4 mb-1">
+                  <h2 className="text-xl font-bold text-zinc-900">Needs payment</h2>
+                  {unpaidBookings.length > 0 ? (
                     <button
                       type="button"
-                      onClick={() => setPastOpen((open) => !open)}
-                      className="flex w-full items-center justify-between gap-3 mb-4"
+                      disabled={clearingUnpaid}
+                      onClick={() => {
+                        if (!window.confirm("Remove every unpaid booking from your trips? Confirmed paid trips stay.")) return
+                        startClearUnpaid(async () => {
+                          const result = await cancelMyUnpaidBookings()
+                          if (!result.success) {
+                            toast.error(result.error || "Could not clear unpaid bookings.")
+                            return
+                          }
+                          if (!result.cancelled) {
+                            toast.error("Those unpaid bookings could not be removed. Try again.")
+                            return
+                          }
+                          setBookings((prev) => prev.filter((b) => !isUnpaidBooking(String(b.status || ""))))
+                          router.refresh()
+                          toast.success(`Cleared ${result.cancelled} unpaid booking${result.cancelled === 1 ? "" : "s"}`)
+                        })
+                      }}
+                      className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
                     >
-                      <div className="text-left">
-                        <h2 className="text-xl font-bold text-zinc-900">Past offers</h2>
-                        <p className="text-sm text-zinc-500 mt-0.5">Expired, declined, or already paid.</p>
-                      </div>
-                      <span className="text-sm font-semibold text-zinc-500">
-                        {pastOpen ? "Hide" : `Show ${pastOffers.length}`}
-                      </span>
+                      {clearingUnpaid ? "Clearing…" : "Clear unpaid"}
                     </button>
-                    {pastOpen ? <OfferGrid offers={pastOffers} now={now} /> : null}
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
+                <p className="text-sm text-zinc-500 mb-5">
+                  Pay to lock these in. Accepted offers expire in 24 hours. Pay-later bookings stay until you pay or cancel.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
+                  {needsYou.map((offer) => (
+                    <OfferCard key={offer.id} offer={offer} now={now} />
+                  ))}
+                  {unpaidBookings.map((booking) => (
+                    <BookingCard
+                      key={booking.id}
+                      booking={booking}
+                      onCancelled={(id) => setBookings((prev) => prev.filter((b) => b.id !== id))}
+                    />
+                  ))}
+                </div>
               </div>
             )}
-            <div className="flex items-end justify-between gap-4 mb-2">
-              <h2 className="text-xl font-bold text-zinc-900">Upcoming bookings</h2>
-              {bookings.some((b) => isUnpaidBooking(String(b.status || ""))) ? (
+            {waitingOnHost.length > 0 ? (
+              <div className="mb-10">
+                <h2 className="text-xl font-bold text-zinc-900 mb-1">Waiting on host</h2>
+                <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when they reply.</p>
+                <OfferGrid offers={waitingOnHost} now={now} />
+              </div>
+            ) : null}
+            {pastOffers.length > 0 ? (
+              <div className="mb-10">
                 <button
                   type="button"
-                  disabled={clearingUnpaid}
-                  onClick={() => {
-                    if (!window.confirm("Remove every unpaid booking from your trips? Confirmed paid trips stay.")) return
-                    startClearUnpaid(async () => {
-                      const result = await cancelMyUnpaidBookings()
-                      if (!result.success) {
-                        toast.error(result.error || "Could not clear unpaid bookings.")
-                        return
-                      }
-                      if (!result.cancelled) {
-                        toast.error("Those unpaid bookings could not be removed. Try again.")
-                        return
-                      }
-                      setBookings((prev) => prev.filter((b) => !isUnpaidBooking(String(b.status || ""))))
-                      router.refresh()
-                      toast.success(`Cleared ${result.cancelled} unpaid booking${result.cancelled === 1 ? "" : "s"}`)
-                    })
-                  }}
-                  className="text-sm font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
+                  onClick={() => setPastOpen((open) => !open)}
+                  className="flex w-full items-center justify-between gap-3 mb-4"
                 >
-                  {clearingUnpaid ? "Clearing…" : "Clear unpaid"}
+                  <div className="text-left">
+                    <h2 className="text-xl font-bold text-zinc-900">Past offers</h2>
+                    <p className="text-sm text-zinc-500 mt-0.5">Expired, declined, or already paid.</p>
+                  </div>
+                  <span className="text-sm font-semibold text-zinc-500">
+                    {pastOpen ? "Hide" : `Show ${pastOffers.length}`}
+                  </span>
                 </button>
-              ) : null}
+                {pastOpen ? <OfferGrid offers={pastOffers} now={now} /> : null}
+              </div>
+            ) : null}
+            {confirmedBookings.length > 0 || (needsYou.length === 0 && unpaidBookings.length === 0 && waitingOnHost.length === 0) ? (
+            <>
+            <div className="flex items-end justify-between gap-4 mb-2">
+              <h2 className="text-xl font-bold text-zinc-900">Confirmed trips</h2>
             </div>
-            <p className="text-sm text-zinc-500 mb-5">Unpaid holds stay until you pay or cancel. Confirmed trips appear after checkout.</p>
-            {bookings.length > 0 ? (
+            <p className="text-sm text-zinc-500 mb-5">Paid bookings live here after checkout.</p>
+            {confirmedBookings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
-                {bookings.map((booking) => (
+                {confirmedBookings.map((booking) => (
                   <BookingCard
                     key={booking.id}
                     booking={booking}
@@ -671,6 +702,8 @@ export function TripsPageClient({
               </div>
             </div>
             )}
+            </>
+            ) : null}
           </section>
         )}
 
