@@ -146,9 +146,10 @@ function StayCardShell({
   price,
   priceHint,
   actions,
+  footer,
 }: {
   image: string
-  badge: ReactNode
+  badge?: ReactNode
   overlay?: ReactNode
   title: string
   location?: string
@@ -157,6 +158,7 @@ function StayCardShell({
   price: number
   priceHint: string
   actions: ReactNode
+  footer?: ReactNode
 }) {
   return (
     <>
@@ -165,7 +167,7 @@ function StayCardShell({
           <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : null}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent" />
-        <div className="absolute top-3 left-3 z-10">{badge}</div>
+        {badge ? <div className="absolute top-3 left-3 z-10">{badge}</div> : null}
         {overlay ? <div className="absolute top-3 right-3 z-10">{overlay}</div> : null}
       </div>
       <div className="p-3.5 flex flex-col flex-1">
@@ -190,6 +192,7 @@ function StayCardShell({
           {actions}
         </div>
       </div>
+      {footer}
     </>
   )
 }
@@ -247,13 +250,6 @@ function BookingCard({
       title={listing?.title || "Booking"}
       location={location}
       meta={`${bookingTravelLabel(booking)} · ${guests}`}
-      aside={
-        unpaid ? (
-          <div className="text-right shrink-0 pt-0.5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Pay when ready</p>
-          </div>
-        ) : null
-      }
       price={Number(booking.total_usd || 0)}
       priceHint={unpaid ? "to pay" : "paid"}
       actions={
@@ -345,7 +341,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
   const body = (
     <StayCardShell
       image={image}
-      badge={<OfferStatus status={displayStatus} />}
+      badge={canPay ? null : <OfferStatus status={displayStatus} />}
       overlay={canPay && msLeft != null ? <PayCountdownRing msLeft={msLeft} /> : null}
       title={listing?.title || "Listing"}
       location={location}
@@ -384,6 +380,14 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
         >
           {canPay ? "Make payment" : "View listing"}
         </span>
+      }
+      footer={
+        canPay ? (
+          <div className="flex items-center justify-center gap-1.5 bg-[#FFC72C] px-3 py-2.5">
+            <Sparkles className="h-3.5 w-3.5 text-zinc-900" />
+            <span className="text-[12px] font-bold uppercase tracking-[0.16em] text-zinc-900">Offer accepted</span>
+          </div>
+        ) : null
       }
     />
   )
