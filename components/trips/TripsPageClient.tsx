@@ -188,15 +188,18 @@ function BookingCard({
 function PayCountdownRing({ msLeft }: { msLeft: number }) {
   const urgency = payUrgency(msLeft)
   const { main, sub } = formatPayRing(msLeft)
-  const size = 72
-  const stroke = 6
+  const size = 64
+  const stroke = 5
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const progress = payWindowProgress(msLeft)
   const color = urgency === "red" ? "#f43f5e" : urgency === "amber" ? "#f59e0b" : "#22c55e"
-  const track = urgency === "red" ? "#fecdd3" : urgency === "amber" ? "#fde68a" : "#bbf7d0"
+  const track = "rgba(255,255,255,0.35)"
   return (
-    <span className="relative inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+    <span
+      className="relative inline-flex items-center justify-center shrink-0 rounded-full bg-black/45 backdrop-blur-sm shadow-lg"
+      style={{ width: size, height: size }}
+    >
       <svg className="absolute inset-0 -rotate-90" width={size} height={size} aria-hidden>
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={track} strokeWidth={stroke} />
         <circle
@@ -212,12 +215,8 @@ function PayCountdownRing({ msLeft }: { msLeft: number }) {
         />
       </svg>
       <span className="relative text-center leading-none px-1">
-        <span className="block text-[13px] font-black tabular-nums" style={{ color }}>
-          {main}
-        </span>
-        <span className="block text-[9px] font-bold uppercase tracking-wide mt-0.5" style={{ color }}>
-          {sub}
-        </span>
+        <span className="block text-[12px] font-black tabular-nums text-white">{main}</span>
+        <span className="block text-[8px] font-bold uppercase tracking-wide mt-0.5 text-white/80">{sub}</span>
       </span>
     </span>
   )
@@ -246,6 +245,11 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
         <div className="absolute top-2.5 left-2.5">
           <OfferStatus status={displayStatus} />
         </div>
+        {canPay && msLeft != null ? (
+          <div className="absolute top-2.5 right-2.5">
+            <PayCountdownRing msLeft={msLeft} />
+          </div>
+        ) : null}
       </div>
       <div className="p-3.5 md:p-4 flex flex-col flex-1">
         <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
@@ -268,16 +272,19 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
             <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
             <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
           </div>
-          {canPay && msLeft != null ? (
-            <span className="flex flex-col items-center">
-              <PayCountdownRing msLeft={msLeft} />
-              <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mt-1">Pay</span>
-            </span>
-          ) : (
-            <span className="inline-flex h-8 items-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white">
-              View listing
-            </span>
-          )}
+          <span
+            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+              canPay
+                ? urgency === "red"
+                  ? "bg-rose-500"
+                  : urgency === "amber"
+                    ? "bg-amber-500"
+                    : "bg-[#22c55e] hover:bg-[#16a34a]"
+                : "bg-zinc-900"
+            }`}
+          >
+            {canPay ? "Make payment" : "View listing"}
+          </span>
         </div>
       </div>
     </>
