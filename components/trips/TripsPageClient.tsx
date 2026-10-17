@@ -172,7 +172,7 @@ function StayCardShell({
           <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-20 bg-gradient-to-b from-black/35 to-transparent md:block" />
           {badge ? <div className="absolute top-3 left-3 z-10 hidden md:block">{badge}</div> : null}
           {overlay ? <div className="absolute top-3 right-3 z-10 hidden md:block">{overlay}</div> : null}
-          {dismiss ? <div className="absolute top-1.5 right-1.5 z-20 md:top-3 md:right-3">{dismiss}</div> : null}
+          {dismiss ? <div className="absolute top-3 right-3 z-20 hidden md:block">{dismiss}</div> : null}
         </div>
         <div className="flex h-[108px] min-w-0 flex-1 flex-col justify-between md:h-auto md:p-3.5 md:justify-start">
           <div className="flex items-start justify-between gap-2 min-w-0">
