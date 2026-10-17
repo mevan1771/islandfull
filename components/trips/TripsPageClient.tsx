@@ -263,44 +263,39 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
             {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
           </span>
         </div>
-        {canPay ? null : <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, expired ? 0 : msLeft)}</p>}
         {canPay && msLeft != null ? (
-          <div className="mt-auto pt-4">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
-                <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Expires in</p>
-                <p
-                  className={`mt-0.5 text-xl font-semibold tabular-nums tracking-tight ${
-                    urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-zinc-900"
-                  }`}
-                >
-                  {formatPayHms(msLeft)}
-                </p>
-              </div>
-            </div>
-            <span
-              className={`mt-3 inline-flex h-10 w-full items-center justify-center rounded-full text-sm font-semibold text-white ${
-                urgency === "red" ? "bg-rose-500" : urgency === "amber" ? "bg-amber-500" : "bg-[#22c55e] hover:bg-[#16a34a]"
+          <div className="mt-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Expires in</p>
+            <p
+              className={`mt-0.5 text-xl font-semibold tabular-nums tracking-tight ${
+                urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-zinc-900"
               }`}
             >
-              Make payment
-            </span>
+              {formatPayHms(msLeft)}
+            </p>
           </div>
         ) : (
-          <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
-              <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
-            </div>
-            <span className="inline-flex h-8 items-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white">
-              View listing
-            </span>
-          </div>
+          <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, expired ? 0 : msLeft)}</p>
         )}
+        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
+            <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
+          </div>
+          <span
+            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+              canPay
+                ? urgency === "red"
+                  ? "bg-rose-500"
+                  : urgency === "amber"
+                    ? "bg-amber-500"
+                    : "bg-[#22c55e] hover:bg-[#16a34a]"
+                : "bg-zinc-900"
+            }`}
+          >
+            {canPay ? "Make payment" : "View listing"}
+          </span>
+        </div>
       </div>
     </>
   )
