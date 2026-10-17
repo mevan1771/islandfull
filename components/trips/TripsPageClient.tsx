@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useMemo, useState, useTransition } from "react"
+import { useEffect, useMemo, useState, useTransition, type ReactNode } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide-react"
+import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
@@ -27,23 +27,28 @@ function offerListing(offer: any) {
   return Array.isArray(listing) ? listing[0] : listing
 }
 
+function PhotoBadge({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-sm backdrop-blur-sm">
+      {children}
+    </span>
+  )
+}
+
 function OfferStatus({ status }: { status: string }) {
-  if (status === "accepted") {
-    return <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Accepted</span>
-  }
-  if (status === "paid") {
-    return <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Paid</span>
-  }
-  if (status === "expired") {
-    return <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">Expired</span>
-  }
-  if (status === "declined") {
-    return <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">Declined</span>
-  }
-  if (status === "countered") {
-    return <span className="inline-flex items-center rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-sky-700">Host replied</span>
-  }
-  return <span className="inline-flex items-center rounded-full bg-[#FFC72C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-900">Pending</span>
+  if (status === "accepted") return <PhotoBadge>Offer accepted</PhotoBadge>
+  if (status === "paid") return <PhotoBadge>Paid</PhotoBadge>
+  if (status === "expired") return <PhotoBadge>Expired</PhotoBadge>
+  if (status === "declined") return <PhotoBadge>Declined</PhotoBadge>
+  if (status === "countered") return <PhotoBadge>Host replied</PhotoBadge>
+  return <PhotoBadge>Waiting on host</PhotoBadge>
+}
+
+function bookingBadge(status: string) {
+  if (status === "confirmed" || status === "completed") return "Confirmed"
+  if (status === "pending_payment") return "Payment due"
+  if (status === "pending") return "Payment due"
+  return status.replace("_", " ")
 }
 
 function offerStatusCopy(offer: any, msLeft?: number | null) {
@@ -87,6 +92,75 @@ function bookingListing(booking: any) {
   return Array.isArray(listing) ? listing[0] : listing
 }
 
+function bookingTravelLabel(booking: any) {
+  const listing = bookingListing(booking)
+  const start = parseISO(booking.travel_date)
+  if (Number.isNaN(start.getTime())) return String(booking.travel_date || "")
+  const end = booking.end_date && booking.end_date !== booking.travel_date ? parseISO(booking.end_date) : start
+  if (Number.isNaN(end.getTime()) || format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd")) {
+    return format(start, "d MMM")
+  }
+  const days =
+    listing?.category_type === "hotel"
+      ? nightCountLabel(Math.max(1, differenceInDays(end, start)))
+      : dayCountLabel(inclusiveDays(start, end))
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${format(start, "d")}–${format(end, "d MMM")} · ${days}`
+  }
+  return `${format(start, "d MMM")} – ${format(end, "d MMM")} · ${days}`
+}
+
+function StayCardShell({
+  image,
+  badge,
+  overlay,
+  title,
+  location,
+  meta,
+  aside,
+  price,
+  priceHint,
+  actions,
+}: {
+  image: string
+  badge: ReactNode
+  overlay?: ReactNode
+  title: string
+  location?: string
+  meta: ReactNode
+  aside?: ReactNode
+  price: number
+  priceHint: string
+  actions: ReactNode
+}) {
+  return (
+    <>
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
+        {image ? <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" /> : null}
+        <div className="absolute top-3 left-3">{badge}</div>
+        {overlay ? <div className="absolute top-3 right-3">{overlay}</div> : null}
+      </div>
+      <div className="p-3.5 flex flex-col flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2">{title}</h3>
+            {location ? <p className="text-[13px] text-zinc-500 mt-0.5 truncate">{location}</p> : null}
+            <p className="mt-1.5 text-[13px] text-zinc-500">{meta}</p>
+          </div>
+          {aside}
+        </div>
+        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[17px] font-semibold tracking-tight text-zinc-900">${Number(price)}</p>
+            <p className="text-[12px] text-zinc-400 -mt-0.5">{priceHint}</p>
+          </div>
+          {actions}
+        </div>
+      </div>
+    </>
+  )
+}
+
 function BookingCard({
   booking,
   onCancelled,
@@ -100,6 +174,7 @@ function BookingCard({
   const listingHref =
     listing?.listingPath ||
     (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
+  const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
   const status = String(booking.status || "")
   const unpaid = isUnpaidBooking(status)
   const [pending, startTransition] = useTransition()
@@ -131,66 +206,51 @@ function BookingCard({
     })
   }
 
+  const guests = `${booking.pax_count} ${booking.pax_count === 1 ? "guest" : "guests"}`
   const body = (
-    <>
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
-        <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-        <div className="absolute top-2.5 left-2.5">
-          <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-              status === "confirmed" || status === "completed"
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-amber-50 text-amber-800"
-            }`}
-          >
-            {status.replace("_", " ") || "Booking"}
-          </span>
-        </div>
-      </div>
-      <div className="p-3.5 md:p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
-          {listing?.title || "Booking"}
-        </h3>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-          <span className="inline-flex items-center gap-1">
-            <CalendarDays className="w-3.5 h-3.5 text-zinc-400" />
-            {booking.end_date && booking.end_date !== booking.travel_date
-              ? `${booking.travel_date} → ${booking.end_date}`
-              : booking.travel_date}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 text-zinc-400" />
-            {booking.pax_count} {booking.pax_count === 1 ? "guest" : "guests"}
-          </span>
-        </div>
-        <p className="mt-3 text-lg font-bold tracking-tight text-zinc-900">${Number(booking.total_usd || 0)}</p>
-        {unpaid ? (
-          <div className="mt-auto pt-3 flex items-center gap-2">
+    <StayCardShell
+      image={image}
+      badge={<PhotoBadge>{bookingBadge(status)}</PhotoBadge>}
+      title={listing?.title || "Booking"}
+      location={location}
+      meta={`${bookingTravelLabel(booking)} · ${guests}`}
+      aside={
+        unpaid ? (
+          <div className="text-right shrink-0 pt-0.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Pay when ready</p>
+          </div>
+        ) : null
+      }
+      price={Number(booking.total_usd || 0)}
+      priceHint={unpaid ? "to pay" : "paid"}
+      actions={
+        unpaid ? (
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={payThis}
               disabled={paying}
-              className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[#22c55e] px-3 text-xs font-semibold text-white hover:bg-[#16a34a] disabled:opacity-60"
+              className="inline-flex h-8 items-center rounded-full bg-[#22c55e] px-3 text-xs font-semibold text-white hover:bg-[#16a34a] disabled:opacity-60"
             >
-              {paying ? "Opening pay…" : "Make payment"}
+              {paying ? "Opening…" : "Make payment"}
             </button>
             <button
               type="button"
               onClick={cancelThis}
               disabled={pending}
-              className="inline-flex h-9 flex-1 items-center justify-center rounded-full border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:border-zinc-400 disabled:opacity-60"
+              className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
             >
-              {pending ? "Cancelling…" : "Cancel"}
+              {pending ? "…" : "Cancel"}
             </button>
           </div>
-        ) : null}
-      </div>
-    </>
+        ) : null
+      }
+    />
   )
-  const className = "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full"
+  const className = "flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white h-full shadow-sm hover:shadow-md transition-shadow"
   if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
-    <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={`${className} hover:border-zinc-300 hover:shadow-md transition-all`}>
+    <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={className}>
       {body}
     </Link>
   )
@@ -199,8 +259,8 @@ function BookingCard({
 function PayCountdownRing({ msLeft }: { msLeft: number }) {
   const urgency = payUrgency(msLeft)
   const hoursLabel = formatPayRingHours(msLeft)
-  const size = 64
-  const stroke = 5
+  const size = 56
+  const stroke = 4.5
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const progress = payWindowProgress(msLeft)
@@ -225,14 +285,14 @@ function PayCountdownRing({ msLeft }: { msLeft: number }) {
           strokeDashoffset={circumference * (1 - progress)}
         />
       </svg>
-      <span className="relative text-[14px] font-black tabular-nums text-white">{hoursLabel}</span>
+      <span className="relative text-[13px] font-bold tabular-nums text-white">{hoursLabel}</span>
     </span>
   )
 }
 
 function OfferCard({ offer, now }: { offer: any; now: number }) {
   const listing = offerListing(offer)
-  const image = listing?.card_image_url || listing?.cover_image_url || ""
+  const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
   const slug = listing?.slug as string | undefined
   const listingHref =
     listing?.listingPath ||
@@ -244,81 +304,54 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
   const canPay = live && Boolean(offer.payPath)
   const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
   const displayStatus = expired && offer.status === "accepted" ? "expired" : offer.status
+  const guests = `${offer.guest_count} ${offer.guest_count === 1 ? "guest" : "guests"}`
   const body = (
-    <>
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
-        {image ? (
-          <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-        ) : null}
-        <div className="absolute top-2.5 left-2.5">
-          <OfferStatus status={displayStatus} />
-        </div>
-        {canPay && msLeft != null ? (
-          <div className="absolute top-2.5 right-2.5">
-            <PayCountdownRing msLeft={msLeft} />
+    <StayCardShell
+      image={image}
+      badge={<OfferStatus status={displayStatus} />}
+      overlay={canPay && msLeft != null ? <PayCountdownRing msLeft={msLeft} /> : null}
+      title={listing?.title || "Listing"}
+      location={location}
+      meta={
+        canPay
+          ? `${offerTravelLabel(offer)} · ${guests}`
+          : `${offerTravelLabel(offer)} · ${guests}${offerStatusCopy(offer, expired ? 0 : msLeft) ? ` · ${offerStatusCopy(offer, expired ? 0 : msLeft)}` : ""}`
+      }
+      aside={
+        canPay && msLeft != null ? (
+          <div className="text-right shrink-0 pt-0.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Expires in</p>
+            <p
+              className={`mt-0.5 text-lg font-semibold tabular-nums tracking-tight leading-none ${
+                urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-zinc-900"
+              }`}
+            >
+              {formatPayHms(msLeft)}
+            </p>
           </div>
-        ) : null}
-      </div>
-      <div className="p-3.5 md:p-4 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
-              {listing?.title || "Listing"}
-            </h3>
-            {location ? <p className="text-xs text-zinc-500 mt-0.5 truncate">{location}</p> : null}
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-              <span className="inline-flex items-center gap-1">
-                <CalendarDays className="w-3.5 h-3.5 text-zinc-400" />
-                {offerTravelLabel(offer)}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-zinc-400" />
-                {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
-              </span>
-            </div>
-            {canPay ? null : <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, expired ? 0 : msLeft)}</p>}
-          </div>
-          {canPay && msLeft != null ? (
-            <div className="text-right shrink-0 pt-0.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Expires in</p>
-              <p
-                className={`mt-0.5 text-lg font-semibold tabular-nums tracking-tight leading-none ${
-                  urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-zinc-900"
-                }`}
-              >
-                {formatPayHms(msLeft)}
-              </p>
-            </div>
-          ) : null}
-        </div>
-        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
-            <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
-          </div>
-          <span
-            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
-              canPay
-                ? urgency === "red"
-                  ? "bg-rose-500"
-                  : urgency === "amber"
-                    ? "bg-amber-500"
-                    : "bg-[#22c55e] hover:bg-[#16a34a]"
-                : "bg-zinc-900"
-            }`}
-          >
-            {canPay ? "Make payment" : "View listing"}
-          </span>
-        </div>
-      </div>
-    </>
+        ) : null
+      }
+      price={Number(offer.offer_amount)}
+      priceHint="your offer"
+      actions={
+        <span
+          className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+            canPay
+              ? urgency === "red"
+                ? "bg-rose-500"
+                : urgency === "amber"
+                  ? "bg-amber-500"
+                  : "bg-[#22c55e] hover:bg-[#16a34a]"
+              : "bg-zinc-900"
+          }`}
+        >
+          {canPay ? "Make payment" : "View listing"}
+        </span>
+      }
+    />
   )
 
-  const className = canPay
-    ? `flex flex-col overflow-hidden rounded-2xl border bg-white h-full hover:shadow-md transition-all ${
-        urgency === "red" ? "border-rose-300" : urgency === "amber" ? "border-amber-300" : "border-emerald-200"
-      }`
-    : "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
+  const className = "flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white h-full shadow-sm hover:shadow-md transition-shadow"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>
