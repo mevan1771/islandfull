@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { respondToHostOffer } from "@/app/actions/offers"
 import { travelRangeFromOffer } from "@/lib/date-range-label"
-import { formatPayRemaining, offerMsLeft, payUrgency } from "@/lib/offer-countdown"
+import { formatPayRemaining, isAcceptedOfferLive, offerMsLeft, payUrgency } from "@/lib/offer-countdown"
 
 type HostOffer = {
   id: string
@@ -132,11 +132,28 @@ export default function HostOffersClient({ initialOffers }: { initialOffers: Hos
   const [busyId, setBusyId] = useState<string | null>(null)
   const [pastOpen, setPastOpen] = useState(false)
 
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    const live = offers.some((offer) => isAcceptedOfferLive(offer))
+    if (!live) return
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [offers])
   const needsYou = useMemo(() => offers.filter((o) => o.status === "pending"), [offers])
-  const waiting = useMemo(() => offers.filter((o) => o.status === "accepted" || o.status === "countered"), [offers])
+  const waiting = useMemo(
+    () => offers.filter((o) => o.status === "countered" || isAcceptedOfferLive(o, now)),
+    [offers, now]
+  )
   const past = useMemo(
-    () => offers.filter((o) => o.status === "declined" || o.status === "expired" || o.status === "paid"),
-    [offers]
+    () =>
+      offers.filter(
+        (o) =>
+          o.status === "declined" ||
+          o.status === "expired" ||
+          o.status === "paid" ||
+          (o.status === "accepted" && !isAcceptedOfferLive(o, now))
+      ),
+    [offers, now]
   )
 
   async function onRespond(id: string, status: "accepted" | "declined") {

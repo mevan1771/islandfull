@@ -24,7 +24,7 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
   if (offer.status === "paid") return { error: "This offer is already paid." }
   if (offer.status === "expired") return { error: "This offer expired. Send a new one." }
   if (offer.status !== "accepted") return { error: "This offer is not waiting for payment." }
-  if (offer.payment_expires_at && new Date(offer.payment_expires_at).getTime() <= Date.now()) {
+  if (!offer.payment_expires_at || new Date(offer.payment_expires_at).getTime() <= Date.now()) {
     await supabaseAdmin
       .from("offers")
       .update({ status: "expired", updated_at: new Date().toISOString() })

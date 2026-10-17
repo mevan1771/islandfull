@@ -33,13 +33,20 @@ export function hotelNightsOverlap(
 
 export async function expireStaleAcceptedOffers() {
   const now = new Date().toISOString()
-  const { error } = await supabaseAdmin
+  const overdue = await supabaseAdmin
     .from("offers")
     .update({ status: "expired", updated_at: now })
     .eq("status", "accepted")
     .not("payment_expires_at", "is", null)
     .lt("payment_expires_at", now)
-  if (error) console.error("expireStaleAcceptedOffers error:", error)
+  if (overdue.error) console.error("expireStaleAcceptedOffers error:", overdue.error)
+
+  const legacy = await supabaseAdmin
+    .from("offers")
+    .update({ status: "expired", updated_at: now })
+    .eq("status", "accepted")
+    .is("payment_expires_at", null)
+  if (legacy.error) console.error("expireLegacyAcceptedOffers error:", legacy.error)
 }
 
 type OfferStayRow = {

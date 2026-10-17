@@ -9,7 +9,7 @@ import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
-import { formatPayRemaining, offerMsLeft, payUrgency, payWindowProgress } from "@/lib/offer-countdown"
+import { formatPayRing, isAcceptedOfferLive, offerMsLeft, payUrgency, payWindowProgress } from "@/lib/offer-countdown"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
@@ -185,31 +185,57 @@ function BookingCard({
   )
 }
 
-function OfferCard({ offer }: { offer: any }) {
+function PayCountdownRing({ msLeft }: { msLeft: number }) {
+  const urgency = payUrgency(msLeft)
+  const { main, sub } = formatPayRing(msLeft)
+  const size = 72
+  const stroke = 6
+  const radius = (size - stroke) / 2
+  const circumference = 2 * Math.PI * radius
+  const progress = payWindowProgress(msLeft)
+  const color = urgency === "red" ? "#f43f5e" : urgency === "amber" ? "#f59e0b" : "#22c55e"
+  const track = urgency === "red" ? "#fecdd3" : urgency === "amber" ? "#fde68a" : "#bbf7d0"
+  return (
+    <span className="relative inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg className="absolute inset-0 -rotate-90" width={size} height={size} aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={track} strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * (1 - progress)}
+        />
+      </svg>
+      <span className="relative text-center leading-none px-1">
+        <span className="block text-[13px] font-black tabular-nums" style={{ color }}>
+          {main}
+        </span>
+        <span className="block text-[9px] font-bold uppercase tracking-wide mt-0.5" style={{ color }}>
+          {sub}
+        </span>
+      </span>
+    </span>
+  )
+}
+
+function OfferCard({ offer, now }: { offer: any; now: number }) {
   const listing = offerListing(offer)
   const image = listing?.card_image_url || listing?.cover_image_url || ""
   const slug = listing?.slug as string | undefined
   const listingHref =
     listing?.listingPath ||
     (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
-  const [now, setNow] = useState(Date.now())
-  const ticking = offer.status === "accepted" && Boolean(offer.payment_expires_at)
-  useEffect(() => {
-    if (!ticking) return
-    const timer = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(timer)
-  }, [ticking])
-  const msLeft = ticking ? offerMsLeft(offer.payment_expires_at, now) : null
-  const urgency = ticking ? payUrgency(msLeft) : null
-  const expired = offer.status === "expired" || urgency === "expired"
-  const canPay = offer.status === "accepted" && Boolean(offer.payPath) && !expired
-  const remaining = formatPayRemaining(msLeft)
-  const cta = canPay ? (remaining ? `Pay · ${remaining}` : "Make payment") : expired ? "View listing" : "View listing"
+  const live = isAcceptedOfferLive(offer, now)
+  const msLeft = live ? offerMsLeft(offer.payment_expires_at, now) : null
+  const urgency = live ? payUrgency(msLeft) : null
+  const expired = offer.status === "expired" || (offer.status === "accepted" && !live)
+  const canPay = live && Boolean(offer.payPath)
   const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
-  const barColor =
-    urgency === "red" ? "bg-rose-500" : urgency === "amber" ? "bg-amber-500" : "bg-[#faca20]"
-  const payColor =
-    urgency === "red" ? "bg-rose-500 hover:bg-rose-600" : urgency === "amber" ? "bg-amber-500 hover:bg-amber-600" : "bg-[#22c55e] hover:bg-[#16a34a]"
   const displayStatus = expired && offer.status === "accepted" ? "expired" : offer.status
   const body = (
     <>
@@ -220,14 +246,6 @@ function OfferCard({ offer }: { offer: any }) {
         <div className="absolute top-2.5 left-2.5">
           <OfferStatus status={displayStatus} />
         </div>
-        {canPay ? (
-          <div className="absolute inset-x-0 bottom-0 h-1.5 bg-black/20">
-            <div
-              className={`h-full ${barColor} transition-[width] duration-1000 ease-linear`}
-              style={{ width: `${Math.round(payWindowProgress(msLeft) * 100)}%` }}
-            />
-          </div>
-        ) : null}
       </div>
       <div className="p-3.5 md:p-4 flex flex-col flex-1">
         <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
@@ -244,19 +262,22 @@ function OfferCard({ offer }: { offer: any }) {
             {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
           </span>
         </div>
-        <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, msLeft)}</p>
+        <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, expired ? 0 : msLeft)}</p>
         <div className="mt-auto pt-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
             <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
           </div>
-          <span
-            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
-              canPay ? payColor : "bg-zinc-900"
-            }`}
-          >
-            {cta}
-          </span>
+          {canPay && msLeft != null ? (
+            <span className="flex flex-col items-center">
+              <PayCountdownRing msLeft={msLeft} />
+              <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500 mt-1">Pay</span>
+            </span>
+          ) : (
+            <span className="inline-flex h-8 items-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white">
+              View listing
+            </span>
+          )}
         </div>
       </div>
     </>
@@ -264,7 +285,7 @@ function OfferCard({ offer }: { offer: any }) {
 
   const className = canPay
     ? `flex flex-col overflow-hidden rounded-2xl border bg-white h-full hover:shadow-md transition-all ${
-        urgency === "red" ? "border-rose-200" : urgency === "amber" ? "border-amber-200" : "border-emerald-200"
+        urgency === "red" ? "border-rose-300" : urgency === "amber" ? "border-amber-300" : "border-emerald-200"
       }`
     : "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
 
@@ -283,11 +304,11 @@ function OfferCard({ offer }: { offer: any }) {
   )
 }
 
-function OfferGrid({ offers }: { offers: any[] }) {
+function OfferGrid({ offers, now }: { offers: any[]; now: number }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
       {offers.map((offer) => (
-        <OfferCard key={offer.id} offer={offer} />
+        <OfferCard key={offer.id} offer={offer} now={now} />
       ))}
     </div>
   )
@@ -333,6 +354,7 @@ export function TripsPageClient({
   const [ideas, setIdeas] = useState(desk.recommended)
   const [loadingSaved, setLoadingSaved] = useState(desk.saved.length === 0)
   const [offers] = useState<any[]>(desk.offers)
+  const [now, setNow] = useState(Date.now())
   const [pastOpen, setPastOpen] = useState(false)
   const [bookings, setBookings] = useState<any[]>(desk.bookings)
   const [clearingUnpaid, startClearUnpaid] = useTransition()
@@ -344,6 +366,13 @@ export function TripsPageClient({
   useEffect(() => {
     setTab(urlTab)
   }, [urlTab])
+
+  useEffect(() => {
+    const live = offers.some((offer) => isAcceptedOfferLive(offer))
+    if (!live) return
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [offers])
 
   useEffect(() => {
     if (!isHydrated) return
@@ -383,9 +412,11 @@ export function TripsPageClient({
 
   const locations = [...new Set(saved.map((a) => a.location.replace(", Sri Lanka", "")))]
   const firstName = user?.firstName || desk.firstName || "there"
-  const needsYou = offers.filter((o) => o.status === "accepted")
+  const needsYou = offers.filter((o) => isAcceptedOfferLive(o, now))
   const waitingOnHost = offers.filter((o) => o.status === "pending" || o.status === "countered")
-  const pastOffers = offers.filter((o) => o.status === "declined" || o.status === "expired" || o.status === "paid")
+  const pastOffers = offers.filter(
+    (o) => o.status === "declined" || o.status === "expired" || o.status === "paid" || (o.status === "accepted" && !isAcceptedOfferLive(o, now))
+  )
   const upcomingCount = needsYou.length + waitingOnHost.length + bookings.length
 
   return (
@@ -527,14 +558,14 @@ export function TripsPageClient({
                   <div>
                     <h2 className="text-xl font-bold text-zinc-900 mb-1">Pay to confirm</h2>
                     <p className="text-sm text-zinc-500 mb-5">The host said yes. Pay before the clock runs out to lock the stay.</p>
-                    <OfferGrid offers={needsYou} />
+                    <OfferGrid offers={needsYou} now={now} />
                   </div>
                 ) : null}
                 {waitingOnHost.length > 0 ? (
                   <div>
                     <h2 className="text-xl font-bold text-zinc-900 mb-1">Waiting on host</h2>
                     <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when they reply.</p>
-                    <OfferGrid offers={waitingOnHost} />
+                    <OfferGrid offers={waitingOnHost} now={now} />
                   </div>
                 ) : null}
                 {pastOffers.length > 0 ? (
@@ -552,7 +583,7 @@ export function TripsPageClient({
                         {pastOpen ? "Hide" : `Show ${pastOffers.length}`}
                       </span>
                     </button>
-                    {pastOpen ? <OfferGrid offers={pastOffers} /> : null}
+                    {pastOpen ? <OfferGrid offers={pastOffers} now={now} /> : null}
                   </div>
                 ) : null}
               </div>

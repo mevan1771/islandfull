@@ -480,7 +480,9 @@ export async function fetchMyOffersFor(userId: string, email: string | null) {
           }
         : null)
       const mapped = { ...row, activities: listing }
-      if (mapped.status === "accepted" && listing) return { ...mapped, payPath: offerPayPath(mapped.id) }
+      if (mapped.status === "accepted" && listing && mapped.payment_expires_at) {
+        return { ...mapped, payPath: offerPayPath(mapped.id) }
+      }
       return mapped
     })
     .filter((row) => row.activities?.category_type !== "place")
