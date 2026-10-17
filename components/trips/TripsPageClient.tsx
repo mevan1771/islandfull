@@ -350,20 +350,6 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
           ? `${offerTravelLabel(offer)} · ${guests}`
           : `${offerTravelLabel(offer)} · ${guests}${offerStatusCopy(offer, expired ? 0 : msLeft) ? ` · ${offerStatusCopy(offer, expired ? 0 : msLeft)}` : ""}`
       }
-      aside={
-        canPay && msLeft != null ? (
-          <div className="text-right shrink-0 pt-0.5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Expires in</p>
-            <p
-              className={`mt-0.5 text-lg font-semibold tabular-nums tracking-tight leading-none ${
-                urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-zinc-900"
-              }`}
-            >
-              {formatPayHms(msLeft)}
-            </p>
-          </div>
-        ) : null
-      }
       price={offered}
       priceHint={canPay ? (saved > 0 ? `you save $${saved}` : "your locked deal") : "your offer"}
       actions={
@@ -383,9 +369,23 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
       }
       footer={
         canPay ? (
-          <div className="flex items-center justify-center gap-1.5 bg-[#FFC72C] px-3 py-2.5">
-            <Sparkles className="h-3.5 w-3.5 text-zinc-900" />
-            <span className="text-[12px] font-bold uppercase tracking-[0.16em] text-zinc-900">Offer accepted</span>
+          <div className="flex items-center justify-between gap-3 bg-[#FFC72C] px-3.5 py-2.5">
+            <span className="inline-flex items-center gap-1.5 min-w-0">
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-zinc-900" />
+              <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-zinc-900">Offer accepted</span>
+            </span>
+            {msLeft != null ? (
+              <span className="shrink-0 text-right">
+                <span className="block text-[9px] font-bold uppercase tracking-[0.16em] text-zinc-900/70">Expires in</span>
+                <span
+                  className={`block text-sm font-bold tabular-nums leading-none tracking-tight ${
+                    urgency === "red" ? "text-rose-700" : "text-zinc-900"
+                  }`}
+                >
+                  {formatPayHms(msLeft)}
+                </span>
+              </span>
+            ) : null}
           </div>
         ) : null
       }
