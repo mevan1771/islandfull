@@ -37,7 +37,9 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
   }, [slides, searchLocation, searchCategory])
 
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [trackHeight, setTrackHeight] = useState<number>()
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
+  const slideRefs = React.useRef<(HTMLDivElement | null)[]>([])
 
   // Drag state
   const [isDragging, setIsDragging] = useState(false)
@@ -89,6 +91,16 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
     }
   }, [filteredSlides])
 
+  React.useLayoutEffect(() => {
+    const el = slideRefs.current[selectedIndex]
+    if (!el) return
+    const apply = () => setTrackHeight(el.offsetHeight)
+    apply()
+    const ro = new ResizeObserver(apply)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [selectedIndex, filteredSlides])
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current) return
     setIsDragging(true)
@@ -134,11 +146,15 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab active:cursor-grabbing"
+          className="flex items-start overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth transition-[height] duration-300 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab active:cursor-grabbing"
+          style={trackHeight ? { height: trackHeight } : undefined}
         >
           {filteredSlides.map((slide, index) => (
             <div
               key={slide.id || index}
+              ref={(node) => {
+                slideRefs.current[index] = node
+              }}
               className="flex-[0_0_100%] min-w-0 snap-center shrink-0"
             >
               <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center w-full py-3 md:py-12">
@@ -157,7 +173,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                       {slide.title}
                     </h2>
                   </div>
-                  <p className="text-slate-600 text-sm md:text-lg leading-snug md:leading-relaxed max-w-xl h-[2.625rem] md:h-auto line-clamp-2 md:line-clamp-none">
+                  <p className="text-slate-600 text-sm md:text-lg leading-relaxed max-w-xl">
                     {slide.description.replace(/<[^>]*>?/gm, '')}
                   </p>
 
