@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BedDouble, Bike, Globe, Map } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
+import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
 
 const VERTICALS = [
   { id: "tour", label: "Tours", Icon: Map },
@@ -39,11 +40,14 @@ export function HomeVerticalBar() {
 
   const handleClick = (vertical: VerticalId) => {
     if (vertical === active) {
-      document.getElementById("activity-grid-container")?.scrollIntoView({ behavior: "auto", block: "start" })
+      markHomeListingsPin()
+      scrollHomeListingsToStart({ blockClicks: false })
       return
     }
 
     setActive(vertical)
+    markHomeListingsPin()
+    scrollHomeListingsToStart({ blockClicks: false })
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category")

@@ -245,7 +245,10 @@ export function MobileSearch() {
       </div>
 
       {stuck && (
-        <div className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white/95 backdrop-blur-md border-b border-zinc-200/80">
+        <div
+          data-home-sticky
+          className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white/95 backdrop-blur-md border-b border-zinc-200/80"
+        >
           <div className="px-3 py-2">
             {pillOpen ? (
               <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-2.5">{searchForm}</div>

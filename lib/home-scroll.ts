@@ -6,6 +6,7 @@ const HIST_KEY = "islandfull:home-scroll-hist"
 const HEADER_KEY = "islandfull:home-header-hidden"
 const TOP_KEY = "islandfull:home-scroll-top"
 const PATH_FROM_KEY = "islandfull:path-from"
+const LISTINGS_PIN_KEY = "islandfull:home-listings-pin"
 
 let rememberedPath = ""
 let rememberedFrom = ""
@@ -238,10 +239,63 @@ export function homeClicksBlocked() {
   return Date.now() < clicksBlockedUntil
 }
 
-export function jumpHomeScroll(y: number) {
+export function clearHomeScrollRestore() {
+  try {
+    sessionStorage.removeItem(RESTORE_KEY)
+    sessionStorage.removeItem(SCROLL_KEY)
+    sessionStorage.removeItem(SLUG_KEY)
+    sessionStorage.removeItem(TOP_KEY)
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+}
+
+export function markHomeListingsPin() {
+  if (typeof window === "undefined") return
+  clearHomeScrollRestore()
+  try {
+    sessionStorage.setItem(LISTINGS_PIN_KEY, "1")
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+}
+
+export function peekHomeListingsPin() {
+  try {
+    return sessionStorage.getItem(LISTINGS_PIN_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
+export function consumeHomeListingsPin() {
+  const marked = peekHomeListingsPin()
+  try {
+    sessionStorage.removeItem(LISTINGS_PIN_KEY)
+  } catch {
+    // Ignore private-mode storage failures.
+  }
+  return marked
+}
+
+export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
+  if (typeof window === "undefined") return
+  const grid = document.getElementById("activity-grid-container")
+  if (!grid) {
+    jumpHomeScroll(0, options)
+    return
+  }
+  const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
+  const offset = sticky ? Math.ceil(sticky.getBoundingClientRect().height) : 0
+  const y = Math.max(0, Math.round(window.scrollY + grid.getBoundingClientRect().top - offset - 8))
+  const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+  jumpHomeScroll(Math.min(y, max), options)
+}
+
+export function jumpHomeScroll(y: number, options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
   const top = Math.max(0, Math.round(y))
-  blockHomeClicks()
+  if (options?.blockClicks !== false) blockHomeClicks()
 
   try {
     window.scrollTo({ top, left: 0, behavior: "instant" })
