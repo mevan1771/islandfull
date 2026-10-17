@@ -43,11 +43,13 @@ export async function POST(req: Request) {
       await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)
       const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
       await bumpPopularityIfNewlyConfirmed(bookingId, existingBooking?.status)
+      const { settlePaidOffer } = await import('@/lib/offer-lifecycle')
+      await settlePaidOffer(bookingId)
 
       // Look up booking details for email and promo
       const { data: booking } = await supabaseAdmin
         .from('bookings')
-        .select('*, activities(title, cover_image_url, hosts(name, email))')
+        .select('*, activities(title, cover_image_url, hosts(name, email)), hotels(title, cover_image_url, hosts(name, email))')
         .eq('id', bookingId)
         .single()
 
@@ -69,7 +71,8 @@ export async function POST(req: Request) {
         const qrCodeUrl = `${appUrl}/api/qr?id=${encodeURIComponent(bookingId)}`
 
         // Send Receipt Email
-        const activityTitle = booking.activities?.title || 'Your Activity'
+        const hotel = Array.isArray(booking.hotels) ? booking.hotels[0] : booking.hotels
+        const activityTitle = booking.activities?.title || hotel?.title || 'Your booking'
         const tourOption = booking.tour_option ? ` (${booking.tour_option})` : ''
 
         await sendReceiptEmail({
@@ -79,11 +82,13 @@ export async function POST(req: Request) {
           date: booking.travel_date,
           guests: booking.pax_count,
           qrCodeUrl,
-          imageUrl: booking.activities?.cover_image_url
+          imageUrl: booking.activities?.cover_image_url || hotel?.cover_image_url
         })
 
         // Send Host Email
-        const host: any = Array.isArray(booking.activities?.hosts) ? booking.activities.hosts[0] : booking.activities?.hosts;
+        const activityHost: any = Array.isArray(booking.activities?.hosts) ? booking.activities.hosts[0] : booking.activities?.hosts
+        const hotelHost: any = Array.isArray(hotel?.hosts) ? hotel.hosts[0] : hotel?.hosts
+        const host: any = activityHost || hotelHost
         if (host?.email) {
           await sendHostEmail({
             toEmail: host.email,

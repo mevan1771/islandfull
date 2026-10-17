@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/server"
 import { offerActionUrl, offerPayPath, offerPayUrl, siteUrl, verifyOfferActionToken } from "@/lib/offer-token"
 import { formatStayRangeLabel, inclusiveDays, travelRangeFromOffer } from "@/lib/date-range-label"
 import { stayListTotal, stayRateSuffix, stayUnitFromTotal } from "@/lib/stay-price"
+import { expireStaleAcceptedOffers, OFFER_PAY_HOURS, offerPaymentExpiresAt } from "@/lib/offer-lifecycle"
 import { differenceInDays, format, parseISO } from "date-fns"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -362,6 +363,7 @@ async function sendGuestDecisionEmail(offer: {
       status,
       listingUrl,
       payUrl,
+      payHours: OFFER_PAY_HOURS,
       imageUrl: listing?.card_image_url || listing?.cover_image_url || null,
       logoUrl: `${siteUrl()}/logo_dark.png`,
     })
@@ -411,7 +413,11 @@ export async function confirmOfferFromEmail(formData: FormData) {
   const status = action === "accept" ? "accepted" : "declined"
   const { error } = await supabaseAdmin
     .from("offers")
-    .update({ status, updated_at: new Date().toISOString() })
+    .update({
+      status,
+      payment_expires_at: status === "accepted" ? offerPaymentExpiresAt() : null,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", id)
     .eq("status", "pending")
 
@@ -435,8 +441,9 @@ export async function confirmOfferFromEmail(formData: FormData) {
 }
 
 export async function fetchMyOffersFor(userId: string, email: string | null) {
+  await expireStaleAcceptedOffers()
   const select =
-    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type), hotels(id, title, slug, cover_image_url, gallery_urls)"
+    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, payment_expires_at, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type), hotels(id, title, slug, cover_image_url, gallery_urls)"
   const [{ data: byUser }, { data: byEmail }] = await Promise.all([
     supabaseAdmin.from("offers").select(select).eq("clerk_user_id", userId).order("created_at", { ascending: false }),
     email
@@ -470,7 +477,7 @@ export async function fetchMyOffersFor(userId: string, email: string | null) {
           }
         : null)
       const mapped = { ...row, activities: listing }
-      if (mapped.status === "accepted" && activity) return { ...mapped, payPath: offerPayPath(mapped.id) }
+      if (mapped.status === "accepted" && listing) return { ...mapped, payPath: offerPayPath(mapped.id) }
       return mapped
     })
     .filter((row) => row.activities?.category_type !== "place")
@@ -505,6 +512,7 @@ export async function getAcceptedOfferForPay(id: string, activityId: string) {
 }
 
 export async function getOffers() {
+  await expireStaleAcceptedOffers()
   const { data, error } = await supabaseAdmin
     .from("offers")
     .select("*, activities(id, title, price_usd, category_type, slug), hotels(id, title, slug, cover_image_url)")
@@ -545,6 +553,7 @@ export async function updateOfferStatus(
   const update: Record<string, unknown> = {
     status,
     updated_at: new Date().toISOString(),
+    payment_expires_at: status === "accepted" ? offerPaymentExpiresAt() : null,
   }
   if (status === "countered") {
     const amount = Number(adminCounterAmount)

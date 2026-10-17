@@ -2,6 +2,7 @@ import Stripe from "stripe"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getExchangeRate } from "@/app/actions/settings"
 import { travelRangeFromOffer } from "@/lib/date-range-label"
+import { expireStaleAcceptedOffers } from "@/lib/offer-lifecycle"
 
 function rel<T>(value: T | T[] | null | undefined): T | null {
   if (!value) return null
@@ -9,48 +10,76 @@ function rel<T>(value: T | T[] | null | undefined): T | null {
 }
 
 export async function createCheckoutForAcceptedOffer(offerId: string) {
+  await expireStaleAcceptedOffers()
+
   const { data: offer, error } = await supabaseAdmin
     .from("offers")
     .select(
-      "id, activity_id, status, offer_amount, travel_date, guest_count, guest_name, guest_email, guest_phone, special_notes, activities(id, title, commission_rate, cover_image_url)"
+      "id, activity_id, hotel_id, status, offer_amount, travel_date, guest_count, guest_name, guest_email, guest_phone, special_notes, payment_expires_at, activities(id, title, commission_rate, cover_image_url), hotels(id, title, commission_rate, cover_image_url)"
     )
     .eq("id", offerId)
-    .eq("status", "accepted")
     .maybeSingle()
 
   if (error || !offer) return { error: "This offer is not waiting for payment." }
+  if (offer.status === "paid") return { error: "This offer is already paid." }
+  if (offer.status === "expired") return { error: "This offer expired. Send a new one." }
+  if (offer.status !== "accepted") return { error: "This offer is not waiting for payment." }
+  if (offer.payment_expires_at && new Date(offer.payment_expires_at).getTime() <= Date.now()) {
+    await supabaseAdmin
+      .from("offers")
+      .update({ status: "expired", updated_at: new Date().toISOString() })
+      .eq("id", offer.id)
+      .eq("status", "accepted")
+    return { error: "This offer expired. Send a new one." }
+  }
 
   const amount = Number(offer.offer_amount)
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Invalid offer amount." }
 
-  const activity = rel(offer.activities as { title?: string; commission_rate?: number } | { title?: string; commission_rate?: number }[] | null)
+  const activity = rel(
+    offer.activities as { title?: string; commission_rate?: number } | { title?: string; commission_rate?: number }[] | null
+  )
+  const hotel = rel(
+    offer.hotels as { title?: string; commission_rate?: number } | { title?: string; commission_rate?: number }[] | null
+  )
+  const listingTitle = hotel?.title || activity?.title || "IslandFull booking"
   const match = String(offer.special_notes || "").match(/Dates:\s*(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})/)
   const date = offer.travel_date
   const endDate = match?.[2] && match[2] !== date ? match[2] : null
   const guests = Math.max(1, Number(offer.guest_count) || 1)
   const travelLabel = travelRangeFromOffer(offer.travel_date, offer.special_notes)
-  const commissionRate = Number(activity?.commission_rate) || 15
+  const commissionRate = Number(hotel?.commission_rate ?? activity?.commission_rate) || 15
   const platformFeeUsd = (amount * commissionRate) / 100
   const hostPayoutUsd = amount - platformFeeUsd
 
   const offerNote = `Accepted offer ${offer.id}`
-  const { data: existing } = await supabaseAdmin
+  const { data: existingByOffer } = await supabaseAdmin
     .from("bookings")
     .select("id")
-    .eq("activity_id", offer.activity_id)
-    .eq("status", "pending")
-    .ilike("special_requests", `%${offerNote}%`)
+    .eq("offer_id", offer.id)
+    .in("status", ["pending", "pending_payment"])
     .maybeSingle()
 
-  let booking = existing
+  const { data: existingByNote } = existingByOffer
+    ? { data: null }
+    : await supabaseAdmin
+        .from("bookings")
+        .select("id")
+        .eq("status", "pending")
+        .ilike("special_requests", `%${offerNote}%`)
+        .maybeSingle()
+
+  let booking = existingByOffer || existingByNote
   if (!booking) {
     const { data: created, error: dbError } = await supabaseAdmin
       .from("bookings")
       .insert({
-        activity_id: offer.activity_id,
+        activity_id: offer.activity_id || null,
+        hotel_id: offer.hotel_id || null,
+        offer_id: offer.id,
         tourist_name: offer.guest_name,
         tourist_email: offer.guest_email,
-        tourist_whatsapp: offer.guest_phone || "",
+        tourist_whatsapp: offer.guest_phone || "-",
         pax_count: guests,
         travel_date: date,
         end_date: endDate,
@@ -89,7 +118,7 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
         price_data: {
           currency: "usd",
           product_data: {
-            name: activity?.title || "IslandFull booking",
+            name: listingTitle,
             description: `${guests} guest${guests === 1 ? "" : "s"} · ${travelLabel}`,
           },
           unit_amount: Math.round(amount * 100),
@@ -102,6 +131,10 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
     cancel_url: `${base}/trips`,
     client_reference_id: booking.id,
     customer_email: offer.guest_email,
+    metadata: {
+      booking_id: booking.id,
+      offer_id: offer.id,
+    },
   })
 
   if (!session.url) return { error: "Could not start Stripe." }

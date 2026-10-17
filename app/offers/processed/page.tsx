@@ -9,14 +9,19 @@ export default async function OfferProcessedPage({
     status === "accepted"
       ? {
           title: "Offer accepted",
-          body: "The guest has been emailed to complete their reservation.",
+            body: "The guest has been emailed. They have 24 hours to pay and confirm.",
         }
       : status === "declined"
         ? {
             title: "Offer declined",
             body: "The guest has been emailed. No further action needed.",
           }
-        : {
+        : status === "expired"
+          ? {
+              title: "Offer expired",
+              body: "This price was only held for 24 hours. Send a new offer from the listing if you still want to stay.",
+            }
+          : {
             title: "Already processed",
             body: "This offer was already accepted or declined, or the link is invalid.",
           }

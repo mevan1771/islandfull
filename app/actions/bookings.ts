@@ -182,7 +182,7 @@ export async function fetchMyBookingsFor(email: string) {
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
-      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, activities(title, slug, location, card_image_url, cover_image_url, category_type)"
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, activities(title, slug, location, card_image_url, cover_image_url, category_type), hotels(title, slug, cover_image_url, gallery_urls)"
     )
     .eq("tourist_email", emails[0])
     .neq("status", "cancelled")
@@ -192,7 +192,25 @@ export async function fetchMyBookingsFor(email: string) {
     console.error("fetchMyBookingsFor error:", error)
     return []
   }
-  return (data || []).filter((row: any) => {
+  return (data || [])
+    .map((row: any) => {
+      const hotel = Array.isArray(row.hotels) ? row.hotels[0] : row.hotels
+      if (row.activities || !hotel) return row
+      const photo = Array.isArray(hotel.gallery_urls) ? hotel.gallery_urls[0] : null
+      return {
+        ...row,
+        activities: {
+          title: hotel.title,
+          slug: hotel.slug,
+          location: null,
+          card_image_url: hotel.cover_image_url || photo,
+          cover_image_url: hotel.cover_image_url || photo,
+          category_type: "hotel",
+          listingPath: `/hotel/${hotel.slug}`,
+        },
+      }
+    })
+    .filter((row: any) => {
     if (row.is_archived === true) return false
     if (!emails.includes(normalizeEmail(row.tourist_email))) return false
     const listing = Array.isArray(row.activities) ? row.activities[0] : row.activities

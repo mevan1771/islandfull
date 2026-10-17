@@ -9,6 +9,7 @@ type OfferDecisionEmailProps = {
   status: "accepted" | "declined"
   listingUrl: string
   payUrl?: string
+  payHours?: number
   imageUrl?: string | null
   logoUrl: string
 }
@@ -31,6 +32,7 @@ export function OfferDecisionEmail({
   status,
   listingUrl,
   payUrl,
+  payHours = 24,
   imageUrl,
   logoUrl,
 }: OfferDecisionEmailProps) {
@@ -57,7 +59,7 @@ export function OfferDecisionEmail({
             </Text>
             <Text style={bodyText}>
               {accepted
-                ? "The host accepted your offer. Dates and guests are locked in — pay to confirm the trip."
+                ? `The host accepted your offer. Pay within ${payHours} hours to confirm — after that this price expires.`
                 : "The host couldn’t take this price this time. You can still view the listing or send another offer."}
             </Text>
 
@@ -83,7 +85,7 @@ export function OfferDecisionEmail({
             <Section style={ctaWrap}>
               {accepted ? (
                 <Link href={payUrl || listingUrl} style={ctaPay}>
-                  Make payment
+                  Pay within 24 hours
                 </Link>
               ) : (
                 <Link href={listingUrl} style={ctaGhost}>

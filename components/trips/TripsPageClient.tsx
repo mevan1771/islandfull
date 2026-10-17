@@ -30,6 +30,12 @@ function OfferStatus({ status }: { status: string }) {
   if (status === "accepted") {
     return <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Accepted</span>
   }
+  if (status === "paid") {
+    return <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">Paid</span>
+  }
+  if (status === "expired") {
+    return <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">Expired</span>
+  }
   if (status === "declined") {
     return <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-500">Declined</span>
   }
@@ -40,7 +46,17 @@ function OfferStatus({ status }: { status: string }) {
 }
 
 function offerStatusCopy(offer: any) {
-  if (offer.status === "accepted") return "Accepted · make payment to confirm"
+  if (offer.status === "accepted") {
+    if (offer.payment_expires_at) {
+      const ms = new Date(offer.payment_expires_at).getTime() - Date.now()
+      if (ms <= 0) return "Expired · send a new offer"
+      const hours = Math.max(1, Math.ceil(ms / (60 * 60 * 1000)))
+      return `Accepted · pay within ${hours} hour${hours === 1 ? "" : "s"}`
+    }
+    return "Accepted · make payment to confirm"
+  }
+  if (offer.status === "paid") return "Paid · this stay is confirmed"
+  if (offer.status === "expired") return "Expired · this price is no longer held"
   if (offer.status === "countered") {
     return offer.admin_counter_amount != null
       ? `Host suggested $${Number(offer.admin_counter_amount)}`
@@ -84,6 +100,9 @@ function BookingCard({
   const listing = bookingListing(booking)
   const image = listing?.card_image_url || listing?.cover_image_url || "/placeholder.jpg"
   const slug = listing?.slug as string | undefined
+  const listingHref =
+    listing?.listingPath ||
+    (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
   const status = String(booking.status || "")
   const unpaid = isUnpaidBooking(status)
   const [pending, startTransition] = useTransition()
@@ -138,9 +157,9 @@ function BookingCard({
         <p className="mt-3 text-lg font-bold tracking-tight text-zinc-900">${Number(booking.total_usd || 0)}</p>
         {unpaid ? (
           <div className="mt-auto pt-3 flex items-center gap-2">
-            {slug ? (
+            {listingHref ? (
               <Link
-                href={`/activity/${slug}`}
+                href={listingHref}
                 onClick={() => markPageReturn("/trips")}
                 className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white"
               >
@@ -161,9 +180,9 @@ function BookingCard({
     </>
   )
   const className = "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full"
-  if (unpaid || !slug) return <div className={className}>{body}</div>
+  if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
-    <Link href={`/activity/${slug}`} onClick={() => markPageReturn("/trips")} className={`${className} hover:border-zinc-300 hover:shadow-md transition-all`}>
+    <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={`${className} hover:border-zinc-300 hover:shadow-md transition-all`}>
       {body}
     </Link>
   )

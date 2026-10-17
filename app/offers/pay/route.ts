@@ -14,5 +14,6 @@ export async function GET(req: NextRequest) {
   if (result.url) {
     return NextResponse.redirect(result.url)
   }
-  return NextResponse.redirect(new URL("/offers/processed?status=invalid", req.url))
+  const expired = /expir/i.test(result.error || "")
+  return NextResponse.redirect(new URL(`/offers/processed?status=${expired ? "expired" : "invalid"}`, req.url))
 }
