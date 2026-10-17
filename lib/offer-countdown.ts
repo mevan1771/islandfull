@@ -30,14 +30,20 @@ export function formatPayRemaining(ms: number | null) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`
 }
 
-export function formatPayRing(ms: number | null) {
-  if (ms == null || ms <= 0) return { main: "0", sub: "00s" }
+export function formatPayRingHours(ms: number | null) {
+  if (ms == null || ms <= 0) return "0h"
+  const hours = Math.floor(ms / (60 * 60 * 1000))
+  return hours < 1 ? "<1h" : `${hours}h`
+}
+
+export function formatPayHms(ms: number | null) {
+  if (ms == null) return ""
+  if (ms <= 0) return "00:00:00"
   const total = Math.floor(ms / 1000)
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
   const seconds = total % 60
-  if (hours >= 1) return { main: `${hours}h`, sub: `${String(minutes).padStart(2, "0")}m` }
-  return { main: String(minutes), sub: `${String(seconds).padStart(2, "0")}s` }
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
 }
 
 export function payWindowProgress(ms: number | null) {

@@ -9,7 +9,7 @@ import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
-import { formatPayRing, isAcceptedOfferLive, offerMsLeft, payUrgency, payWindowProgress } from "@/lib/offer-countdown"
+import { formatPayHms, formatPayRingHours, isAcceptedOfferLive, offerMsLeft, payUrgency, payWindowProgress } from "@/lib/offer-countdown"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
@@ -187,7 +187,7 @@ function BookingCard({
 
 function PayCountdownRing({ msLeft }: { msLeft: number }) {
   const urgency = payUrgency(msLeft)
-  const { main, sub } = formatPayRing(msLeft)
+  const hoursLabel = formatPayRingHours(msLeft)
   const size = 64
   const stroke = 5
   const radius = (size - stroke) / 2
@@ -214,10 +214,7 @@ function PayCountdownRing({ msLeft }: { msLeft: number }) {
           strokeDashoffset={circumference * (1 - progress)}
         />
       </svg>
-      <span className="relative text-center leading-none px-1">
-        <span className="block text-[12px] font-black tabular-nums text-white">{main}</span>
-        <span className="block text-[8px] font-bold uppercase tracking-wide mt-0.5 text-white/80">{sub}</span>
-      </span>
+      <span className="relative text-[14px] font-black tabular-nums text-white">{hoursLabel}</span>
     </span>
   )
 }
@@ -272,19 +269,28 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
             <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
             <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
           </div>
-          <span
-            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
-              canPay
-                ? urgency === "red"
-                  ? "bg-rose-500"
-                  : urgency === "amber"
-                    ? "bg-amber-500"
-                    : "bg-[#22c55e] hover:bg-[#16a34a]"
-                : "bg-zinc-900"
-            }`}
-          >
-            {canPay ? "Make payment" : "View listing"}
-          </span>
+          {canPay && msLeft != null ? (
+            <span className="flex flex-col items-end gap-1">
+              <span
+                className={`text-[11px] font-black tabular-nums tracking-wide ${
+                  urgency === "red" ? "text-rose-600" : urgency === "amber" ? "text-amber-600" : "text-emerald-600"
+                }`}
+              >
+                {formatPayHms(msLeft)}
+              </span>
+              <span
+                className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+                  urgency === "red" ? "bg-rose-500" : urgency === "amber" ? "bg-amber-500" : "bg-[#22c55e] hover:bg-[#16a34a]"
+                }`}
+              >
+                Make payment
+              </span>
+            </span>
+          ) : (
+            <span className="inline-flex h-8 items-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white">
+              View listing
+            </span>
+          )}
         </div>
       </div>
     </>
