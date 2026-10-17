@@ -9,14 +9,14 @@ import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
-import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
+import { HOMEPAGE_PAGE_SIZE, publicVertical } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 
 export const revalidate = 60
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;
-  const currentVertical = params.vertical || 'tour';
+  const currentVertical = publicVertical(params.vertical);
   const currentCategory = params.category || 'all';
 
   const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories, mustSeePlaces] = await Promise.all([
@@ -110,7 +110,7 @@ async function ActivityGridServer({
   mustSeePlaces: Awaited<ReturnType<typeof fetchMustSeePlaces>>
 }) {
   const filters = {
-    vertical: searchParams.vertical || "tour",
+    vertical: publicVertical(searchParams.vertical),
     category: searchParams.category || "all",
     location: searchParams.location || "",
     sort: searchParams.sort || "",

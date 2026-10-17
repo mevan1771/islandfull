@@ -18,7 +18,6 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
       { id: "all", name: "All", icon: Compass },
       { id: "saved", name: "", icon: Heart },
       { id: "tour", name: "Tours", isVertical: true },
-      { id: "event", name: "Events", isVertical: true },
       { id: "transport", name: "Transport", isVertical: true }
     ]
   } else {

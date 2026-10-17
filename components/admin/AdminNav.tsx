@@ -10,7 +10,6 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
     { name: 'Bookings', href: '/admin' },
     { name: 'Offers', href: '/admin/offers' },
     { name: 'Tours', href: '/admin/tours' },
-    { name: 'Events', href: '/admin/events' },
     { name: 'Transport', href: '/admin/transport' },
     { name: 'Hotels', href: '/admin/hotels' },
     { name: 'Places', href: '/admin/places' },

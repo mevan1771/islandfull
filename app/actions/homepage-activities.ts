@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase"
 import {
   HOMEPAGE_PAGE_SIZE,
+  publicVertical,
   type HomepageActivity,
   type HomepageActivityFilters,
 } from "@/lib/homepage-feed"
@@ -39,7 +40,7 @@ function mapActivity(d: any): HomepageActivity {
 
 function applySearchAndCategory(query: any, filters: HomepageActivityFilters) {
   let next = query
-    .eq("category_type", filters.vertical || "tour")
+    .eq("category_type", publicVertical(filters.vertical))
     .eq("status", "published")
     .eq("is_paused_by_host", false)
 
@@ -133,9 +134,11 @@ export async function fetchHomepageActivities(
   offset = 0,
   limit = HOMEPAGE_PAGE_SIZE
 ): Promise<{ activities: HomepageActivity[]; total: number }> {
-  if (filters.vertical === "hotel") {
-    return fetchHomepageHotels(filters, offset, limit)
+  const vertical = publicVertical(filters.vertical)
+  if (vertical === "hotel") {
+    return fetchHomepageHotels({ ...filters, vertical }, offset, limit)
   }
+  filters = { ...filters, vertical }
 
   const countQuery = applySearchAndCategory(
     supabase.from("activities").select("id, categories!inner(slug)", { count: "exact", head: true }),

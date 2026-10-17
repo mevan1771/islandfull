@@ -101,6 +101,7 @@ function DestinationsPage() {
           .select(activitySelect)
           .eq("status", "published")
           .eq("is_paused_by_host", false)
+          .neq("category_type", "event")
           .order("popularity_score", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })
 
@@ -110,6 +111,7 @@ function DestinationsPage() {
             .select(activitySelectFallback)
             .eq("status", "published")
             .eq("is_paused_by_host", false)
+            .neq("category_type", "event")
             .order("created_at", { ascending: false }) as typeof activitiesRes
         }
 
@@ -117,6 +119,7 @@ function DestinationsPage() {
           supabase
             .from("categories")
             .select("name, slug, category_type")
+            .neq("category_type", "event")
             .order("sort_order", { ascending: true })
             .order("name"),
         ])
@@ -372,30 +375,27 @@ function DestinationPage({
   const local = activitiesForDestination(tours, dest)
   const groups = {
     tour: local.filter((item) => (item.category_type || "tour") === "tour"),
-    event: local.filter((item) => item.category_type === "event"),
     transport: local.filter((item) => item.category_type === "transport"),
   }
   const places = local.filter((item) => item.category_type === "place")
   const tabs = (
     [
       { id: "tour" as const, label: "Tours", items: groups.tour },
-      { id: "event" as const, label: "Events", items: groups.event },
       { id: "transport" as const, label: "Transport", items: groups.transport },
     ]
   ).filter((tab) => tab.items.length > 0)
-  const [activeTab, setActiveTab] = useState<"tour" | "event" | "transport">("tour")
+  const [activeTab, setActiveTab] = useState<"tour" | "transport">("tour")
   const [sort, setSort] = useState<TourSort>("recommended")
 
   useEffect(() => {
     const first = (
       [
         { id: "tour" as const, count: groups.tour.length },
-        { id: "event" as const, count: groups.event.length },
         { id: "transport" as const, count: groups.transport.length },
       ]
     ).find((tab) => tab.count > 0)
     setActiveTab(first?.id ?? "tour")
-  }, [dest.id, groups.tour.length, groups.event.length, groups.transport.length])
+  }, [dest.id, groups.tour.length, groups.transport.length])
   const visible = sortTours(
     tabs.find((tab) => tab.id === activeTab)?.items ?? tabs[0]?.items ?? [],
     sort
@@ -482,11 +482,11 @@ function DestinationPage({
       {tabs.length > 0 && (
         <div className="mt-6 lg:mt-8">
           <div className="flex items-center gap-2">
-            <div className="min-w-0 flex-1 grid grid-cols-3 gap-0.5 p-1 rounded-full bg-zinc-100">
-            {(["tour", "event", "transport"] as const).map((id) => {
+            <div className="min-w-0 flex-1 grid grid-cols-2 gap-0.5 p-1 rounded-full bg-zinc-100">
+            {(["tour", "transport"] as const).map((id) => {
               const tab = tabs.find((item) => item.id === id)
               const count = tab?.items.length ?? 0
-              const label = id === "tour" ? "Tours" : id === "event" ? "Events" : "Transport"
+              const label = id === "tour" ? "Tours" : "Transport"
               const enabled = count > 0
               const active = activeTab === id
               return (

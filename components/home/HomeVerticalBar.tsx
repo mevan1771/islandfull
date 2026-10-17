@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { BedDouble, Bike, Calendar, Map } from "lucide-react"
+import { BedDouble, Bike, Map } from "lucide-react"
 
 const VERTICALS = [
   { id: "tour", label: "Tours", Icon: Map },
-  { id: "event", label: "Events", Icon: Calendar },
   { id: "transport", label: "Transport", Icon: Bike },
   { id: "hotel", label: "Hotels", Icon: BedDouble },
 ] as const
@@ -57,7 +56,7 @@ export function HomeVerticalBar() {
       className="sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.28)] pb-[env(safe-area-inset-bottom)]"
       aria-label="Browse"
     >
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-3 h-16">
         {VERTICALS.map(({ id, label, Icon }) => {
           const selected = active === id
           return (

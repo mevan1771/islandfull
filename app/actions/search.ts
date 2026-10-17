@@ -20,6 +20,7 @@ export async function searchLocationsAndTags(query: string): Promise<SearchSugge
       .or(`location.ilike.${searchTerm},title.ilike.${searchTerm},description.ilike.${searchTerm}`)
       .eq('status', 'published')
       .eq('is_paused_by_host', false)
+      .neq('category_type', 'event')
 
     if (actError) throw actError
 
@@ -32,6 +33,7 @@ export async function searchLocationsAndTags(query: string): Promise<SearchSugge
       .from('categories')
       .select('name')
       .ilike('name', searchTerm)
+      .neq('category_type', 'event')
 
     if (catError) throw catError
 

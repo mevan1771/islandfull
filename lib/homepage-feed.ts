@@ -1,5 +1,13 @@
 export const HOMEPAGE_PAGE_SIZE = 36
 
+export const PUBLIC_VERTICALS = ["tour", "transport", "hotel"] as const
+export type PublicVertical = (typeof PUBLIC_VERTICALS)[number]
+
+export function publicVertical(value?: string | null): PublicVertical {
+  if (value === "transport" || value === "hotel") return value
+  return "tour"
+}
+
 export type HomepageActivity = {
   id: string
   title: string
