@@ -35,7 +35,7 @@ function PhotoBadge({
   tone?: "deal" | "due" | "paid" | "plain" | "muted"
 }) {
   const styles = {
-    deal: "bg-emerald-500 text-white shadow-lg shadow-emerald-600/40",
+    deal: "bg-[#22c55e] text-white shadow-md shadow-emerald-500/25",
     due: "bg-[#FFC72C] text-zinc-900 shadow-md",
     paid: "bg-white/95 text-emerald-700",
     plain: "bg-white/95 text-zinc-900 shadow-sm",
@@ -146,7 +146,6 @@ function StayCardShell({
   price,
   priceHint,
   actions,
-  highlight,
 }: {
   image: string
   badge: ReactNode
@@ -158,26 +157,21 @@ function StayCardShell({
   price: number
   priceHint: string
   actions: ReactNode
-  highlight?: boolean
 }) {
   return (
-    <div className="flex flex-col h-full">
-      <div
-        className={`relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-zinc-100 shadow-md ${
-          highlight ? "ring-2 ring-emerald-400 shadow-emerald-200/70" : ""
-        }`}
-      >
+    <>
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
         {image ? (
-          <Image src={image} alt="" fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
+          <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : null}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent" />
         <div className="absolute top-3 left-3 z-10">{badge}</div>
         {overlay ? <div className="absolute top-3 right-3 z-10">{overlay}</div> : null}
       </div>
-      <div className="pt-3 px-0.5 flex flex-col flex-1">
+      <div className="p-3.5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2 group-hover:text-rose-500 transition-colors">{title}</h3>
+            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2">{title}</h3>
             {location ? (
               <p className="mt-0.5 flex items-center gap-1 text-[13px] text-zinc-500">
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-400" />
@@ -196,7 +190,7 @@ function StayCardShell({
           {actions}
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -286,7 +280,8 @@ function BookingCard({
       }
     />
   )
-  const className = "group flex flex-col h-full"
+  const className =
+    "group flex flex-col h-full overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow"
   if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
     <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={className}>
@@ -354,7 +349,6 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
       overlay={canPay && msLeft != null ? <PayCountdownRing msLeft={msLeft} /> : null}
       title={listing?.title || "Listing"}
       location={location}
-      highlight={canPay}
       meta={
         canPay
           ? `${offerTravelLabel(offer)} · ${guests}`
@@ -394,7 +388,8 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
     />
   )
 
-  const className = "group flex flex-col h-full"
+  const className =
+    "group flex flex-col h-full overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>
