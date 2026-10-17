@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { CalendarDays, Compass, Heart, MapPin, MapPinned, Sparkles } from "lucide-react"
+import { CalendarDays, Compass, Heart, MapPin, MapPinned, Sparkles, X } from "lucide-react"
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
@@ -147,6 +147,7 @@ function StayCardShell({
   priceHint,
   actions,
   footer,
+  dismiss,
 }: {
   image: string
   badge?: ReactNode
@@ -159,22 +160,24 @@ function StayCardShell({
   priceHint: string
   actions: ReactNode
   footer?: ReactNode
+  dismiss?: ReactNode
 }) {
   return (
     <>
-      <div className="flex flex-1 gap-2.5 p-2 md:flex-col md:gap-0 md:p-0">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
+      {dismiss ? <div className="absolute top-1.5 right-1.5 z-20 md:top-3 md:right-3">{dismiss}</div> : null}
+      <div className="flex flex-1 items-stretch gap-3 p-2.5 md:flex-col md:gap-0 md:p-0">
+        <div className="relative h-[108px] w-[108px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
           {image ? (
-            <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 80px, 50vw" />
+            <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 108px, 50vw" />
           ) : null}
           <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-20 bg-gradient-to-b from-black/35 to-transparent md:block" />
           {badge ? <div className="absolute top-3 left-3 z-10 hidden md:block">{badge}</div> : null}
           {overlay ? <div className="absolute top-3 right-3 z-10 hidden md:block">{overlay}</div> : null}
         </div>
-        <div className="flex min-w-0 flex-1 flex-col justify-center md:p-3.5 md:justify-start">
+        <div className={`flex min-w-0 flex-1 flex-col justify-center md:p-3.5 md:justify-start ${dismiss ? "pr-6 md:pr-0" : ""}`}>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-1 md:text-[15px] md:line-clamp-2">{title}</h3>
+              <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-2 md:text-[15px]">{title}</h3>
               {location ? (
                 <p className="mt-0.5 flex items-center gap-1 text-[12px] text-zinc-500 md:text-[13px]">
                   <MapPin className="h-3 w-3 shrink-0 text-rose-400 md:h-3.5 md:w-3.5" />
@@ -185,7 +188,7 @@ function StayCardShell({
             </div>
             {aside}
           </div>
-          <div className="mt-1.5 flex items-center justify-between gap-2 md:mt-auto md:pt-3 md:gap-3">
+          <div className="mt-2 flex items-center justify-between gap-2 md:mt-auto md:pt-3 md:gap-3">
             <p className="text-[15px] font-semibold tracking-tight text-zinc-900 md:text-[17px]">
               ${Number(price)}
               {priceHint ? <span className="hidden md:block text-[12px] font-normal text-zinc-400 -mt-0.5">{priceHint}</span> : null}
@@ -256,30 +259,33 @@ function BookingCard({
       priceHint={unpaid ? "to pay" : "paid"}
       actions={
         unpaid ? (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={payThis}
-              disabled={paying}
-              className="inline-flex h-7 items-center rounded-full bg-[#22c55e] px-3 text-[11px] font-bold text-white shadow-md shadow-emerald-500/25 hover:bg-[#16a34a] disabled:opacity-60 md:h-8 md:px-3.5 md:text-xs"
-            >
-              {paying ? "Opening…" : "Make payment"}
-            </button>
-            <button
-              type="button"
-              onClick={cancelThis}
-              disabled={pending}
-              className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 disabled:opacity-60"
-            >
-              {pending ? "…" : "Cancel"}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={payThis}
+            disabled={paying}
+            className="inline-flex h-7 items-center rounded-full bg-[#22c55e] px-3 text-[11px] font-bold text-white shadow-md shadow-emerald-500/25 hover:bg-[#16a34a] disabled:opacity-60 md:h-8 md:px-3.5 md:text-xs"
+          >
+            {paying ? "Opening…" : "Make payment"}
+          </button>
+        ) : null
+      }
+      dismiss={
+        unpaid ? (
+          <button
+            type="button"
+            aria-label="Cancel booking"
+            onClick={cancelThis}
+            disabled={pending}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-zinc-400 shadow-sm hover:bg-white hover:text-zinc-900 disabled:opacity-50"
+          >
+            <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+          </button>
         ) : null
       }
     />
   )
   const className =
-    "group flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
+    "group relative flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
   if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
     <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={className}>
@@ -388,7 +394,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
   )
 
   const className =
-    "group flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
+    "group relative flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>
