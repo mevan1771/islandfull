@@ -1,8 +1,14 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { Heart } from "lucide-react"
+import { Heart, type LucideIcon } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+
+type Chip = {
+  id: string
+  name: string
+  icon?: LucideIcon
+}
 
 export function HomeCategoryChips({
   dynamicCategories = [],
@@ -29,7 +35,7 @@ export function HomeCategoryChips({
     grid.style.transition = "opacity 0.2s"
   }, [isPending])
 
-  const categories = [
+  const categories: Chip[] = [
     { id: "all", name: "All" },
     { id: "saved", name: "", icon: Heart },
     ...dynamicCategories.map((category) => ({ id: category.slug || "", name: category.name || "" })),
