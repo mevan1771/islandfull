@@ -126,7 +126,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
   }
 
   return (
-    <section className={`bg-zinc-50 relative overflow-hidden ${embedded ? "py-3 md:py-14 rounded-none md:rounded-3xl" : "py-3 md:py-24"}`}>
+    <section className={`bg-zinc-50 relative overflow-hidden ${embedded ? "py-4 md:py-14 rounded-none md:rounded-3xl" : "py-4 md:py-24"}`}>
       <div className={`w-full mx-auto px-4 md:px-8 ${embedded ? "" : "max-w-7xl"}`}>
         <div
           ref={scrollContainerRef}
@@ -141,9 +141,9 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
               key={slide.id || index}
               className="flex-[0_0_100%] min-w-0 snap-center shrink-0"
             >
-              <div className="grid md:grid-cols-2 gap-3 md:gap-16 items-center w-full py-1 md:py-12">
+              <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center w-full py-3 md:py-12">
                 {/* Text Content */}
-                <div className="space-y-2 md:space-y-6 px-1">
+                <div className="space-y-3 md:space-y-6 px-1">
                   <div className="flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 max-w-full overflow-hidden w-full">
                     {(slide.badge_text || slide.location) && (
                       <div className="shrink-0 inline-block bg-rose-500 text-white text-[10px] md:text-xs uppercase font-bold px-2.5 py-1 md:px-3 md:py-1 rounded-full shadow-sm tracking-wider md:mb-2">
@@ -157,7 +157,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                       {slide.title}
                     </h2>
                   </div>
-                  <p className="text-slate-600 text-sm md:text-lg leading-snug md:leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none">
+                  <p className="text-slate-600 text-sm md:text-lg leading-snug md:leading-relaxed max-w-xl h-[2.625rem] md:h-auto line-clamp-2 md:line-clamp-none">
                     {slide.description.replace(/<[^>]*>?/gm, '')}
                   </p>
 
@@ -178,17 +178,17 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                 </div>
 
                 {/* Images */}
-                <div className="grid grid-cols-2 gap-2.5 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
-                  <div className="relative w-full h-32 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg translate-y-1.5 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
+                <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
+                  <div className="relative w-full h-40 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-3 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
                     <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
                   </div>
-                  <div className="relative w-full h-32 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg -translate-y-1.5 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
+                  <div className="relative w-full h-40 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg -translate-y-3 md:-translate-y-8 aspect-auto pointer-events-none transform-gpu">
                     <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
                   </div>
                 </div>
 
                 {/* Mobile Button */}
-                <div className="md:hidden flex justify-center mt-1 px-1">
+                <div className="md:hidden flex justify-center mt-3 px-1">
                   {slide.target_url ? (
                     <Link href={slide.target_url}>
                       <button className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2 rounded-full font-medium text-sm transition-all shadow-sm hover:shadow">
