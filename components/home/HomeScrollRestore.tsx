@@ -91,13 +91,15 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
       scrollHomeListingsToStart({ blockClicks: false })
     }
     apply()
-    const frame = requestAnimationFrame(apply)
+    const frame = requestAnimationFrame(() => requestAnimationFrame(apply))
+    const retry = window.setTimeout(apply, 50)
     const done = window.setTimeout(() => {
       if (!cancelled) consumeHomeListingsPin()
-    }, 120)
+    }, 180)
     return () => {
       cancelled = true
       cancelAnimationFrame(frame)
+      window.clearTimeout(retry)
       window.clearTimeout(done)
     }
   }, [listingKey])
