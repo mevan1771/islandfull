@@ -23,6 +23,7 @@ type OfferCreatedEmailProps = {
   logoUrl: string
   acceptUrl?: string
   declineUrl?: string
+  payHours?: number
 }
 
 function firstName(name: string) {
@@ -53,6 +54,7 @@ export function OfferCreatedEmail({
   logoUrl,
   acceptUrl,
   declineUrl,
+  payHours = 24,
 }: OfferCreatedEmailProps) {
   const host = variant === "host"
   const photo = listingPhoto(imageUrl)
@@ -83,6 +85,14 @@ export function OfferCreatedEmail({
                   ? `Someone wants ${listingTitle}. Review the stay and price below — you'll confirm on the next page so nothing is actioned by accident. Guest name and contact are shared after they pay and the booking is confirmed.`
                   : `Thanks for your offer on ${listingTitle}. We'll email you as soon as the host responds. No payment is needed yet.`}
               </Text>
+              <Section style={notice}>
+                <Text style={noticeKicker}>{payHours}-hour payment window</Text>
+                <Text style={noticeText}>
+                  {host
+                    ? `If you accept, the guest has ${payHours} hours to pay. Dates are not held until they pay — Airbnb or another guest can still take the room.`
+                    : `If the host accepts, you have ${payHours} hours to pay and confirm. After that this price expires. Dates are not held until you pay.`}
+                </Text>
+              </Section>
 
               <Section style={listingRow}>
                 <Row>
@@ -229,10 +239,34 @@ const heading = {
 }
 
 const bodyText = {
-  margin: "0 0 20px",
+  margin: "0 0 14px",
   color: "#52525b",
   fontSize: "15px",
   lineHeight: "1.55",
+}
+
+const notice = {
+  backgroundColor: "#FFF8DC",
+  border: "1px solid #FACA20",
+  borderRadius: "12px",
+  padding: "12px 14px",
+  marginBottom: "18px",
+}
+
+const noticeKicker = {
+  margin: "0 0 4px",
+  color: "#18181b",
+  fontSize: "11px",
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+}
+
+const noticeText = {
+  margin: "0",
+  color: "#3f3f46",
+  fontSize: "13px",
+  lineHeight: "1.5",
 }
 
 const listingRow = {

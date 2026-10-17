@@ -39,7 +39,7 @@ export function OfferDecisionEmail({
   const accepted = status === "accepted"
   const photo = listingPhoto(imageUrl)
   const preview = accepted
-    ? `Your offer for ${activityTitle} was accepted`
+    ? `Your offer for ${activityTitle} was accepted — pay within ${payHours} hours`
     : `Update on your offer for ${activityTitle}`
 
   return (
@@ -62,6 +62,14 @@ export function OfferDecisionEmail({
                 ? `The host accepted your offer. Pay within ${payHours} hours to confirm — after that this price expires.`
                 : "The host couldn’t take this price this time. You can still view the listing or send another offer."}
             </Text>
+            {accepted ? (
+              <Section style={notice}>
+                <Text style={noticeKicker}>{payHours} hours to pay</Text>
+                <Text style={noticeText}>
+                  This price is held until then. If you don’t pay in time, the offer expires and the dates go back up.
+                </Text>
+              </Section>
+            ) : null}
 
             <Section style={listingRow}>
               <Row>
@@ -155,10 +163,34 @@ const heading = {
 }
 
 const bodyText = {
-  margin: "0 0 22px",
+  margin: "0 0 14px",
   color: "#52525b",
   fontSize: "15px",
   lineHeight: "1.55",
+}
+
+const notice = {
+  backgroundColor: "#FFF8DC",
+  border: "1px solid #FACA20",
+  borderRadius: "12px",
+  padding: "12px 14px",
+  marginBottom: "18px",
+}
+
+const noticeKicker = {
+  margin: "0 0 4px",
+  color: "#18181b",
+  fontSize: "11px",
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+}
+
+const noticeText = {
+  margin: "0",
+  color: "#3f3f46",
+  fontSize: "13px",
+  lineHeight: "1.5",
 }
 
 const listingRow = {

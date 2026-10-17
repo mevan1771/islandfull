@@ -9,6 +9,7 @@ import { CalendarDays, Compass, Heart, MapPinned, Sparkles, Users } from "lucide
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
+import { formatPayRemaining, offerMsLeft, payUrgency, payWindowProgress } from "@/lib/offer-countdown"
 import { ActivityCard } from "@/components/activity/ActivityCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import { fetchActivitiesByIds, fetchRecommendedTours } from "@/app/actions/wishlist"
@@ -45,14 +46,10 @@ function OfferStatus({ status }: { status: string }) {
   return <span className="inline-flex items-center rounded-full bg-[#FFC72C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-zinc-900">Pending</span>
 }
 
-function offerStatusCopy(offer: any) {
+function offerStatusCopy(offer: any, msLeft?: number | null) {
   if (offer.status === "accepted") {
-    if (offer.payment_expires_at) {
-      const ms = new Date(offer.payment_expires_at).getTime() - Date.now()
-      if (ms <= 0) return "Expired · send a new offer"
-      const hours = Math.max(1, Math.ceil(ms / (60 * 60 * 1000)))
-      return `Accepted · pay within ${hours} hour${hours === 1 ? "" : "s"}`
-    }
+    if (msLeft != null && msLeft <= 0) return "Expired · send a new offer"
+    if (msLeft != null) return "Pay to lock this price"
     return "Accepted · make payment to confirm"
   }
   if (offer.status === "paid") return "Paid · this stay is confirmed"
@@ -195,9 +192,25 @@ function OfferCard({ offer }: { offer: any }) {
   const listingHref =
     listing?.listingPath ||
     (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
-  const canPay = offer.status === "accepted" && offer.payPath
-  const cta = canPay ? "Make payment" : "View listing"
+  const [now, setNow] = useState(Date.now())
+  const ticking = offer.status === "accepted" && Boolean(offer.payment_expires_at)
+  useEffect(() => {
+    if (!ticking) return
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [ticking])
+  const msLeft = ticking ? offerMsLeft(offer.payment_expires_at, now) : null
+  const urgency = ticking ? payUrgency(msLeft) : null
+  const expired = offer.status === "expired" || urgency === "expired"
+  const canPay = offer.status === "accepted" && Boolean(offer.payPath) && !expired
+  const remaining = formatPayRemaining(msLeft)
+  const cta = canPay ? (remaining ? `Pay · ${remaining}` : "Make payment") : expired ? "View listing" : "View listing"
   const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
+  const barColor =
+    urgency === "red" ? "bg-rose-500" : urgency === "amber" ? "bg-amber-500" : "bg-[#faca20]"
+  const payColor =
+    urgency === "red" ? "bg-rose-500 hover:bg-rose-600" : urgency === "amber" ? "bg-amber-500 hover:bg-amber-600" : "bg-[#22c55e] hover:bg-[#16a34a]"
+  const displayStatus = expired && offer.status === "accepted" ? "expired" : offer.status
   const body = (
     <>
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
@@ -205,8 +218,16 @@ function OfferCard({ offer }: { offer: any }) {
           <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : null}
         <div className="absolute top-2.5 left-2.5">
-          <OfferStatus status={offer.status} />
+          <OfferStatus status={displayStatus} />
         </div>
+        {canPay ? (
+          <div className="absolute inset-x-0 bottom-0 h-1.5 bg-black/20">
+            <div
+              className={`h-full ${barColor} transition-[width] duration-1000 ease-linear`}
+              style={{ width: `${Math.round(payWindowProgress(msLeft) * 100)}%` }}
+            />
+          </div>
+        ) : null}
       </div>
       <div className="p-3.5 md:p-4 flex flex-col flex-1">
         <h3 className="font-semibold text-[15px] md:text-base text-zinc-900 leading-snug line-clamp-2">
@@ -223,15 +244,15 @@ function OfferCard({ offer }: { offer: any }) {
             {offer.guest_count} {offer.guest_count === 1 ? "guest" : "guests"}
           </span>
         </div>
-        <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer)}</p>
+        <p className="mt-1.5 text-xs text-zinc-500">{offerStatusCopy(offer, msLeft)}</p>
         <div className="mt-auto pt-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-lg font-bold tracking-tight text-zinc-900">${Number(offer.offer_amount)}</p>
             <p className="text-[11px] text-zinc-400 -mt-0.5">your offer</p>
           </div>
           <span
-            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ${
-              canPay ? "bg-[#22c55e] hover:bg-[#16a34a] text-white" : "bg-zinc-900 text-white"
+            className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+              canPay ? payColor : "bg-zinc-900"
             }`}
           >
             {cta}
@@ -241,8 +262,11 @@ function OfferCard({ offer }: { offer: any }) {
     </>
   )
 
-  const className =
-    "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
+  const className = canPay
+    ? `flex flex-col overflow-hidden rounded-2xl border bg-white h-full hover:shadow-md transition-all ${
+        urgency === "red" ? "border-rose-200" : urgency === "amber" ? "border-amber-200" : "border-emerald-200"
+      }`
+    : "flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white h-full hover:border-zinc-300 hover:shadow-md transition-all"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>
@@ -256,6 +280,16 @@ function OfferCard({ offer }: { offer: any }) {
     >
       {body}
     </Link>
+  )
+}
+
+function OfferGrid({ offers }: { offers: any[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
+      {offers.map((offer) => (
+        <OfferCard key={offer.id} offer={offer} />
+      ))}
+    </div>
   )
 }
 
@@ -299,6 +333,7 @@ export function TripsPageClient({
   const [ideas, setIdeas] = useState(desk.recommended)
   const [loadingSaved, setLoadingSaved] = useState(desk.saved.length === 0)
   const [offers] = useState<any[]>(desk.offers)
+  const [pastOpen, setPastOpen] = useState(false)
   const [bookings, setBookings] = useState<any[]>(desk.bookings)
   const [clearingUnpaid, startClearUnpaid] = useTransition()
   const [, startTabNav] = useTransition()
@@ -348,9 +383,10 @@ export function TripsPageClient({
 
   const locations = [...new Set(saved.map((a) => a.location.replace(", Sri Lanka", "")))]
   const firstName = user?.firstName || desk.firstName || "there"
-  const upcomingCount =
-    offers.filter((o) => o.status === "pending" || o.status === "accepted" || o.status === "countered").length +
-    bookings.length
+  const needsYou = offers.filter((o) => o.status === "accepted")
+  const waitingOnHost = offers.filter((o) => o.status === "pending" || o.status === "countered")
+  const pastOffers = offers.filter((o) => o.status === "declined" || o.status === "expired" || o.status === "paid")
+  const upcomingCount = needsYou.length + waitingOnHost.length + bookings.length
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-16">
@@ -486,14 +522,39 @@ export function TripsPageClient({
         ) : (
           <section>
             {offers.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-xl font-bold text-zinc-900 mb-2">Your offers</h2>
-                <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when the host replies.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
-                  {offers.map((offer) => (
-                    <OfferCard key={offer.id} offer={offer} />
-                  ))}
-                </div>
+              <div className="mb-10 space-y-8">
+                {needsYou.length > 0 ? (
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-900 mb-1">Pay to confirm</h2>
+                    <p className="text-sm text-zinc-500 mb-5">The host said yes. Pay before the clock runs out to lock the stay.</p>
+                    <OfferGrid offers={needsYou} />
+                  </div>
+                ) : null}
+                {waitingOnHost.length > 0 ? (
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-900 mb-1">Waiting on host</h2>
+                    <p className="text-sm text-zinc-500 mb-5">Bids you sent. We’ll update this when they reply.</p>
+                    <OfferGrid offers={waitingOnHost} />
+                  </div>
+                ) : null}
+                {pastOffers.length > 0 ? (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setPastOpen((open) => !open)}
+                      className="flex w-full items-center justify-between gap-3 mb-4"
+                    >
+                      <div className="text-left">
+                        <h2 className="text-xl font-bold text-zinc-900">Past offers</h2>
+                        <p className="text-sm text-zinc-500 mt-0.5">Expired, declined, or already paid.</p>
+                      </div>
+                      <span className="text-sm font-semibold text-zinc-500">
+                        {pastOpen ? "Hide" : `Show ${pastOffers.length}`}
+                      </span>
+                    </button>
+                    {pastOpen ? <OfferGrid offers={pastOffers} /> : null}
+                  </div>
+                ) : null}
               </div>
             )}
             <div className="flex items-end justify-between gap-4 mb-2">

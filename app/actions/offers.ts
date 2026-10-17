@@ -284,6 +284,7 @@ async function sendOfferCreatedEmails(props: {
     notes: props.specialNotes,
     imageUrl: props.imageUrl,
     logoUrl,
+    payHours: OFFER_PAY_HOURS,
   }
   const guestHtml = await render(
     React.createElement(OfferCreatedEmail, { ...shared, variant: "guest" })
@@ -437,6 +438,8 @@ export async function confirmOfferFromEmail(formData: FormData) {
   revalidatePath("/admin/offers")
   revalidatePath("/admin")
   revalidatePath("/trips")
+  revalidatePath("/host/offers")
+  revalidatePath("/host")
   redirect(`/offers/processed?status=${status === "accepted" ? "accepted" : "declined"}`)
 }
 
@@ -538,14 +541,11 @@ export async function getOffers() {
   })
 }
 
-export async function updateOfferStatus(
+async function applyOfferDecision(
   id: string,
   status: "accepted" | "declined" | "countered",
   adminCounterAmount?: number | null
 ) {
-  const ok = await requireAdmin()
-  if (!ok) return { success: false, error: "Unauthorized" }
-
   if (!["accepted", "declined", "countered"].includes(status)) {
     return { success: false, error: "Invalid status" }
   }
@@ -571,7 +571,7 @@ export async function updateOfferStatus(
     .single()
 
   if (error) {
-    console.error("updateOfferStatus error:", error)
+    console.error("applyOfferDecision error:", error)
     return { success: false, error: "Could not update offer." }
   }
 
@@ -588,5 +588,153 @@ export async function updateOfferStatus(
   revalidatePath("/admin/offers")
   revalidatePath("/admin")
   revalidatePath("/trips")
+  revalidatePath("/host/offers")
+  revalidatePath("/host")
   return { success: true }
+}
+
+export async function updateOfferStatus(
+  id: string,
+  status: "accepted" | "declined" | "countered",
+  adminCounterAmount?: number | null
+) {
+  const ok = await requireAdmin()
+  if (!ok) return { success: false, error: "Unauthorized" }
+  return applyOfferDecision(id, status, adminCounterAmount)
+}
+
+async function currentHostRecord() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: host } = await supabaseAdmin
+    .from("hosts")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle()
+  return host?.id ? { hostId: host.id as string, userId: user.id } : null
+}
+
+async function listingIdsForHost(hostId: string, userId?: string) {
+  const [{ data: activities }, { data: hotels }, fallback] = await Promise.all([
+    supabaseAdmin.from("activities").select("id").eq("host_id", hostId),
+    supabaseAdmin.from("hotels").select("id").eq("host_id", hostId),
+    userId
+      ? supabaseAdmin.from("activities").select("id").eq("host_id", userId)
+      : Promise.resolve({ data: [] as { id: string }[] }),
+  ])
+  const activityIds = Array.from(
+    new Set([...(activities || []), ...(fallback.data || [])].map((row) => row.id).filter(Boolean))
+  )
+  const hotelIds = (hotels || []).map((row) => row.id).filter(Boolean)
+  return { activityIds, hotelIds }
+}
+
+function mapHostOffer(row: any) {
+  const activity = rel(row.activities)
+  const hotel = rel(row.hotels)
+  const photo = firstListingPhoto(
+    hotel?.cover_image_url,
+    hotel?.gallery_urls,
+    activity?.card_image_url,
+    activity?.cover_image_url
+  )
+  const listing = activity || (hotel
+    ? {
+        id: hotel.id,
+        title: hotel.title,
+        slug: hotel.slug,
+        category_type: "hotel",
+        cover_image_url: photo,
+      }
+    : null)
+  const paid = row.status === "paid"
+  return {
+    id: row.id,
+    status: row.status,
+    offer_amount: row.offer_amount,
+    travel_date: row.travel_date,
+    guest_count: row.guest_count,
+    special_notes: row.special_notes,
+    created_at: row.created_at,
+    payment_expires_at: row.payment_expires_at,
+    listingTitle: listing?.title || "Listing",
+    listingKind: listing?.category_type === "hotel" ? "hotel" : listing?.category_type || "tour",
+    listingImage: photo,
+    guestName: paid ? row.guest_name : null,
+    guestEmail: paid ? row.guest_email : null,
+    guestPhone: paid ? row.guest_phone : null,
+  }
+}
+
+export async function getHostPendingOfferCount() {
+  try {
+    const host = await currentHostRecord()
+    if (!host) return 0
+    const { activityIds, hotelIds } = await listingIdsForHost(host.hostId, host.userId)
+    if (activityIds.length === 0 && hotelIds.length === 0) return 0
+    await expireStaleAcceptedOffers()
+    const filters: string[] = []
+    if (activityIds.length) filters.push(`activity_id.in.(${activityIds.join(",")})`)
+    if (hotelIds.length) filters.push(`hotel_id.in.(${hotelIds.join(",")})`)
+    const { count, error } = await supabaseAdmin
+      .from("offers")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending")
+      .or(filters.join(","))
+    if (error) {
+      console.error("getHostPendingOfferCount error:", error)
+      return 0
+    }
+    return count || 0
+  } catch (err) {
+    console.error("getHostPendingOfferCount error:", err)
+    return 0
+  }
+}
+
+export async function getHostOffers() {
+  const host = await currentHostRecord()
+  if (!host) return []
+  const { activityIds, hotelIds } = await listingIdsForHost(host.hostId, host.userId)
+  if (activityIds.length === 0 && hotelIds.length === 0) return []
+  await expireStaleAcceptedOffers()
+  const filters: string[] = []
+  if (activityIds.length) filters.push(`activity_id.in.(${activityIds.join(",")})`)
+  if (hotelIds.length) filters.push(`hotel_id.in.(${hotelIds.join(",")})`)
+  const { data, error } = await supabaseAdmin
+    .from("offers")
+    .select(
+      "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, payment_expires_at, guest_name, guest_email, guest_phone, activity_id, hotel_id, activities(id, title, slug, card_image_url, cover_image_url, category_type), hotels(id, title, slug, cover_image_url, gallery_urls)"
+    )
+    .or(filters.join(","))
+    .order("created_at", { ascending: false })
+  if (error) {
+    console.error("getHostOffers error:", error)
+    return []
+  }
+  return (data || []).map(mapHostOffer)
+}
+
+export async function respondToHostOffer(id: string, status: "accepted" | "declined") {
+  const host = await currentHostRecord()
+  if (!host) return { success: false, error: "Unauthorized" }
+  if (status !== "accepted" && status !== "declined") {
+    return { success: false, error: "Invalid status" }
+  }
+  const { activityIds, hotelIds } = await listingIdsForHost(host.hostId, host.userId)
+  const { data: offer } = await supabaseAdmin
+    .from("offers")
+    .select("id, status, activity_id, hotel_id")
+    .eq("id", id)
+    .maybeSingle()
+  if (!offer || offer.status !== "pending") {
+    return { success: false, error: "This offer is no longer waiting." }
+  }
+  const owned =
+    (offer.activity_id && activityIds.includes(offer.activity_id)) ||
+    (offer.hotel_id && hotelIds.includes(offer.hotel_id))
+  if (!owned) return { success: false, error: "Unauthorized" }
+
+  return applyOfferDecision(id, status)
 }

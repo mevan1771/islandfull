@@ -1,7 +1,8 @@
 import { supabaseAdmin } from "@/lib/supabase"
 import { addDays, parseISO } from "date-fns"
+import { OFFER_PAY_HOURS } from "@/lib/offer-countdown"
 
-export const OFFER_PAY_HOURS = 24
+export { OFFER_PAY_HOURS }
 
 export function offerPaymentExpiresAt(from = new Date()) {
   return new Date(from.getTime() + OFFER_PAY_HOURS * 60 * 60 * 1000).toISOString()

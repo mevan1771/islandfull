@@ -1,7 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
 import { format } from 'date-fns'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import HostDashboardClient from './HostDashboardClient'
+import { getHostPendingOfferCount } from '@/app/actions/offers'
 import SignOutButton from '@/components/host/SignOutButton'
 import ManualCheckInButton from '@/components/host/ManualCheckInButton'
 import { hostLogout } from '@/app/actions/auth'
@@ -95,11 +97,27 @@ export default async function HostDashboard() {
   }
 
   const progress = expectedGuests > 0 ? Math.round((arrived / expectedGuests) * 100) : 0
+  const pendingOffers = await getHostPendingOfferCount()
 
   return (
     <div className="flex flex-col min-h-screen pb-24">
       {/* Metrics */}
       <main className="flex-1 p-6 space-y-4">
+        {pendingOffers > 0 ? (
+          <Link
+            href="/host/offers"
+            className="flex items-center justify-between gap-3 bg-[#FFF8DC] border border-[#FACA20] rounded-2xl px-4 py-3.5"
+          >
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-zinc-900">Offers waiting</p>
+              <p className="text-sm text-zinc-700 mt-0.5">
+                {pendingOffers} guest bid{pendingOffers === 1 ? "" : "s"} need a yes or no.
+              </p>
+            </div>
+            <span className="shrink-0 text-xs font-bold bg-zinc-900 text-white rounded-full px-3 py-1.5">Review</span>
+          </Link>
+        ) : null}
+
         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-2">Live Metrics</h2>
         
         <div className="grid grid-cols-2 gap-4">

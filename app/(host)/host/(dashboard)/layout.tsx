@@ -5,6 +5,7 @@ import Image from 'next/image'
 import SignOutButton from '@/components/host/SignOutButton'
 import HostNavigation from '@/components/host/HostNavigation'
 import HostGatekeeper from '@/components/host/HostGatekeeper'
+import { getHostPendingOfferCount } from '@/app/actions/offers'
 
 export default async function HostLayout({
   children,
@@ -45,6 +46,7 @@ export default async function HostLayout({
     .single()
 
   const needsToAcceptPolicy = latestPolicy && host && (!host.agreed_policy_version || host.agreed_policy_version < latestPolicy.version)
+  const offerCount = needsToAcceptPolicy ? 0 : await getHostPendingOfferCount()
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-50">
@@ -73,7 +75,7 @@ export default async function HostLayout({
         <HostGatekeeper latestPolicy={latestPolicy} hostId={host.id} />
       ) : (
         <>
-          <HostNavigation />
+          <HostNavigation offerCount={offerCount} />
           <div className="flex-1">
             {children}
           </div>
