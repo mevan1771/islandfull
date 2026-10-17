@@ -147,6 +147,7 @@ function StayCardShell({
   priceHint,
   actions,
   footer,
+  accentFooter,
 }: {
   image: string
   badge?: ReactNode
@@ -159,7 +160,17 @@ function StayCardShell({
   priceHint: string
   actions: ReactNode
   footer?: ReactNode
+  accentFooter?: boolean
 }) {
+  const priceRow = (
+    <div className={`flex items-center justify-between gap-3 ${accentFooter ? "px-3.5 pt-3" : "mt-auto pt-3"}`}>
+      <div>
+        <p className="text-[17px] font-semibold tracking-tight text-zinc-900">${Number(price)}</p>
+        <p className={`text-[12px] -mt-0.5 ${accentFooter ? "text-zinc-800/70" : "text-zinc-400"}`}>{priceHint}</p>
+      </div>
+      {actions}
+    </div>
+  )
   return (
     <>
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
@@ -170,7 +181,7 @@ function StayCardShell({
         {badge ? <div className="absolute top-3 left-3 z-10">{badge}</div> : null}
         {overlay ? <div className="absolute top-3 right-3 z-10">{overlay}</div> : null}
       </div>
-      <div className="p-3.5 flex flex-col flex-1">
+      <div className={`flex flex-col flex-1 px-3.5 pt-3.5 ${accentFooter ? "pb-3" : "pb-3.5"}`}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2">{title}</h3>
@@ -184,15 +195,16 @@ function StayCardShell({
           </div>
           {aside}
         </div>
-        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[17px] font-semibold tracking-tight text-zinc-900">${Number(price)}</p>
-            <p className="text-[12px] text-zinc-400 -mt-0.5">{priceHint}</p>
-          </div>
-          {actions}
-        </div>
+        {accentFooter ? <div className="flex-1" /> : priceRow}
       </div>
-      {footer}
+      {accentFooter ? (
+        <div className="bg-[#FFC72C]">
+          {priceRow}
+          {footer}
+        </div>
+      ) : (
+        footer
+      )}
     </>
   )
 }
@@ -367,9 +379,10 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
           {canPay ? "Make payment" : "View listing"}
         </span>
       }
+      accentFooter={canPay}
       footer={
         canPay ? (
-          <div className="flex items-center justify-between gap-2 bg-[#FFC72C] px-3.5 py-2">
+          <div className="flex items-center justify-between gap-2 px-3.5 pb-2.5 pt-1.5">
             <span className="inline-flex items-center gap-1.5 min-w-0">
               <Sparkles className="h-3.5 w-3.5 shrink-0 text-zinc-900" />
               <span className="truncate text-[12px] font-bold uppercase tracking-[0.14em] text-zinc-900">Offer accepted</span>
