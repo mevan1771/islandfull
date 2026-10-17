@@ -164,7 +164,6 @@ function StayCardShell({
 }) {
   return (
     <>
-      {dismiss ? <div className="absolute top-1.5 right-1.5 z-20 md:top-3 md:right-3">{dismiss}</div> : null}
       <div className="flex flex-1 items-stretch gap-3 p-2.5 md:flex-col md:gap-0 md:p-0">
         <div className="relative h-[108px] w-[108px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
           {image ? (
@@ -173,22 +172,23 @@ function StayCardShell({
           <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-20 bg-gradient-to-b from-black/35 to-transparent md:block" />
           {badge ? <div className="absolute top-3 left-3 z-10 hidden md:block">{badge}</div> : null}
           {overlay ? <div className="absolute top-3 right-3 z-10 hidden md:block">{overlay}</div> : null}
+          {dismiss ? <div className="absolute top-1.5 right-1.5 z-20 md:top-3 md:right-3">{dismiss}</div> : null}
         </div>
-        <div className={`flex min-w-0 flex-1 flex-col justify-center md:p-3.5 md:justify-start ${dismiss ? "pr-6 md:pr-0" : ""}`}>
-          <div className="flex items-start justify-between gap-2">
+        <div className="flex h-[108px] min-w-0 flex-1 flex-col justify-between md:h-auto md:p-3.5 md:justify-start">
+          <div className="flex items-start justify-between gap-2 min-w-0">
             <div className="min-w-0">
-              <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-2 md:text-[15px]">{title}</h3>
+              <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-1 md:text-[15px] md:line-clamp-2">{title}</h3>
               {location ? (
                 <p className="mt-0.5 flex items-center gap-1 text-[12px] text-zinc-500 md:text-[13px]">
                   <MapPin className="h-3 w-3 shrink-0 text-rose-400 md:h-3.5 md:w-3.5" />
                   <span className="truncate">{location}</span>
                 </p>
               ) : null}
-              <p className="mt-0.5 text-[12px] text-zinc-500 md:mt-1.5 md:text-[13px]">{meta}</p>
+              <p className="mt-0.5 truncate text-[12px] text-zinc-500 md:mt-1.5 md:text-[13px]">{meta}</p>
             </div>
             {aside}
           </div>
-          <div className="mt-2 flex items-center justify-between gap-2 md:mt-auto md:pt-3 md:gap-3">
+          <div className="flex items-center justify-between gap-2 md:mt-auto md:pt-3 md:gap-3">
             <p className="text-[15px] font-semibold tracking-tight text-zinc-900 md:text-[17px]">
               ${Number(price)}
               {priceHint ? <span className="hidden md:block text-[12px] font-normal text-zinc-400 -mt-0.5">{priceHint}</span> : null}
