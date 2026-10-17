@@ -162,34 +162,36 @@ function StayCardShell({
 }) {
   return (
     <>
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
-        {image ? (
-          <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-        ) : null}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent" />
-        {badge ? <div className="absolute top-3 left-3 z-10">{badge}</div> : null}
-        {overlay ? <div className="absolute top-3 right-3 z-10">{overlay}</div> : null}
-      </div>
-      <div className="p-3.5 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2">{title}</h3>
-            {location ? (
-              <p className="mt-0.5 flex items-center gap-1 text-[13px] text-zinc-500">
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-400" />
-                <span className="truncate">{location}</span>
-              </p>
-            ) : null}
-            <p className="mt-1.5 text-[13px] text-zinc-500">{meta}</p>
-          </div>
-          {aside}
+      <div className="flex flex-1 gap-3 p-2.5 md:flex-col md:gap-0 md:p-0">
+        <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 md:h-auto md:w-full md:aspect-[4/3] md:rounded-none">
+          {image ? (
+            <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 92px, 50vw" />
+          ) : null}
+          <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-20 bg-gradient-to-b from-black/35 to-transparent md:block" />
+          {badge ? <div className="absolute top-1 left-1 z-10 origin-top-left scale-90 md:top-3 md:left-3 md:scale-100">{badge}</div> : null}
+          {overlay ? <div className="absolute top-1 right-1 z-10 origin-top-right scale-[0.62] md:top-3 md:right-3 md:scale-100">{overlay}</div> : null}
         </div>
-        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[17px] font-semibold tracking-tight text-zinc-900">${Number(price)}</p>
-            <p className="text-[12px] text-zinc-400 -mt-0.5">{priceHint}</p>
+        <div className="flex min-w-0 flex-1 flex-col py-0.5 md:p-3.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-semibold text-[14px] text-zinc-900 leading-snug line-clamp-1 md:text-[15px] md:line-clamp-2">{title}</h3>
+              {location ? (
+                <p className="mt-0.5 flex items-center gap-1 text-[12px] text-zinc-500 md:text-[13px]">
+                  <MapPin className="h-3 w-3 shrink-0 text-rose-400 md:h-3.5 md:w-3.5" />
+                  <span className="truncate">{location}</span>
+                </p>
+              ) : null}
+              <p className="mt-1 text-[12px] text-zinc-500 md:mt-1.5 md:text-[13px]">{meta}</p>
+            </div>
+            {aside}
           </div>
-          {actions}
+          <div className="mt-auto pt-2 flex items-center justify-between gap-2 md:pt-3 md:gap-3">
+            <div>
+              <p className="text-[16px] font-semibold tracking-tight text-zinc-900 md:text-[17px]">${Number(price)}</p>
+              <p className="text-[11px] text-zinc-400 -mt-0.5 md:text-[12px]">{priceHint}</p>
+            </div>
+            {actions}
+          </div>
         </div>
       </div>
       {footer}
@@ -259,7 +261,7 @@ function BookingCard({
               type="button"
               onClick={payThis}
               disabled={paying}
-              className="inline-flex h-8 items-center rounded-full bg-[#22c55e] px-3.5 text-xs font-bold text-white shadow-md shadow-emerald-500/25 hover:bg-[#16a34a] disabled:opacity-60"
+              className="inline-flex h-7 items-center rounded-full bg-[#22c55e] px-3 text-[11px] font-bold text-white shadow-md shadow-emerald-500/25 hover:bg-[#16a34a] disabled:opacity-60 md:h-8 md:px-3.5 md:text-xs"
             >
               {paying ? "Opening…" : "Make payment"}
             </button>
@@ -277,7 +279,7 @@ function BookingCard({
     />
   )
   const className =
-    "group flex flex-col h-full overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow"
+    "group flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
   if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
     <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={className}>
@@ -354,7 +356,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
       priceHint={canPay ? (saved > 0 ? `you save $${saved}` : "your locked deal") : "your offer"}
       actions={
         <span
-          className={`inline-flex h-8 items-center rounded-full px-3.5 text-xs font-bold text-white ${
+          className={`inline-flex h-7 items-center rounded-full px-3 text-[11px] font-bold text-white md:h-8 md:px-3.5 md:text-xs ${
             canPay
               ? urgency === "red"
                 ? "bg-rose-500 shadow-md shadow-rose-500/25"
@@ -386,7 +388,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
   )
 
   const className =
-    "group flex flex-col h-full overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow"
+    "group flex flex-col h-full overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm hover:shadow-md transition-shadow md:rounded-3xl"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>
