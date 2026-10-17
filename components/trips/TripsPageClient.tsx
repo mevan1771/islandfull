@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
-import { CalendarDays, Compass, Heart, MapPinned, Sparkles } from "lucide-react"
+import { CalendarDays, Compass, Heart, MapPin, MapPinned, Sparkles } from "lucide-react"
 import { differenceInDays, format, parseISO } from "date-fns"
 import toast from "react-hot-toast"
 import { dayCountLabel, inclusiveDays, nightCountLabel } from "@/lib/date-range-label"
@@ -27,21 +27,46 @@ function offerListing(offer: any) {
   return Array.isArray(listing) ? listing[0] : listing
 }
 
-function PhotoBadge({ children }: { children: ReactNode }) {
+function PhotoBadge({
+  children,
+  tone = "plain",
+}: {
+  children: ReactNode
+  tone?: "deal" | "due" | "paid" | "plain" | "muted"
+}) {
+  const styles = {
+    deal: "bg-emerald-500 text-white shadow-lg shadow-emerald-600/40",
+    due: "bg-[#FFC72C] text-zinc-900 shadow-md",
+    paid: "bg-white/95 text-emerald-700",
+    plain: "bg-white/95 text-zinc-900 shadow-sm",
+    muted: "bg-black/55 text-white",
+  }[tone]
   return (
-    <span className="inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-sm backdrop-blur-sm">
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold backdrop-blur-sm ${styles}`}>
       {children}
     </span>
   )
 }
 
 function OfferStatus({ status }: { status: string }) {
-  if (status === "accepted") return <PhotoBadge>Offer accepted</PhotoBadge>
-  if (status === "paid") return <PhotoBadge>Paid</PhotoBadge>
-  if (status === "expired") return <PhotoBadge>Expired</PhotoBadge>
-  if (status === "declined") return <PhotoBadge>Declined</PhotoBadge>
-  if (status === "countered") return <PhotoBadge>Host replied</PhotoBadge>
-  return <PhotoBadge>Waiting on host</PhotoBadge>
+  if (status === "accepted") {
+    return (
+      <PhotoBadge tone="deal">
+        <Sparkles className="h-3 w-3" />
+        Offer accepted
+      </PhotoBadge>
+    )
+  }
+  if (status === "paid") return <PhotoBadge tone="paid">Paid</PhotoBadge>
+  if (status === "expired") return <PhotoBadge tone="muted">Expired</PhotoBadge>
+  if (status === "declined") return <PhotoBadge tone="muted">Declined</PhotoBadge>
+  if (status === "countered") return <PhotoBadge tone="due">Host replied</PhotoBadge>
+  return <PhotoBadge tone="due">Waiting on host</PhotoBadge>
+}
+
+function listingPlace(listing: any) {
+  if (!listing?.location) return ""
+  return String(listing.location).replace(", Sri Lanka", "").trim()
 }
 
 function bookingBadge(status: string) {
@@ -121,6 +146,7 @@ function StayCardShell({
   price,
   priceHint,
   actions,
+  highlight,
 }: {
   image: string
   badge: ReactNode
@@ -132,19 +158,32 @@ function StayCardShell({
   price: number
   priceHint: string
   actions: ReactNode
+  highlight?: boolean
 }) {
   return (
-    <>
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
-        {image ? <Image src={image} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" /> : null}
-        <div className="absolute top-3 left-3">{badge}</div>
-        {overlay ? <div className="absolute top-3 right-3">{overlay}</div> : null}
+    <div className="flex flex-col h-full">
+      <div
+        className={`relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-zinc-100 shadow-md ${
+          highlight ? "ring-2 ring-emerald-400 shadow-emerald-200/70" : ""
+        }`}
+      >
+        {image ? (
+          <Image src={image} alt="" fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
+        ) : null}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent" />
+        <div className="absolute top-3 left-3 z-10">{badge}</div>
+        {overlay ? <div className="absolute top-3 right-3 z-10">{overlay}</div> : null}
       </div>
-      <div className="p-3.5 flex flex-col flex-1">
+      <div className="pt-3 px-0.5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2">{title}</h3>
-            {location ? <p className="text-[13px] text-zinc-500 mt-0.5 truncate">{location}</p> : null}
+            <h3 className="font-semibold text-[15px] text-zinc-900 leading-snug line-clamp-2 group-hover:text-rose-500 transition-colors">{title}</h3>
+            {location ? (
+              <p className="mt-0.5 flex items-center gap-1 text-[13px] text-zinc-500">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-rose-400" />
+                <span className="truncate">{location}</span>
+              </p>
+            ) : null}
             <p className="mt-1.5 text-[13px] text-zinc-500">{meta}</p>
           </div>
           {aside}
@@ -157,7 +196,7 @@ function StayCardShell({
           {actions}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -174,7 +213,7 @@ function BookingCard({
   const listingHref =
     listing?.listingPath ||
     (listing?.category_type === "hotel" && slug ? `/hotel/${slug}` : slug ? `/activity/${slug}` : "")
-  const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
+  const location = listingPlace(listing)
   const status = String(booking.status || "")
   const unpaid = isUnpaidBooking(status)
   const [pending, startTransition] = useTransition()
@@ -210,7 +249,7 @@ function BookingCard({
   const body = (
     <StayCardShell
       image={image}
-      badge={<PhotoBadge>{bookingBadge(status)}</PhotoBadge>}
+      badge={<PhotoBadge tone={unpaid ? "due" : "paid"}>{bookingBadge(status)}</PhotoBadge>}
       title={listing?.title || "Booking"}
       location={location}
       meta={`${bookingTravelLabel(booking)} · ${guests}`}
@@ -230,7 +269,7 @@ function BookingCard({
               type="button"
               onClick={payThis}
               disabled={paying}
-              className="inline-flex h-8 items-center rounded-full bg-[#22c55e] px-3 text-xs font-semibold text-white hover:bg-[#16a34a] disabled:opacity-60"
+              className="inline-flex h-8 items-center rounded-full bg-[#22c55e] px-3.5 text-xs font-bold text-white shadow-md shadow-emerald-500/25 hover:bg-[#16a34a] disabled:opacity-60"
             >
               {paying ? "Opening…" : "Make payment"}
             </button>
@@ -247,7 +286,7 @@ function BookingCard({
       }
     />
   )
-  const className = "flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white h-full shadow-sm hover:shadow-md transition-shadow"
+  const className = "group flex flex-col h-full"
   if (unpaid || !listingHref) return <div className={className}>{body}</div>
   return (
     <Link href={listingHref} onClick={() => markPageReturn("/trips")} className={className}>
@@ -302,9 +341,12 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
   const urgency = live ? payUrgency(msLeft) : null
   const expired = offer.status === "expired" || (offer.status === "accepted" && !live)
   const canPay = live && Boolean(offer.payPath)
-  const location = listing?.location ? String(listing.location).replace(", Sri Lanka", "") : ""
+  const location = listingPlace(listing)
   const displayStatus = expired && offer.status === "accepted" ? "expired" : offer.status
   const guests = `${offer.guest_count} ${offer.guest_count === 1 ? "guest" : "guests"}`
+  const listed = Number(listing?.price_usd || 0)
+  const offered = Number(offer.offer_amount)
+  const saved = listed > offered ? Math.round(listed - offered) : 0
   const body = (
     <StayCardShell
       image={image}
@@ -312,6 +354,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
       overlay={canPay && msLeft != null ? <PayCountdownRing msLeft={msLeft} /> : null}
       title={listing?.title || "Listing"}
       location={location}
+      highlight={canPay}
       meta={
         canPay
           ? `${offerTravelLabel(offer)} · ${guests}`
@@ -331,17 +374,17 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
           </div>
         ) : null
       }
-      price={Number(offer.offer_amount)}
-      priceHint="your offer"
+      price={offered}
+      priceHint={canPay ? (saved > 0 ? `you save $${saved}` : "your locked deal") : "your offer"}
       actions={
         <span
-          className={`inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold text-white ${
+          className={`inline-flex h-8 items-center rounded-full px-3.5 text-xs font-bold text-white ${
             canPay
               ? urgency === "red"
-                ? "bg-rose-500"
+                ? "bg-rose-500 shadow-md shadow-rose-500/25"
                 : urgency === "amber"
-                  ? "bg-amber-500"
-                  : "bg-[#22c55e] hover:bg-[#16a34a]"
+                  ? "bg-amber-500 shadow-md shadow-amber-500/25"
+                  : "bg-[#22c55e] shadow-md shadow-emerald-500/25 hover:bg-[#16a34a]"
               : "bg-zinc-900"
           }`}
         >
@@ -351,7 +394,7 @@ function OfferCard({ offer, now }: { offer: any; now: number }) {
     />
   )
 
-  const className = "flex flex-col overflow-hidden rounded-3xl border border-zinc-100 bg-white h-full shadow-sm hover:shadow-md transition-shadow"
+  const className = "group flex flex-col h-full"
 
   const href = canPay ? offer.payPath : listingHref
   if (!href) return <div className={className}>{body}</div>

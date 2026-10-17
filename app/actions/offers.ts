@@ -446,7 +446,7 @@ export async function confirmOfferFromEmail(formData: FormData) {
 export async function fetchMyOffersFor(userId: string, email: string | null) {
   await expireStaleAcceptedOffers()
   const select =
-    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, payment_expires_at, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type), hotels(id, title, slug, cover_image_url, gallery_urls)"
+    "id, status, offer_amount, travel_date, guest_count, special_notes, created_at, admin_counter_amount, guest_email, clerk_user_id, payment_expires_at, activities(id, title, slug, location, price_usd, card_image_url, cover_image_url, category_type), hotels(id, title, slug, location, address, cover_image_url, gallery_urls)"
   const [{ data: byUser }, { data: byEmail }] = await Promise.all([
     supabaseAdmin.from("offers").select(select).eq("clerk_user_id", userId).order("created_at", { ascending: false }),
     email
@@ -471,7 +471,7 @@ export async function fetchMyOffersFor(userId: string, email: string | null) {
             id: hotel.id,
             title: hotel.title,
             slug: hotel.slug,
-            location: null,
+            location: hotel.location || hotel.address || null,
             price_usd: 0,
             card_image_url: photo,
             cover_image_url: photo,

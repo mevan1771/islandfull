@@ -182,7 +182,7 @@ export async function fetchMyBookingsFor(email: string) {
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .select(
-      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, offer_id, activities(title, slug, location, card_image_url, cover_image_url, category_type), hotels(title, slug, cover_image_url, gallery_urls)"
+      "id, status, travel_date, end_date, pax_count, total_usd, created_at, tourist_email, is_archived, offer_id, activities(title, slug, location, card_image_url, cover_image_url, category_type), hotels(title, slug, location, address, cover_image_url, gallery_urls)"
     )
     .eq("tourist_email", emails[0])
     .neq("status", "cancelled")
@@ -202,7 +202,7 @@ export async function fetchMyBookingsFor(email: string) {
         activities: {
           title: hotel.title,
           slug: hotel.slug,
-          location: null,
+          location: hotel.location || hotel.address || null,
           card_image_url: hotel.cover_image_url || photo,
           cover_image_url: hotel.cover_image_url || photo,
           category_type: "hotel",
