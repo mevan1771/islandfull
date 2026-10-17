@@ -92,12 +92,15 @@ function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
 export function UserNavMenu({
   triggerClassName,
   iconClassName,
+  layout = "header",
 }: {
-  triggerClassName: string
-  iconClassName: string
+  triggerClassName?: string
+  iconClassName?: string
+  layout?: "header" | "bar"
 }) {
   const { user, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
+  const isBar = layout === "bar"
 
   useEffect(() => {
     if (!open) return
@@ -121,6 +124,21 @@ export function UserNavMenu({
     <LoggedOutActions />
   )
 
+  const personIcon = (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={isBar ? "1.75" : "2"}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={iconClassName || "w-5 h-5"}
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
+
   return (
     <div className="relative">
       <button
@@ -128,24 +146,25 @@ export function UserNavMenu({
         aria-label={isSignedIn ? "Account menu" : "Sign in"}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className={`min-w-11 min-h-11 md:min-w-10 md:min-h-10 overflow-hidden ${triggerClassName}`}
+        className={
+          isBar
+            ? `flex flex-col items-center justify-center gap-1 w-full h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75 ${open ? "text-rose-500" : "text-zinc-400"}`
+            : `min-w-11 min-h-11 md:min-w-10 md:min-h-10 overflow-hidden ${triggerClassName || ""}`
+        }
       >
         {imageUrl && isSignedIn ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="" className="w-full h-full rounded-full object-cover" />
+          <img
+            src={imageUrl}
+            alt=""
+            className={isBar ? "w-5 h-5 rounded-full object-cover" : "w-full h-full rounded-full object-cover"}
+          />
         ) : (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={iconClassName}
-          >
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
+          personIcon
         )}
+        {isBar ? (
+          <span className={`text-[10px] leading-none tracking-wide ${open ? "font-bold" : "font-semibold"}`}>You</span>
+        ) : null}
       </button>
 
       {open && (
