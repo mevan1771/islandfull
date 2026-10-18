@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs"
-import { CircleHelp, Heart, LogOut, MapPinned, MessageCircle, Settings, Store, X } from "lucide-react"
+import { CircleHelp, Heart, House, LogOut, MapPinned, MessageCircle, Settings, Store, X } from "lucide-react"
+import { markHomeArriveTop } from "@/lib/home-scroll"
 
 const menuItem =
   "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors cursor-pointer"
@@ -74,6 +75,18 @@ function LoggedOutActions({ onNavigate }: { onNavigate: () => void }) {
         </button>
       </SignInButton>
       <div className="mt-1 border-t border-zinc-100 pt-2">
+        <Link
+          href="/"
+          scroll={false}
+          className={menuItem}
+          onClick={() => {
+            markHomeArriveTop()
+            onNavigate()
+          }}
+        >
+          <House className="w-4 h-4 text-rose-500" />
+          Home
+        </Link>
         <SupportLinks onNavigate={onNavigate} />
       </div>
     </div>
@@ -85,6 +98,18 @@ function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <nav className="flex flex-col gap-0.5">
+      <Link
+        href="/"
+        scroll={false}
+        className={menuItem}
+        onClick={() => {
+          markHomeArriveTop()
+          onNavigate()
+        }}
+      >
+        <House className="w-4 h-4 text-rose-500" />
+        Home
+      </Link>
       <Link href="/trips" className={menuItem} onClick={onNavigate}>
         <MapPinned className="w-4 h-4 text-rose-500" />
         My Trips
