@@ -75,14 +75,6 @@ function WhereField({
 function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: string) => void }) {
   return (
     <>
-      <Link
-        href="/destinations"
-        prefetch
-        className="h-8 w-8 shrink-0 flex items-center justify-center rounded-full active:bg-zinc-100 touch-manipulation"
-        aria-label="Destinations"
-      >
-        <Image src={locationPin} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
-      </Link>
       <div className="relative h-8 w-8 shrink-0 flex items-center justify-center rounded-full text-zinc-500 active:bg-zinc-100 touch-manipulation">
         <SlidersHorizontal className="w-4 h-4" />
         <select
@@ -105,6 +97,19 @@ function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: strin
         <Search className="w-4 h-4" />
       </button>
     </>
+  )
+}
+
+function ExploreButton() {
+  return (
+    <Link
+      href="/destinations"
+      prefetch
+      className="shrink-0 h-11 px-2.5 rounded-full bg-white border border-zinc-200 shadow-sm flex items-center gap-1 text-[11px] font-bold text-zinc-900 touch-manipulation active:scale-95"
+    >
+      <Image src={locationPin} alt="" width={16} height={16} className="w-4 h-4 object-contain" />
+      Explore
+    </Link>
   )
 }
 
@@ -221,14 +226,17 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
 
   return (
     <>
-      <div ref={cardRef} className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
-        <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-2">
-          <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-zinc-50 pl-3 pr-1 gap-0.5 focus-within:border-rose-400">
-            <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-            <WhereField {...whereProps} showMenu={!stuck} />
-            <SearchRowActions sort={sortValue} onSort={onSort} />
-          </div>
-        </form>
+      <div ref={cardRef} className={`sm:hidden px-3 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
+        <div className="flex items-center gap-2">
+          <form onSubmit={handleSearch} className="min-w-0 flex-1">
+            <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-md pl-3 pr-1 gap-0.5 focus-within:border-rose-400">
+              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+              <WhereField {...whereProps} showMenu={!stuck} />
+              <SearchRowActions sort={sortValue} onSort={onSort} />
+            </div>
+          </form>
+          <ExploreButton />
+        </div>
       </div>
 
       <div
@@ -247,13 +255,16 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
           data-home-sticky
           className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
         >
-          <form onSubmit={handleSearch} className="px-3 pt-2">
-            <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
-              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-              <WhereField {...whereProps} showMenu={stuck} />
-              <SearchRowActions sort={sortValue} onSort={onSort} />
-            </div>
-          </form>
+          <div className="flex items-center gap-2 px-3 pt-2">
+            <form onSubmit={handleSearch} className="min-w-0 flex-1">
+              <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
+                <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+                <WhereField {...whereProps} showMenu={stuck} />
+                <SearchRowActions sort={sortValue} onSort={onSort} />
+              </div>
+            </form>
+            <ExploreButton />
+          </div>
           <div className="pl-4 pr-3 pt-2 pb-2">
             <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
           </div>
