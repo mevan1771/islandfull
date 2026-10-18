@@ -21,6 +21,28 @@ import { SortBySelect } from "@/components/ui/SortBySelect";
 import { sortTours, type TourSort } from "@/lib/tour-sort";
 import { markHomeArriveTop } from "@/lib/home-scroll";
 
+function toHotelMapTour(hotel: any): MapTour {
+  const rates = (hotel.hotel_room_types || [])
+    .filter((room: any) => room.is_active)
+    .map((room: any) => Number(room.nightly_rate_usd) || 0)
+  return {
+    id: hotel.id,
+    title: hotel.title,
+    slug: hotel.slug,
+    location: hotel.location || "",
+    description: hotel.description,
+    price_usd: rates.length ? Math.min(...rates) : 0,
+    cover_image_url: hotel.cover_image_url,
+    duration: "night",
+    category: "hotel",
+    category_type: "hotel",
+    latitude: hotel.latitude != null ? Number(hotel.latitude) : null,
+    longitude: hotel.longitude != null ? Number(hotel.longitude) : null,
+    tags: ["hotel"],
+    listingHref: `/hotel/${hotel.slug}`,
+  }
+}
+
 function toMapTour(activity: any): MapTour {
   let rating = 4.9;
   let reviewCount = 0;
@@ -63,6 +85,7 @@ function toMapTour(activity: any): MapTour {
     tags,
     created_at: activity.created_at,
     popularity_score: activity.popularity_score ?? 0,
+    listingHref: `/activity/${activity.slug}`,
   };
 }
 
@@ -115,13 +138,18 @@ function DestinationsPage() {
             .order("created_at", { ascending: false }) as typeof activitiesRes
         }
 
-        const [{ data: categories }] = await Promise.all([
+        const [{ data: categories }, hotelsRes] = await Promise.all([
           supabase
             .from("categories")
             .select("name, slug, category_type")
             .neq("category_type", "event")
             .order("sort_order", { ascending: true })
             .order("name"),
+          supabase
+            .from("hotels")
+            .select("id, title, slug, location, description, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
+            .eq("status", "published")
+            .eq("is_paused", false),
         ])
 
         const { data: activities, error } = activitiesRes
@@ -133,20 +161,23 @@ function DestinationsPage() {
 
         if (cancelled || !activities) return;
 
+        const hotels = (hotelsRes.data || []).map(toHotelMapTour)
+        const listings = [...activities.map(toMapTour), ...hotels]
+
         const counts: Record<string, number> = {};
         for (const dest of DESTINATIONS) {
-          counts[dest.name] = activities.filter((a) => {
-            const lat = a.approx_lat ? parseFloat(a.approx_lat) : null
-            const lng = a.approx_lng ? parseFloat(a.approx_lng) : null
-            const coords = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
-              ? { lat, lng }
-              : null
-            return a.category_type !== "place" && activityBelongsToDestination(dest, a.location || "", coords)
+          counts[dest.name] = listings.filter((item) => {
+            if (item.category_type === "place") return false
+            const coords =
+              item.latitude != null && item.longitude != null
+                ? { lat: item.latitude, lng: item.longitude }
+                : null
+            return activityBelongsToDestination(dest, item.location || "", coords)
           }).length
         }
 
         setActivityCounts(counts);
-        setMapTours(activities.map(toMapTour));
+        setMapTours(listings);
         setMapCategories(categories || []);
       } catch (e) {
         console.error("Failed to fetch destination activities:", e);
@@ -376,26 +407,21 @@ function DestinationPage({
   const groups = {
     tour: local.filter((item) => (item.category_type || "tour") === "tour"),
     transport: local.filter((item) => item.category_type === "transport"),
+    hotel: local.filter((item) => item.category_type === "hotel"),
   }
   const places = local.filter((item) => item.category_type === "place")
-  const tabs = (
-    [
-      { id: "tour" as const, label: "Tours", items: groups.tour },
-      { id: "transport" as const, label: "Transport", items: groups.transport },
-    ]
-  ).filter((tab) => tab.items.length > 0)
-  const [activeTab, setActiveTab] = useState<"tour" | "transport">("tour")
+  const tabs = [
+    { id: "tour" as const, label: "Tours", items: groups.tour },
+    { id: "transport" as const, label: "Transport", items: groups.transport },
+    { id: "hotel" as const, label: "Hotels", items: groups.hotel },
+  ]
+  const [activeTab, setActiveTab] = useState<"tour" | "transport" | "hotel">("tour")
   const [sort, setSort] = useState<TourSort>("recommended")
 
   useEffect(() => {
-    const first = (
-      [
-        { id: "tour" as const, count: groups.tour.length },
-        { id: "transport" as const, count: groups.transport.length },
-      ]
-    ).find((tab) => tab.count > 0)
+    const first = tabs.find((tab) => tab.items.length > 0)
     setActiveTab(first?.id ?? "tour")
-  }, [dest.id, groups.tour.length, groups.transport.length])
+  }, [dest.id, groups.tour.length, groups.transport.length, groups.hotel.length])
   const visible = sortTours(
     tabs.find((tab) => tab.id === activeTab)?.items ?? tabs[0]?.items ?? [],
     sort
@@ -482,11 +508,11 @@ function DestinationPage({
       {tabs.length > 0 && (
         <div className="mt-6 lg:mt-8">
           <div className="flex items-center gap-2">
-            <div className="min-w-0 flex-1 grid grid-cols-2 gap-0.5 p-1 rounded-full bg-zinc-100">
-            {(["tour", "transport"] as const).map((id) => {
-              const tab = tabs.find((item) => item.id === id)
-              const count = tab?.items.length ?? 0
-              const label = id === "tour" ? "Tours" : "Transport"
+            <div className="min-w-0 flex-1 grid grid-cols-3 gap-0.5 p-1 rounded-full bg-zinc-100">
+            {tabs.map((tab) => {
+              const id = tab.id
+              const count = tab.items.length
+              const label = tab.label
               const enabled = count > 0
               const active = activeTab === id
               return (
@@ -534,7 +560,9 @@ function DestinationPage({
                     ) : null}
                     <span className="mt-0.5 block text-[13px] text-zinc-900">
                       <span className="font-bold">{formatUSD(tour.price_usd)}</span>
-                      {tour.duration ? (
+                      {tour.category_type === "hotel" ? (
+                        <span className="font-normal text-zinc-500"> / night</span>
+                      ) : tour.duration ? (
                         <span className="font-normal text-zinc-500"> · {tour.duration}</span>
                       ) : null}
                     </span>
@@ -542,7 +570,7 @@ function DestinationPage({
                 </>
               )
               return tour.slug ? (
-                <Link key={tour.id} href={`/activity/${tour.slug}`} className="min-w-0 group">
+                <Link key={tour.id} href={tour.listingHref || `/activity/${tour.slug}`} className="min-w-0 group">
                   {body}
                 </Link>
               ) : (

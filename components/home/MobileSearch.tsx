@@ -10,7 +10,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
-import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeListingsPin } from "@/lib/home-scroll"
 
 function WhereField({
   location,
@@ -118,7 +118,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
-  const [stuck, setStuck] = useState(() => peekHomeListingsPin())
+  const [stuck, setStuck] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
 
@@ -130,26 +130,20 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   }, [searchParams, isFocused])
 
   useEffect(() => {
-    const onPin = () => setStuck(true)
-    window.addEventListener("islandfull:listings-pin", onPin)
-    return () => window.removeEventListener("islandfull:listings-pin", onPin)
-  }, [])
-
-  useEffect(() => {
     const el = cardRef.current
     if (!el) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (peekHomeListingsPin()) {
-          setStuck(true)
-          return
-        }
-        setStuck(!entry.isIntersecting)
-      },
-      { threshold: 0, rootMargin: "-12px 0px 0px 0px" }
-    )
-    io.observe(el)
-    return () => io.disconnect()
+    const update = () => {
+      setStuck(el.getBoundingClientRect().top < 8)
+    }
+    update()
+    window.addEventListener("scroll", update, { passive: true })
+    window.addEventListener("resize", update)
+    window.addEventListener("islandfull:listings-pin", update)
+    return () => {
+      window.removeEventListener("scroll", update)
+      window.removeEventListener("resize", update)
+      window.removeEventListener("islandfull:listings-pin", update)
+    }
   }, [])
 
   useEffect(() => {
@@ -227,7 +221,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
 
   return (
     <>
-      <div ref={cardRef} className="sm:hidden px-4 -mt-5 relative z-20 w-full">
+      <div ref={cardRef} className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
         <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-2">
           <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-zinc-50 pl-3 pr-1 gap-0.5 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
