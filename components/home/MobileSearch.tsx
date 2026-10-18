@@ -246,8 +246,8 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
               </div>
             </form>
             <UserNavMenu
-              triggerClassName="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95"
-              iconClassName="w-4 h-4 text-zinc-700"
+              triggerClassName="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95"
+              iconClassName="w-3.5 h-3.5 text-zinc-700"
             />
           </div>
           <div className="pl-4 pr-3 pt-2 pb-2">

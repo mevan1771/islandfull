@@ -149,7 +149,7 @@ export function UserNavMenu({
         className={
           isBar
             ? `flex items-center justify-center w-full h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75 ${open ? "text-zinc-900" : "text-zinc-700"}`
-            : `min-w-11 min-h-11 md:min-w-10 md:min-h-10 overflow-hidden ${triggerClassName || ""}`
+            : `overflow-hidden shrink-0 ${triggerClassName || "w-8 h-8 md:w-10 md:h-10"}`
         }
       >
         {imageUrl && isSignedIn ? (
