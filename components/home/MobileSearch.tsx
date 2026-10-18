@@ -72,6 +72,42 @@ function WhereField({
   )
 }
 
+function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: string) => void }) {
+  return (
+    <>
+      <Link
+        href="/destinations"
+        prefetch
+        className="h-8 w-8 shrink-0 flex items-center justify-center rounded-full active:bg-zinc-100 touch-manipulation"
+        aria-label="Destinations"
+      >
+        <Image src={locationPin} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain" />
+      </Link>
+      <div className="relative h-8 w-8 shrink-0 flex items-center justify-center rounded-full text-zinc-500 active:bg-zinc-100 touch-manipulation">
+        <SlidersHorizontal className="w-4 h-4" />
+        <select
+          value={sort}
+          onChange={(e) => onSort(e.target.value)}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          aria-label="Sort tours"
+        >
+          <option value="recommended">Recommended</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="newest">Newest Arrivals</option>
+        </select>
+      </div>
+      <button
+        type="submit"
+        aria-label="Search"
+        className="shrink-0 h-8 w-8 rounded-full bg-rose-500 text-white flex items-center justify-center touch-manipulation active:scale-95"
+      >
+        <Search className="w-4 h-4" />
+      </button>
+    </>
+  )
+}
+
 export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string }[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -180,50 +216,23 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     onPick: pickSuggestion,
   }
 
+  const sortValue = parseTourSort(searchParams.get("sort"))
+  function onSort(sort: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (!sort || sort === "recommended") params.delete("sort")
+    else params.set("sort", sort)
+    markHomeListingsPin()
+    router.push(`/?${params.toString()}`, { scroll: false })
+  }
+
   return (
     <>
       <div ref={cardRef} className="sm:hidden px-4 -mt-5 relative z-20 w-full">
-        <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-2.5 flex flex-col gap-2">
-          <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-zinc-50 pl-3.5 pr-1.5 gap-2 focus-within:border-rose-400">
+        <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-2">
+          <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-zinc-50 pl-3 pr-1 gap-0.5 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
             <WhereField {...whereProps} showMenu={!stuck} />
-            <button
-              type="submit"
-              className="shrink-0 h-8 px-3 rounded-full bg-rose-500 text-white text-xs font-bold touch-manipulation active:scale-95"
-            >
-              Search
-            </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/destinations"
-              prefetch
-              className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 active:scale-90 transition-transform duration-75 touch-manipulation"
-              aria-label="Destinations"
-            >
-              <Image src={locationPin} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
-            </Link>
-            <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-white border border-gray-300 shadow-sm text-zinc-600 cursor-pointer active:scale-90 transition-transform duration-75 touch-manipulation">
-              <SlidersHorizontal className="w-4 h-4" />
-              <select
-                value={parseTourSort(searchParams.get("sort"))}
-                onChange={(e) => {
-                  const params = new URLSearchParams(searchParams.toString())
-                  const sort = e.target.value
-                  if (!sort || sort === "recommended") params.delete("sort")
-                  else params.set("sort", sort)
-                  markHomeListingsPin()
-                  router.push(`/?${params.toString()}`, { scroll: false })
-                }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                aria-label="Sort tours"
-              >
-                <option value="recommended">Recommended</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="newest">Newest Arrivals</option>
-              </select>
-            </div>
+            <SearchRowActions sort={sortValue} onSort={onSort} />
           </div>
         </form>
       </div>
@@ -245,15 +254,10 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
           className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
         >
           <form onSubmit={handleSearch} className="px-3 pt-2">
-            <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3.5 pr-1.5 gap-2">
-              <Search className="w-4 h-4 text-rose-500 shrink-0" />
+            <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
+              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
               <WhereField {...whereProps} showMenu={stuck} />
-              <button
-                type="submit"
-                className="shrink-0 h-8 px-3 rounded-full bg-rose-500 text-white text-xs font-bold touch-manipulation active:scale-95"
-              >
-                Search
-              </button>
+              <SearchRowActions sort={sortValue} onSort={onSort} />
             </div>
           </form>
           <div className="pl-4 pr-3 pt-2 pb-2">
