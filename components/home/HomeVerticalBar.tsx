@@ -6,6 +6,8 @@ import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BedDouble, Bike, Globe, Map } from "lucide-react"
 import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
+import { useMobileChromeStore } from "@/store/useMobileChromeStore"
+import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
 import locationPin from "@/components/ui/Location icon/354556546.jpg"
 
 const VERTICALS = [
@@ -24,6 +26,8 @@ const tapClass =
   "flex flex-col items-center justify-center gap-1 h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75"
 
 export function HomeVerticalBar() {
+  useSyncMobileChrome()
+  const chromeHidden = useMobileChromeStore((s) => s.hidden)
   const router = useRouter()
   const searchParams = useSearchParams()
   const paramVertical = searchParams.get("vertical")
@@ -57,7 +61,9 @@ export function HomeVerticalBar() {
 
   return (
     <nav
-      className="sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.28)] pb-[env(safe-area-inset-bottom)]"
+      className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.28)] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out will-change-transform ${
+        chromeHidden ? "translate-y-full pointer-events-none" : "translate-y-0"
+      }`}
       aria-label="Browse"
     >
       <div className="grid grid-cols-5">

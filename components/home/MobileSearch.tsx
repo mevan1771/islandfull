@@ -9,6 +9,7 @@ import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import { markHomeListingsPin } from "@/lib/home-scroll"
+import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 
 function WhereField({
   location,
@@ -111,8 +112,15 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   const [stuck, setStuck] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
+  const chromeHidden = useMobileChromeStore((s) => s.hidden)
+  const setStuckChrome = useMobileChromeStore((s) => s.setStuck)
+  const setLockedChrome = useMobileChromeStore((s) => s.setLocked)
 
   const debouncedLocation = useDebounce(location, 220)
+
+  useEffect(() => {
+    return () => setLockedChrome(false)
+  }, [setLockedChrome])
 
   useEffect(() => {
     if (isFocused) return
@@ -123,7 +131,9 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     const el = cardRef.current
     if (!el) return
     const update = () => {
-      setStuck(el.getBoundingClientRect().top < 8)
+      const next = el.getBoundingClientRect().top < 8
+      setStuck(next)
+      setStuckChrome(next)
     }
     update()
     window.addEventListener("scroll", update, { passive: true })
@@ -133,8 +143,9 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
       window.removeEventListener("scroll", update)
       window.removeEventListener("resize", update)
       window.removeEventListener("islandfull:listings-pin", update)
+      setStuckChrome(false)
     }
-  }, [])
+  }, [setStuckChrome])
 
   useEffect(() => {
     async function fetchSuggestions() {
@@ -189,12 +200,14 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     },
     onFocus: () => {
       setIsFocused(true)
+      setLockedChrome(true)
       if (suggestions.length > 0) setIsDropdownOpen(true)
     },
     onBlur: () => {
       window.setTimeout(() => {
         setIsFocused(false)
         setIsDropdownOpen(false)
+        setLockedChrome(false)
       }, 120)
     },
     onPick: pickSuggestion,
@@ -235,7 +248,9 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
         <div
           ref={stickyRef}
           data-home-sticky
-          className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
+          className={`sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80 transition-transform duration-300 ease-out will-change-transform ${
+            chromeHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
+          }`}
         >
           <div className="flex items-center gap-2 px-3 pt-2">
             <form onSubmit={handleSearch} className="min-w-0 flex-1">
