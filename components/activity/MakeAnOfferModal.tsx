@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react"
 import { SheetGreetingHeader } from "@/components/activity/SheetGreetingHeader"
+import * as Popover from "@radix-ui/react-popover"
 import { DayPicker, DateRange } from "react-day-picker"
 import { addDays, differenceInDays, format, isBefore, isSameDay, parse, startOfToday } from "date-fns"
 import { formatDateRangeWithDays, inclusiveDays, withDefaultCheckout } from "@/lib/date-range-label"
@@ -12,7 +13,7 @@ import { chargesByGuest, formatStayMoney, stayListTotal, stayRateSuffix } from "
 import "react-day-picker/dist/style.css"
 import { createOffer } from "@/app/actions/offers"
 const fieldClass =
-  "w-full h-10 px-4 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900"
+  "w-full h-9 px-3 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900"
 const labelClass = "text-xs font-bold text-zinc-800 uppercase tracking-wide"
 const rangePickerClassNames = {
   selected: "bg-rose-500 text-white font-bold hover:bg-rose-600",
@@ -214,10 +215,10 @@ export function MakeAnOfferModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
-            <div className="p-4 space-y-3 overflow-y-auto flex-1">
+            <div className="p-3 space-y-2 overflow-y-auto flex-1">
               {isSignedIn ? null : (
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="space-y-1">
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="space-y-0.5">
                     <span className={labelClass}>Full name</span>
                     <input
                       required
@@ -226,7 +227,7 @@ export function MakeAnOfferModal({
                       className={fieldClass}
                     />
                   </label>
-                  <label className="space-y-1">
+                  <label className="space-y-0.5">
                     <span className={labelClass}>Email</span>
                     <input
                       required
@@ -239,129 +240,140 @@ export function MakeAnOfferModal({
                 </div>
               )}
 
-              <div className="space-y-1">
-                <span className={labelClass}>Your offer</span>
-                {listPrice > 0 && (
-                  <p className="text-sm font-medium text-zinc-700">
-                    Listed {formatStayMoney(listPrice)}{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 w-fit p-1 rounded-xl border border-zinc-200 bg-zinc-50">
-                  <button
-                    type="button"
-                    onClick={() => bumpOffer(-1)}
-                    className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95 transition-all disabled:opacity-50"
-                    disabled={Number(offerAmount) <= 1}
-                  >
-                    -
-                  </button>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-base font-semibold text-zinc-900">$</span>
-                    <input
-                      required
-                      type="text"
-                      inputMode="decimal"
-                      autoComplete="off"
-                      value={offerAmount}
-                      onChange={(e) => {
-                        setOfferDirty(true)
-                        setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
-                      }}
-                      placeholder={listedAmount || "0"}
-                      className="w-[5.5rem] h-10 pl-6 pr-2 rounded-lg border-0 bg-transparent text-center text-xl font-bold text-zinc-900 outline-none"
-                    />
+              <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                <div className="space-y-0.5 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className={labelClass}>Your offer</span>
+                    {listPrice > 0 && (
+                      <span className="text-[11px] font-medium text-zinc-500 truncate">
+                        Listed {formatStayMoney(listPrice)}{rateSuffix !== "total" ? ` ${rateSuffix}` : ""}
+                      </span>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => bumpOffer(1)}
-                    className="w-10 h-10 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95 transition-all"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-end">
-                  <div className="space-y-1 min-w-0">
-                    <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
-                      <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
-                      Date
-                    </label>
-                    <div className="hidden md:flex w-full h-10 px-3 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
-                      <span className="font-medium text-sm text-zinc-900 truncate">{dateLabelFull}</span>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <div className="flex items-center gap-1 p-0.5 rounded-xl border border-zinc-200 bg-zinc-50">
+                    <button
+                      type="button"
+                      onClick={() => bumpOffer(-1)}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95 disabled:opacity-50"
+                      disabled={Number(offerAmount) <= 1}
+                    >
+                      -
+                    </button>
+                    <div className="relative flex-1 min-w-0">
+                      <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-900">$</span>
+                      <input
+                        required
+                        type="text"
+                        inputMode="decimal"
+                        autoComplete="off"
+                        value={offerAmount}
+                        onChange={(e) => {
+                          setOfferDirty(true)
+                          setOfferAmount(e.target.value.replace(/[^\d.]/g, ""))
+                        }}
+                        placeholder={listedAmount || "0"}
+                        className="w-full h-8 pl-5 pr-1 rounded-lg border-0 bg-transparent text-center text-lg font-bold text-zinc-900 outline-none"
+                      />
                     </div>
                     <button
                       type="button"
-                      onClick={() => setCalOpen((openCal) => !openCal)}
-                      className="md:hidden w-full h-10 px-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all font-medium text-sm text-zinc-900 bg-white flex items-center justify-between gap-2"
+                      onClick={() => bumpOffer(1)}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-lg font-medium text-zinc-900 active:scale-95"
                     >
-                      <span className="truncate">
-                        {isMulti
-                          ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select</span>)
-                          : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "MMM d") : <span className="text-zinc-400">Select</span>)}
-                      </span>
-                      <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
+                      +
                     </button>
                   </div>
+                </div>
 
-                  <div className="space-y-1">
-                    <span className={labelClass}>Guests</span>
-                    <div className="flex items-center gap-1 p-1 bg-zinc-50 rounded-xl border border-zinc-200 w-fit h-10">
-                      <button
-                        type="button"
-                        onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
-                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                        disabled={guestCount <= minGuests}
-                      >
-                        -
-                      </button>
-                      <span className="w-6 text-center font-bold text-base">{guestCount}</span>
-                      <button
-                        type="button"
-                        onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
-                        className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 transition-all disabled:opacity-50"
-                        disabled={guestCount >= maxGuests}
-                      >
-                        +
-                      </button>
-                    </div>
+                <div className="space-y-0.5">
+                  <span className={labelClass}>Guests</span>
+                  <div className="flex items-center gap-1 p-0.5 bg-zinc-50 rounded-xl border border-zinc-200 h-9">
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.max(minGuests, count - 1))}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 disabled:opacity-50"
+                      disabled={guestCount <= minGuests}
+                    >
+                      -
+                    </button>
+                    <span className="w-5 text-center font-bold text-sm">{guestCount}</span>
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.min(maxGuests, count + 1))}
+                      className="w-8 h-8 rounded-lg bg-white shadow-sm border border-zinc-100 flex items-center justify-center text-zinc-900 font-medium active:scale-95 disabled:opacity-50"
+                      disabled={guestCount >= maxGuests}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-                {calOpen && (
-                  <div className="md:hidden absolute left-0 right-0 z-30 mt-2 rounded-xl border border-zinc-200 bg-white p-2 shadow-lg flex justify-center">
-                    {isMulti ? (
-                      <DayPicker
-                        className="mx-auto w-full max-w-[300px] flex justify-center"
-                        mode="range"
-                        selected={dateRange}
-                        onSelect={(range) => {
-                          const next = isHotel ? withDefaultCheckout(range) : range
-                          setDateRange(next)
-                          const pickedCheckout = Boolean(
-                            range?.from && range?.to && !isSameDay(range.from, range.to)
-                          )
-                          if (pickedCheckout || (!isHotel && next?.from && next?.to)) setCalOpen(false)
-                        }}
-                        disabled={isDateDisabled}
-                        modifiersClassNames={rangePickerClassNames}
-                      />
-                    ) : (
-                      <DayPicker
-                        className="mx-auto w-full max-w-[300px] flex justify-center"
-                        mode="single"
-                        selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
-                        onSelect={(day) => {
-                          setDate(day ? format(day, "yyyy-MM-dd") : "")
-                          if (day) setCalOpen(false)
-                        }}
-                        disabled={isDateDisabled}
-                        modifiersClassNames={singlePickerClassNames}
-                      />
-                    )}
-                  </div>
-                )}
+              </div>
+
+              <div className="space-y-0.5">
+                <label className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 uppercase tracking-wide">
+                  <CalendarDays className="w-3.5 h-3.5 text-rose-500" />
+                  Date
+                </label>
+                <div className="hidden md:flex w-full h-9 px-3 rounded-xl border border-zinc-200 bg-zinc-50 items-center justify-between cursor-not-allowed">
+                  <span className="font-medium text-sm text-zinc-900 truncate">{dateLabelFull}</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                </div>
+                <div className="md:hidden">
+                  <Popover.Root open={calOpen} onOpenChange={setCalOpen}>
+                    <Popover.Trigger asChild>
+                      <button
+                        type="button"
+                        className="w-full h-9 px-3 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none font-medium text-sm text-zinc-900 bg-white flex items-center justify-between gap-2"
+                      >
+                        <span className="truncate">
+                          {isMulti
+                            ? (dateRange?.from && dateRange?.to ? formatDateRangeWithDays(dateRange.from, dateRange.to, "MMM d") : <span className="text-zinc-400">Select</span>)
+                            : (date ? format(parse(date, "yyyy-MM-dd", new Date()), "MMM d") : <span className="text-zinc-400">Select</span>)}
+                        </span>
+                        <CalendarDays className="w-4 h-4 text-zinc-400 shrink-0" />
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        align="center"
+                        side="top"
+                        sideOffset={8}
+                        collisionPadding={12}
+                        className="z-[999999] bg-white rounded-xl shadow-lg border border-zinc-200 p-2 outline-none w-[min(320px,calc(100vw-1.5rem))] flex justify-center"
+                      >
+                        {isMulti ? (
+                          <DayPicker
+                            className="mx-auto w-full max-w-[300px] flex justify-center"
+                            mode="range"
+                            selected={dateRange}
+                            onSelect={(range) => {
+                              const next = isHotel ? withDefaultCheckout(range) : range
+                              setDateRange(next)
+                              const pickedCheckout = Boolean(
+                                range?.from && range?.to && !isSameDay(range.from, range.to)
+                              )
+                              if (pickedCheckout || (!isHotel && next?.from && next?.to)) setCalOpen(false)
+                            }}
+                            disabled={isDateDisabled}
+                            modifiersClassNames={rangePickerClassNames}
+                          />
+                        ) : (
+                          <DayPicker
+                            className="mx-auto w-full max-w-[300px] flex justify-center"
+                            mode="single"
+                            selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
+                            onSelect={(day) => {
+                              setDate(day ? format(day, "yyyy-MM-dd") : "")
+                              if (day) setCalOpen(false)
+                            }}
+                            disabled={isDateDisabled}
+                            modifiersClassNames={singlePickerClassNames}
+                          />
+                        )}
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                </div>
               </div>
 
               {offerTotal > 0 && (
@@ -370,37 +382,38 @@ export function MakeAnOfferModal({
                     {chargesByGuest(pricingModel) ? `${guestCount} ${guestCount === 1 ? "guest" : "guests"}` : "Stay"}
                     {stayDays > 1 ? ` × ${stayDays} days` : ""}
                   </span>
-                  <span className="text-base font-bold text-zinc-900">
+                  <span className="text-sm font-bold text-zinc-900">
                     {formatStayMoney(offerTotal)}
                     <span className="ml-1 text-xs font-medium text-zinc-400">total</span>
                   </span>
                 </div>
               )}
 
-              <label className="block space-y-1">
-                <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
-                <input
-                  value={guestPhone}
-                  onChange={(e) => setGuestPhone(e.target.value)}
-                  placeholder="+94 77 123 4567"
-                  className={fieldClass}
-                />
-              </label>
-
-              <label className="block space-y-1">
-                <span className={labelClass}>Special requests <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
-                <textarea
-                  value={specialNotes}
-                  onChange={(e) => setSpecialNotes(e.target.value)}
-                  rows={2}
-                  className="w-full h-auto p-3 rounded-xl border border-zinc-200 outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 font-medium text-sm text-zinc-900 resize-none"
-                />
-              </label>
+              <div className="grid grid-cols-1 gap-2">
+                <label className="block space-y-0.5">
+                  <span className={labelClass}>Phone <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
+                  <input
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value)}
+                    placeholder="+94 77 123 4567"
+                    className={fieldClass}
+                  />
+                </label>
+                <label className="block space-y-0.5">
+                  <span className={labelClass}>Special requests <span className="font-medium normal-case tracking-normal text-zinc-400">(optional)</span></span>
+                  <input
+                    value={specialNotes}
+                    onChange={(e) => setSpecialNotes(e.target.value)}
+                    placeholder="Any notes for the host"
+                    className={fieldClass}
+                  />
+                </label>
+              </div>
 
               {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
             </div>
 
-            <div className="shrink-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-2">
+            <div className="shrink-0 p-3 border-t border-gray-100 bg-white flex flex-col gap-2">
               {!isSignedIn && (
                 <p className="text-center text-sm text-zinc-500">
                   Have an account?{" "}
