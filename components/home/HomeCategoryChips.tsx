@@ -50,7 +50,6 @@ export function HomeCategoryChips({
     const grid = document.getElementById("activity-grid-container")
     if (!grid) return
     grid.style.opacity = isPending ? "0.5" : "1"
-    grid.style.pointerEvents = isPending ? "none" : "auto"
     grid.style.transition = "opacity 0.2s"
   }, [isPending, passive])
 

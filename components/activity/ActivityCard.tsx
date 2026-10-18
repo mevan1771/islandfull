@@ -7,7 +7,7 @@ import { Clock, MapPin, Star, Gem } from "lucide-react"
 import { FavoriteButton } from "@/components/ui/FavoriteButton"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { formatUSD } from "@/lib/utils"
-import { homeClicksBlocked, markHomeScrollForRestore, markPageReturn } from "@/lib/home-scroll"
+import { markHomeScrollForRestore, markPageReturn } from "@/lib/home-scroll"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 
 interface ActivityCardProps {
@@ -102,11 +102,6 @@ export function ActivityCard({
       data-home-card={slug}
       onPointerDown={(event) => {
         pointerStart.current = { x: event.clientX, y: event.clientY }
-        if (homeClicksBlocked()) {
-          event.preventDefault()
-          event.stopPropagation()
-          return
-        }
         markHomeScrollForRestore(slug)
         markPageReturn()
       }}
@@ -114,7 +109,7 @@ export function ActivityCard({
         const moved =
           Math.abs(event.clientX - pointerStart.current.x) > 12 ||
           Math.abs(event.clientY - pointerStart.current.y) > 12
-        if (homeClicksBlocked() || moved) {
+        if (moved) {
           event.preventDefault()
           event.stopPropagation()
           return

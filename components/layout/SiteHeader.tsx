@@ -6,7 +6,6 @@ import { useRouter, usePathname } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
-    blockHomeClicks,
     consumePageReturn,
     isHomeHeaderSuppressed,
     jumpHomeScroll,
@@ -177,7 +176,6 @@ export default function SiteHeader() {
                                     // Ignore storage failures and go home.
                                 }
                                 suppressHomeHeader()
-                                blockHomeClicks()
                                 router.replace(from || peekHomeReturnHref(), { scroll: false })
                             }}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 transition-colors"

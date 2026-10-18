@@ -11,7 +11,7 @@ import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
-import { peekHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
 
 export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string }[] }) {
   const router = useRouter()
@@ -26,7 +26,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
-  const [stuck, setStuck] = useState(false)
+  const [stuck, setStuck] = useState(() => peekHomeListingsPin())
   const [pillOpen, setPillOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -104,6 +104,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     if (sortVal) params.set("sort", sortVal)
 
     setPillOpen(false)
+    markHomeListingsPin()
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
@@ -139,6 +140,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
                 const params = new URLSearchParams(searchParams.toString())
                 params.delete("location")
                 params.delete("category")
+                markHomeListingsPin()
                 startTransition(() => {
                   router.push(`/?${params.toString()}`, { scroll: false })
                 })
@@ -158,6 +160,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
                     setIsDropdownOpen(false)
                     const params = new URLSearchParams(searchParams.toString())
                     params.set("location", sug.text)
+                    markHomeListingsPin()
                     router.push(`/?${params.toString()}`, { scroll: false })
                   }}
                 >
@@ -228,6 +231,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
               const sort = e.target.value
               if (!sort || sort === "recommended") params.delete("sort")
               else params.set("sort", sort)
+              markHomeListingsPin()
               router.push(`/?${params.toString()}`, { scroll: false })
             }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

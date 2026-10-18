@@ -5,6 +5,7 @@ import {
   consumeHomeArriveTop,
   consumeHomeListingsPin,
   consumeHomeScrollRestore,
+  currentHomeScrollGeneration,
   jumpHomeScroll,
   peekHomeListingsPin,
   peekHomeScrollRestore,
@@ -13,41 +14,45 @@ import {
   shouldResetHomeToTop,
 } from "@/lib/home-scroll"
 
-function pinUntilSettled(apply: (blockClicks: boolean) => void, onDone: () => void) {
+function pinUntilSettled(apply: () => void, onDone: () => void) {
+  const generation = currentHomeScrollGeneration()
   let cancelled = false
-  const run = (blockClicks: boolean) => {
-    if (cancelled) return
-    apply(blockClicks)
+  const run = () => {
+    if (cancelled || generation !== currentHomeScrollGeneration()) {
+      cancelled = true
+      return
+    }
+    apply()
   }
 
-  run(true)
+  run()
 
   const frames = [
-    requestAnimationFrame(() => run(false)),
-    requestAnimationFrame(() => requestAnimationFrame(() => run(false))),
+    requestAnimationFrame(run),
+    requestAnimationFrame(() => requestAnimationFrame(run)),
   ]
-  const timers = [50, 120, 250, 450, 800, 1400].map((ms) => window.setTimeout(() => run(false), ms))
+  const timers = [40, 120, 280].map((ms) => window.setTimeout(run, ms))
   const done = window.setTimeout(() => {
-    if (cancelled) return
-    onDone()
-  }, 1600)
+    if (!cancelled) onDone()
+  }, 360)
 
-  const ignoreGesturesUntil = Date.now() + 400
   const stopWhenUserMoves = () => {
-    if (cancelled || Date.now() < ignoreGesturesUntil) return
+    if (cancelled) return
     cancelled = true
     onDone()
   }
-  window.addEventListener("touchstart", stopWhenUserMoves, { passive: true })
+  window.addEventListener("pointerdown", stopWhenUserMoves, { passive: true })
   window.addEventListener("wheel", stopWhenUserMoves, { passive: true })
+  window.addEventListener("touchstart", stopWhenUserMoves, { passive: true })
 
   return () => {
     cancelled = true
     frames.forEach((id) => cancelAnimationFrame(id))
     timers.forEach((id) => window.clearTimeout(id))
     window.clearTimeout(done)
-    window.removeEventListener("touchstart", stopWhenUserMoves)
+    window.removeEventListener("pointerdown", stopWhenUserMoves)
     window.removeEventListener("wheel", stopWhenUserMoves)
+    window.removeEventListener("touchstart", stopWhenUserMoves)
   }
 }
 
@@ -67,11 +72,16 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
 
     return pinUntilSettled(
       () => {
+        if (peekHomeListingsPin()) {
+          scrollHomeListingsToStart({ blockClicks: false })
+          return
+        }
         if (forceTop) jumpHomeScroll(0)
         else restoreHomeScroll()
       },
       () => {
-        if (forceTop) consumeHomeArriveTop()
+        if (peekHomeListingsPin()) consumeHomeListingsPin()
+        else if (forceTop) consumeHomeArriveTop()
         else consumeHomeScrollRestore()
       }
     )
@@ -85,23 +95,10 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
     if (prevListingKey.current === listingKey) return
     prevListingKey.current = listingKey
 
-    let cancelled = false
-    const apply = () => {
-      if (cancelled) return
-      scrollHomeListingsToStart({ blockClicks: false })
-    }
-    apply()
-    const frame = requestAnimationFrame(() => requestAnimationFrame(apply))
-    const retry = window.setTimeout(apply, 50)
-    const done = window.setTimeout(() => {
-      if (!cancelled) consumeHomeListingsPin()
-    }, 180)
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(frame)
-      window.clearTimeout(retry)
-      window.clearTimeout(done)
-    }
+    return pinUntilSettled(
+      () => scrollHomeListingsToStart({ blockClicks: false }),
+      () => consumeHomeListingsPin()
+    )
   }, [listingKey])
 
   return null

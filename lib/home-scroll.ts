@@ -129,6 +129,7 @@ export function revealHomeHeader() {
 
 export function markHomeArriveTop() {
   if (typeof window === "undefined") return
+  bumpHomeScrollGeneration()
   try {
     sessionStorage.setItem(TOP_KEY, "1")
     sessionStorage.removeItem(RESTORE_KEY)
@@ -230,13 +231,27 @@ export function consumeHomeScrollRestore(): number | null {
 }
 
 let clicksBlockedUntil = 0
+let homeScrollGeneration = 0
 
-export function blockHomeClicks(ms = 800) {
+export function blockHomeClicks(ms = 0) {
+  if (ms <= 0) {
+    clicksBlockedUntil = 0
+    return
+  }
   clicksBlockedUntil = Date.now() + ms
 }
 
 export function homeClicksBlocked() {
   return Date.now() < clicksBlockedUntil
+}
+
+export function bumpHomeScrollGeneration() {
+  homeScrollGeneration += 1
+  return homeScrollGeneration
+}
+
+export function currentHomeScrollGeneration() {
+  return homeScrollGeneration
 }
 
 export function clearHomeScrollRestore() {
@@ -252,6 +267,7 @@ export function clearHomeScrollRestore() {
 
 export function markHomeListingsPin() {
   if (typeof window === "undefined") return
+  bumpHomeScrollGeneration()
   clearHomeScrollRestore()
   try {
     sessionStorage.setItem(LISTINGS_PIN_KEY, "1")
@@ -279,20 +295,28 @@ export function consumeHomeListingsPin() {
   return marked
 }
 
+function mobileStickyInset() {
+  const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
+  if (sticky) return Math.ceil(sticky.getBoundingClientRect().bottom)
+  if (window.matchMedia("(max-width: 639px)").matches) {
+    return Math.round(112 + (window.visualViewport?.offsetTop || 0))
+  }
+  return 0
+}
+
 export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
   const browse = document.getElementById("home-browse")
   const grid = document.getElementById("activity-grid-container")
-  const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
   const target = grid || browse
   if (!target) {
     jumpHomeScroll(0, options)
     return
   }
-  const offset = sticky ? Math.ceil(sticky.getBoundingClientRect().height) : 0
+  const offset = mobileStickyInset()
   const y = Math.max(
     0,
-    Math.round(window.scrollY + target.getBoundingClientRect().top - offset - 10)
+    Math.round(window.scrollY + target.getBoundingClientRect().top - offset - 8)
   )
   const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
   jumpHomeScroll(Math.min(y, max), options)
@@ -301,7 +325,7 @@ export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
 export function jumpHomeScroll(y: number, options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
   const top = Math.max(0, Math.round(y))
-  if (options?.blockClicks !== false) blockHomeClicks()
+  if (options?.blockClicks) blockHomeClicks(120)
 
   try {
     window.scrollTo({ top, left: 0, behavior: "instant" })

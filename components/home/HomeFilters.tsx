@@ -29,7 +29,6 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     const grid = document.getElementById('activity-grid-container')
     if (grid) {
       grid.style.opacity = isPending ? '0.5' : '1'
-      grid.style.pointerEvents = isPending ? 'none' : 'auto'
       grid.style.transition = 'opacity 0.2s'
     }
   }, [isPending])
@@ -83,6 +82,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
     params.delete("category")
 
+    markHomeListingsPin()
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
