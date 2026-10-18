@@ -1,5 +1,4 @@
 import Image from "next/image"
-import { SupportSubnav } from "@/components/support/SupportSubnav"
 
 export function SupportPageShell({
   title,
@@ -38,8 +37,6 @@ export function SupportPageShell({
           </p>
         </div>
       </section>
-
-      <SupportSubnav />
 
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-10 md:py-16">{children}</div>
     </div>
