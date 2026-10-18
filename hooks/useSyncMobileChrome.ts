@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
+import { isChromeHideSuppressed, peekHomeListingsPin } from "@/lib/home-scroll"
 
 const THRESHOLD = 10
 const TOP_SHOW = 16
@@ -30,7 +31,13 @@ export function useSyncMobileChrome() {
       const delta = y - lastY
       lastY = y
 
-      if (lockedRef.current || !stuckRef.current || y <= TOP_SHOW) {
+      if (
+        lockedRef.current ||
+        !stuckRef.current ||
+        y <= TOP_SHOW ||
+        peekHomeListingsPin() ||
+        isChromeHideSuppressed()
+      ) {
         setHidden(false)
         return
       }

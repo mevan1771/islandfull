@@ -265,10 +265,22 @@ export function clearHomeScrollRestore() {
   }
 }
 
+let chromeHideSuppressedUntil = 0
+
+export function suppressChromeHide(ms = 600) {
+  if (typeof window === "undefined") return
+  chromeHideSuppressedUntil = Math.max(chromeHideSuppressedUntil, Date.now() + ms)
+}
+
+export function isChromeHideSuppressed() {
+  return typeof window !== "undefined" && Date.now() < chromeHideSuppressedUntil
+}
+
 export function markHomeListingsPin() {
   if (typeof window === "undefined") return
   bumpHomeScrollGeneration()
   clearHomeScrollRestore()
+  suppressChromeHide()
   try {
     sessionStorage.setItem(LISTINGS_PIN_KEY, "1")
   } catch {
@@ -330,6 +342,7 @@ export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
 export function jumpHomeScroll(y: number, options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
   const top = Math.max(0, Math.round(y))
+  suppressChromeHide()
   if (options?.blockClicks) blockHomeClicks(120)
 
   try {
