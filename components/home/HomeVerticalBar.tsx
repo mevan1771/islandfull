@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BedDouble, Bike, Globe, Map } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
+import locationPin from "@/components/ui/Location icon/354556546.jpg"
 
 const VERTICALS = [
   { id: "tour", label: "Tours", Icon: Map },
@@ -36,6 +38,7 @@ export function HomeVerticalBar() {
   useEffect(() => {
     router.prefetch("/map")
     router.prefetch("/trips")
+    router.prefetch("/destinations")
   }, [router])
 
   const handleClick = (vertical: VerticalId) => {
@@ -58,7 +61,7 @@ export function HomeVerticalBar() {
       className="sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.28)] pb-[env(safe-area-inset-bottom)]"
       aria-label="Browse"
     >
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-6">
         {VERTICALS.map(({ id, label, Icon }) => {
           const selected = active === id
           return (
@@ -76,6 +79,14 @@ export function HomeVerticalBar() {
             </button>
           )
         })}
+        <Link
+          href="/destinations"
+          prefetch
+          className={`${tapClass} text-zinc-400`}
+        >
+          <Image src={locationPin} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
+          <span className="text-[10px] leading-none tracking-wide font-semibold">Explore</span>
+        </Link>
         <Link
           href="/map"
           prefetch

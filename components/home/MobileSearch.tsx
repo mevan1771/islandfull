@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
 import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
-import locationPin from "@/components/ui/Location icon/354556546.jpg"
 import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
@@ -97,19 +94,6 @@ function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: strin
         <Search className="w-4 h-4" />
       </button>
     </>
-  )
-}
-
-function ExploreButton() {
-  return (
-    <Link
-      href="/destinations"
-      prefetch
-      className="shrink-0 h-11 px-2.5 rounded-full bg-white border border-zinc-200 shadow-sm flex items-center gap-1 text-[11px] font-bold text-zinc-900 touch-manipulation active:scale-95"
-    >
-      <Image src={locationPin} alt="" width={16} height={16} className="w-4 h-4 object-contain" />
-      Explore
-    </Link>
   )
 }
 
@@ -226,17 +210,14 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
 
   return (
     <>
-      <div ref={cardRef} className={`sm:hidden px-3 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
-        <div className="flex items-center gap-2">
-          <form onSubmit={handleSearch} className="min-w-0 flex-1">
-            <div className="flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-md pl-3 pr-1 gap-0.5 focus-within:border-rose-400">
-              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-              <WhereField {...whereProps} showMenu={!stuck} />
-              <SearchRowActions sort={sortValue} onSort={onSort} />
-            </div>
-          </form>
-          <ExploreButton />
-        </div>
+      <div ref={cardRef} className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
+        <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
+          <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-0.5 focus-within:border-rose-400">
+            <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+            <WhereField {...whereProps} showMenu={!stuck} />
+            <SearchRowActions sort={sortValue} onSort={onSort} />
+          </div>
+        </form>
       </div>
 
       <div
@@ -255,16 +236,13 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
           data-home-sticky
           className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
         >
-          <div className="flex items-center gap-2 px-3 pt-2">
-            <form onSubmit={handleSearch} className="min-w-0 flex-1">
-              <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
-                <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-                <WhereField {...whereProps} showMenu={stuck} />
-                <SearchRowActions sort={sortValue} onSort={onSort} />
-              </div>
-            </form>
-            <ExploreButton />
-          </div>
+          <form onSubmit={handleSearch} className="px-4 pt-2">
+            <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3.5 pr-1 gap-0.5">
+              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+              <WhereField {...whereProps} showMenu={stuck} />
+              <SearchRowActions sort={sortValue} onSort={onSort} />
+            </div>
+          </form>
           <div className="pl-4 pr-3 pt-2 pb-2">
             <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
           </div>
