@@ -292,12 +292,10 @@ export default function SiteHeader() {
                             🌍 Explore Map
                         </Link>
                     )}
-                    <div className={pathname === "/" ? "hidden md:block" : undefined}>
-                        <UserNavMenu
-                            triggerClassName={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors ${iconBorder}`}
-                            iconClassName={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}
-                        />
-                    </div>
+                    <UserNavMenu
+                        triggerClassName={`w-8 h-8 md:w-10 md:h-10 ${iconBg} backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer ${iconHoverBg} transition-colors ${iconBorder}`}
+                        iconClassName={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}
+                    />
                 </div>
             </div>
         </header>

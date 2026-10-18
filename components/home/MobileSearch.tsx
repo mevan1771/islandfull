@@ -7,6 +7,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
+import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import { markHomeListingsPin } from "@/lib/home-scroll"
 
 function WhereField({
@@ -236,13 +237,19 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
           data-home-sticky
           className="sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80"
         >
-          <form onSubmit={handleSearch} className="px-4 pt-2">
-            <div className="relative flex items-center h-11 rounded-full border border-zinc-200 bg-white shadow-sm pl-3.5 pr-1 gap-0.5">
-              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-              <WhereField {...whereProps} showMenu={stuck} />
-              <SearchRowActions sort={sortValue} onSort={onSort} />
-            </div>
-          </form>
+          <div className="flex items-center gap-2 px-3 pt-2">
+            <form onSubmit={handleSearch} className="min-w-0 flex-1">
+              <div className="relative flex items-center h-10 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
+                <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <WhereField {...whereProps} showMenu={stuck} />
+                <SearchRowActions sort={sortValue} onSort={onSort} />
+              </div>
+            </form>
+            <UserNavMenu
+              triggerClassName="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95"
+              iconClassName="w-4 h-4 text-zinc-700"
+            />
+          </div>
           <div className="pl-4 pr-3 pt-2 pb-2">
             <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
           </div>
