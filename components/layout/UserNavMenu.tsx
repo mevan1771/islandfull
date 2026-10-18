@@ -3,7 +3,29 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs"
-import { Heart, LogOut, MapPinned, Settings, X } from "lucide-react"
+import { CircleHelp, Heart, LogOut, MapPinned, MessageCircle, Settings, Store, X } from "lucide-react"
+
+const menuItem =
+  "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors cursor-pointer"
+
+function SupportLinks({ onNavigate }: { onNavigate: () => void }) {
+  return (
+    <>
+      <Link href="/help" className={menuItem} onClick={onNavigate}>
+        <CircleHelp className="w-4 h-4 text-zinc-400" />
+        Help Center
+      </Link>
+      <Link href="/contact" className={menuItem} onClick={onNavigate}>
+        <MessageCircle className="w-4 h-4 text-zinc-400" />
+        Contact Us
+      </Link>
+      <Link href="/list-your-tour" className={menuItem} onClick={onNavigate}>
+        <Store className="w-4 h-4 text-zinc-400" />
+        List your tour
+      </Link>
+    </>
+  )
+}
 
 function GoogleMark() {
   return (
@@ -28,7 +50,7 @@ function GoogleMark() {
   )
 }
 
-function LoggedOutActions() {
+function LoggedOutActions({ onNavigate }: { onNavigate: () => void }) {
   const redirectUrl = typeof window === "undefined" ? "/" : window.location.href
 
   return (
@@ -51,32 +73,36 @@ function LoggedOutActions() {
           Continue with Email
         </button>
       </SignInButton>
+      <div className="mt-1 border-t border-zinc-100 pt-2">
+        <SupportLinks onNavigate={onNavigate} />
+      </div>
     </div>
   )
 }
 
 function LoggedInActions({ onNavigate }: { onNavigate: () => void }) {
   const { signOut } = useClerk()
-  const item =
-    "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors cursor-pointer"
 
   return (
     <nav className="flex flex-col gap-0.5">
-      <Link href="/trips" className={item} onClick={onNavigate}>
+      <Link href="/trips" className={menuItem} onClick={onNavigate}>
         <MapPinned className="w-4 h-4 text-rose-500" />
         My Trips
       </Link>
-      <Link href="/trips?tab=wishlist" className={item} onClick={onNavigate}>
+      <Link href="/trips?tab=wishlist" className={menuItem} onClick={onNavigate}>
         <Heart className="w-4 h-4 text-rose-500" />
         Wishlist
       </Link>
-      <Link href="/account" className={item} onClick={onNavigate}>
+      <Link href="/account" className={menuItem} onClick={onNavigate}>
         <Settings className="w-4 h-4 text-zinc-400" />
         Account settings
       </Link>
+      <div className="my-1.5 border-t border-zinc-100" />
+      <SupportLinks onNavigate={onNavigate} />
+      <div className="my-1.5 border-t border-zinc-100" />
       <button
         type="button"
-        className={`${item} text-left`}
+        className={`${menuItem} text-left`}
         onClick={() => {
           onNavigate()
           void signOut({ redirectUrl: "/" })
@@ -121,7 +147,7 @@ export function UserNavMenu({
   const menuBody = isSignedIn ? (
     <LoggedInActions onNavigate={() => setOpen(false)} />
   ) : (
-    <LoggedOutActions />
+    <LoggedOutActions onNavigate={() => setOpen(false)} />
   )
 
   const personIcon = (
