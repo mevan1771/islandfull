@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs"
 import { CircleHelp, Heart, House, LogOut, MapPinned, MessageCircle, Settings, Store, X } from "lucide-react"
 import { markHomeArriveTop } from "@/lib/home-scroll"
+import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 
 const menuItem =
   "flex items-center gap-3 min-h-11 w-full rounded-xl px-3 text-sm font-semibold text-zinc-800 hover:bg-zinc-50 transition-colors cursor-pointer"
@@ -151,20 +153,30 @@ export function UserNavMenu({
 }) {
   const { user, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const isBar = layout === "bar"
+  const lockChrome = useMobileChromeStore((s) => s.lock)
+  const unlockChrome = useMobileChromeStore((s) => s.unlock)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!open) return
+    lockChrome()
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false)
     }
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
     window.addEventListener("keydown", onKey)
     return () => {
-      document.body.style.overflow = ""
+      document.body.style.overflow = previousOverflow
       window.removeEventListener("keydown", onKey)
+      unlockChrome()
     }
-  }, [open])
+  }, [open, lockChrome, unlockChrome])
 
   const firstName = user?.firstName || user?.fullName?.split(" ")[0]
   const imageUrl = user?.imageUrl
@@ -233,31 +245,35 @@ export function UserNavMenu({
             {menuBody}
           </div>
 
-          <div className="md:hidden fixed inset-0 z-[80]">
-            <button
-              type="button"
-              className="absolute inset-0 bg-black/40"
-              aria-label="Close menu"
-              onClick={() => setOpen(false)}
-            />
-            <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
-              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-zinc-200" />
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-base font-bold text-zinc-900">
-                  {isSignedIn ? firstName || "Account" : "Sign in"}
-                </p>
+          {mounted &&
+            createPortal(
+              <div className="md:hidden fixed inset-0 z-[80]">
                 <button
                   type="button"
+                  className="absolute inset-0 bg-black/40"
+                  aria-label="Close menu"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-center min-w-11 min-h-11 rounded-full hover:bg-zinc-50"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5 text-zinc-500" />
-                </button>
-              </div>
-              {menuBody}
-            </div>
-          </div>
+                />
+                <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
+                  <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-zinc-200" />
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-base font-bold text-zinc-900">
+                      {isSignedIn ? firstName || "Account" : "Sign in"}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center min-w-11 min-h-11 rounded-full hover:bg-zinc-50"
+                      aria-label="Close"
+                    >
+                      <X className="w-5 h-5 text-zinc-500" />
+                    </button>
+                  </div>
+                  {menuBody}
+                </div>
+              </div>,
+              document.body
+            )}
         </>
       )}
     </div>

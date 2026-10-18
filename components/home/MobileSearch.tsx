@@ -114,13 +114,27 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   const stickyRef = useRef<HTMLDivElement>(null)
   const chromeHidden = useMobileChromeStore((s) => s.hidden)
   const setStuckChrome = useMobileChromeStore((s) => s.setStuck)
-  const setLockedChrome = useMobileChromeStore((s) => s.setLocked)
+  const lockChrome = useMobileChromeStore((s) => s.lock)
+  const unlockChrome = useMobileChromeStore((s) => s.unlock)
+  const searchLockRef = useRef(false)
 
   const debouncedLocation = useDebounce(location, 220)
 
+  function holdSearchLock() {
+    if (searchLockRef.current) return
+    searchLockRef.current = true
+    lockChrome()
+  }
+
+  function releaseSearchLock() {
+    if (!searchLockRef.current) return
+    searchLockRef.current = false
+    unlockChrome()
+  }
+
   useEffect(() => {
-    return () => setLockedChrome(false)
-  }, [setLockedChrome])
+    return () => releaseSearchLock()
+  }, [])
 
   useEffect(() => {
     if (isFocused) return
@@ -173,6 +187,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     if (sortVal) params.set("sort", sortVal)
     setIsDropdownOpen(false)
     setIsFocused(false)
+    releaseSearchLock()
     markHomeListingsPin()
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
@@ -200,14 +215,14 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     },
     onFocus: () => {
       setIsFocused(true)
-      setLockedChrome(true)
+      holdSearchLock()
       if (suggestions.length > 0) setIsDropdownOpen(true)
     },
     onBlur: () => {
       window.setTimeout(() => {
         setIsFocused(false)
         setIsDropdownOpen(false)
-        setLockedChrome(false)
+        releaseSearchLock()
       }, 120)
     },
     onPick: pickSuggestion,

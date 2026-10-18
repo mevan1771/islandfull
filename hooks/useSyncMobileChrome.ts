@@ -17,9 +17,8 @@ export function useSyncMobileChrome() {
     return useMobileChromeStore.subscribe((state) => {
       lockedRef.current = state.locked
       stuckRef.current = state.stuck
-      if (state.locked || !state.stuck) setHidden(false)
     })
-  }, [setHidden])
+  }, [])
 
   useEffect(() => {
     let lastY = window.scrollY
