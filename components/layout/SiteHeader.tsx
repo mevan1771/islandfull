@@ -134,10 +134,8 @@ export default function SiteHeader() {
     const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
-    const headerClasses = isDestinationsPage || isSupportPage || isTripsPage
-        ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white shadow-sm"
-        : isActivityPage
-        ? "relative md:static top-0 left-0 right-0 z-50 md:z-auto w-full md:py-2 pointer-events-none bg-transparent md:bg-white"
+    const headerClasses = isDestinationsPage || isSupportPage || isTripsPage || isActivityPage
+        ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
             allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
