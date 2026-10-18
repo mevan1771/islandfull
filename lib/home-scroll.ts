@@ -295,9 +295,9 @@ export function consumeHomeListingsPin() {
   return marked
 }
 
-function mobileStickyInset() {
+function mobileStickyHeight() {
   const sticky = document.querySelector<HTMLElement>("[data-home-sticky]")
-  if (sticky) return Math.ceil(sticky.getBoundingClientRect().bottom)
+  if (sticky) return Math.max(Math.round(sticky.offsetHeight), 1)
   if (window.matchMedia("(max-width: 639px)").matches) {
     return Math.round(112 + (window.visualViewport?.offsetTop || 0))
   }
@@ -306,18 +306,23 @@ function mobileStickyInset() {
 
 export function scrollHomeListingsToStart(options?: { blockClicks?: boolean }) {
   if (typeof window === "undefined") return
+  const card = document.querySelector<HTMLElement>("[data-home-search-card]")
   const browse = document.getElementById("home-browse")
   const grid = document.getElementById("activity-grid-container")
   const target = grid || browse
-  if (!target) {
+  const stickyH = mobileStickyHeight()
+
+  const cardDocTop = card ? window.scrollY + card.getBoundingClientRect().top : 0
+  const targetDocTop = target ? window.scrollY + target.getBoundingClientRect().top : 0
+  const stickPastCard = card ? cardDocTop + 12 : 0
+  const underChrome = target && stickyH ? targetDocTop - stickyH - 8 : targetDocTop
+
+  if (!card && !target) {
     jumpHomeScroll(0, options)
     return
   }
-  const offset = mobileStickyInset()
-  const y = Math.max(
-    0,
-    Math.round(window.scrollY + target.getBoundingClientRect().top - offset - 8)
-  )
+
+  const y = Math.max(0, Math.round(Math.max(stickPastCard, underChrome)))
   const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
   jumpHomeScroll(Math.min(y, max), options)
 }

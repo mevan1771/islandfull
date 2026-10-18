@@ -8,7 +8,7 @@ import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/sea
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
-import { markHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 
 function WhereField({
@@ -145,7 +145,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
     const el = cardRef.current
     if (!el) return
     const update = () => {
-      const next = el.getBoundingClientRect().top < 8
+      const next = peekHomeListingsPin() || el.getBoundingClientRect().top < 8
       setStuck(next)
       setStuckChrome(next)
     }
@@ -239,7 +239,11 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
 
   return (
     <>
-      <div ref={cardRef} className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}>
+      <div
+        ref={cardRef}
+        data-home-search-card
+        className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}
+      >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
           <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-0.5 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
