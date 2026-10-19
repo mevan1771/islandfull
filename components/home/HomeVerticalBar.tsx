@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
@@ -44,7 +44,11 @@ export function HomeVerticalBar() {
   useSyncMobileChrome()
   const chromeHidden = useMobileChromeStore((s) => s.hidden)
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
+  const onHome = pathname === "/"
+  const onExplore = pathname.startsWith("/destinations")
+  const onMap = pathname.startsWith("/map")
   const paramVertical = searchParams.get("vertical")
   const urlVertical: VerticalId = isVertical(paramVertical) ? paramVertical : "tour"
   const [active, setActive] = useState<VerticalId>(urlVertical)
@@ -60,7 +64,7 @@ export function HomeVerticalBar() {
   }, [router])
 
   const handleClick = (vertical: VerticalId) => {
-    if (vertical === active) {
+    if (onHome && vertical === active) {
       markHomeListingsPin()
       scrollHomeListingsToStart({ blockClicks: false })
       return
@@ -68,7 +72,7 @@ export function HomeVerticalBar() {
 
     setActive(vertical)
     markHomeListingsPin()
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(onHome ? searchParams.toString() : "")
     params.set("vertical", vertical)
     params.delete("category")
     router.push(`/?${params.toString()}`, { scroll: false })
@@ -83,7 +87,7 @@ export function HomeVerticalBar() {
     >
       <div className="grid grid-cols-5">
         {VERTICALS.map(({ id, label, src }) => {
-          const selected = active === id
+          const selected = onHome && active === id
           return (
             <button
               key={id}
@@ -99,13 +103,26 @@ export function HomeVerticalBar() {
             </button>
           )
         })}
-        <Link href="/destinations" prefetch className={`${tapClass} text-zinc-400`}>
-          <BarIcon src={`/images/icons/Explore-icon.jpg?v=${ICON_V}`} selected={false} />
-          <span className="text-[10px] leading-none tracking-wide font-semibold">Explore</span>
+        <Link
+          href="/destinations"
+          prefetch
+          className={`${tapClass} ${onExplore ? "text-zinc-900" : "text-zinc-400"}`}
+          aria-current={onExplore ? "page" : undefined}
+        >
+          <BarIcon src={`/images/icons/Explore-icon.jpg?v=${ICON_V}`} selected={onExplore} />
+          <span className={`text-[10px] leading-none tracking-wide ${onExplore ? "font-bold" : "font-semibold"}`}>
+            Explore
+          </span>
         </Link>
-        <Link href="/map" prefetch className={`${tapClass} text-zinc-400`} aria-label="Explore map">
-          <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={false} />
-          <span className="text-[10px] leading-none tracking-wide font-semibold">Map</span>
+        <Link
+          href="/map"
+          prefetch
+          className={`${tapClass} ${onMap ? "text-zinc-900" : "text-zinc-400"}`}
+          aria-label="Explore map"
+          aria-current={onMap ? "page" : undefined}
+        >
+          <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={onMap} />
+          <span className={`text-[10px] leading-none tracking-wide ${onMap ? "font-bold" : "font-semibold"}`}>Map</span>
         </Link>
       </div>
     </nav>

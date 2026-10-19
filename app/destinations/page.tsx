@@ -20,6 +20,7 @@ import { formatUSD } from "@/lib/utils";
 import { SortBySelect } from "@/components/ui/SortBySelect";
 import { sortTours, type TourSort } from "@/lib/tour-sort";
 import { markHomeArriveTop } from "@/lib/home-scroll";
+import { HomeVerticalBar } from "@/components/home/HomeVerticalBar";
 
 function toHotelMapTour(hotel: any): MapTour {
   const rates = (hotel.hotel_room_types || [])
@@ -265,7 +266,8 @@ function DestinationsPage() {
   }, [mobileView, branchHub, router]);
 
   return (
-    <div className="w-full bg-gray-50">
+    <div className="w-full bg-gray-50 pb-24 sm:pb-0">
+      <HomeVerticalBar />
       <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
         <section className={`min-w-0 w-full lg:w-[58%] px-4 md:px-8 py-3 md:py-6 pb-8 lg:pb-6 ${mobileView === "map" ? "hidden lg:block" : "block"}`}>
           {branchHub ? (
@@ -354,7 +356,7 @@ function DestinationsPage() {
         </section>
 
         <aside
-          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-0 max-lg:h-[calc(100dvh-4rem)] max-lg:z-30 max-lg:block" : "max-lg:hidden"} relative lg:sticky lg:top-20 lg:self-start lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.5rem)] lg:max-h-[calc(100dvh-5.5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
+          className={`${mobileView === "map" ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-16 max-lg:bottom-[calc(4rem+env(safe-area-inset-bottom))] max-lg:h-[calc(100dvh-4rem-4rem-env(safe-area-inset-bottom))] max-lg:z-30 max-lg:block" : "max-lg:hidden"} relative lg:sticky lg:top-20 lg:self-start lg:block lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.5rem)] lg:max-h-[calc(100dvh-5.5rem)] lg:mr-6 xl:mr-8 overflow-hidden bg-zinc-900 lg:rounded-2xl lg:shadow-xl lg:border lg:border-zinc-800`}
           data-lenis-prevent
         >
           <div className="absolute inset-0">
