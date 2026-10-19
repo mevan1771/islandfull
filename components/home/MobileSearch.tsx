@@ -110,6 +110,7 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [stuck, setStuck] = useState(false)
+  const [tagsOpen, setTagsOpen] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
   const chromeHidden = useMobileChromeStore((s) => s.hidden)
@@ -135,6 +136,10 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
   useEffect(() => {
     return () => releaseSearchLock()
   }, [])
+
+  useEffect(() => {
+    if (chromeHidden || !stuck) setTagsOpen(false)
+  }, [chromeHidden, stuck])
 
   useEffect(() => {
     if (isFocused) return
@@ -271,8 +276,12 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
             chromeHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
           }`}
         >
-          <div className="flex items-center gap-2 px-3 pt-2">
-            <form onSubmit={handleSearch} className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 px-3 pt-2 pb-2">
+            <form
+              onSubmit={handleSearch}
+              className="min-w-0 flex-1"
+              onPointerDown={() => setTagsOpen(true)}
+            >
               <div className="relative flex items-center h-10 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
                 <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <WhereField {...whereProps} showMenu={stuck} />
@@ -284,9 +293,11 @@ export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: {
               iconClassName="w-4 h-4 text-zinc-700"
             />
           </div>
-          <div className="pl-4 pr-3 pt-2 pb-2">
-            <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
-          </div>
+          {tagsOpen ? (
+            <div className="pl-4 pr-3 pb-2">
+              <HomeCategoryChips dynamicCategories={dynamicCategories} compact />
+            </div>
+          ) : null}
         </div>
       )}
     </>
