@@ -34,8 +34,8 @@ export function HomeCategoryChips({
   }, [currentCategory])
 
   const categories: Chip[] = [
-    { id: "all", name: "All", kind: "all" },
-    { id: "saved", name: "Saved", kind: "saved" },
+    { id: "all", name: "All", kind: "all" as const },
+    { id: "saved", name: "Saved", kind: "saved" as const },
     ...dynamicCategories.map((category) => ({
       id: category.slug || "",
       name: category.name || "",
