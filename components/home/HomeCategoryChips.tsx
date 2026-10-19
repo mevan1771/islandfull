@@ -1,14 +1,16 @@
 "use client"
 
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react"
-import { Heart, type LucideIcon } from "lucide-react"
+import { Heart } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { markHomeListingsPin } from "@/lib/home-scroll"
+import { resolveCategoryIcon } from "@/lib/category-icons"
 
 type Chip = {
   id: string
   name: string
-  icon?: LucideIcon
+  iconSrc?: string | null
+  kind?: "all" | "saved" | "tag"
 }
 
 export function HomeCategoryChips({
@@ -16,7 +18,7 @@ export function HomeCategoryChips({
   compact = false,
   passive = false,
 }: {
-  dynamicCategories?: { slug?: string; name?: string }[]
+  dynamicCategories?: { slug?: string; name?: string; icon_url?: string | null }[]
   compact?: boolean
   passive?: boolean
 }) {
@@ -32,9 +34,14 @@ export function HomeCategoryChips({
   }, [currentCategory])
 
   const categories: Chip[] = [
-    { id: "all", name: "All" },
-    { id: "saved", name: "", icon: Heart },
-    ...dynamicCategories.map((category) => ({ id: category.slug || "", name: category.name || "" })),
+    { id: "all", name: "All", kind: "all" },
+    { id: "saved", name: "Saved", kind: "saved" },
+    ...dynamicCategories.map((category) => ({
+      id: category.slug || "",
+      name: category.name || "",
+      iconSrc: resolveCategoryIcon(category),
+      kind: "tag" as const,
+    })),
   ].filter((category) => category.id)
 
   useLayoutEffect(() => {
@@ -65,16 +72,14 @@ export function HomeCategoryChips({
     })
   }
 
-  const height = compact ? "h-9" : "h-10 md:h-11"
-  const savedSize = compact ? "w-9" : "w-10 md:w-11"
+  const iconBox = compact ? "h-10 w-10" : "h-12 w-12 md:h-14 md:w-14"
 
   return (
     <div
       ref={scrollerRef}
-      className={`flex min-w-0 flex-1 ${height} overflow-x-auto flex-nowrap whitespace-nowrap gap-1.5 md:gap-3 items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}
+      className="flex min-w-0 flex-1 overflow-x-auto flex-nowrap gap-1 md:gap-2 items-end [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
     >
       {categories.map((cat) => {
-        const Icon = cat.icon || null
         const current = optimisticCategory === cat.id
         return (
           <button
@@ -82,29 +87,47 @@ export function HomeCategoryChips({
             type="button"
             data-chip-current={current ? "true" : undefined}
             aria-current={current ? "true" : undefined}
+            aria-label={cat.name}
             onClick={() => handleCategoryClick(cat.id)}
-            className={`flex items-center justify-center shrink-0 ${height} rounded-full transition-transform duration-75 ease-out active:scale-95 border cursor-pointer touch-manipulation ${
-              cat.id === "saved" ? `${savedSize} p-0` : "gap-1.5 px-3 md:px-4 text-[13px] md:text-base font-medium"
-            } ${
-              current
-                ? "bg-black text-white border-black shadow-md"
-                : "bg-white text-zinc-600 border-gray-300"
-            }`}
+            className="flex flex-col items-center justify-end shrink-0 min-w-[3.6rem] md:min-w-[4.25rem] px-1.5 pb-0.5 cursor-pointer touch-manipulation select-none active:scale-95 transition-transform"
           >
-            {Icon && (
-              <Icon
-                className={`w-4 h-4 ${
-                  cat.id === "saved"
-                    ? optimisticCategory === cat.id
-                      ? "fill-rose-500 text-rose-500"
-                      : "text-zinc-600"
-                    : optimisticCategory === cat.id
-                      ? "fill-white"
-                      : ""
-                }`}
-              />
-            )}
-            {cat.name}
+            <span
+              className={`flex ${iconBox} items-center justify-center rounded-2xl ${
+                current ? "bg-zinc-100" : "bg-transparent"
+              }`}
+            >
+              {cat.kind === "all" ? (
+                <span
+                  className={`h-7 w-7 md:h-8 md:w-8 rounded-full ${
+                    current ? "bg-zinc-900" : "bg-zinc-200"
+                  }`}
+                />
+              ) : cat.kind === "saved" ? (
+                <Heart
+                  className={`w-6 h-6 ${current ? "fill-rose-500 text-rose-500" : "text-zinc-400"}`}
+                />
+              ) : cat.iconSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={cat.iconSrc}
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="h-full w-full object-contain mix-blend-multiply"
+                />
+              ) : (
+                <span className="h-full w-full" />
+              )}
+            </span>
+            <span
+              className={`mt-0.5 min-h-[1rem] max-w-[4.5rem] truncate text-[11px] md:text-xs leading-tight ${
+                current
+                  ? "font-bold text-zinc-900 border-b-2 border-zinc-900"
+                  : "font-medium text-zinc-500"
+              }`}
+            >
+              {cat.kind === "saved" ? "\u00a0" : cat.name}
+            </span>
           </button>
         )
       })}

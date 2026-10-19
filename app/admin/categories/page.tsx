@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { getCategories, createCategory, updateCategory, deleteCategory } from "@/app/actions/categories"
-import { Loader2, Plus, Edit2, Trash2, Tag, ArrowDownUp } from "lucide-react"
-import Link from "next/link"
+import { uploadToCloudinary } from "@/app/actions/upload"
+import { resolveCategoryIcon } from "@/lib/category-icons"
+import { Loader2, Plus, Edit2, Trash2, Tag, ArrowDownUp, Upload } from "lucide-react"
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
@@ -13,7 +14,8 @@ export default function CategoriesPage() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<any>(null)
-  const [formData, setFormData] = useState({ name: "", slug: "", category_type: "tour", sort_order: "0" })
+  const [formData, setFormData] = useState({ name: "", slug: "", category_type: "tour", sort_order: "0", icon_url: "" })
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false)
 
   useEffect(() => {
     loadCategories()
@@ -33,11 +35,12 @@ export default function CategoriesPage() {
         name: category.name, 
         slug: category.slug,
         category_type: category.category_type || "tour",
-        sort_order: category.sort_order?.toString() || "0"
+        sort_order: category.sort_order?.toString() || "0",
+        icon_url: category.icon_url || "",
       })
     } else {
       setEditingCategory(null)
-      setFormData({ name: "", slug: "", category_type: "tour", sort_order: "0" })
+      setFormData({ name: "", slug: "", category_type: "tour", sort_order: "0", icon_url: "" })
     }
     setIsModalOpen(true)
   }
@@ -56,6 +59,7 @@ export default function CategoriesPage() {
     data.append("slug", formData.slug)
     data.append("category_type", formData.category_type)
     data.append("sort_order", formData.sort_order)
+    data.append("icon_url", formData.icon_url)
 
     let res;
     if (editingCategory) {
@@ -115,7 +119,8 @@ export default function CategoriesPage() {
             <thead className="bg-zinc-50 text-xs uppercase font-bold text-zinc-500 border-b border-zinc-200">
               <tr>
                 <th className="px-6 py-4">Sort Order</th>
-                <th className="px-6 py-4">Name (Emoji Supported)</th>
+                <th className="px-6 py-4">Icon</th>
+                <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Slug</th>
                 <th className="px-6 py-4">Type</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -124,13 +129,13 @@ export default function CategoriesPage() {
             <tbody className="divide-y divide-zinc-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center">
                     <Loader2 className="w-8 h-8 text-rose-500 animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                     No categories found. Create one to get started.
                   </td>
                 </tr>
@@ -142,6 +147,14 @@ export default function CategoriesPage() {
                         <ArrowDownUp className="w-3 h-3" />
                         {cat.sort_order || 0}
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {resolveCategoryIcon(cat) ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={resolveCategoryIcon(cat) || ""} alt="" className="h-10 w-10 object-contain mix-blend-multiply" />
+                      ) : (
+                        <span className="text-xs text-zinc-400">No icon</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 font-bold text-zinc-900">{cat.name}</td>
                     <td className="px-6 py-4 font-mono text-xs text-zinc-500">{cat.slug}</td>
@@ -192,14 +205,14 @@ export default function CategoriesPage() {
             <form onSubmit={handleSubmit} className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-zinc-700 mb-1">Name (Emoji Supported)</label>
+                  <label className="block text-sm font-bold text-zinc-700 mb-1">Name</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     className="w-full px-4 py-2.5 rounded-xl border border-zinc-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all"
-                    placeholder="e.g. 🏄 Surfing"
+                    placeholder="e.g. Surfing"
                   />
                 </div>
                 
@@ -225,8 +238,63 @@ export default function CategoriesPage() {
                     <option value="tour">Tour</option>
                     <option value="event">Event</option>
                     <option value="transport">Transport</option>
+                    <option value="hotel">Hotel</option>
                     <option value="place">Place / Must see</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-zinc-700 mb-1">Home tag icon</label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl bg-zinc-50 border border-zinc-200 flex items-center justify-center overflow-hidden">
+                      {formData.icon_url || resolveCategoryIcon(formData) ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={formData.icon_url || resolveCategoryIcon(formData) || ""}
+                          alt=""
+                          className="h-12 w-12 object-contain mix-blend-multiply"
+                        />
+                      ) : (
+                        <Upload className="w-4 h-4 text-zinc-400" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 cursor-pointer">
+                        {isUploadingIcon ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                        Upload icon
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            e.target.value = ""
+                            if (!file) return
+                            setIsUploadingIcon(true)
+                            const payload = new FormData()
+                            payload.append("file", file)
+                            const result = await uploadToCloudinary(payload)
+                            setIsUploadingIcon(false)
+                            if (!result.success || !result.secure_url) {
+                              alert(result.error || "Upload failed")
+                              return
+                            }
+                            setFormData((current) => ({ ...current, icon_url: result.secure_url }))
+                          }}
+                        />
+                      </label>
+                      {formData.icon_url && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData((current) => ({ ...current, icon_url: "" }))}
+                          className="text-xs font-semibold text-zinc-500 hover:text-zinc-800 text-left"
+                        >
+                          Remove uploaded icon
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-1">Optional. Tags without an icon stay blank on the home row.</p>
                 </div>
 
                 <div>

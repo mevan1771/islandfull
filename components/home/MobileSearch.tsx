@@ -99,7 +99,7 @@ function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: strin
   )
 }
 
-export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string }[] }) {
+export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string; icon_url?: string | null }[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()

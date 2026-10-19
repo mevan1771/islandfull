@@ -40,6 +40,15 @@ export const getHomepageHeroData = unstable_cache(fetchHomepageHeroData, ["homep
 
 export const getHomepageCategories = unstable_cache(
   async (vertical: string) => {
+    const withIcons = await supabase
+      .from("categories")
+      .select("name, slug, icon_url")
+      .eq("category_type", vertical)
+      .order("sort_order", { ascending: true })
+      .order("name")
+
+    if (!withIcons.error) return withIcons.data ?? []
+
     const { data } = await supabase
       .from("categories")
       .select("name, slug")
