@@ -2,18 +2,17 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
-import { BedDouble, Bike, Globe, Map } from "lucide-react"
 import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
-import locationPin from "@/components/ui/Location icon/354556546.jpg"
+
+const ICON_V = "20261019b"
 
 const VERTICALS = [
-  { id: "tour", label: "Tours", Icon: Map },
-  { id: "transport", label: "Transport", Icon: Bike },
-  { id: "hotel", label: "Hotels", Icon: BedDouble },
+  { id: "tour", label: "Tours", src: `/images/icons/tour-icon.jpg?v=${ICON_V}` },
+  { id: "transport", label: "Transport", src: `/images/icons/Transport-icon.jpg?v=${ICON_V}` },
+  { id: "hotel", label: "Hotels", src: `/images/icons/hotel-icon.jpg?v=${ICON_V}` },
 ] as const
 
 type VerticalId = (typeof VERTICALS)[number]["id"]
@@ -23,7 +22,23 @@ function isVertical(value: string | null): value is VerticalId {
 }
 
 const tapClass =
-  "flex flex-col items-center justify-center gap-1 h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75"
+  "flex flex-col items-center justify-center gap-0.5 h-16 cursor-pointer touch-manipulation select-none active:scale-[0.88] transition-transform duration-75"
+
+function BarIcon({ src, selected }: { src: string; selected: boolean }) {
+  return (
+    // Native img so Next/Image does not wrap these JPGs in a square tile.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      width={72}
+      height={72}
+      className={`h-9 w-9 bg-transparent object-contain mix-blend-multiply transition-transform duration-150 ${
+        selected ? "scale-110" : ""
+      }`}
+    />
+  )
+}
 
 export function HomeVerticalBar() {
   useSyncMobileChrome()
@@ -61,13 +76,13 @@ export function HomeVerticalBar() {
 
   return (
     <nav
-      className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.28)] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out will-change-transform ${
+      className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#EBEBEB] bg-[#FFFFFF] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out will-change-transform ${
         chromeHidden ? "translate-y-full pointer-events-none" : "translate-y-0"
       }`}
       aria-label="Browse"
     >
       <div className="grid grid-cols-5">
-        {VERTICALS.map(({ id, label, Icon }) => {
+        {VERTICALS.map(({ id, label, src }) => {
           const selected = active === id
           return (
             <button
@@ -75,30 +90,21 @@ export function HomeVerticalBar() {
               type="button"
               onClick={() => handleClick(id)}
               aria-current={selected ? "page" : undefined}
-              className={`${tapClass} ${selected ? "text-rose-500" : "text-zinc-400"}`}
+              className={`${tapClass} ${selected ? "text-zinc-900" : "text-zinc-400"}`}
             >
-              <Icon className={`w-5 h-5 ${selected ? "stroke-[2.4]" : "stroke-[1.75]"}`} />
+              <BarIcon src={src} selected={selected} />
               <span className={`text-[10px] leading-none tracking-wide ${selected ? "font-bold" : "font-semibold"}`}>
                 {label}
               </span>
             </button>
           )
         })}
-        <Link
-          href="/destinations"
-          prefetch
-          className={`${tapClass} text-zinc-400`}
-        >
-          <Image src={locationPin} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
+        <Link href="/destinations" prefetch className={`${tapClass} text-zinc-400`}>
+          <BarIcon src={`/images/icons/Explore-icon.jpg?v=${ICON_V}`} selected={false} />
           <span className="text-[10px] leading-none tracking-wide font-semibold">Explore</span>
         </Link>
-        <Link
-          href="/map"
-          prefetch
-          className={`${tapClass} text-zinc-400`}
-          aria-label="Explore map"
-        >
-          <Globe className="w-5 h-5 stroke-[1.75]" />
+        <Link href="/map" prefetch className={`${tapClass} text-zinc-400`} aria-label="Explore map">
+          <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={false} />
           <span className="text-[10px] leading-none tracking-wide font-semibold">Map</span>
         </Link>
       </div>
