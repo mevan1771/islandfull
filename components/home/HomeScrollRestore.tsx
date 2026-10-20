@@ -95,6 +95,10 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
     if (prevListingKey.current === listingKey) return
     prevListingKey.current = listingKey
 
+    // Category tags only swap cards. Do not jump the page unless search/vertical
+    // explicitly asked to pin listings into view.
+    if (!peekHomeListingsPin()) return
+
     return pinUntilSettled(
       () => scrollHomeListingsToStart({ blockClicks: false }),
       () => consumeHomeListingsPin()

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { resolveCategoryIcon } from "@/lib/category-icons"
+import { jumpHomeScroll } from "@/lib/home-scroll"
 
 const ALL_ICON = "/images/categories/all.jpg"
 const HEART_ICON = "/images/categories/heart.jpg"
@@ -65,9 +66,15 @@ export function HomeCategoryChips({
     const params = new URLSearchParams(searchParams.toString())
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
+    const y = typeof window !== "undefined" ? window.scrollY : 0
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })
+    if (typeof window === "undefined") return
+    const keep = () => jumpHomeScroll(y)
+    keep()
+    window.setTimeout(keep, 50)
+    window.setTimeout(keep, 180)
   }
 
   const iconBox = compact ? "h-12 w-12" : "h-[4.25rem] w-[4.25rem] md:h-20 md:w-20"
