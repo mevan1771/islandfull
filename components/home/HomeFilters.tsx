@@ -7,7 +7,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
-import { markHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeArriveTop, markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 
 export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
@@ -93,7 +93,7 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category") // Reset category when switching vertical
-    markHomeListingsPin()
+    markHomeArriveTop()
     startTransition(() => {
       router.push(`/?${params.toString()}`, { scroll: false })
     })

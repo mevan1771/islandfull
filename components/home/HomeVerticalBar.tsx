@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { markHomeListingsPin, scrollHomeListingsToStart } from "@/lib/home-scroll"
+import { markHomeArriveTop } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
 
@@ -65,13 +65,12 @@ export function HomeVerticalBar() {
 
   const handleClick = (vertical: VerticalId) => {
     if (onHome && vertical === active) {
-      markHomeListingsPin()
-      scrollHomeListingsToStart({ blockClicks: false })
+      markHomeArriveTop()
       return
     }
 
     setActive(vertical)
-    markHomeListingsPin()
+    markHomeArriveTop()
     const params = new URLSearchParams(onHome ? searchParams.toString() : "")
     params.set("vertical", vertical)
     params.delete("category")

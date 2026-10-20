@@ -7,6 +7,7 @@ import {
   consumeHomeScrollRestore,
   currentHomeScrollGeneration,
   jumpHomeScroll,
+  peekHomeArriveTop,
   peekHomeListingsPin,
   peekHomeScrollRestore,
   restoreHomeScroll,
@@ -95,8 +96,14 @@ export function HomeScrollRestore({ listingKey }: { listingKey: string }) {
     if (prevListingKey.current === listingKey) return
     prevListingKey.current = listingKey
 
-    // Category tags only swap cards. Do not jump the page unless search/vertical
-    // explicitly asked to pin listings into view.
+    // Category tags stay put. Vertical switches go to the hero. Search still pins.
+    if (peekHomeArriveTop()) {
+      return pinUntilSettled(
+        () => jumpHomeScroll(0),
+        () => consumeHomeArriveTop()
+      )
+    }
+
     if (!peekHomeListingsPin()) return
 
     return pinUntilSettled(
