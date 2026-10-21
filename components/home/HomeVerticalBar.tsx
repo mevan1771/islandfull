@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { markHomeArriveTop } from "@/lib/home-scroll"
+import { publicVertical } from "@/lib/homepage-feed"
+import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
 
@@ -51,6 +53,7 @@ export function HomeVerticalBar() {
   const onMap = pathname.startsWith("/map")
   const paramVertical = searchParams.get("vertical")
   const urlVertical: VerticalId = isVertical(paramVertical) ? paramVertical : "tour"
+  const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
   const [active, setActive] = useState<VerticalId>(urlVertical)
 
   useEffect(() => {
@@ -61,6 +64,9 @@ export function HomeVerticalBar() {
     router.prefetch("/map")
     router.prefetch("/trips")
     router.prefetch("/destinations")
+    router.prefetch("/?vertical=tour")
+    router.prefetch("/?vertical=transport")
+    router.prefetch("/?vertical=hotel")
   }, [router])
 
   const handleClick = (vertical: VerticalId) => {
@@ -70,11 +76,14 @@ export function HomeVerticalBar() {
     }
 
     setActive(vertical)
+    setBrowseVertical(publicVertical(vertical))
     markHomeArriveTop()
     const params = new URLSearchParams(onHome ? searchParams.toString() : "")
     params.set("vertical", vertical)
     params.delete("category")
-    router.push(`/?${params.toString()}`, { scroll: false })
+    const href = `/?${params.toString()}`
+    router.prefetch(href)
+    router.push(href, { scroll: false })
   }
 
   return (

@@ -35,3 +35,16 @@ export type HomepageActivityFilters = {
   location?: string
   sort?: string
 }
+
+export type HomepageCategory = {
+  name: string
+  slug: string
+  icon_url?: string | null
+  category_type?: string
+}
+
+export type HomepageCategoryMap = Record<PublicVertical, HomepageCategory[]>
+
+export function emptyHomepageCategoryMap(): HomepageCategoryMap {
+  return { tour: [], transport: [], hotel: [] }
+}

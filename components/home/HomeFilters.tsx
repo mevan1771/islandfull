@@ -9,11 +9,21 @@ import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/sea
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 import { jumpHomeScroll, markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
+import { publicVertical, type HomepageCategoryMap } from "@/lib/homepage-feed"
+import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 
-export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: any[] }) {
+export function HomeFilters({
+  dynamicCategories = [],
+  categoryMap,
+}: {
+  dynamicCategories?: any[]
+  categoryMap?: HomepageCategoryMap
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
+  const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
+  const hydrateCategories = useHomeBrowseStore((s) => s.hydrateCategories)
 
   const currentVertical = searchParams.get("vertical") || "tour"
   const currentLocation = searchParams.get("location") || ""
@@ -26,12 +36,14 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
   }, [currentVertical])
 
   useEffect(() => {
-    const grid = document.getElementById('activity-grid-container')
-    if (grid) {
-      grid.style.opacity = isPending ? '0.5' : '1'
-      grid.style.transition = 'opacity 0.2s'
-    }
-  }, [isPending])
+    if (categoryMap) hydrateCategories(categoryMap)
+  }, [categoryMap, hydrateCategories])
+
+  useEffect(() => {
+    router.prefetch("/?vertical=tour")
+    router.prefetch("/?vertical=transport")
+    router.prefetch("/?vertical=hotel")
+  }, [router])
 
   const [location, setLocation] = useState(currentLocation)
   const [date, setDate] = useState("")
@@ -90,12 +102,15 @@ export function HomeFilters({ dynamicCategories = [] }: { dynamicCategories?: an
 
   const handleVerticalClick = (vertical: string) => {
     setOptimisticVertical(vertical)
+    setBrowseVertical(publicVertical(vertical))
     const params = new URLSearchParams(searchParams.toString())
     params.set("vertical", vertical)
     params.delete("category") // Reset category when switching vertical
+    const href = `/?${params.toString()}`
     const y = typeof window !== "undefined" ? window.scrollY : 0
+    router.prefetch(href)
     startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
+      router.push(href, { scroll: false })
     })
     if (typeof window === "undefined") return
     const keep = () => jumpHomeScroll(y)

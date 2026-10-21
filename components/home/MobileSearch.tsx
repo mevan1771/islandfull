@@ -8,6 +8,8 @@ import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/sea
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
+import type { HomepageCategory, HomepageCategoryMap } from "@/lib/homepage-feed"
+import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 
@@ -99,10 +101,21 @@ function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: strin
   )
 }
 
-export function MobileSearch({ dynamicCategories = [] }: { dynamicCategories?: { slug?: string; name?: string; icon_url?: string | null }[] }) {
+export function MobileSearch({
+  dynamicCategories = [],
+  categoryMap,
+}: {
+  dynamicCategories?: HomepageCategory[]
+  categoryMap?: HomepageCategoryMap
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
+  const hydrateCategories = useHomeBrowseStore((s) => s.hydrateCategories)
+
+  useEffect(() => {
+    if (categoryMap) hydrateCategories(categoryMap)
+  }, [categoryMap, hydrateCategories])
 
   const [location, setLocation] = useState(searchParams.get("location") || "")
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])

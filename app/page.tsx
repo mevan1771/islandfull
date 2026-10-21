@@ -6,7 +6,7 @@ import { Suspense } from "react"
 import { preload } from "react-dom"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
-import { getHomepageCategories, getHomepageHeroData } from "@/lib/homepage-hero"
+import { getHomepageCategoryMap, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE, publicVertical } from "@/lib/homepage-feed"
@@ -19,11 +19,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const currentVertical = publicVertical(params.vertical);
   const currentCategory = params.category || 'all';
 
-  const [{ featuredTours, introSlide, featuredSpotlight }, dynamicCategories, mustSeePlaces] = await Promise.all([
+  const [{ featuredTours, introSlide, featuredSpotlight }, categoryMap] = await Promise.all([
     getHomepageHeroData(),
-    getHomepageCategories(currentVertical),
-    currentVertical === "tour" ? fetchMustSeePlaces() : Promise.resolve([]),
+    getHomepageCategoryMap(),
   ]);
+  const dynamicCategories = categoryMap[currentVertical];
 
   const carouselSlides = [
     {
@@ -57,17 +57,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>
-        <MobileSearch dynamicCategories={dynamicCategories} />
+        <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
         <HomeVerticalBar />
       </Suspense>
 
       {/* Dynamic Filters UI */}
-      <Suspense fallback={<div className="h-40 flex items-center gap-2 overflow-hidden px-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-10 w-24 shrink-0 rounded-full bg-zinc-200/80 animate-pulse" />
-          ))}
-        </div>}>
-        <HomeFilters dynamicCategories={dynamicCategories} />
+        <Suspense fallback={null}>
+        <HomeFilters dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
       </Suspense>
 
       {/* Activity Grid */}
@@ -77,7 +73,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
             searchParams={params}
             currentCategory={currentCategory}
             spotlightSlides={Array.isArray(featuredSpotlight) ? featuredSpotlight : featuredSpotlight ? [featuredSpotlight] : null}
-            mustSeePlaces={currentVertical === "tour" ? mustSeePlaces : []}
           />
         </Suspense>
       </section>
@@ -102,12 +97,10 @@ async function ActivityGridServer({
   searchParams,
   currentCategory,
   spotlightSlides,
-  mustSeePlaces,
 }: {
   searchParams: any
   currentCategory: string
   spotlightSlides: SpotlightConfig[] | null
-  mustSeePlaces: Awaited<ReturnType<typeof fetchMustSeePlaces>>
 }) {
   const filters = {
     vertical: publicVertical(searchParams.vertical),
@@ -117,7 +110,10 @@ async function ActivityGridServer({
   }
 
   const limit = filters.category === "saved" ? 100 : HOMEPAGE_PAGE_SIZE
-  const { activities, total } = await fetchHomepageActivities(filters, 0, limit)
+  const [{ activities, total }, mustSeePlaces] = await Promise.all([
+    fetchHomepageActivities(filters, 0, limit),
+    filters.vertical === "tour" ? fetchMustSeePlaces() : Promise.resolve([]),
+  ])
 
   return (
     <ActivityGrid

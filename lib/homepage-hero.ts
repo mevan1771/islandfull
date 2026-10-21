@@ -1,5 +1,12 @@
 import { unstable_cache } from "next/cache"
 import { supabase } from "@/lib/supabase"
+import {
+  PUBLIC_VERTICALS,
+  emptyHomepageCategoryMap,
+  publicVertical,
+  type HomepageCategoryMap,
+  type PublicVertical,
+} from "@/lib/homepage-feed"
 
 const HERO_TOUR_COLUMNS =
   "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers"
@@ -38,26 +45,42 @@ export const getHomepageHeroData = unstable_cache(fetchHomepageHeroData, ["homep
   tags: ["hero-carousel"],
 })
 
-export const getHomepageCategories = unstable_cache(
-  async (vertical: string) => {
-    const withIcons = await supabase
-      .from("categories")
-      .select("name, slug, icon_url")
-      .eq("category_type", vertical)
-      .order("sort_order", { ascending: true })
-      .order("name")
+async function fetchHomepageCategoryMap(): Promise<HomepageCategoryMap> {
+  const map = emptyHomepageCategoryMap()
+  const withIcons = await supabase
+    .from("categories")
+    .select("name, slug, icon_url, category_type")
+    .in("category_type", [...PUBLIC_VERTICALS])
+    .order("sort_order", { ascending: true })
+    .order("name")
 
-    if (!withIcons.error) return withIcons.data ?? []
+  const rows = withIcons.error
+    ? (
+        await supabase
+          .from("categories")
+          .select("name, slug, category_type")
+          .in("category_type", [...PUBLIC_VERTICALS])
+          .order("sort_order", { ascending: true })
+          .order("name")
+      ).data
+    : withIcons.data
 
-    const { data } = await supabase
-      .from("categories")
-      .select("name, slug")
-      .eq("category_type", vertical)
-      .order("sort_order", { ascending: true })
-      .order("name")
+  for (const row of rows ?? []) {
+    const type = row.category_type as PublicVertical
+    if (type === "tour" || type === "transport" || type === "hotel") {
+      map[type].push(row)
+    }
+  }
 
-    return data ?? []
-  },
-  ["homepage-categories"],
-  { revalidate: 60, tags: ["homepage-categories"] }
-)
+  return map
+}
+
+export const getHomepageCategoryMap = unstable_cache(fetchHomepageCategoryMap, ["homepage-category-map"], {
+  revalidate: 60,
+  tags: ["homepage-categories"],
+})
+
+export async function getHomepageCategories(vertical: string) {
+  const map = await getHomepageCategoryMap()
+  return map[publicVertical(vertical)]
+}
