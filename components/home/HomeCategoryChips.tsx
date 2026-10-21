@@ -2,11 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { resolveCategoryIcon } from "@/lib/category-icons"
+import { ALL_CATEGORY_ICON, SAVED_CATEGORY_ICON, resolveCategoryIcon } from "@/lib/category-icons"
 import { jumpHomeScroll } from "@/lib/home-scroll"
-
-const ALL_ICON = "/images/categories/all.jpg"
-const HEART_ICON = "/images/categories/heart.jpg"
 
 type Chip = {
   id: string
@@ -35,8 +32,8 @@ export function HomeCategoryChips({
   }, [currentCategory])
 
   const categories: Chip[] = [
-    { id: "all", name: "All", iconSrc: ALL_ICON },
-    { id: "saved", name: "Saved", iconSrc: HEART_ICON },
+    { id: "all", name: "All", iconSrc: ALL_CATEGORY_ICON },
+    { id: "saved", name: "Saved", iconSrc: SAVED_CATEGORY_ICON },
     ...dynamicCategories.map((category) => ({
       id: category.slug || "",
       name: category.name || "",
