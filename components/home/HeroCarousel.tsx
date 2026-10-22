@@ -75,7 +75,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     if (tour.isStatic) {
         return (
-            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-0 md:pb-3">
+            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-1 md:pb-6">
                 {badges}
                 {tour.subtitle && (
                     <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
@@ -89,7 +89,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
     return (
         <Link
             href={`/activity/${tour.slug}`}
-            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-0 md:pb-3"
+            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-1 md:pb-6"
         >
             {badges}
         </Link>
@@ -175,7 +175,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
 
             <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
-            <div className="absolute bottom-3 md:bottom-14 lg:bottom-16 w-full left-0 right-0 z-20 pointer-events-none">
+            <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                         {carouselSlides.map((tour, index) => (
