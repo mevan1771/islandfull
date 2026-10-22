@@ -151,7 +151,7 @@ export default function CategoriesPage() {
                     <td className="px-6 py-4">
                       {resolveCategoryIcon(cat) ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={resolveCategoryIcon(cat) || ""} alt="" className="h-10 w-10 object-contain mix-blend-multiply" />
+                        <img src={resolveCategoryIcon(cat) || ""} alt="" className="h-10 w-10 object-contain" />
                       ) : (
                         <span className="text-xs text-zinc-400">No icon</span>
                       )}
@@ -252,7 +252,7 @@ export default function CategoriesPage() {
                         <img
                           src={formData.icon_url || resolveCategoryIcon(formData) || ""}
                           alt=""
-                          className="h-12 w-12 object-contain mix-blend-multiply"
+                          className="h-12 w-12 object-contain"
                         />
                       ) : (
                         <Upload className="w-4 h-4 text-zinc-400" />

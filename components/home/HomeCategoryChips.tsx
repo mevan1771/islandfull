@@ -93,7 +93,7 @@ export function HomeCategoryChips({
                   alt=""
                   width={80}
                   height={80}
-                  className="h-full w-full object-contain mix-blend-multiply"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <span className="h-full w-full" />

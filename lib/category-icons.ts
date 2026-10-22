@@ -1,33 +1,35 @@
-const ICON_V = "20261022"
+const ICON_V = "20261022png"
 
 const tour = (file: string) => `/images/categories/${file}?v=${ICON_V}`
 const transport = (file: string) => `/images/transport/${file}?v=${ICON_V}`
 const hotel = (file: string) => `/images/hotels/${file}?v=${ICON_V}`
 
 const DEFAULT_ICONS: Record<string, string> = {
-  adventure: tour("adventure.jpg"),
-  hiking: tour("hiking.jpg"),
-  "hiking-treks": tour("hiking.jpg"),
-  "hiking treks": tour("hiking.jpg"),
-  history: tour("history.jpg"),
-  "culture-history": tour("history.jpg"),
-  "culture history": tour("history.jpg"),
-  surf: tour("surf.jpg"),
-  safari: tour("safari.jpg"),
-  safaris: tour("safari.jpg"),
-  "wildlife-safaris": tour("safari.jpg"),
-  "wildlife safaris": tour("safari.jpg"),
-  wildlife: tour("wildlife.jpg"),
-  diving: tour("diving.jpg"),
-  cooking: tour("cooking.jpg"),
-  spicy: tour("spicy.jpg"),
-  spices: tour("spicy.jpg"),
-  spice: tour("spicy.jpg"),
-  sightseeing: tour("sightseeing.jpg"),
-  siteseeing: tour("sightseeing.jpg"),
-  "boat-ride": tour("boat-ride.jpg"),
-  "boat ride": tour("boat-ride.jpg"),
-  "boat rides": tour("boat-ride.jpg"),
+  adventure: tour("adventure.png"),
+  hiking: tour("hiking.png"),
+  "hiking-treks": tour("hiking.png"),
+  "hiking treks": tour("hiking.png"),
+  history: tour("history.png"),
+  "culture-history": tour("history.png"),
+  "culture history": tour("history.png"),
+  surf: tour("surf.png"),
+  safari: tour("safari.png"),
+  safaris: tour("safari.png"),
+  "wildlife-safaris": tour("safari.png"),
+  "wildlife safaris": tour("safari.png"),
+  wildlife: tour("wildlife.png"),
+  wild: tour("wildlife.png"),
+  diving: tour("diving.png"),
+  cooking: tour("cooking.png"),
+  spicy: tour("spicy.png"),
+  spices: tour("spicy.png"),
+  spice: tour("spicy.png"),
+  sightseeing: tour("sightseeing.png"),
+  siteseeing: tour("sightseeing.png"),
+  "boat-ride": tour("boat-ride.png"),
+  "boat ride": tour("boat-ride.png"),
+  "boat rides": tour("boat-ride.png"),
+  boat: tour("boat-ride.png"),
 
   air: transport("air.jpg"),
   helicopter: transport("air.jpg"),
@@ -76,12 +78,16 @@ export function resolveCategoryIcon(category: {
   name?: string | null
   icon_url?: string | null
 }) {
-  if (category.icon_url) return category.icon_url
-
   const slug = keyFrom(category.slug).replace(/ /g, "-")
   const name = keyFrom(category.name)
-  return DEFAULT_ICONS[slug] || DEFAULT_ICONS[name] || DEFAULT_ICONS[name.replace(/s$/, "")] || null
+  return (
+    DEFAULT_ICONS[slug] ||
+    DEFAULT_ICONS[name] ||
+    DEFAULT_ICONS[name.replace(/s$/, "")] ||
+    category.icon_url ||
+    null
+  )
 }
 
-export const ALL_CATEGORY_ICON = tour("all.jpg")
-export const SAVED_CATEGORY_ICON = tour("heart.jpg")
+export const ALL_CATEGORY_ICON = tour("all.png")
+export const SAVED_CATEGORY_ICON = tour("heart.png")
