@@ -85,11 +85,7 @@ export function HomeCategoryChips({
             onClick={() => goToCategory(cat.id)}
             className="flex flex-col items-center justify-end shrink-0 min-w-[4.4rem] md:min-w-[5.25rem] px-1 cursor-pointer touch-manipulation select-none active:scale-90 transition-transform duration-75"
           >
-            <span
-              className={`flex ${iconBox} items-center justify-center ${
-                current ? "scale-110" : "opacity-80 hover:opacity-100 hover:scale-105"
-              }`}
-            >
+            <span className={`flex ${iconBox} items-center justify-center ${current ? "scale-110" : ""}`}>
               {cat.iconSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -105,9 +101,7 @@ export function HomeCategoryChips({
             </span>
             <span
               className={`mt-1 max-w-[5.25rem] truncate text-[11px] md:text-sm leading-tight ${
-                current
-                  ? "font-bold text-zinc-900 border-b-2 border-zinc-900"
-                  : "font-medium text-zinc-500"
+                current ? "font-bold text-zinc-900" : "font-medium text-zinc-500"
               }`}
             >
               {cat.name}
