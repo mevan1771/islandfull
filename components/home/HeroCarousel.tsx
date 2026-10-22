@@ -175,7 +175,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
 
             <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
-            <div className="absolute bottom-8 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
+            <div className="absolute bottom-6 md:bottom-20 lg:bottom-24 w-full left-0 right-0 z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                         {carouselSlides.map((tour, index) => (
