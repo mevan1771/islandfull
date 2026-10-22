@@ -255,7 +255,7 @@ export function MobileSearch({
       <div
         ref={cardRef}
         data-home-search-card
-        className={`sm:hidden px-4 mt-3 relative z-10 w-full ${stuck ? "invisible pointer-events-none" : ""}`}
+        className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
           <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-0.5 focus-within:border-rose-400">
