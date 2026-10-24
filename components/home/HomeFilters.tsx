@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Users, Map, Loader2, SlidersHorizontal, Bike, Compass, Hash, BedDouble } from "lucide-react"
+import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
-import { jumpHomeScroll, markHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { publicVertical, type HomepageCategoryMap } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
@@ -25,19 +25,16 @@ export function HomeFilters({
   const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
   const hydrateCategories = useHomeBrowseStore((s) => s.hydrateCategories)
 
-  const currentVertical = searchParams.get("vertical") || "tour"
   const currentLocation = searchParams.get("location") || ""
   const currentSort = searchParams.get("sort") || ""
-
-  const [optimisticVertical, setOptimisticVertical] = useState(currentVertical)
-
-  useEffect(() => {
-    setOptimisticVertical(currentVertical)
-  }, [currentVertical])
 
   useEffect(() => {
     if (categoryMap) hydrateCategories(categoryMap)
   }, [categoryMap, hydrateCategories])
+
+  useEffect(() => {
+    setBrowseVertical(publicVertical(searchParams.get("vertical")))
+  }, [searchParams, setBrowseVertical])
 
   useEffect(() => {
     router.prefetch("/?vertical=tour")
@@ -100,25 +97,6 @@ export function HomeFilters({
     })
   }
 
-  const handleVerticalClick = (vertical: string) => {
-    setOptimisticVertical(vertical)
-    setBrowseVertical(publicVertical(vertical))
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("vertical", vertical)
-    params.delete("category") // Reset category when switching vertical
-    const href = `/?${params.toString()}`
-    const y = typeof window !== "undefined" ? window.scrollY : 0
-    router.prefetch(href)
-    startTransition(() => {
-      router.push(href, { scroll: false })
-    })
-    if (typeof window === "undefined") return
-    const keep = () => jumpHomeScroll(y)
-    keep()
-    window.setTimeout(keep, 50)
-    window.setTimeout(keep, 180)
-  }
-
   const handleSortChange = (sort: TourSort) => {
     const params = new URLSearchParams(searchParams.toString())
     if (sort === "recommended") params.delete("sort")
@@ -130,33 +108,9 @@ export function HomeFilters({
 
   return (
     <>
-      {/* Floating Search Widget (Desktop only now) */}
-      <div className="relative -mt-24 z-20 px-4 hidden sm:block">
-        <div className="max-w-5xl mx-auto bg-white rounded-xl md:rounded-3xl p-4 shadow-2xl">
-          {/* Tabs */}
-          <div className="flex overflow-x-auto md:overflow-visible scrollbar-width-none [&::-webkit-scrollbar]:hidden whitespace-nowrap w-full items-center gap-4 sm:gap-6 border-b border-zinc-100 mb-4 pl-6">
-            <button
-              onClick={() => handleVerticalClick('tour')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'tour' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Map className="w-4 h-4" /> Tours
-            </button>
-            <button
-              onClick={() => handleVerticalClick('transport')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'transport' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <Bike className="w-4 h-4" /> Transport
-            </button>
-            <button
-              onClick={() => handleVerticalClick('hotel')}
-              className={`flex items-center gap-2 text-xs sm:text-sm font-semibold pb-4 whitespace-nowrap transition-colors border-b-2 -mb-[1px] cursor-pointer ${optimisticVertical === 'hotel' ? 'text-rose-500 border-rose-500' : 'text-zinc-500 border-transparent hover:text-zinc-900'}`}
-            >
-              <BedDouble className="w-4 h-4" /> Hotels
-            </button>
-          </div>
-
-          {/* Inputs */}
-          <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-300 rounded-full shadow-sm divide-x divide-gray-200 p-1.5 pl-6">
+      <div className="relative z-20 px-4 hidden sm:block h-0">
+        <div className="max-w-5xl mx-auto -translate-y-1/2">
+          <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-200 rounded-full shadow-xl divide-x divide-gray-200 p-1.5 pl-6">
             <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
               <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
               <div className="flex items-center gap-2">
@@ -266,7 +220,7 @@ export function HomeFilters({
         </div>
       </div>
 
-      <div className="hidden sm:block max-w-7xl mx-auto px-4 mt-16 mb-6 text-zinc-900">
+      <div className="hidden sm:block max-w-7xl mx-auto px-4 pt-14 mb-6 text-zinc-900">
         <div className="flex items-center min-w-0">
           <HomeCategoryChips dynamicCategories={dynamicCategories} />
         </div>

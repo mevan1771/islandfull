@@ -67,6 +67,7 @@ export function HomeVerticalBar() {
     router.prefetch("/?vertical=tour")
     router.prefetch("/?vertical=transport")
     router.prefetch("/?vertical=hotel")
+    router.prefetch("/transport/plan")
   }, [router])
 
   const handleClick = (vertical: VerticalId) => {

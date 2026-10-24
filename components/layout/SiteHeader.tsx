@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useHeaderStore } from "@/store/useHeaderStore"
 import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
@@ -18,10 +18,15 @@ import {
 } from "@/lib/home-scroll"
 import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
+import { publicVertical } from "@/lib/homepage-feed"
+import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 
 export default function SiteHeader() {
     const pathname = usePathname()
+    const searchParams = useSearchParams()
     const router = useRouter()
+    const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
+    const homeVertical = searchParams.get("vertical") || "tour"
     const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
 
     const [isVisible, setIsVisible] = useState(true)
@@ -108,6 +113,7 @@ export default function SiteHeader() {
     const isActivityPage = pathname?.startsWith('/activity') || isHotelPage
     const isDestinationsPage = pathname?.startsWith('/destinations')
     const isTripsPage = pathname?.startsWith('/trips')
+    const isTransportPage = pathname?.startsWith('/transport')
 
     const isMapPage = pathname === '/map'
     const isSupportPage = [
@@ -118,13 +124,13 @@ export default function SiteHeader() {
         '/list-your-tour',
     ].includes(pathname || '')
 
-    const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage
+    const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage && !isTransportPage
 
     const homeScrolled = isScrolled || hideHomeHeader
     const homeHeaderVisible = isVisible && !hideHomeHeader
     const shouldForceDarkTextDesktop = isHomePage && homeScrolled
-    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
-    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage ? true : (isStandardPage ? true : useDarkTextMobile))
+    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
+    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
     const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
@@ -134,7 +140,7 @@ export default function SiteHeader() {
     const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
-    const headerClasses = isDestinationsPage || isSupportPage || isTripsPage || isActivityPage
+    const headerClasses = isDestinationsPage || isSupportPage || isTripsPage || isActivityPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
@@ -242,31 +248,47 @@ export default function SiteHeader() {
 
                 {/* Desktop Navigation */}
                 <nav
-                    className={`hidden md:flex items-center text-sm ${
+                    className={`hidden md:flex items-center ${
                         isHomePage && !homeScrolled
-                            ? "gap-0.5 rounded-full bg-white/90 backdrop-blur-md px-1.5 py-1 shadow-lg shadow-black/10 font-semibold text-slate-800"
-                            : `gap-8 font-medium ${textColor}`
+                            ? "gap-0 rounded-full bg-white/90 backdrop-blur-md px-1 py-1 shadow-lg shadow-black/10 text-[13px] font-semibold text-slate-800"
+                            : `gap-8 text-sm font-medium ${textColor}`
                     }`}
                 >
-                    {[
-                        { href: "/", label: "Home" },
-                        { href: "/destinations", label: "Destinations" },
-                        { href: "/trips", label: "Trips" },
-                        { href: "/contact", label: "Contact Us" },
-                    ].map((item) => {
-                        const isActive =
-                            item.href === "/"
-                                ? pathname === "/"
-                                : pathname?.startsWith(item.href)
+                    {(
+                        [
+                            { href: "/?vertical=tour", label: "Tour", vertical: "tour" },
+                            { href: "/?vertical=transport", label: "Transport", vertical: "transport" },
+                            { href: "/?vertical=hotel", label: "Hotels", vertical: "hotel" },
+                            { href: "/destinations", label: "Destinations" },
+                            { href: "/trips", label: "Trips" },
+                            { href: "/contact", label: "Contact Us" },
+                        ] as const
+                    ).map((item) => {
+                        const isActive = "vertical" in item && item.vertical
+                            ? pathname === "/" && homeVertical === item.vertical
+                            : pathname?.startsWith(item.href)
                         const overlay = isHomePage && !homeScrolled
 
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                scroll={false}
+                                onClick={() => {
+                                    if ("vertical" in item && item.vertical) {
+                                        setBrowseVertical(publicVertical(item.vertical))
+                                        if (pathname === "/") {
+                                            const y = window.scrollY
+                                            jumpHomeScroll(y)
+                                            window.setTimeout(() => jumpHomeScroll(y), 50)
+                                            return
+                                        }
+                                        markHomeArriveTop()
+                                    }
+                                }}
                                 className={
                                     overlay
-                                        ? `px-4 py-1.5 rounded-full transition-colors ${
+                                        ? `px-2.5 py-1.5 rounded-full transition-colors ${
                                               isActive
                                                   ? "bg-zinc-900 text-white"
                                                   : "hover:bg-zinc-100"
@@ -282,11 +304,11 @@ export default function SiteHeader() {
 
                 <div className="flex items-center gap-4 ">
                     {pathname === '/map' ? (
-                        <Link href="/" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
+                        <Link href="/" className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
                             <ArrowLeft className="w-4 h-4" /> Back
                         </Link>
                     ) : (
-                        <Link href="/map" className="hidden md:flex items-center gap-1.5 px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
+                        <Link href="/map" className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
                             🌍 Explore Map
                         </Link>
                     )}

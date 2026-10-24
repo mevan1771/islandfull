@@ -493,7 +493,12 @@ export async function getMyOffers() {
     const user = await currentUser()
     if (!user) return []
     const email = user.primaryEmailAddress?.emailAddress?.toLowerCase() || null
-    return fetchMyOffersFor(user.id, email)
+    const offers = await fetchMyOffersFor(user.id, email)
+    const { getMyTransportTrips } = await import("@/app/actions/transport-trips")
+    const trips = await getMyTransportTrips(user.id, email)
+    return [...trips, ...offers].sort(
+      (a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at)
+    )
   } catch (err) {
     console.error("getMyOffers error:", err)
     return []
@@ -653,6 +658,7 @@ function mapHostOffer(row: any) {
   const paid = row.status === "paid"
   return {
     id: row.id,
+    source: "listing" as const,
     status: row.status,
     offer_amount: row.offer_amount,
     travel_date: row.travel_date,
@@ -674,21 +680,29 @@ export async function getHostPendingOfferCount() {
     const host = await currentHostRecord()
     if (!host) return 0
     const { activityIds, hotelIds } = await listingIdsForHost(host.hostId, host.userId)
-    if (activityIds.length === 0 && hotelIds.length === 0) return 0
     await expireStaleAcceptedOffers()
     const filters: string[] = []
     if (activityIds.length) filters.push(`activity_id.in.(${activityIds.join(",")})`)
     if (hotelIds.length) filters.push(`hotel_id.in.(${hotelIds.join(",")})`)
-    const { count, error } = await supabaseAdmin
-      .from("offers")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending")
-      .or(filters.join(","))
+    const [{ count, error }, tripCount] = await Promise.all([
+      filters.length
+        ? supabaseAdmin
+            .from("offers")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "pending")
+            .or(filters.join(","))
+        : Promise.resolve({ count: 0, error: null }),
+      supabaseAdmin
+        .from("transport_trip_recipients")
+        .select("id", { count: "exact", head: true })
+        .eq("host_id", host.hostId)
+        .eq("status", "pending"),
+    ])
     if (error) {
       console.error("getHostPendingOfferCount error:", error)
-      return 0
+      return tripCount.count || 0
     }
-    return count || 0
+    return (count || 0) + (tripCount.count || 0)
   } catch (err) {
     console.error("getHostPendingOfferCount error:", err)
     return 0
@@ -699,11 +713,13 @@ export async function getHostOffers() {
   const host = await currentHostRecord()
   if (!host) return []
   const { activityIds, hotelIds } = await listingIdsForHost(host.hostId, host.userId)
-  if (activityIds.length === 0 && hotelIds.length === 0) return []
   await expireStaleAcceptedOffers()
   const filters: string[] = []
   if (activityIds.length) filters.push(`activity_id.in.(${activityIds.join(",")})`)
   if (hotelIds.length) filters.push(`hotel_id.in.(${hotelIds.join(",")})`)
+  const { getHostTripOffers } = await import("@/app/actions/transport-trips")
+  const tripOffers = await getHostTripOffers()
+  if (!filters.length) return tripOffers
   const { data, error } = await supabaseAdmin
     .from("offers")
     .select(
@@ -713,9 +729,12 @@ export async function getHostOffers() {
     .order("created_at", { ascending: false })
   if (error) {
     console.error("getHostOffers error:", error)
-    return []
+    return tripOffers
   }
-  return (data || []).map(mapHostOffer)
+  const listingOffers = (data || []).map(mapHostOffer)
+  return [...tripOffers, ...listingOffers].sort(
+    (a, b) => +new Date(b.created_at) - +new Date(a.created_at)
+  )
 }
 
 export async function respondToHostOffer(id: string, status: "accepted" | "declined") {

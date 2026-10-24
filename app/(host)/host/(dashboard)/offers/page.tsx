@@ -9,7 +9,7 @@ export default async function HostOffersPage() {
         <div>
           <h2 className="text-2xl font-bold text-zinc-900 mb-2">Offers</h2>
           <p className="text-zinc-500">
-            Accept or decline bids on your listings. If you accept, the guest has 24 hours to pay. Dates stay open until they pay.
+            Accept or decline bids on your listings and route requests. First host to accept a route wins. The guest then has 24 hours to pay.
           </p>
         </div>
         <HostOffersClient initialOffers={offers} />

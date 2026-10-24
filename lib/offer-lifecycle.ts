@@ -47,6 +47,22 @@ export async function expireStaleAcceptedOffers() {
     .eq("status", "accepted")
     .is("payment_expires_at", null)
   if (legacy.error) console.error("expireLegacyAcceptedOffers error:", legacy.error)
+
+  const overdueTrips = await supabaseAdmin
+    .from("transport_trip_requests")
+    .update({ status: "expired", updated_at: now })
+    .eq("status", "accepted")
+    .not("payment_expires_at", "is", null)
+    .lt("payment_expires_at", now)
+  if (overdueTrips.error) console.error("expireStaleTripRequests error:", overdueTrips.error)
+
+  const stalePending = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString()
+  const pendingTrips = await supabaseAdmin
+    .from("transport_trip_requests")
+    .update({ status: "expired", updated_at: now })
+    .eq("status", "pending")
+    .lt("created_at", stalePending)
+  if (pendingTrips.error) console.error("expirePendingTripRequests error:", pendingTrips.error)
 }
 
 type OfferStayRow = {
@@ -122,7 +138,7 @@ export async function settlePaidOffer(bookingId: string) {
 
   const { data: offer } = await supabaseAdmin
     .from("offers")
-    .select("id, hotel_id, guest_email, clerk_user_id, travel_date, special_notes, status")
+    .select("id, hotel_id, guest_email, clerk_user_id, travel_date, special_notes, status, trip_request_id")
     .eq("id", offerId)
     .maybeSingle()
   if (!offer) return
@@ -137,6 +153,14 @@ export async function settlePaidOffer(bookingId: string) {
       })
       .eq("id", offerId)
     if (error) console.error("settlePaidOffer status error:", error)
+  }
+
+  if (offer.trip_request_id) {
+    const { error: tripError } = await supabaseAdmin
+      .from("transport_trip_requests")
+      .update({ status: "paid", payment_expires_at: null, updated_at: new Date().toISOString() })
+      .eq("id", offer.trip_request_id)
+    if (tripError) console.error("settlePaidOffer trip error:", tripError)
   }
 
   if (offer.hotel_id) await declineOverlappingHotelOffers(offer)

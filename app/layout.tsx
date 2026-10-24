@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Toaster } from 'react-hot-toast';
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
@@ -87,7 +88,9 @@ export default function RootLayout({
           <SplashGate />
           <RootScroll />
           <Toaster position="top-center" />
-          <SiteHeader />
+          <Suspense fallback={null}>
+            <SiteHeader />
+          </Suspense>
 
           <main className="flex-1 flex flex-col bg-zinc-50">
             {children}

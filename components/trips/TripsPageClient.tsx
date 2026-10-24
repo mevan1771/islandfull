@@ -90,6 +90,7 @@ function offerStatusCopy(offer: any, msLeft?: number | null) {
       : "Host sent another price"
   }
   if (offer.status === "declined") return "Host couldn’t take this price"
+  if (offer.activities?.slug === "transport-plan") return "Waiting on a driver"
   return "Waiting on host"
 }
 

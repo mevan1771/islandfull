@@ -16,6 +16,12 @@ export function offerActionToken(offerId: string, action: "accept" | "decline" |
   return createHmac("sha256", secret()).update(`${offerId}:${action}`).digest("hex")
 }
 
+export function tripActionUrl(recipientId: string, action: "accept" | "decline") {
+  const token = offerActionToken(recipientId, action)
+  const params = new URLSearchParams({ id: recipientId, action, token, kind: "trip" })
+  return `${siteUrl()}/offers/review?${params.toString()}`
+}
+
 export function offerActionUrl(offerId: string, action: "accept" | "decline") {
   const token = offerActionToken(offerId, action)
   const params = new URLSearchParams({ id: offerId, action, token })

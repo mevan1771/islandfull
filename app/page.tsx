@@ -1,6 +1,7 @@
 import { HomeFilters } from "@/components/home/HomeFilters"
 import { MobileSearch } from "@/components/home/MobileSearch"
 import { HomeVerticalBar } from "@/components/home/HomeVerticalBar"
+import { TransportPlanEntry } from "@/components/home/TransportPlanEntry"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { preload } from "react-dom"
@@ -65,6 +66,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         <Suspense fallback={null}>
         <HomeFilters dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
       </Suspense>
+
+      {currentVertical === "transport" ? (
+        <div className="max-w-7xl mx-auto px-4 pt-3 sm:pt-0">
+          <TransportPlanEntry />
+        </div>
+      ) : null}
 
       {/* Activity Grid */}
       <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[4.75rem]">

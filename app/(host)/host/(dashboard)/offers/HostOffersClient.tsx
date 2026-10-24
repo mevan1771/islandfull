@@ -5,11 +5,13 @@ import Image from "next/image"
 import { Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { respondToHostOffer } from "@/app/actions/offers"
+import { respondToTripRecipient } from "@/app/actions/transport-trips"
 import { travelRangeFromOffer } from "@/lib/date-range-label"
 import { formatPayRemaining, isAcceptedOfferLive, offerMsLeft, payUrgency } from "@/lib/offer-countdown"
 
 type HostOffer = {
   id: string
+  source?: "trip" | "listing"
   status: string
   offer_amount: number
   travel_date: string
@@ -158,7 +160,11 @@ export default function HostOffersClient({ initialOffers }: { initialOffers: Hos
 
   async function onRespond(id: string, status: "accepted" | "declined") {
     setBusyId(id)
-    const res = await respondToHostOffer(id, status)
+    const target = offers.find((item) => item.id === id)
+    const res =
+      target?.source === "trip"
+        ? await respondToTripRecipient(id, status)
+        : await respondToHostOffer(id, status)
     setBusyId(null)
     if (!res.success) {
       toast.error(res.error || "Could not update offer.")
