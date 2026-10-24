@@ -26,7 +26,7 @@ const RouteIslandMap = dynamic(
   () => import("@/components/transport/RouteIslandMap").then((mod) => mod.RouteIslandMap),
   {
     ssr: false,
-    loading: () => <div className="h-full min-h-52 rounded-2xl bg-zinc-200 animate-pulse" />,
+    loading: () => <div className="h-full min-h-56 rounded-2xl bg-zinc-200 animate-pulse" />,
   }
 )
 
@@ -283,25 +283,25 @@ export function TransportPlanClient() {
   return (
     <div className="w-full min-h-screen bg-zinc-50 pb-24 lg:pb-4">
       <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
-        <aside className="order-1 lg:order-2 relative px-4 mb-4 lg:mb-0 lg:px-0 lg:sticky lg:top-[4.75rem] lg:self-start lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.25rem)] lg:mr-6 xl:mr-8 flex flex-col gap-2">
-          <div className="h-44 sm:h-52 lg:flex-1 lg:min-h-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-xl border border-zinc-800">
+        <aside className="relative lg:sticky lg:top-[4.75rem] lg:self-start lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.25rem)] lg:mr-6 xl:mr-8 flex flex-col gap-2 px-0 lg:px-0">
+          <div className={`${stops.length >= 2 ? "h-[36svh]" : "h-[48svh]"} min-h-56 max-h-[26rem] lg:h-auto lg:max-h-none lg:flex-1 lg:min-h-0 overflow-hidden rounded-none lg:rounded-2xl bg-zinc-900 shadow-none lg:shadow-xl border-0 lg:border lg:border-zinc-800`}>
             <RouteIslandMap
               stops={stops}
               onAdd={addStop}
               onRemoveLast={removeStop}
-              className="h-full min-h-[11rem]"
+              className="h-full min-h-56"
             />
           </div>
-          <div className="shrink-0">{renderBook()}</div>
+          <div className="hidden lg:block shrink-0 px-0">{renderBook()}</div>
         </aside>
 
-        <section className="order-2 lg:order-1 min-w-0 w-full lg:w-[58%] px-4 md:px-8 pb-8 lg:pt-6 lg:pb-8 lg:h-[calc(100dvh-5rem)] lg:overflow-y-auto">
-          <Link href="/?vertical=transport" className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-500 mb-3">
+        <section className="min-w-0 w-full lg:w-[58%] px-4 md:px-8 pb-8 pt-3 lg:pt-6 lg:pb-8 lg:h-[calc(100dvh-5rem)] lg:overflow-y-auto">
+          <Link href="/?vertical=transport" className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-500 mb-2 lg:mb-3">
             <ArrowLeft className="w-4 h-4" /> Transport
           </Link>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900">Plan a route</h1>
-          <p className="text-zinc-500 mt-1 mb-5 text-sm md:text-base">
-            Pick the places you’ll visit. We send your price to every {VEHICLE_RATES[vehicle].label.toLowerCase()} host. First to accept wins.
+          <h1 className="text-xl lg:text-3xl font-black tracking-tight text-zinc-900">Plan a route</h1>
+          <p className="text-zinc-500 mt-1 mb-3 lg:mb-5 text-sm md:text-base">
+            Tap a yellow dot on the map or a place below. We send your price to every {VEHICLE_RATES[vehicle].label.toLowerCase()} host.
           </p>
 
           {stops.length > 0 ? (
@@ -338,13 +338,13 @@ export function TransportPlanClient() {
             <p className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">
               {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
             </p>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-2 lg:overflow-visible lg:gap-1.5 lg:pb-0">
               {available.map((stop) => (
                 <button
                   key={stop.id}
                   type="button"
                   onClick={() => addStop(stop)}
-                  className="flex items-center gap-2 rounded-xl border border-zinc-100 bg-white p-1 pr-2.5 text-left hover:border-zinc-300 hover:shadow-sm"
+                  className="flex w-[9.5rem] shrink-0 items-center gap-2 rounded-xl border border-zinc-100 bg-white p-1 pr-2.5 text-left hover:border-zinc-300 hover:shadow-sm lg:w-auto"
                 >
                   {stop.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -361,6 +361,13 @@ export function TransportPlanClient() {
             </div>
           </section>
 
+          {stops.length >= 2 ? (
+            <div className="lg:hidden mb-6">{renderBook()}</div>
+          ) : (
+            <p className="lg:hidden text-center text-xs text-zinc-500 pb-6">
+              Pick a pickup and one more stop, then send your offer.
+            </p>
+          )}
         </section>
       </div>
     </div>

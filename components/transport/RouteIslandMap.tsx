@@ -52,6 +52,10 @@ function routeGeo(stops: RouteStop[]) {
   }
 }
 
+function isCompactMap() {
+  return typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches
+}
+
 function makeArrowImage() {
   const size = 96
   const canvas = document.createElement("canvas")
@@ -104,16 +108,21 @@ export function RouteIslandMap({
       container: container.current,
       style: "mapbox://styles/mapbox/satellite-streets-v12",
       center: CENTER,
-      zoom: 5.85,
-      minZoom: 5.4,
+      zoom: isCompactMap() ? 5.55 : 5.85,
+      minZoom: 5.35,
       maxZoom: 11,
       maxBounds: MAX_BOUNDS,
       attributionControl: false,
       cooperativeGestures: false,
       pitch: 0,
     })
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
-    const resize = () => map.resize()
+    if (!isCompactMap()) {
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
+    }
+    const resize = () => {
+      map.resize()
+      paintMarkers(stopsRef.current, markers.current)
+    }
     map.on("load", () => {
       resize()
       requestAnimationFrame(resize)
@@ -192,8 +201,6 @@ export function RouteIslandMap({
       animRef.current = requestAnimationFrame(tick)
       ROUTE_STOPS.forEach((stop) => {
         const el = document.createElement("div")
-        el.style.width = "44px"
-        el.style.height = "56px"
         el.style.pointerEvents = "auto"
         el.addEventListener("click", (event) => {
           event.stopPropagation()
@@ -238,14 +245,19 @@ export function RouteIslandMap({
     })
     if (!map || stops.length === 0) return
     if (stops.length === 1) {
-      map.easeTo({ center: [stops[0].lng, stops[0].lat], zoom: Math.max(map.getZoom(), 7.4), duration: 500 })
+      if (!isCompactMap()) {
+        map.easeTo({ center: [stops[0].lng, stops[0].lat], zoom: Math.max(map.getZoom(), 7.4), duration: 500 })
+      }
       return
     }
     const bounds = new mapboxgl.LngLatBounds()
     stops.forEach((stop) => bounds.extend([stop.lng, stop.lat]))
+    const compact = isCompactMap()
     map.fitBounds(bounds, {
-      padding: { top: 72, bottom: 88, left: 56, right: 72 },
-      maxZoom: 8.2,
+      padding: compact
+        ? { top: 36, bottom: 36, left: 28, right: 28 }
+        : { top: 72, bottom: 88, left: 56, right: 72 },
+      maxZoom: compact ? 7.6 : 8.2,
       duration: 600,
     })
   }, [stops])
@@ -271,7 +283,7 @@ export function RouteIslandMap({
         ref={container}
         className="h-full w-full bg-transparent [&_.mapboxgl-canvas]:opacity-0 [&_.mapboxgl-canvas]:transition-opacity [&_.mapboxgl-canvas]:duration-300"
       />
-      <p className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+      <p className="pointer-events-none absolute left-3 top-3 hidden rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm lg:block">
         {stops.length < 2 ? "Tap a place on the island to add it" : "Tap another pin to extend the route"}
       </p>
     </div>
@@ -280,14 +292,23 @@ export function RouteIslandMap({
 
 function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElement }>) {
   const order = new Map(stops.map((stop, index) => [stop.id, index + 1]))
+  const compact = isCompactMap()
   Object.entries(refs).forEach(([id, { el }]) => {
     const stop = ROUTE_STOPS.find((item) => item.id === id)
     if (!stop) return
     const n = order.get(id)
     const selected = Boolean(n)
+    el.style.zIndex = selected ? "20" : "2"
+    if (compact) {
+      el.style.width = selected ? "22px" : "12px"
+      el.style.height = selected ? "22px" : "12px"
+      el.innerHTML = selected
+        ? `<button type="button" class="flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-white bg-rose-500 text-[10px] font-black text-white shadow-md" aria-label="${stop.name}">${n}</button>`
+        : `<button type="button" class="block h-3 w-3 rounded-full border-2 border-white bg-[#FFC72C] shadow-sm" aria-label="${stop.name}"></button>`
+      return
+    }
     el.style.width = "44px"
     el.style.height = "56px"
-    el.style.zIndex = selected ? "20" : "2"
     el.innerHTML = `
       <button type="button" class="group relative flex h-11 w-11 cursor-pointer items-center justify-center" aria-label="${stop.name}">
         <span class="block h-11 w-11 overflow-hidden rounded-full border-2 shadow-lg transition-transform ${
