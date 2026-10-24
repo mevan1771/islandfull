@@ -26,7 +26,8 @@ export default function SiteHeader() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
-    const homeVertical = searchParams.get("vertical") || "tour"
+    const storeVertical = useHomeBrowseStore((s) => s.vertical)
+    const [navHint, setNavHint] = useState<string | null>(null)
     const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
 
     const [isVisible, setIsVisible] = useState(true)
@@ -66,6 +67,11 @@ export default function SiteHeader() {
         setIsVisible(true)
         setIsScrolled(false)
     }, [pathname])
+
+    useEffect(() => {
+        setNavHint(null)
+        if (pathname === "/") setBrowseVertical(publicVertical(searchParams.get("vertical")))
+    }, [pathname, searchParams, setBrowseVertical])
 
     useEffect(() => {
         if (pathname !== "/") return
@@ -264,13 +270,16 @@ export default function SiteHeader() {
                             { href: "/contact", label: "Contact Us" },
                         ] as const
                     ).map((item) => {
-                        const isActive =
-                            "vertical" in item && item.vertical === "tour"
-                                ? (pathname === "/" && homeVertical === "tour") || Boolean(pathname?.startsWith("/activity"))
+                        const isActive = navHint
+                            ? "vertical" in item
+                                ? navHint === item.vertical
+                                : navHint === item.href
+                            : "vertical" in item && item.vertical === "tour"
+                                ? (pathname === "/" && storeVertical === "tour") || Boolean(pathname?.startsWith("/activity"))
                                 : "vertical" in item && item.vertical === "transport"
-                                ? (pathname === "/" && homeVertical === "transport") || Boolean(pathname?.startsWith("/transport"))
+                                ? (pathname === "/" && storeVertical === "transport") || Boolean(pathname?.startsWith("/transport"))
                                 : "vertical" in item && item.vertical === "hotel"
-                                ? (pathname === "/" && homeVertical === "hotel") || Boolean(pathname?.startsWith("/hotel"))
+                                ? (pathname === "/" && storeVertical === "hotel") || Boolean(pathname?.startsWith("/hotel"))
                                 : Boolean(pathname?.startsWith(item.href))
                         const overlay = isHomePage && !homeScrolled
                         const activeClass = "bg-[#FFC72C] text-zinc-900 font-bold"
@@ -281,6 +290,7 @@ export default function SiteHeader() {
                                 href={item.href}
                                 scroll={false}
                                 onClick={() => {
+                                    setNavHint("vertical" in item && item.vertical ? item.vertical : item.href)
                                     if ("vertical" in item && item.vertical) {
                                         setBrowseVertical(publicVertical(item.vertical))
                                         if (pathname === "/") {
@@ -294,10 +304,10 @@ export default function SiteHeader() {
                                 }}
                                 className={
                                     overlay
-                                        ? `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap transition-colors ${
+                                        ? `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap ${
                                               isActive ? activeClass : "hover:bg-zinc-100"
                                           }`
-                                        : `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap transition-colors ${
+                                        : `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap ${
                                               isActive ? activeClass : hoverColor
                                           }`
                                 }
