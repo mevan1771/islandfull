@@ -52,6 +52,7 @@ export function TransportPlanClient() {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState<{ hostCount: number; route: string } | null>(null)
+  const [offerOpen, setOfferOpen] = useState(false)
 
   const km = routeDistanceKm(stops)
   const guide = stops.length >= 2 ? guidePriceUsd(km, vehicle, wantsGuide) : 0
@@ -75,7 +76,11 @@ export function TransportPlanClient() {
   }
 
   function removeStop(id: string) {
-    setStops((current) => current.filter((stop) => stop.id !== id))
+    setStops((current) => {
+      const next = current.filter((stop) => stop.id !== id)
+      if (next.length < 2) setOfferOpen(false)
+      return next
+    })
   }
 
   function pickVehicle(type: VehicleType) {
@@ -147,8 +152,8 @@ export function TransportPlanClient() {
     )
   }
 
-  const renderBook = () => (
-    <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3">
+  const renderBook = (embedded = false) => (
+    <div className={embedded ? "space-y-3" : "bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3"}>
       <div className="flex gap-1">
         {VEHICLE_ORDER.map((type) => {
           const selected = vehicle === type
@@ -280,97 +285,158 @@ export function TransportPlanClient() {
     </div>
   )
 
-  return (
-    <div className="w-full bg-zinc-50 lg:min-h-screen lg:pb-0">
-      <div className="flex h-[calc(100dvh-4rem)] flex-col lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:px-5 lg:pt-4 xl:gap-5">
-        <div className="order-1 h-[34svh] min-h-[11rem] shrink-0 lg:order-3 lg:h-full lg:min-h-0">
-          {mapBlock}
+  const desktopSelected = stops.length > 0 ? (
+    <div className="flex flex-col gap-1.5 pb-3">
+      {stops.map((stop, index) => (
+        <div key={stop.id} className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-1.5">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+            {stop.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={stop.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="block h-full w-full bg-zinc-200" />
+            )}
+            <span className="absolute left-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white">
+              {index + 1}
+            </span>
+          </div>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
+          <button type="button" onClick={() => removeStop(stop.id)} className="p-1.5 text-zinc-400 hover:text-zinc-700">
+            <X className="h-4 w-4" />
+          </button>
         </div>
+      ))}
+    </div>
+  ) : null
 
-        <div className="relative z-10 order-2 -mt-4 flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-3xl bg-zinc-50 px-4 pb-[5.75rem] pt-2 shadow-[0_-12px_32px_rgba(0,0,0,.16)] md:px-8 lg:contents lg:mt-0 lg:overflow-visible lg:rounded-none lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:shadow-none">
-          <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-zinc-300 lg:hidden" />
+  const desktopPlaces = (
+    <div className="grid grid-cols-1 gap-2">
+      {available.map((stop) => (
+        <button
+          key={stop.id}
+          type="button"
+          onClick={() => addStop(stop)}
+          className="flex w-full items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-2 pr-3 text-left hover:border-zinc-300 hover:shadow-sm"
+        >
+          {stop.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={stop.image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+          ) : (
+            <span className="h-14 w-14 shrink-0 rounded-xl bg-zinc-200" />
+          )}
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
+            {stop.blurb ? <span className="block truncate text-xs leading-tight text-zinc-500">{stop.blurb}</span> : null}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
 
-          <section className="min-w-0 shrink-0 lg:order-2 lg:flex lg:h-full lg:min-h-0 lg:flex-col">
-            <div className="shrink-0 pb-3">
-              <Link href="/?vertical=transport" className="mb-1 hidden items-center gap-1 text-sm font-semibold text-zinc-500 lg:inline-flex">
-                <ArrowLeft className="h-4 w-4" /> Transport
-              </Link>
-              <h1 className="text-lg font-black tracking-tight text-zinc-900 lg:text-2xl">Plan a route</h1>
-              {km > 0 ? (
-                <p className="mt-1 text-xs text-zinc-500">
-                  {stops.length} stops · {km} km
+  return (
+    <div className="w-full bg-zinc-50 lg:min-h-screen">
+      <div className="relative h-[calc(100dvh-4rem)] overflow-hidden lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:overflow-visible lg:px-5 lg:pt-4 xl:gap-5">
+        <div className="absolute inset-0 z-0 lg:relative lg:z-auto lg:order-3 lg:h-full">{mapBlock}</div>
+
+        <section className="hidden min-h-0 min-w-0 lg:order-2 lg:flex lg:h-full lg:flex-col">
+          <div className="shrink-0 pb-3">
+            <Link href="/?vertical=transport" className="mb-1 inline-flex items-center gap-1 text-sm font-semibold text-zinc-500">
+              <ArrowLeft className="h-4 w-4" /> Transport
+            </Link>
+            <h1 className="text-2xl font-black tracking-tight text-zinc-900">Plan a route</h1>
+            {km > 0 ? (
+              <p className="mt-1 text-xs text-zinc-500">
+                {stops.length} stops · {km} km
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-zinc-500">Tap a place or a pin on the map</p>
+            )}
+          </div>
+          {desktopSelected}
+          <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
+              {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
+            </p>
+            {desktopPlaces}
+          </div>
+        </section>
+
+        <aside className="hidden min-h-0 min-w-0 lg:order-1 lg:block lg:h-full lg:overflow-y-auto">{renderBook()}</aside>
+
+        <div className="absolute inset-x-3 z-20 lg:hidden bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))]">
+          <div className="overflow-hidden rounded-3xl bg-white shadow-[0_12px_40px_rgba(0,0,0,.22)]">
+            {offerOpen ? (
+              <div className="max-h-[min(70dvh,32rem)] overflow-y-auto p-4">
+                <button
+                  type="button"
+                  onClick={() => setOfferOpen(false)}
+                  className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-zinc-500"
+                >
+                  <ArrowLeft className="h-4 w-4" /> Your route
+                </button>
+                {renderBook(true)}
+              </div>
+            ) : (
+              <div className="p-3">
+                {stops.length > 0 ? (
+                  <div className="mb-2 flex gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {stops.map((stop, index) => (
+                      <div
+                        key={stop.id}
+                        className="flex shrink-0 items-center gap-1.5 rounded-full bg-zinc-100 py-0.5 pl-0.5 pr-1.5"
+                      >
+                        <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                          {stop.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="block h-full w-full bg-zinc-200" />
+                          )}
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/35 text-[10px] font-bold text-white">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <span className="max-w-[5.5rem] truncate text-xs font-semibold text-zinc-900">{stop.name}</span>
+                        <button type="button" onClick={() => removeStop(stop.id)} className="p-0.5 text-zinc-400">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-zinc-500">
+                  {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
                 </p>
-              ) : (
-                <p className="mt-1 text-xs text-zinc-500">Tap a place or a pin on the map</p>
-              )}
-            </div>
-
-            {stops.length > 0 ? (
-              <div className="flex gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex-col lg:overflow-visible lg:gap-1.5">
-                {stops.map((stop, index) => (
-                  <div
-                    key={stop.id}
-                    className="relative w-[4.25rem] shrink-0 lg:flex lg:w-auto lg:items-center lg:gap-2 lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-1.5"
-                  >
-                    <div className="relative h-14 w-full overflow-hidden rounded-2xl lg:h-12 lg:w-12 lg:shrink-0 lg:rounded-xl">
+                <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {available.map((stop) => (
+                    <button
+                      key={stop.id}
+                      type="button"
+                      onClick={() => addStop(stop)}
+                      className="w-[6.75rem] shrink-0 text-left"
+                    >
                       {stop.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                        <img src={stop.image} alt="" className="h-[4.25rem] w-full rounded-xl object-cover" />
                       ) : (
-                        <span className="block h-full w-full bg-zinc-200" />
+                        <span className="block h-[4.25rem] w-full rounded-xl bg-zinc-200" />
                       )}
-                      <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white">
-                        {index + 1}
-                      </span>
-                    </div>
-                    <span className="mt-1 block truncate text-center text-[11px] font-semibold text-zinc-900 lg:mt-0 lg:flex-1 lg:text-left lg:text-sm">
-                      {stop.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeStop(stop.id)}
-                      className="absolute right-0.5 top-0.5 rounded-full bg-white/90 p-0.5 text-zinc-500 lg:static lg:p-1.5 lg:bg-transparent"
-                    >
-                      <X className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                      <span className="mt-1 block truncate text-xs font-semibold text-zinc-900">{stop.name}</span>
                     </button>
-                  </div>
-                ))}
-              </div>
-            ) : null}
+                  ))}
+                </div>
 
-            <div className="min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-4">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
-                {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
-              </p>
-              <div className="flex gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-1 lg:overflow-visible lg:pb-0">
-                {available.map((stop) => (
-                  <button
-                    key={stop.id}
-                    type="button"
-                    onClick={() => addStop(stop)}
-                    className="w-[8.75rem] shrink-0 rounded-2xl border border-zinc-100 bg-white p-2 text-left hover:border-zinc-300 hover:shadow-sm lg:flex lg:w-auto lg:items-center lg:gap-3 lg:pr-3"
-                  >
-                    {stop.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={stop.image} alt="" className="h-20 w-full rounded-xl object-cover lg:h-14 lg:w-14 lg:shrink-0" />
-                    ) : (
-                      <span className="block h-20 w-full rounded-xl bg-zinc-200 lg:h-14 lg:w-14 lg:shrink-0" />
-                    )}
-                    <span className="mt-1.5 min-w-0 block lg:mt-0">
-                      <span className="block truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
-                      {stop.blurb ? (
-                        <span className="mt-0.5 block truncate text-[11px] leading-tight text-zinc-500 lg:text-xs">{stop.blurb}</span>
-                      ) : null}
-                    </span>
+                {stops.length < 2 ? (
+                  <p className="mt-3 text-center text-xs text-zinc-500">Pick a pickup and one more stop</p>
+                ) : (
+                  <button type="button" onClick={() => setOfferOpen(true)} className={`${sendClass} mt-3`}>
+                    Continue{guide ? ` · $${guide}` : ""}
                   </button>
-                ))}
+                )}
               </div>
-            </div>
-          </section>
-
-          <aside className="min-w-0 pt-1 lg:order-1 lg:h-full lg:overflow-y-auto lg:pt-0">
-            {renderBook()}
-          </aside>
+            )}
+          </div>
         </div>
       </div>
     </div>

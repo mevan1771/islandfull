@@ -92,7 +92,9 @@ export function RouteIslandMap({
       cooperativeGestures: false,
       pitch: 0,
     })
-    if (!isCompactMap()) {
+    if (isCompactMap()) {
+      map.setPadding({ top: 12, bottom: 280, left: 16, right: 16 })
+    } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
     }
     const resize = () => {
@@ -182,7 +184,7 @@ export function RouteIslandMap({
     const compact = isCompactMap()
     map.fitBounds(bounds, {
       padding: compact
-        ? { top: 36, bottom: 36, left: 28, right: 28 }
+        ? { top: 56, bottom: 280, left: 36, right: 36 }
         : { top: 72, bottom: 88, left: 56, right: 72 },
       maxZoom: compact ? 7.6 : 8.2,
       duration: 600,
@@ -210,9 +212,11 @@ export function RouteIslandMap({
         ref={container}
         className="h-full w-full bg-transparent [&_.mapboxgl-canvas]:opacity-0 [&_.mapboxgl-canvas]:transition-opacity [&_.mapboxgl-canvas]:duration-300"
       />
-      <p className="pointer-events-none absolute left-3 top-3 hidden rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm lg:block">
-        {stops.length < 2 ? "Tap a place on the island to add it" : "Tap another pin to extend the route"}
-      </p>
+      {stops.length === 0 ? (
+        <p className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+          Tap a pin to add it
+        </p>
+      ) : null}
     </div>
   )
 }
