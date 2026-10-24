@@ -264,10 +264,16 @@ export default function SiteHeader() {
                             { href: "/contact", label: "Contact Us" },
                         ] as const
                     ).map((item) => {
-                        const isActive = "vertical" in item && item.vertical
-                            ? pathname === "/" && homeVertical === item.vertical
-                            : pathname?.startsWith(item.href)
+                        const isActive =
+                            "vertical" in item && item.vertical === "tour"
+                                ? (pathname === "/" && homeVertical === "tour") || Boolean(pathname?.startsWith("/activity"))
+                                : "vertical" in item && item.vertical === "transport"
+                                ? (pathname === "/" && homeVertical === "transport") || Boolean(pathname?.startsWith("/transport"))
+                                : "vertical" in item && item.vertical === "hotel"
+                                ? (pathname === "/" && homeVertical === "hotel") || Boolean(pathname?.startsWith("/hotel"))
+                                : Boolean(pathname?.startsWith(item.href))
                         const overlay = isHomePage && !homeScrolled
+                        const activeClass = "bg-[#FFC72C] text-zinc-900 font-bold"
 
                         return (
                             <Link
@@ -289,11 +295,11 @@ export default function SiteHeader() {
                                 className={
                                     overlay
                                         ? `px-2.5 py-1.5 rounded-full transition-colors ${
-                                              isActive
-                                                  ? "bg-zinc-900 text-white"
-                                                  : "hover:bg-zinc-100"
+                                              isActive ? activeClass : "hover:bg-zinc-100"
                                           }`
-                                        : `${hoverColor} transition-colors`
+                                        : `px-2.5 py-1.5 rounded-full transition-colors ${
+                                              isActive ? activeClass : hoverColor
+                                          }`
                                 }
                             >
                                 {item.label}
