@@ -12,6 +12,7 @@ import {
   type HomepageActivityFilters,
 } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
+import { TransportPlanEntry } from "@/components/home/TransportPlanEntry"
 
 type MustSeePlace = {
   id: string
@@ -171,7 +172,9 @@ export function ActivityGrid({
     })
   }
 
-  if (displayActivities.length === 0) {
+  const showPlanTile = filters.vertical === "transport" && currentCategory !== "saved"
+
+  if (displayActivities.length === 0 && !showPlanTile) {
     if (currentCategory === "saved") {
       if (!isHydrated || (favorites.length > 0 && savedItems === null)) {
         return <div className="h-40" />
@@ -205,6 +208,7 @@ export function ActivityGrid({
   return (
     <div>
       <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        {showPlanTile ? <TransportPlanEntry /> : null}
         {leading.map((cell) => (
           <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
         ))}

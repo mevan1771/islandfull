@@ -1,20 +1,26 @@
+import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Route } from "lucide-react"
 
 export function TransportPlanEntry() {
   return (
-    <Link
-      href="/transport/plan"
-      className="flex items-center gap-3 rounded-2xl bg-white border border-zinc-100 shadow-sm px-4 py-3 hover:border-rose-200 transition-colors"
-    >
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-500 shrink-0">
-        <Route className="w-5 h-5" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-bold text-zinc-900">Plan a route</span>
-        <span className="block text-sm text-zinc-500 truncate">Pick stops, send your price to car or van hosts</span>
-      </span>
-      <ArrowRight className="w-4 h-4 text-zinc-400 shrink-0" />
+    <Link href="/transport/plan" className="block group h-full">
+      <div className="flex flex-col gap-2 h-full">
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-[#FFC72C] shadow-md md:shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+          <Image
+            src="/images/transport-icon/travel-points.jpg"
+            alt=""
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 768px) 50vw, 25vw"
+          />
+        </div>
+        <div className="flex flex-col flex-1 pb-1 mt-1.5 px-1 sm:px-0">
+          <h3 className="text-xs sm:text-sm md:text-base font-semibold text-zinc-900 mb-1 leading-tight line-clamp-2 group-hover:text-rose-500 transition-colors">
+            Plan a custom route
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-500 truncate mb-1">Pick stops, send your price</p>
+        </div>
+      </div>
     </Link>
   )
 }

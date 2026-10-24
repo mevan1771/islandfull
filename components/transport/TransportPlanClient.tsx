@@ -31,10 +31,10 @@ const RouteIslandMap = dynamic(
 )
 
 const fieldClass =
-  "w-full h-8 px-2.5 rounded-lg border border-zinc-200 outline-none focus:border-[#FFC72C] focus:ring-2 focus:ring-[#FFC72C]/30 font-medium text-sm text-zinc-900 bg-white"
+  "w-full h-10 px-3 rounded-xl border border-zinc-200 outline-none focus:border-[#FFC72C] focus:ring-2 focus:ring-[#FFC72C]/30 font-medium text-sm text-zinc-900 bg-white"
 
 const sendClass =
-  "w-full h-9 rounded-lg bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-[#FFC72C]/25"
+  "w-full h-11 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2"
 
 export function TransportPlanClient() {
   const { user, isSignedIn } = useUser()
@@ -148,8 +148,8 @@ export function TransportPlanClient() {
   }
 
   const renderBook = () => (
-    <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm p-2 space-y-1.5">
-      <div className="flex gap-0.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3">
+      <div className="flex gap-1">
         {VEHICLE_ORDER.map((type) => {
           const selected = vehicle === type
           const meta = VEHICLE_RATES[type]
@@ -157,16 +157,17 @@ export function TransportPlanClient() {
             <button
               key={type}
               type="button"
+              title={meta.label}
               onClick={() => pickVehicle(type)}
-              className={`flex h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg px-1 ${
-                selected ? "bg-[#FFF8E1] ring-2 ring-[#FFC72C]" : "hover:bg-zinc-50"
+              className={`flex h-12 min-w-0 flex-1 flex-col items-center justify-center rounded-xl ${
+                selected ? "bg-[#FFF8E1] ring-2 ring-[#FFC72C]" : "bg-zinc-50 hover:bg-zinc-100"
               }`}
             >
               {meta.icon ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={meta.icon} alt="" className="h-10 w-10 shrink-0 object-contain" />
+                <img src={meta.icon} alt="" className="h-7 w-7 object-contain" />
               ) : null}
-              <span className={`hidden truncate text-[10px] lg:inline ${selected ? "font-bold text-zinc-900" : "font-medium text-zinc-500"}`}>
+              <span className={`text-[10px] leading-none mt-0.5 ${selected ? "font-bold text-zinc-900" : "font-medium text-zinc-500"}`}>
                 {meta.label}
               </span>
             </button>
@@ -174,11 +175,11 @@ export function TransportPlanClient() {
         })}
       </div>
 
-      <div className="grid grid-cols-2 gap-1">
+      <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => pickGuide(false)}
-          className={`h-7 rounded-md text-[11px] font-semibold ${
+          className={`h-9 rounded-lg text-xs font-semibold ${
             !wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
           }`}
         >
@@ -187,20 +188,20 @@ export function TransportPlanClient() {
         <button
           type="button"
           onClick={() => pickGuide(true)}
-          className={`h-7 rounded-md text-[11px] font-semibold ${
+          className={`h-9 rounded-lg text-xs font-semibold ${
             wantsGuide ? "bg-[#FFC72C] text-zinc-900" : "bg-zinc-100 text-zinc-600"
           }`}
         >
-          With guide · +${GUIDE_FEE_USD}
+          Guide · +${GUIDE_FEE_USD}
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="grid grid-cols-3 gap-2">
         <Popover.Root open={calOpen} onOpenChange={setCalOpen}>
           <Popover.Trigger asChild>
-            <button type="button" className={`${fieldClass} min-w-[7.5rem] flex-1 text-left truncate inline-flex items-center gap-1`}>
-              <CalendarDays className="w-3.5 h-3.5 shrink-0 text-rose-500" />
-              {date ? format(new Date(`${date}T12:00:00`), "d MMM") : "Date"}
+            <button type="button" className={`${fieldClass} col-span-1 text-left truncate inline-flex items-center gap-1.5 px-2`}>
+              <CalendarDays className="w-3.5 h-3.5 shrink-0 text-zinc-500" />
+              <span className="truncate">{date ? format(new Date(`${date}T12:00:00`), "d MMM") : "Date"}</span>
             </button>
           </Popover.Trigger>
           <Popover.Portal>
@@ -219,48 +220,36 @@ export function TransportPlanClient() {
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>
-
-        <div className="flex h-8 shrink-0 items-center rounded-lg border border-zinc-200 px-0.5">
-          <button type="button" className="w-7 h-7 rounded-md text-sm font-bold" onClick={() => setGuests((n) => Math.max(1, n - 1))}>
+        <div className="flex h-10 items-center justify-between rounded-xl border border-zinc-200 px-1">
+          <button type="button" className="w-8 h-8 rounded-lg text-base font-bold" onClick={() => setGuests((n) => Math.max(1, n - 1))}>
             −
           </button>
-          <span className="w-6 text-center text-sm font-bold">{Math.min(guests, maxGuests)}</span>
-          <button type="button" className="w-7 h-7 rounded-md text-sm font-bold" onClick={() => setGuests((n) => Math.min(maxGuests, n + 1))}>
+          <span className="text-sm font-bold tabular-nums">{Math.min(guests, maxGuests)}</span>
+          <button type="button" className="w-8 h-8 rounded-lg text-base font-bold" onClick={() => setGuests((n) => Math.min(maxGuests, n + 1))}>
             +
           </button>
         </div>
-
-        <div className="flex h-8 min-w-0 flex-1 items-center justify-between gap-1 rounded-lg border-2 border-[#FFC72C] bg-[#FFF8E1] pl-2 pr-0.5">
-          <span className="truncate text-[10px] font-black uppercase tracking-wide text-zinc-900">
-            Offer{guide > 0 ? ` · $${guide}` : ""}
-          </span>
-          <div className="flex shrink-0 items-center rounded-md bg-white">
-            <button type="button" onClick={() => bump(-1)} className="flex h-7 w-7 items-center justify-center">
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <div className="relative">
-              <span className="pointer-events-none absolute left-0.5 top-1/2 -translate-y-1/2 text-xs font-black">$</span>
-              <input
-                className="h-7 w-12 bg-transparent pl-3 pr-0.5 text-center text-sm font-black tabular-nums outline-none"
-                inputMode="numeric"
-                value={offerDirty ? offer : guide || ""}
-                onChange={(e) => {
-                  setOfferDirty(true)
-                  setOffer(e.target.value.replace(/[^\d]/g, ""))
-                }}
-              />
-            </div>
-            <button type="button" onClick={() => bump(1)} className="flex h-7 w-7 items-center justify-center">
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          </div>
+        <div className="flex h-10 items-center rounded-xl border border-[#FFC72C] bg-[#FFF8E1] px-2">
+          <span className="text-sm font-bold text-zinc-900">$</span>
+          <input
+            className="h-9 w-full min-w-0 bg-transparent pl-1 text-sm font-bold tabular-nums outline-none"
+            inputMode="numeric"
+            placeholder="Offer"
+            value={offerDirty ? offer : guide || ""}
+            onChange={(e) => {
+              setOfferDirty(true)
+              setOffer(e.target.value.replace(/[^\d]/g, ""))
+            }}
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-        <input className={fieldClass} placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className={fieldClass} placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className={`${fieldClass} col-span-2 sm:col-span-1`} placeholder="WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <div className="grid grid-cols-1 gap-2">
+        <input className={fieldClass} placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
+        <div className="grid grid-cols-2 gap-2">
+          <input className={fieldClass} placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className={fieldClass} placeholder="WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </div>
       </div>
 
       {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
@@ -272,103 +261,117 @@ export function TransportPlanClient() {
       ) : (
         <SignInButton mode="modal">
           <button type="button" className={sendClass}>
-            Sign in to send this route
+            Sign in to send
           </button>
         </SignInButton>
       )}
-      <p className="text-center text-[10px] leading-none text-zinc-400 pb-0.5">No payment yet. 24 hours to pay if a host accepts.</p>
+      <p className="text-center text-[11px] text-zinc-400">No payment yet. 24 hours to pay if a host accepts.</p>
+    </div>
+  )
+
+  const mapBlock = (
+    <div className="h-full min-h-0 overflow-hidden bg-zinc-900 lg:rounded-3xl lg:shadow-xl lg:border lg:border-zinc-800">
+      <RouteIslandMap
+        stops={stops}
+        onAdd={addStop}
+        onRemoveLast={removeStop}
+        className="h-full"
+      />
     </div>
   )
 
   return (
-    <div className="w-full min-h-screen bg-zinc-50 pb-24 lg:pb-4">
-      <div className="lg:flex lg:items-start lg:max-w-[1600px] lg:mx-auto">
-        <aside className="relative lg:sticky lg:top-[4.75rem] lg:self-start lg:w-[42%] lg:shrink-0 lg:h-[calc(100dvh-5.25rem)] lg:mr-6 xl:mr-8 flex flex-col gap-2 px-0 lg:px-0">
-          <div className={`${stops.length >= 2 ? "h-[36svh]" : "h-[48svh]"} min-h-56 max-h-[26rem] lg:h-auto lg:max-h-none lg:flex-1 lg:min-h-0 overflow-hidden rounded-none lg:rounded-2xl bg-zinc-900 shadow-none lg:shadow-xl border-0 lg:border lg:border-zinc-800`}>
-            <RouteIslandMap
-              stops={stops}
-              onAdd={addStop}
-              onRemoveLast={removeStop}
-              className="h-full min-h-56"
-            />
-          </div>
-          <div className="hidden lg:block shrink-0 px-0">{renderBook()}</div>
-        </aside>
+    <div className="w-full bg-zinc-50 lg:min-h-screen lg:pb-0">
+      <div className="flex h-[calc(100dvh-4rem)] flex-col lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:px-5 lg:pt-4 xl:gap-5">
+        <div className="order-1 h-[34svh] min-h-[11rem] shrink-0 lg:order-3 lg:h-full lg:min-h-0">
+          {mapBlock}
+        </div>
 
-        <section className="min-w-0 w-full lg:w-[58%] px-4 md:px-8 pb-8 pt-3 lg:pt-6 lg:pb-8 lg:h-[calc(100dvh-5rem)] lg:overflow-y-auto">
-          <Link href="/?vertical=transport" className="inline-flex items-center gap-1 text-sm font-semibold text-zinc-500 mb-2 lg:mb-3">
-            <ArrowLeft className="w-4 h-4" /> Transport
-          </Link>
-          <h1 className="text-xl lg:text-3xl font-black tracking-tight text-zinc-900">Plan a route</h1>
-          <p className="text-zinc-500 mt-1 mb-3 lg:mb-5 text-sm md:text-base">
-            Tap a yellow dot on the map or a place below. We send your price to every {VEHICLE_RATES[vehicle].label.toLowerCase()} host.
-          </p>
+        <div className="relative z-10 order-2 -mt-4 flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-3xl bg-zinc-50 px-4 pb-[5.75rem] pt-2 shadow-[0_-12px_32px_rgba(0,0,0,.16)] md:px-8 lg:contents lg:mt-0 lg:overflow-visible lg:rounded-none lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:shadow-none">
+          <div className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-zinc-300 lg:hidden" />
 
-          {stops.length > 0 ? (
-            <section className="bg-white rounded-2xl border border-zinc-100 p-2 space-y-1.5 mb-4">
-              {stops.map((stop, index) => (
-                <div key={stop.id} className="flex items-center gap-2.5">
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+          <section className="min-w-0 shrink-0 lg:order-2 lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+            <div className="shrink-0 pb-3">
+              <Link href="/?vertical=transport" className="mb-1 hidden items-center gap-1 text-sm font-semibold text-zinc-500 lg:inline-flex">
+                <ArrowLeft className="h-4 w-4" /> Transport
+              </Link>
+              <h1 className="text-lg font-black tracking-tight text-zinc-900 lg:text-2xl">Plan a route</h1>
+              {km > 0 ? (
+                <p className="mt-1 text-xs text-zinc-500">
+                  {stops.length} stops · {km} km
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-zinc-500">Tap a place or a pin on the map</p>
+              )}
+            </div>
+
+            {stops.length > 0 ? (
+              <div className="flex gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex-col lg:overflow-visible lg:gap-1.5">
+                {stops.map((stop, index) => (
+                  <div
+                    key={stop.id}
+                    className="relative w-[4.25rem] shrink-0 lg:flex lg:w-auto lg:items-center lg:gap-2 lg:rounded-2xl lg:border lg:border-zinc-200 lg:bg-white lg:p-1.5"
+                  >
+                    <div className="relative h-14 w-full overflow-hidden rounded-2xl lg:h-12 lg:w-12 lg:shrink-0 lg:rounded-xl">
+                      {stop.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="block h-full w-full bg-zinc-200" />
+                      )}
+                      <span className="absolute left-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white">
+                        {index + 1}
+                      </span>
+                    </div>
+                    <span className="mt-1 block truncate text-center text-[11px] font-semibold text-zinc-900 lg:mt-0 lg:flex-1 lg:text-left lg:text-sm">
+                      {stop.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeStop(stop.id)}
+                      className="absolute right-0.5 top-0.5 rounded-full bg-white/90 p-0.5 text-zinc-500 lg:static lg:p-1.5 lg:bg-transparent"
+                    >
+                      <X className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
+                {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-1 lg:overflow-visible lg:pb-0">
+                {available.map((stop) => (
+                  <button
+                    key={stop.id}
+                    type="button"
+                    onClick={() => addStop(stop)}
+                    className="w-[8.75rem] shrink-0 rounded-2xl border border-zinc-100 bg-white p-2 text-left hover:border-zinc-300 hover:shadow-sm lg:flex lg:w-auto lg:items-center lg:gap-3 lg:pr-3"
+                  >
                     {stop.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                      <img src={stop.image} alt="" className="h-20 w-full rounded-xl object-cover lg:h-14 lg:w-14 lg:shrink-0" />
                     ) : (
-                      <div className="h-full w-full bg-zinc-200" />
+                      <span className="block h-20 w-full rounded-xl bg-zinc-200 lg:h-14 lg:w-14 lg:shrink-0" />
                     )}
-                    <span className="absolute left-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-                      {index + 1}
+                    <span className="mt-1.5 min-w-0 block lg:mt-0">
+                      <span className="block truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
+                      {stop.blurb ? (
+                        <span className="mt-0.5 block truncate text-[11px] leading-tight text-zinc-500 lg:text-xs">{stop.blurb}</span>
+                      ) : null}
                     </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-zinc-900 truncate">{stop.name}</p>
-                    <p className="text-[11px] text-zinc-500 truncate">
-                      {index === 0 ? "Pickup" : "Stop"}
-                      {stop.blurb ? ` · ${stop.blurb}` : ""}
-                    </p>
-                  </div>
-                  <button type="button" onClick={() => removeStop(stop.id)} className="p-2 text-zinc-400 hover:text-zinc-700">
-                    <X className="w-4 h-4" />
                   </button>
-                </div>
-              ))}
-            </section>
-          ) : null}
-
-          <section className="mb-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">
-              {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-2 lg:overflow-visible lg:gap-1.5 lg:pb-0">
-              {available.map((stop) => (
-                <button
-                  key={stop.id}
-                  type="button"
-                  onClick={() => addStop(stop)}
-                  className="flex w-[9.5rem] shrink-0 items-center gap-2 rounded-xl border border-zinc-100 bg-white p-1 pr-2.5 text-left hover:border-zinc-300 hover:shadow-sm lg:w-auto"
-                >
-                  {stop.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={stop.image} alt="" className="h-11 w-11 shrink-0 rounded-lg object-cover" />
-                  ) : (
-                    <span className="h-11 w-11 shrink-0 rounded-lg bg-zinc-200" />
-                  )}
-                  <span className="min-w-0">
-                    <span className="block truncate text-[13px] font-semibold text-zinc-900">{stop.name}</span>
-                    {stop.blurb ? <span className="block truncate text-[10px] leading-tight text-zinc-500">{stop.blurb}</span> : null}
-                  </span>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
           </section>
 
-          {stops.length >= 2 ? (
-            <div className="lg:hidden mb-6">{renderBook()}</div>
-          ) : (
-            <p className="lg:hidden text-center text-xs text-zinc-500 pb-6">
-              Pick a pickup and one more stop, then send your offer.
-            </p>
-          )}
-        </section>
+          <aside className="min-w-0 pt-1 lg:order-1 lg:h-full lg:overflow-y-auto lg:pt-0">
+            {renderBook()}
+          </aside>
+        </div>
       </div>
     </div>
   )

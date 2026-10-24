@@ -56,28 +56,6 @@ function isCompactMap() {
   return typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches
 }
 
-function makeArrowImage() {
-  const size = 96
-  const canvas = document.createElement("canvas")
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext("2d")
-  if (!ctx) return null
-  ctx.clearRect(0, 0, size, size)
-  ctx.translate(size / 2, size / 2)
-  ctx.fillStyle = "#fff"
-  ctx.strokeStyle = "#e11d48"
-  ctx.lineWidth = 6
-  ctx.beginPath()
-  ctx.moveTo(-18, -16)
-  ctx.lineTo(20, 0)
-  ctx.lineTo(-18, 16)
-  ctx.lineTo(-8, 0)
-  ctx.closePath()
-  ctx.fill()
-  ctx.stroke()
-  return ctx.getImageData(0, 0, size, size)
-}
 
 export function RouteIslandMap({
   stops,
@@ -99,8 +77,6 @@ export function RouteIslandMap({
   onAddRef.current = onAdd
   const onRemoveRef = useRef(onRemoveLast)
   onRemoveRef.current = onRemoveLast
-  const animRef = useRef<number>(0)
-
   useEffect(() => {
     if (!TOKEN || !container.current || mapRef.current) return
     mapboxgl.accessToken = TOKEN
@@ -138,67 +114,15 @@ export function RouteIslandMap({
         type: "line",
         source: "trip-route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#fff7cc", "line-width": 10, "line-opacity": 0.35, "line-blur": 2 },
+        paint: { "line-color": "#18181b", "line-width": 7, "line-opacity": 0.45 },
       })
       map.addLayer({
         id: "trip-route-line",
         type: "line",
         source: "trip-route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-width": 4.5,
-          "line-opacity": 0.95,
-          "line-gradient": [
-            "interpolate",
-            ["linear"],
-            ["line-progress"],
-            0,
-            "#FFC72C",
-            0.45,
-            "#fb7185",
-            1,
-            "#e11d48",
-          ],
-        },
+        paint: { "line-color": "#ffffff", "line-width": 3, "line-opacity": 0.95 },
       })
-      map.addLayer({
-        id: "trip-route-dash",
-        type: "line",
-        source: "trip-route",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": 2,
-          "line-opacity": 0.85,
-          "line-dasharray": [0, 1.6, 1.2],
-        },
-      })
-      const arrow = makeArrowImage()
-      if (arrow && !map.hasImage("route-arrow")) map.addImage("route-arrow", arrow, { pixelRatio: 2 })
-      map.addLayer({
-        id: "trip-route-arrows",
-        type: "symbol",
-        source: "trip-route",
-        layout: {
-          "symbol-placement": "line",
-          "symbol-spacing": 56,
-          "icon-image": "route-arrow",
-          "icon-size": 0.38,
-          "icon-rotation-alignment": "map",
-          "icon-pitch-alignment": "map",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-        },
-      })
-      let dash = 0
-      const tick = () => {
-        dash = (dash + 0.08) % 3.2
-        if (map.getLayer("trip-route-dash")) {
-          map.setPaintProperty("trip-route-dash", "line-dasharray", [0, Math.max(0.2, dash), 1.4])
-        }
-        animRef.current = requestAnimationFrame(tick)
-      }
-      animRef.current = requestAnimationFrame(tick)
       ROUTE_STOPS.forEach((stop) => {
         const el = document.createElement("div")
         el.style.pointerEvents = "auto"
@@ -219,13 +143,16 @@ export function RouteIslandMap({
     })
     mapRef.current = map
     window.addEventListener("resize", resize)
+    const media = window.matchMedia("(max-width: 1023px)")
+    const onBreakpoint = () => paintMarkers(stopsRef.current, markers.current)
+    media.addEventListener("change", onBreakpoint)
     const observer = typeof ResizeObserver !== "undefined" && container.current
       ? new ResizeObserver(() => resize())
       : null
     if (observer && container.current) observer.observe(container.current)
     return () => {
-      cancelAnimationFrame(animRef.current)
       window.removeEventListener("resize", resize)
+      media.removeEventListener("change", onBreakpoint)
       observer?.disconnect()
       Object.values(markers.current).forEach(({ marker }) => marker.remove())
       markers.current = {}
@@ -240,7 +167,7 @@ export function RouteIslandMap({
     source?.setData(routeGeo(stops))
     paintMarkers(stops, markers.current)
     const show = stops.length >= 2
-    ;(["trip-route-halo", "trip-route-line", "trip-route-dash", "trip-route-arrows"] as const).forEach((id) => {
+    ;(["trip-route-halo", "trip-route-line"] as const).forEach((id) => {
       if (map?.getLayer(id)) map.setLayoutProperty(id, "visibility", show ? "visible" : "none")
     })
     if (!map || stops.length === 0) return
@@ -293,35 +220,29 @@ export function RouteIslandMap({
 function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElement }>) {
   const order = new Map(stops.map((stop, index) => [stop.id, index + 1]))
   const compact = isCompactMap()
+  const size = compact ? 36 : 48
   Object.entries(refs).forEach(([id, { el }]) => {
     const stop = ROUTE_STOPS.find((item) => item.id === id)
     if (!stop) return
     const n = order.get(id)
     const selected = Boolean(n)
-    el.style.zIndex = selected ? "20" : "2"
-    if (compact) {
-      el.style.width = selected ? "22px" : "12px"
-      el.style.height = selected ? "22px" : "12px"
-      el.innerHTML = selected
-        ? `<button type="button" class="flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-white bg-rose-500 text-[10px] font-black text-white shadow-md" aria-label="${stop.name}">${n}</button>`
-        : `<button type="button" class="block h-3 w-3 rounded-full border-2 border-white bg-[#FFC72C] shadow-sm" aria-label="${stop.name}"></button>`
-      return
-    }
-    el.style.width = "44px"
-    el.style.height = "56px"
+    el.style.zIndex = selected ? "30" : "5"
+    el.style.width = `${size}px`
+    el.style.height = `${size + 8}px`
+    const border = selected ? "#18181b" : "#ffffff"
+    const img = stop.image
+      ? `<img src="${stop.image}" alt="" style="width:100%;height:100%;object-fit:cover;display:block" />`
+      : `<span style="display:block;width:100%;height:100%;background:#d4d4d8"></span>`
     el.innerHTML = `
-      <button type="button" class="group relative flex h-11 w-11 cursor-pointer items-center justify-center" aria-label="${stop.name}">
-        <span class="block h-11 w-11 overflow-hidden rounded-full border-2 shadow-lg transition-transform ${
-          selected ? "border-rose-500 scale-110" : "border-white hover:scale-105"
-        }">
-          <img src="${stop.image || ""}" alt="" class="h-full w-full object-cover" />
+      <button type="button" aria-label="${stop.name}" title="${stop.name}" style="position:relative;display:block;width:${size}px;height:${size}px;padding:0;border:0;background:transparent;cursor:pointer">
+        <span style="display:block;width:${size}px;height:${size}px;border-radius:9999px;overflow:hidden;border:2.5px solid ${border};box-shadow:0 4px 14px rgba(0,0,0,.4);background:#fafafa">
+          ${img}
         </span>
         ${
           selected
-            ? `<span class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">${n}</span>`
+            ? `<span style="position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-radius:9999px;background:#18181b;color:#fff;font:700 10px/20px system-ui,sans-serif;text-align:center">${n}</span>`
             : ""
         }
-        <span class="pointer-events-none absolute left-1/2 top-[calc(100%+4px)] z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white group-hover:block">${stop.name}</span>
       </button>
     `
   })
