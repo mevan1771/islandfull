@@ -250,8 +250,8 @@ export default function SiteHeader() {
                 <nav
                     className={`hidden md:flex items-center ${
                         isHomePage && !homeScrolled
-                            ? "gap-0 rounded-full bg-white/90 backdrop-blur-md px-1 py-1 shadow-lg shadow-black/10 text-[13px] font-semibold text-slate-800"
-                            : `gap-8 text-sm font-medium ${textColor}`
+                            ? "rounded-full bg-white/90 backdrop-blur-md px-1 py-1 shadow-lg shadow-black/10 text-[13px] font-semibold text-slate-800"
+                            : `gap-1 text-sm font-medium ${textColor}`
                     }`}
                 >
                     {(
@@ -294,10 +294,10 @@ export default function SiteHeader() {
                                 }}
                                 className={
                                     overlay
-                                        ? `px-2.5 py-1.5 rounded-full transition-colors ${
+                                        ? `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                                               isActive ? activeClass : "hover:bg-zinc-100"
                                           }`
-                                        : `px-2.5 py-1.5 rounded-full transition-colors ${
+                                        : `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap transition-colors ${
                                               isActive ? activeClass : hoverColor
                                           }`
                                 }
