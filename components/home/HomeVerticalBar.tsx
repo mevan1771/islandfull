@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { markHomeArriveTop } from "@/lib/home-scroll"
@@ -43,6 +43,14 @@ function BarIcon({ src, selected }: { src: string; selected: boolean }) {
 }
 
 export function HomeVerticalBar() {
+  return (
+    <Suspense fallback={null}>
+      <HomeVerticalBarInner />
+    </Suspense>
+  )
+}
+
+function HomeVerticalBarInner() {
   useSyncMobileChrome()
   const chromeHidden = useMobileChromeStore((s) => s.hidden)
   const router = useRouter()

@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { TransportPlanClient } from "@/components/transport/TransportPlanClient"
 import { HomeVerticalBar } from "@/components/home/HomeVerticalBar"
 
@@ -9,8 +10,10 @@ export const metadata = {
 export default function TransportPlanPage() {
   return (
     <>
-      <TransportPlanClient />
-      <HomeVerticalBar />
+      <Suspense fallback={null}>
+        <TransportPlanClient />
+        <HomeVerticalBar />
+      </Suspense>
     </>
   )
 }
