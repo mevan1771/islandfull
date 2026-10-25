@@ -80,20 +80,24 @@ export function RouteIslandMap({
   useEffect(() => {
     if (!TOKEN || !container.current || mapRef.current) return
     mapboxgl.accessToken = TOKEN
+    const compact = isCompactMap()
     const map = new mapboxgl.Map({
       container: container.current,
       style: "mapbox://styles/mapbox/satellite-streets-v12",
       center: CENTER,
-      zoom: isCompactMap() ? 5.55 : 5.85,
+      zoom: compact ? 5.55 : 5.85,
       minZoom: 5.35,
       maxZoom: 11,
       maxBounds: MAX_BOUNDS,
       attributionControl: false,
       cooperativeGestures: false,
+      dragPan: !compact,
+      scrollZoom: !compact,
+      touchZoomRotate: !compact,
       pitch: 0,
     })
-    if (isCompactMap()) {
-      map.setPadding({ top: 12, bottom: 170, left: 16, right: 16 })
+    if (compact) {
+      map.setPadding({ top: 16, bottom: 24, left: 16, right: 16 })
     } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
     }
@@ -184,7 +188,7 @@ export function RouteIslandMap({
     const compact = isCompactMap()
     map.fitBounds(bounds, {
       padding: compact
-        ? { top: 48, bottom: 180, left: 28, right: 28 }
+        ? { top: 48, bottom: 48, left: 28, right: 28 }
         : { top: 72, bottom: 88, left: 56, right: 72 },
       maxZoom: compact ? 7.6 : 8.2,
       duration: 600,

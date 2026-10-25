@@ -168,7 +168,7 @@ export function TransportPlanClient() {
   }
 
   const renderBook = (embedded = false, hideSend = false) => (
-    <div className={embedded ? "space-y-2" : "bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3"}>
+    <div className={embedded ? "space-y-3" : "bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3"}>
       <div>
         {embedded ? null : <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-500">Your offer</p>}
         <div className={`flex items-center rounded-xl border-2 border-[#FFC72C] bg-[#FFF8E1] ${embedded ? "h-11" : "h-12"}`}>
@@ -436,11 +436,52 @@ export function TransportPlanClient() {
         )
       : null
 
+  const locationRail = (
+    <div className="mb-3 flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {ROUTE_STOPS.map((stop) => {
+        const numbers = numbersFor(stop.id)
+        const last = stops[stops.length - 1]
+        return (
+          <button
+            key={stop.id}
+            type="button"
+            onClick={() => tapPlace(stop)}
+            title={
+              last?.id === stop.id
+                ? "Remove last stop"
+                : numbers.length
+                  ? `Add ${stop.name} again`
+                  : stop.name
+            }
+            className="w-[4.75rem] shrink-0 text-center"
+          >
+            <span
+              className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
+                numbers.length ? "ring-2 ring-zinc-900 ring-offset-1" : ""
+              }`}
+            >
+              {stop.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={stop.image} alt="" className="h-full w-full object-cover" />
+              ) : null}
+              {numbers.length > 0 ? (
+                <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
+                  {numbers.join("·")}
+                </span>
+              ) : null}
+            </span>
+            <span className="mt-1 block truncate text-[11px] font-semibold text-zinc-900">{stop.name}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+
   return (
     <div className="w-full bg-zinc-50 lg:min-h-screen">
       {calendar}
-      <div className="relative h-[calc(100dvh-4rem)] overflow-hidden lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:overflow-visible lg:px-5 lg:pt-4 xl:gap-5">
-        <div className="absolute inset-0 z-0 lg:relative lg:z-auto lg:order-3 lg:h-full">{mapBlock}</div>
+      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:overflow-visible lg:px-5 lg:pt-4 xl:gap-5">
+        <div className="h-[calc(100dvh-4rem-8.5rem)] lg:order-3 lg:h-full">{mapBlock}</div>
 
         <section className="hidden min-h-0 min-w-0 lg:order-2 lg:flex lg:h-full lg:flex-col">
           <div className="shrink-0 pb-3">
@@ -467,68 +508,13 @@ export function TransportPlanClient() {
 
         <aside className="hidden min-h-0 min-w-0 lg:order-1 lg:block lg:h-full lg:overflow-y-auto">{renderBook()}</aside>
 
-        <div className="absolute inset-x-0 bottom-0 z-20 lg:hidden">
-          <div className="flex max-h-[min(34dvh,15.5rem)] flex-col overflow-hidden rounded-t-[1.75rem] bg-white px-3 pt-2 pb-[max(0.65rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(0,0,0,.22)]">
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              <div className="mb-2.5 flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {ROUTE_STOPS.map((stop) => {
-                  const numbers = numbersFor(stop.id)
-                  const last = stops[stops.length - 1]
-                  return (
-                    <button
-                      key={stop.id}
-                      type="button"
-                      onClick={() => tapPlace(stop)}
-                      title={
-                        last?.id === stop.id
-                          ? "Remove last stop"
-                          : numbers.length
-                            ? `Add ${stop.name} again`
-                            : stop.name
-                      }
-                      className="w-[4.75rem] shrink-0 text-center"
-                    >
-                      <span
-                        className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
-                          numbers.length ? "ring-2 ring-zinc-900 ring-offset-1" : ""
-                        }`}
-                      >
-                        {stop.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={stop.image} alt="" className="h-full w-full object-cover" />
-                        ) : null}
-                        {numbers.length > 0 ? (
-                          <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
-                            {numbers.join("·")}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="mt-1 block truncate text-[11px] font-semibold text-zinc-900">{stop.name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
-              {renderBook(true, true)}
-            </div>
-
-            <div className="mt-2 shrink-0">
-              {stops.length < 2 ? (
-                <p className="py-1 text-center text-xs text-zinc-500">Pick a pickup and one more stop</p>
-              ) : isSignedIn ? (
-                <button type="button" disabled={sending} onClick={submit} className={sendClass}>
-                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : `Send offer · $${offerDirty ? offer || 0 : guide || 0}`}
-                </button>
-              ) : (
-                <SignInButton mode="modal">
-                  <button type="button" className={sendClass}>
-                    Sign in to send
-                  </button>
-                </SignInButton>
-              )}
-            </div>
-          </div>
-        </div>
+        <section className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-white px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] lg:hidden">
+          {locationRail}
+          {renderBook(true)}
+          {stops.length < 2 ? (
+            <p className="mt-3 text-center text-xs text-zinc-500">Pick a pickup and one more stop</p>
+          ) : null}
+        </section>
       </div>
     </div>
   )
