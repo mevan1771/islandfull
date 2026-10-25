@@ -5,7 +5,7 @@ export default function SiteFooter() {
   return (
     <footer className="bg-zinc-100 border-t border-neutral-200 pt-10 md:pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 md:gap-y-10 gap-x-4 md:gap-8 mb-10 md:mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 md:gap-y-10 gap-x-4 md:gap-8 mb-10 md:mb-12">
           {/* Column 1: Brand & Mission */}
           <div className="col-span-2 md:col-span-1 space-y-3 md:space-y-4 mb-2 md:mb-0">
             <Link href="/" className="text-2xl font-black text-rose-500 tracking-tight">
@@ -14,6 +14,17 @@ export default function SiteFooter() {
             <p className="text-zinc-500 text-sm leading-relaxed max-w-xs">
               Discovering authentic local experiences and curated tours across the breathtaking landscapes of Sri Lanka.
             </p>
+          </div>
+
+          <div>
+            <h3 className="font-bold text-zinc-900 mb-3 md:mb-4">Get around Sri Lanka</h3>
+            <ul className="space-y-2 md:space-y-3">
+              <li><Link href="/transport" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Transport</Link></li>
+              <li><Link href="/transport/getting-around-sri-lanka" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">How to get around</Link></li>
+              <li><Link href="/transport/private-driver" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Private driver</Link></li>
+              <li><Link href="/transport/airport-transfers" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Airport transfers (CMB)</Link></li>
+              <li><Link href="/transport/plan" className="text-zinc-500 hover:text-zinc-900 text-sm transition-colors">Plan a route</Link></li>
+            </ul>
           </div>
 
           {/* Column 2: Support */}

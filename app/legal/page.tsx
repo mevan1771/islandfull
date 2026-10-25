@@ -4,8 +4,9 @@ import { supabase } from "@/lib/supabase"
 import { SupportPageShell } from "@/components/support/SupportPageShell"
 
 export const metadata: Metadata = {
-  title: "Terms & Privacy | IslandFull",
+  title: { absolute: "Terms & Privacy | IslandFull" },
   description: "Guest terms of use and privacy practices for IslandFull.",
+  alternates: { canonical: "https://islandfull.com/legal" },
 }
 
 const FALLBACK_TERMS = `IslandFull is a marketplace. We introduce travelers to independent hosts who run tours, events, and transport across Sri Lanka.

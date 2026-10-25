@@ -1,13 +1,14 @@
-import type { Metadata } from "next"
 import Link from "next/link"
 import { CreditCard, CalendarClock, MapPinned, MessageCircle } from "lucide-react"
 import { FaqAccordion } from "@/components/activity/FaqAccordion"
 import { SupportPageShell } from "@/components/support/SupportPageShell"
+import { pageMeta } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Help Center | IslandFull",
-  description: "Answers for bookings, changes, payments, and traveling with IslandFull in Sri Lanka.",
-}
+export const metadata = pageMeta({
+  title: "Help Center",
+  description: "Answers for bookings, transport, payments, and traveling with IslandFull in Sri Lanka.",
+  path: "/help",
+})
 
 const FAQS = [
   {
@@ -40,6 +41,11 @@ const FAQS = [
     answer:
       "Outdoor experiences may be delayed or rescheduled for safety. Hosts will contact you. If a trip is cancelled by the host, you typically receive a full refund or a new date.",
   },
+  {
+    question: "How do I book a driver or airport transfer?",
+    answer:
+      "Open Transport, plan your route on the map (start at Colombo Airport if you need pickup), pick a vehicle, and send your price. Local hosts accept the trip before you pay. Guides: how to get around Sri Lanka, private drivers, and CMB airport transfers.",
+  },
 ]
 
 export default function HelpCenterPage() {
@@ -54,7 +60,7 @@ export default function HelpCenterPage() {
         {[
           { href: "/cancellation-policy", icon: CalendarClock, label: "Cancellations", hint: "Refund windows" },
           { href: "/contact", icon: MessageCircle, label: "Write to us", hint: "Email & WhatsApp" },
-          { href: "/map", icon: MapPinned, label: "Find tours", hint: "Explore the map" },
+          { href: "/transport", icon: MapPinned, label: "Transport", hint: "Drivers & airport" },
           { href: "/legal", icon: CreditCard, label: "Policies", hint: "Terms & privacy" },
         ].map((item) => (
           <Link

@@ -8,7 +8,7 @@ export function TransportPlanEntry() {
         <div className="relative aspect-square w-full overflow-hidden rounded-xl md:rounded-3xl bg-[#FFC72C] shadow-md md:shadow-lg group-hover:shadow-xl transition-shadow duration-300">
           <Image
             src="/images/transport-icon/travel-points.jpg"
-            alt=""
+            alt="Map of Sri Lanka for planning a private transport route"
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             sizes="(max-width: 768px) 50vw, 25vw"

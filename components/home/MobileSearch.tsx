@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useTransition } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
@@ -12,6 +12,7 @@ import type { HomepageCategory, HomepageCategoryMap } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
+import { listingsHref } from "@/lib/listing-path"
 
 function WhereField({
   location,
@@ -109,6 +110,7 @@ export function MobileSearch({
   categoryMap?: HomepageCategoryMap
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
   const hydrateCategories = useHomeBrowseStore((s) => s.hydrateCategories)
@@ -203,7 +205,7 @@ export function MobileSearch({
     releaseSearchLock()
     markHomeListingsPin()
     startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
+      router.push(listingsHref(pathname, params), { scroll: false })
     })
   }
 
@@ -247,7 +249,7 @@ export function MobileSearch({
     if (!sort || sort === "recommended") params.delete("sort")
     else params.set("sort", sort)
     markHomeListingsPin()
-    router.push(`/?${params.toString()}`, { scroll: false })
+    router.push(listingsHref(pathname, params), { scroll: false })
   }
 
   return (

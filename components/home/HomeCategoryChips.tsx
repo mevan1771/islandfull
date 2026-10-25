@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ALL_CATEGORY_ICON, SAVED_CATEGORY_ICON, resolveCategoryIcon } from "@/lib/category-icons"
 import { jumpHomeScroll } from "@/lib/home-scroll"
-import { publicVertical } from "@/lib/homepage-feed"
+import { listingsHref, verticalFromLocation } from "@/lib/listing-path"
 import { useHomeBrowseCategories, useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import type { HomepageCategory } from "@/lib/homepage-feed"
 
@@ -24,9 +24,10 @@ export function HomeCategoryChips({
   passive?: boolean
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentCategory = searchParams.get("category") || "all"
-  const urlVertical = publicVertical(searchParams.get("vertical"))
+  const urlVertical = verticalFromLocation(pathname, searchParams.get("vertical"))
   const browseVertical = useHomeBrowseStore((s) => s.vertical)
   const [optimisticCategory, setOptimisticCategory] = useState(currentCategory)
   const browseCategories = useHomeBrowseCategories(dynamicCategories)
@@ -55,7 +56,7 @@ export function HomeCategoryChips({
     const params = new URLSearchParams(searchParams.toString())
     if (categoryId !== "all") params.set("category", categoryId)
     else params.delete("category")
-    const href = `/?${params.toString()}`
+    const href = listingsHref(pathname, params)
     const y = window.scrollY
     router.prefetch(href)
     router.push(href, { scroll: false })
@@ -80,7 +81,7 @@ export function HomeCategoryChips({
               const params = new URLSearchParams(searchParams.toString())
               if (cat.id !== "all") params.set("category", cat.id)
               else params.delete("category")
-              router.prefetch(`/?${params.toString()}`)
+              router.prefetch(listingsHref(pathname, params))
             }}
             onClick={() => goToCategory(cat.id)}
             className="flex flex-col items-center justify-end shrink-0 min-w-[4.4rem] md:min-w-[5.25rem] px-1 cursor-pointer touch-manipulation select-none active:scale-90 transition-transform duration-75"

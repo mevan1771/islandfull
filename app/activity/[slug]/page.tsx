@@ -57,20 +57,25 @@ export async function generateMetadata(
         }
     }
 
+    const description = activity.description
+        ? String(activity.description).slice(0, 160)
+        : `Book ${activity.title} in ${activity.location || "Sri Lanka"} with a local IslandFull host.`
     return {
-        title: `${activity.title} in ${activity.location} | Islandfull`,
-        description: activity.description,
+        title: { absolute: `${activity.title} in ${activity.location || "Sri Lanka"} | IslandFull` },
+        description,
+        alternates: { canonical: `https://islandfull.com/activity/${slug}` },
         openGraph: {
-            title: `${activity.title} | Islandfull`,
-            description: activity.description,
-            images: [{ url: activity.cover_image_url }],
+            title: `${activity.title} | IslandFull`,
+            description,
+            images: activity.cover_image_url ? [{ url: activity.cover_image_url }] : undefined,
             type: 'website',
+            url: `https://islandfull.com/activity/${slug}`,
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${activity.title} | Islandfull`,
-            description: activity.description,
-            images: [activity.cover_image_url],
+            title: `${activity.title} | IslandFull`,
+            description,
+            images: activity.cover_image_url ? [activity.cover_image_url] : undefined,
         },
     }
 }

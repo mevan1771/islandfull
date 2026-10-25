@@ -1,7 +1,7 @@
 {
   "name": "IslandFull Tours",
   "short_name": "IslandFull",
-  "description": "Sri Lanka Tours & Activities Booking Platform",
+  "description": "Sri Lanka tours, hotels, and private transport with local hosts",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

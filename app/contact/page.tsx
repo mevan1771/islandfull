@@ -1,12 +1,13 @@
-import type { Metadata } from "next"
 import { Mail, MessageCircle } from "lucide-react"
 import { InquiryForm } from "@/components/support/InquiryForm"
 import { SupportPageShell } from "@/components/support/SupportPageShell"
+import { pageMeta } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Contact Us | IslandFull",
+export const metadata = pageMeta({
+  title: "Contact Us",
   description: "Email or WhatsApp IslandFull for booking help, partnerships, and traveler support.",
-}
+  path: "/contact",
+})
 
 export default function ContactPage() {
   return (

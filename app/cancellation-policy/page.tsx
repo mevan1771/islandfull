@@ -4,8 +4,9 @@ import { supabase } from "@/lib/supabase"
 import { SupportPageShell } from "@/components/support/SupportPageShell"
 
 export const metadata: Metadata = {
-  title: "Cancellation Policy | IslandFull",
+  title: { absolute: "Cancellation Policy | IslandFull" },
   description: "How refunds work on IslandFull tours, events, and transport in Sri Lanka.",
+  alternates: { canonical: "https://islandfull.com/cancellation-policy" },
 }
 
 function formatCutoff(hours: number) {

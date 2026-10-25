@@ -18,13 +18,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const hotel = await getPublishedHotel(slug)
   if (!hotel) return { title: "Hotel | IslandFull" }
+  const description = hotel.description
+    ? String(hotel.description).slice(0, 160)
+    : `Stay at ${hotel.title} in ${hotel.location || "Sri Lanka"}. Book with IslandFull.`
   return {
-    title: `${hotel.title} in ${hotel.location || "Sri Lanka"} | IslandFull`,
-    description: hotel.description,
+    title: { absolute: `${hotel.title} in ${hotel.location || "Sri Lanka"} | IslandFull` },
+    description,
+    alternates: { canonical: `https://islandfull.com/hotel/${slug}` },
     openGraph: {
       title: `${hotel.title} | IslandFull`,
-      description: hotel.description,
+      description,
       images: hotel.cover_image_url ? [{ url: hotel.cover_image_url }] : undefined,
+      url: `https://islandfull.com/hotel/${slug}`,
     },
   }
 }

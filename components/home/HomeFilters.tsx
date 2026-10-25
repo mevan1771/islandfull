@@ -2,14 +2,15 @@
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
 import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 import { markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
-import { publicVertical, type HomepageCategoryMap } from "@/lib/homepage-feed"
+import type { HomepageCategoryMap } from "@/lib/homepage-feed"
+import { listingsHref, verticalFromLocation } from "@/lib/listing-path"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 
 export function HomeFilters({
@@ -20,6 +21,7 @@ export function HomeFilters({
   categoryMap?: HomepageCategoryMap
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
   const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
@@ -33,12 +35,12 @@ export function HomeFilters({
   }, [categoryMap, hydrateCategories])
 
   useEffect(() => {
-    setBrowseVertical(publicVertical(searchParams.get("vertical")))
-  }, [searchParams, setBrowseVertical])
+    setBrowseVertical(verticalFromLocation(pathname, searchParams.get("vertical")))
+  }, [pathname, searchParams, setBrowseVertical])
 
   useEffect(() => {
     router.prefetch("/?vertical=tour")
-    router.prefetch("/?vertical=transport")
+    router.prefetch("/transport")
     router.prefetch("/?vertical=hotel")
   }, [router])
 
@@ -93,7 +95,7 @@ export function HomeFilters({
 
     markHomeListingsPin()
     startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
+      router.push(listingsHref(pathname, params), { scroll: false })
     })
   }
 
@@ -102,7 +104,7 @@ export function HomeFilters({
     if (sort === "recommended") params.delete("sort")
     else params.set("sort", sort)
     startTransition(() => {
-      router.push(`/?${params.toString()}`, { scroll: false })
+      router.push(listingsHref(pathname, params), { scroll: false })
     })
   }
 
@@ -132,7 +134,7 @@ export function HomeFilters({
                       params.delete("location");
                       params.delete("category");
                       startTransition(() => {
-                        router.push(`/?${params.toString()}`, { scroll: false });
+                        router.push(listingsHref(pathname, params), { scroll: false });
                       });
                     }
                   }}
@@ -152,7 +154,7 @@ export function HomeFilters({
                         setIsDropdownOpen(false)
                         const params = new URLSearchParams(searchParams.toString())
                         params.set("location", sug.text)
-                        router.push(`/?${params.toString()}`, { scroll: false })
+                        router.push(listingsHref(pathname, params), { scroll: false })
                       }}
                     >
                       {sug.type === 'location' && <MapPin className="w-4 h-4 text-gray-400" />}

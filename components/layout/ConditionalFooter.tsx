@@ -8,7 +8,7 @@ export function ConditionalFooter() {
 
   if (
     pathname === "/map" ||
-    pathname.startsWith("/transport") ||
+    pathname === "/transport/plan" ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/offers") ||
     pathname.startsWith("/host") ||

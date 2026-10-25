@@ -11,8 +11,40 @@ import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE, publicVertical } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
+import type { Metadata } from "next"
+import { pageMeta } from "@/lib/seo"
 
 export const revalidate = 60
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>
+}): Promise<Metadata> {
+  const params = await searchParams
+  const vertical = publicVertical(params.vertical)
+  if (vertical === "transport") {
+    return pageMeta({
+      title: "Sri Lanka transport — tours stay here, drivers start on the map",
+      description:
+        "Find local transport hosts in Sri Lanka or open the route planner to send your price for a private car, van, or airport pickup.",
+      path: "/transport",
+    })
+  }
+  if (vertical === "hotel") {
+    return pageMeta({
+      title: "Sri Lanka hotels and stays with local hosts",
+      description: "Browse stays across Sri Lanka — from city nights to beach and hill country. Book with IslandFull.",
+      path: "/?vertical=hotel",
+    })
+  }
+  return pageMeta({
+    title: "Sri Lanka tours, activities, hotels & transport",
+    description:
+      "Inspiration, planning, and booking in one place. Local tours, private drivers, airport transfers, and stays across Sri Lanka.",
+    path: "/",
+  })
+}
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
   const params = await searchParams;

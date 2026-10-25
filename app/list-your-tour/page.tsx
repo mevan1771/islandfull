@@ -6,8 +6,9 @@ import { InquiryForm } from "@/components/support/InquiryForm"
 import { SupportPageShell } from "@/components/support/SupportPageShell"
 
 export const metadata: Metadata = {
-  title: "List Your Tour | IslandFull",
+  title: { absolute: "List Your Tour | IslandFull" },
   description: "Partner with IslandFull to list tours, events, and transport for travelers in Sri Lanka.",
+  alternates: { canonical: "https://islandfull.com/list-your-tour" },
 }
 
 const STEPS = [

@@ -5,8 +5,9 @@ import { TripsPageClient } from "@/components/trips/TripsPageClient"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-  title: "Trips & Wishlist | Islandfull",
+  title: { absolute: "Trips & Wishlist | IslandFull" },
   description: "Saved tours and upcoming trips in one place.",
+  robots: { index: false, follow: false },
 }
 
 export default async function TripsPage() {

@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { ArrowLeft, CalendarDays, CheckCircle2, Loader2, Minus, Plus, X } from "lucide-react"
 import { DayPicker } from "react-day-picker"
@@ -17,6 +18,7 @@ import {
   guidePriceUsd,
   routeDistanceKm,
   routeLabel,
+  stopById,
   type RouteStop,
   type VehicleType,
 } from "@/lib/transport-route"
@@ -36,10 +38,23 @@ const fieldClass =
 const sendClass =
   "w-full h-11 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2"
 
+function stopsFromParam(value: string | null) {
+  if (!value) return [] as RouteStop[]
+  return value
+    .split(",")
+    .map((id) => stopById(id.trim()))
+    .filter((stop): stop is RouteStop => Boolean(stop))
+}
+
 export function TransportPlanClient() {
   const { user, isSignedIn } = useUser()
-  const [stops, setStops] = useState<RouteStop[]>([])
-  const [vehicle, setVehicle] = useState<VehicleType>("car")
+  const searchParams = useSearchParams()
+  const seededFromUrl = useRef(false)
+  const [stops, setStops] = useState<RouteStop[]>(() => stopsFromParam(searchParams.get("stops")))
+  const [vehicle, setVehicle] = useState<VehicleType>(() => {
+    const requested = searchParams.get("vehicle") as VehicleType | null
+    return requested && VEHICLE_ORDER.includes(requested) ? requested : "car"
+  })
   const [wantsGuide, setWantsGuide] = useState(false)
   const [date, setDate] = useState("")
   const [calOpen, setCalOpen] = useState(false)
@@ -54,6 +69,7 @@ export function TransportPlanClient() {
   const [sent, setSent] = useState<{ hostCount: number; route: string } | null>(null)
   const [days, setDays] = useState(1)
   const [requests, setRequests] = useState("")
+  const [picked, setPicked] = useState<RouteStop | null>(null)
 
   const km = routeDistanceKm(stops)
   const guide = stops.length >= 2 ? guidePriceUsd(km, vehicle, wantsGuide) : 0
@@ -69,6 +85,24 @@ export function TransportPlanClient() {
     setEmail((current) => current || user.primaryEmailAddress?.emailAddress || "")
   }, [user])
 
+  useEffect(() => {
+    if (seededFromUrl.current) return
+    const requested = searchParams.get("vehicle") as VehicleType | null
+    const rawStops = searchParams.get("stops")
+    const next = stopsFromParam(rawStops)
+    if (!rawStops && !requested) return
+    seededFromUrl.current = true
+    const nextVehicle = requested && VEHICLE_ORDER.includes(requested) ? requested : "car"
+    if (nextVehicle !== "car") {
+      setVehicle(nextVehicle)
+      setGuests((n) => Math.min(n, VEHICLE_RATES[nextVehicle].maxGuests))
+    }
+    if (next.length) {
+      setStops(next)
+      setOffer(String(currentGuide(next, nextVehicle, false) || ""))
+    }
+  }, [searchParams])
+
   function addStop(stop: RouteStop) {
     setStops((current) => {
       const last = current[current.length - 1]
@@ -80,12 +114,17 @@ export function TransportPlanClient() {
   }
 
   function tapPlace(stop: RouteStop) {
-    if (stops.some((item) => item.id === stop.id)) return
+    if (stops.some((item) => item.id === stop.id)) {
+      setPicked(stop)
+      return
+    }
+    setPicked(null)
     addStop(stop)
   }
 
   function visitAgain(stop: RouteStop) {
     addStop(stop)
+    setPicked(null)
   }
 
   function removeLastOf(id: string) {
@@ -94,6 +133,7 @@ export function TransportPlanClient() {
       if (index < 0) return current
       return current.filter((_, i) => i !== index)
     })
+    setPicked(null)
   }
 
   function removeLastStop() {
@@ -106,6 +146,7 @@ export function TransportPlanClient() {
 
   function clearRoute() {
     setStops([])
+    setPicked(null)
   }
 
   function pickVehicle(type: VehicleType) {
@@ -340,7 +381,7 @@ export function TransportPlanClient() {
     <div className="h-full min-h-0 overflow-hidden bg-zinc-900 lg:rounded-3xl lg:shadow-xl lg:border lg:border-zinc-800">
       <RouteIslandMap
         stops={stops}
-        onAdd={addStop}
+        onAdd={tapPlace}
         onRemoveLast={() => removeLastStop()}
         className="h-full"
       />
@@ -403,33 +444,6 @@ export function TransportPlanClient() {
                 {numbers.length ? `Stop ${numbers.join(" · ")}` : stop.blurb || "Add to route"}
               </span>
             </span>
-            {numbers.length > 0 ? (
-              <span className="flex shrink-0 items-center gap-1">
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    visitAgain(stop)
-                  }}
-                  className="rounded-lg px-2 py-1 text-[11px] font-bold text-zinc-700 hover:bg-zinc-100"
-                >
-                  Again
-                </span>
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    removeLastOf(stop.id)
-                  }}
-                  className="rounded-lg p-1 text-zinc-400 hover:text-zinc-700"
-                  aria-label={`Remove ${stop.name}`}
-                >
-                  <X className="h-4 w-4" />
-                </span>
-              </span>
-            ) : null}
           </button>
         )
       })}
@@ -470,60 +484,55 @@ export function TransportPlanClient() {
         )
       : null
 
+  const pickedBar =
+    picked && numbersFor(picked.id).length > 0 ? (
+      <div className="mb-3 flex items-center gap-2 rounded-2xl bg-zinc-100 px-3 py-2">
+        <p className="min-w-0 flex-1 text-xs font-medium text-zinc-600">
+          <span className="font-bold text-zinc-900">{picked.name}</span> is already on your route
+        </p>
+        <button type="button" onClick={() => visitAgain(picked)} className="shrink-0 text-xs font-bold text-zinc-900">
+          Add again
+        </button>
+        <button type="button" onClick={() => removeLastOf(picked.id)} className="shrink-0 text-xs font-semibold text-zinc-500">
+          Remove
+        </button>
+      </div>
+    ) : null
+
   const locationRail = (
     <div>
       <div className="mb-2 flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {ROUTE_STOPS.map((stop) => {
           const numbers = numbersFor(stop.id)
           return (
-            <div key={stop.id} className="w-[4.75rem] shrink-0 text-center">
-              <button
-                type="button"
-                onClick={() => tapPlace(stop)}
-                title={numbers.length ? `${stop.name} is on your route` : `Add ${stop.name}`}
-                className="relative block w-full"
+            <button
+              key={stop.id}
+              type="button"
+              onClick={() => tapPlace(stop)}
+              title={numbers.length ? `${stop.name} is on your route` : `Add ${stop.name}`}
+              className="w-[4.75rem] shrink-0 text-center"
+            >
+              <span
+                className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
+                  numbers.length ? "ring-2 ring-zinc-900 ring-offset-1" : picked?.id === stop.id ? "ring-2 ring-[#FFC72C] ring-offset-1" : ""
+                }`}
               >
-                <span
-                  className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
-                    numbers.length ? "ring-2 ring-zinc-900 ring-offset-1" : ""
-                  }`}
-                >
-                  {stop.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={stop.image} alt="" className="h-full w-full object-cover" />
-                  ) : null}
-                  {numbers.length > 0 ? (
-                    <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
-                      {numbers.join("·")}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="mt-1 block truncate text-[11px] font-semibold text-zinc-900">{stop.name}</span>
-              </button>
-              {numbers.length > 0 ? (
-                <div className="mt-1 flex justify-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => visitAgain(stop)}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-zinc-700"
-                    aria-label={`Add ${stop.name} again`}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeLastOf(stop.id)}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-zinc-500"
-                    aria-label={`Remove ${stop.name}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ) : null}
-            </div>
+                {stop.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                ) : null}
+                {numbers.length > 0 ? (
+                  <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
+                    {numbers.join("·")}
+                  </span>
+                ) : null}
+              </span>
+              <span className="mt-1 block truncate text-[11px] font-semibold text-zinc-900">{stop.name}</span>
+            </button>
           )
         })}
       </div>
+      {pickedBar}
       {stops.length > 0 ? (
         <button type="button" onClick={clearRoute} className="mb-3 text-xs font-semibold text-zinc-400">
           Clear route
@@ -557,6 +566,7 @@ export function TransportPlanClient() {
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
               {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
             </p>
+            {pickedBar}
             {desktopPlaces}
           </div>
         </section>

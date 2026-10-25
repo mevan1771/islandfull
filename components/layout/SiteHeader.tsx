@@ -114,12 +114,12 @@ export default function SiteHeader() {
         return null
     }
 
-    const isHomePage = pathname === '/'
+    const isHomePage = pathname === '/' || pathname === '/transport'
     const isHotelPage = pathname?.startsWith('/hotel')
     const isActivityPage = pathname?.startsWith('/activity') || isHotelPage
     const isDestinationsPage = pathname?.startsWith('/destinations')
     const isTripsPage = pathname?.startsWith('/trips')
-    const isTransportPage = pathname?.startsWith('/transport')
+    const isTransportPage = Boolean(pathname?.startsWith('/transport/'))
 
     const isMapPage = pathname === '/map'
     const isSupportPage = [
@@ -207,7 +207,7 @@ export default function SiteHeader() {
                     )}
                     {isTransportPage && (
                         <Link
-                            href="/?vertical=transport"
+                            href="/transport"
                             scroll={false}
                             onClick={() => markHomeArriveTop()}
                             className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 active:scale-90 transition-transform cursor-pointer touch-manipulation"
@@ -274,7 +274,7 @@ export default function SiteHeader() {
                     {(
                         [
                             { href: "/?vertical=tour", label: "Tour", vertical: "tour" },
-                            { href: "/?vertical=transport", label: "Transport", vertical: "transport" },
+                            { href: "/transport", label: "Transport", vertical: "transport" },
                             { href: "/?vertical=hotel", label: "Hotels", vertical: "hotel" },
                             { href: "/destinations", label: "Destinations" },
                             { href: "/trips", label: "Trips" },
