@@ -43,12 +43,23 @@ interface BookingDrawerProps {
   categoryType?: string
   hostAvatar?: string
   hostName?: string
+  hostWhatsapp?: string | null
   cancellationTierData?: CancellationTierData | null
   discountPrice?: number | null
   dealEndDate?: string | null
   priceSuffix?: string | null
   allowOffers?: boolean
   checkoutSlot?: "desktop" | "mobile"
+}
+
+function hostChatHref(title: string, phone?: string | null) {
+  let digits = String(phone || "447342573235").replace(/\D/g, "")
+  if (digits.startsWith("00")) digits = digits.slice(2)
+  else if (digits.startsWith("0")) digits = `94${digits.slice(1)}`
+  const text = phone
+    ? `Hi, I have a question about ${title} on IslandFull`
+    : `Hi Islandfull, I have a question about the ${title}`
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`
 }
 
 export function BookingDrawer({
@@ -72,6 +83,7 @@ export function BookingDrawer({
   categoryType,
   hostAvatar,
   hostName,
+  hostWhatsapp,
   cancellationTierData,
   discountPrice,
   dealEndDate,
@@ -405,7 +417,7 @@ export function BookingDrawer({
               )}
             </div>
             <a
-              href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+              href={hostChatHref(title, hostWhatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               className="relative shrink-0 active:scale-95 transition-transform"
@@ -500,7 +512,7 @@ export function BookingDrawer({
             </Button>
           </div>
           <a
-            href={`https://wa.me/447342573235?text=${encodeURIComponent('Hi Islandfull, I have a question about the ' + title)}`}
+            href={hostChatHref(title, hostWhatsapp)}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden md:flex items-center justify-center gap-2.5 h-12 text-sm font-semibold text-zinc-700 hover:text-zinc-900 transition"
@@ -518,7 +530,7 @@ export function BookingDrawer({
 
           <p className="hidden md:block text-center text-sm font-medium text-zinc-400 mt-1">
             {priceUsd === 0 ? "Complete Reservation" :
-              paymentStrategy === 'no_card' ? "Reserve now, no credit card." :
+              paymentStrategy === 'no_card' ? "Reserve now, no credit card. No advance payments needed, no cancellation fee, pay after the tour." :
                 paymentStrategy === 'deposit_15' ? "Pay 15% now, rest in cash to your guide." :
                   paymentStrategy === 'manual_hold' ? "Zero charge today. Card held for 24 hours." :
                     "Secure checkout with Stripe."}
