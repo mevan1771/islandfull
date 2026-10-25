@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { SignInButton, useUser } from "@clerk/nextjs"
-import { ArrowLeft, CalendarDays, CheckCircle2, Loader2, Minus, Plus, X } from "lucide-react"
+import { CalendarDays, CheckCircle2, Loader2, Minus, Plus, X } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 import { addDays, format, isBefore, startOfToday } from "date-fns"
 import { createTransportTripRequest } from "@/app/actions/transport-trips"
@@ -33,10 +33,12 @@ const RouteIslandMap = dynamic(
 )
 
 const fieldClass =
-  "w-full h-10 px-3 rounded-xl border border-zinc-200 outline-none focus:border-[#FFC72C] focus:ring-2 focus:ring-[#FFC72C]/30 font-medium text-sm text-zinc-900 bg-white"
+  "w-full h-12 px-3.5 rounded-2xl border border-zinc-200 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 font-medium text-base text-zinc-900 bg-white"
 
 const sendClass =
-  "w-full h-11 rounded-xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 font-bold disabled:opacity-60 flex items-center justify-center gap-2"
+  "w-full h-12 rounded-2xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 text-base font-bold disabled:opacity-60 flex items-center justify-center gap-2"
+
+const labelClass = "mb-2 text-sm font-semibold text-zinc-500"
 
 function stopsFromParam(value: string | null) {
   if (!value) return [] as RouteStop[]
@@ -220,125 +222,129 @@ export function TransportPlanClient() {
     )
   }
 
-  const renderBook = (embedded = false, hideSend = false) => (
-    <div className={embedded ? "space-y-3" : "bg-white rounded-3xl border border-zinc-100 shadow-sm p-4 space-y-3"}>
+  const ready = stops.length >= 2
+
+  const sendButton = isSignedIn ? (
+    <button type="button" disabled={sending || !ready} onClick={submit} className={sendClass}>
+      {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : ready ? `Send offer${guide ? ` · $${offerDirty ? offer || guide : guide}` : ""}` : "Add two places first"}
+    </button>
+  ) : (
+    <SignInButton mode="modal">
+      <button type="button" className={sendClass}>
+        Sign in to send
+      </button>
+    </SignInButton>
+  )
+
+  const detailsForm = (
+    <div className="space-y-4">
       <div>
-        {embedded ? null : <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-500">Your offer</p>}
-        <div className={`flex items-center rounded-xl border-2 border-[#FFC72C] bg-[#FFF8E1] ${embedded ? "h-11" : "h-12"}`}>
+        <p className={labelClass}>Vehicle</p>
+        <div className="flex gap-2">
+          {VEHICLE_ORDER.map((type) => {
+            const selected = vehicle === type
+            const meta = VEHICLE_RATES[type]
+            return (
+              <button
+                key={type}
+                type="button"
+                title={meta.label}
+                onClick={() => pickVehicle(type)}
+                className={`flex h-16 min-w-0 flex-1 flex-col items-center justify-center rounded-2xl transition ${
+                  selected ? "bg-white ring-2 ring-zinc-900 text-zinc-900" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                {meta.icon ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={meta.icon} alt="" className="h-8 w-8 object-contain" />
+                ) : null}
+                <span className="mt-1 text-xs font-semibold leading-tight">{meta.label}</span>
+              </button>
+            )
+          })}
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => bump(-1)}
-            className={`flex shrink-0 items-center justify-center text-zinc-800 ${embedded ? "h-11 w-10" : "h-12 w-12"}`}
-            aria-label="Lower offer"
+            onClick={() => pickGuide(false)}
+            className={`h-12 rounded-2xl text-sm font-semibold ${!wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
           >
-            <Minus className="h-5 w-5" />
+            Driver only
+          </button>
+          <button
+            type="button"
+            onClick={() => pickGuide(true)}
+            className={`h-12 rounded-2xl text-sm font-semibold ${wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
+          >
+            + Guide ${GUIDE_FEE_USD}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <p className={labelClass}>Days</p>
+          <div className="flex h-12 items-center justify-between rounded-2xl border border-zinc-200 px-1">
+            <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setDays((n) => Math.max(1, n - 1))} aria-label="Fewer days">
+              <Minus className="h-5 w-5" />
+            </button>
+            <span className="text-base font-bold tabular-nums">{days}</span>
+            <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setDays((n) => Math.min(14, n + 1))} aria-label="More days">
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        <div>
+          <p className={labelClass}>Guests</p>
+          <div className="flex h-12 items-center justify-between rounded-2xl border border-zinc-200 px-1">
+            <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setGuests((n) => Math.max(1, n - 1))} aria-label="Fewer guests">
+              <Minus className="h-5 w-5" />
+            </button>
+            <span className="text-base font-bold tabular-nums">{Math.min(guests, maxGuests)}</span>
+            <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setGuests((n) => Math.min(maxGuests, n + 1))} aria-label="More guests">
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p className={labelClass}>Start date</p>
+        <button type="button" onClick={() => setCalOpen(true)} className={`${fieldClass} inline-flex items-center gap-2 text-left`}>
+          <CalendarDays className="h-5 w-5 shrink-0 text-zinc-500" />
+          <span className="truncate font-semibold">{date ? format(new Date(`${date}T12:00:00`), "d MMM yyyy") : "Pick a date"}</span>
+        </button>
+      </div>
+
+      <div>
+        <p className={labelClass}>Your offer</p>
+        <div className={`flex h-16 items-center rounded-2xl border ${ready ? "border-zinc-900 bg-white" : "border-zinc-200 bg-zinc-50"}`}>
+          <button type="button" disabled={!ready} onClick={() => bump(-1)} className="flex h-16 w-14 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Lower offer">
+            <Minus className="h-6 w-6" />
           </button>
           <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5">
-            <span className={`font-black text-zinc-900 ${embedded ? "text-base" : "text-lg"}`}>$</span>
+            <span className="text-xl font-black text-zinc-900">$</span>
             <input
-              className={`w-20 bg-transparent text-center font-black tabular-nums text-zinc-900 outline-none ${embedded ? "h-10 text-lg" : "h-11 text-xl"}`}
+              className="h-14 w-28 bg-transparent text-center text-3xl font-black tabular-nums text-zinc-900 outline-none disabled:text-zinc-400"
               inputMode="numeric"
+              disabled={!ready}
               aria-label="Offer amount"
-              value={offerDirty ? offer : guide || ""}
+              value={ready ? (offerDirty ? offer : String(guide || "")) : ""}
+              placeholder="—"
               onChange={(e) => {
                 setOfferDirty(true)
                 setOffer(e.target.value.replace(/[^\d]/g, ""))
               }}
             />
           </div>
-          <button
-            type="button"
-            onClick={() => bump(1)}
-            className={`flex shrink-0 items-center justify-center text-zinc-800 ${embedded ? "h-11 w-10" : "h-12 w-12"}`}
-            aria-label="Raise offer"
-          >
-            <Plus className="h-5 w-5" />
+          <button type="button" disabled={!ready} onClick={() => bump(1)} className="flex h-16 w-14 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Raise offer">
+            <Plus className="h-6 w-6" />
           </button>
         </div>
+        <p className="mt-2 text-sm leading-snug text-zinc-500">
+          {ready ? "Suggested from distance. Hosts see this number — no payment until one accepts." : "Tap two places on the map or below to unlock a price."}
+        </p>
       </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          {embedded ? null : <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-500">Days</p>}
-          <div className="flex h-10 items-center justify-between rounded-xl border border-zinc-200 px-1">
-            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg" onClick={() => setDays((n) => Math.max(1, n - 1))} aria-label="Fewer days">
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="text-sm font-bold tabular-nums">{days}d</span>
-            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg" onClick={() => setDays((n) => Math.min(14, n + 1))} aria-label="More days">
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-        <div>
-          {embedded ? null : <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-zinc-500">Guests</p>}
-          <div className="flex h-10 items-center justify-between rounded-xl border border-zinc-200 px-1">
-            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg" onClick={() => setGuests((n) => Math.max(1, n - 1))} aria-label="Fewer guests">
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="text-sm font-bold tabular-nums">{Math.min(guests, maxGuests)}</span>
-            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-lg" onClick={() => setGuests((n) => Math.min(maxGuests, n + 1))} aria-label="More guests">
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-1">
-        {VEHICLE_ORDER.map((type) => {
-          const selected = vehicle === type
-          const meta = VEHICLE_RATES[type]
-          return (
-            <button
-              key={type}
-              type="button"
-              title={meta.label}
-              onClick={() => pickVehicle(type)}
-              className={`flex h-12 min-w-0 flex-1 flex-col items-center justify-center rounded-xl ${
-                selected ? "bg-[#FFF8E1] ring-2 ring-[#FFC72C]" : "bg-zinc-50 hover:bg-zinc-100"
-              }`}
-            >
-              {meta.icon ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={meta.icon} alt="" className="h-7 w-7 object-contain" />
-              ) : null}
-              <span className={`text-[10px] leading-none mt-0.5 ${selected ? "font-bold text-zinc-900" : "font-medium text-zinc-500"}`}>
-                {meta.label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => pickGuide(false)}
-          className={`h-9 rounded-lg text-xs font-semibold ${
-            !wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"
-          }`}
-        >
-          No guide
-        </button>
-        <button
-          type="button"
-          onClick={() => pickGuide(true)}
-          className={`h-9 rounded-lg text-xs font-semibold ${
-            wantsGuide ? "bg-[#FFC72C] text-zinc-900" : "bg-zinc-100 text-zinc-600"
-          }`}
-        >
-          Guide · +${GUIDE_FEE_USD}
-        </button>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => setCalOpen(true)}
-        className={`${fieldClass} inline-flex items-center gap-1.5 px-3 text-left truncate`}
-      >
-        <CalendarDays className="w-3.5 h-3.5 shrink-0 text-zinc-500" />
-        <span className="truncate">{date ? format(new Date(`${date}T12:00:00`), "d MMM") : "Start date"}</span>
-      </button>
 
       <div className="grid grid-cols-1 gap-2">
         <input className={fieldClass} placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -347,8 +353,8 @@ export function TransportPlanClient() {
           <input className={fieldClass} placeholder="WhatsApp" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <textarea
-          className={`${fieldClass} h-[4.5rem] resize-none py-2.5 leading-snug`}
-          placeholder="Requests for the host — child seat, hotel pickup, luggage…"
+          className={`${fieldClass} h-16 resize-none py-2.5 leading-snug`}
+          placeholder="Anything the host should know…"
           value={requests}
           maxLength={500}
           onChange={(e) => setRequests(e.target.value)}
@@ -357,28 +363,15 @@ export function TransportPlanClient() {
       </div>
 
       {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
-
-      {hideSend ? null : (
-        <>
-          {isSignedIn ? (
-            <button type="button" disabled={sending} onClick={submit} className={sendClass}>
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Offer"}
-            </button>
-          ) : (
-            <SignInButton mode="modal">
-              <button type="button" className={sendClass}>
-                Sign in to send
-              </button>
-            </SignInButton>
-          )}
-          <p className="text-center text-[11px] text-zinc-400">No payment yet. 24 hours to pay if a host accepts.</p>
-        </>
-      )}
+      <div className="hidden lg:block space-y-2">
+        {sendButton}
+        <p className="text-center text-sm text-zinc-400">No payment yet.</p>
+      </div>
     </div>
   )
 
   const mapBlock = (
-    <div className="h-full min-h-0 overflow-hidden bg-zinc-900 lg:rounded-3xl lg:shadow-xl lg:border lg:border-zinc-800">
+    <div className="h-full min-h-0 overflow-hidden bg-zinc-900 lg:rounded-[1.75rem]">
       <RouteIslandMap
         stops={stops}
         onAdd={tapPlace}
@@ -388,62 +381,67 @@ export function TransportPlanClient() {
     </div>
   )
 
-  const desktopSelected = stops.length > 0 ? (
-    <div className="flex flex-col gap-1.5 pb-3">
-      {stops.map((stop, index) => (
-        <div key={`${stop.id}-${index}`} className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-1.5">
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
-            {stop.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={stop.image} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="block h-full w-full bg-zinc-200" />
-            )}
-            <span className="absolute left-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white">
-              {index + 1}
-            </span>
-          </div>
-          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
-          <button type="button" onClick={() => removeStopAt(index)} className="p-1.5 text-zinc-400 hover:text-zinc-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      ))}
-    </div>
-  ) : null
+  const itinerary =
+    stops.length === 0 ? (
+      <p className="rounded-2xl bg-zinc-50 px-3 py-3 text-base leading-relaxed text-zinc-600">
+        Start with pickup — airport or first town — then add where you want to sleep.
+      </p>
+    ) : (
+      <ol className="space-y-0">
+        {stops.map((stop, index) => (
+          <li key={`${stop.id}-${index}`} className="flex gap-3">
+            <div className="flex w-7 flex-col items-center">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white">
+                {index + 1}
+              </span>
+              {index < stops.length - 1 ? <span className="w-px flex-1 bg-zinc-200" /> : null}
+            </div>
+            <div className={`flex min-w-0 flex-1 items-center gap-2 pb-3 ${index === stops.length - 1 ? "pb-0" : ""}`}>
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-200">
+                {stop.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                ) : null}
+              </div>
+              <span className="min-w-0 flex-1 truncate text-base font-semibold text-zinc-900">{stop.name}</span>
+              <button type="button" onClick={() => removeStopAt(index)} className="rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700" aria-label={`Remove ${stop.name}`}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
 
-  const desktopPlaces = (
-    <div className="grid grid-cols-1 gap-2">
+  const placePicker = (
+    <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:gap-2 lg:overflow-visible">
       {ROUTE_STOPS.map((stop) => {
         const numbers = numbersFor(stop.id)
+        const onRoute = numbers.length > 0
         return (
           <button
             key={stop.id}
             type="button"
             onClick={() => tapPlace(stop)}
-            className={`flex w-full items-center gap-3 rounded-2xl border bg-white p-2 pr-3 text-left hover:shadow-sm ${
-              numbers.length ? "border-zinc-900" : "border-zinc-100 hover:border-zinc-300"
-            }`}
+            title={onRoute ? `${stop.name} is on your route` : `Add ${stop.name}`}
+            className="w-[5.75rem] shrink-0 text-left lg:w-auto"
           >
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+            <span
+              className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
+                onRoute ? "ring-2 ring-zinc-900 ring-offset-2" : "ring-1 ring-zinc-200"
+              }`}
+            >
               {stop.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={stop.image} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <span className="block h-full w-full bg-zinc-200" />
-              )}
-              {numbers.length > 0 ? (
-                <span className="absolute left-0.5 top-0.5 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
+              ) : null}
+              {onRoute ? (
+                <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-xs font-bold leading-5 text-white">
                   {numbers.join("·")}
                 </span>
               ) : null}
-            </div>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-zinc-900">{stop.name}</span>
-              <span className="block truncate text-xs leading-tight text-zinc-500">
-                {numbers.length ? `Stop ${numbers.join(" · ")}` : stop.blurb || "Add to route"}
-              </span>
             </span>
+            <span className="mt-1.5 block truncate text-sm font-semibold text-zinc-800">{stop.name.replace("Colombo Airport (CMB)", "Airport")}</span>
           </button>
         )
       })}
@@ -462,7 +460,7 @@ export function TransportPlanClient() {
             />
             <div className="relative w-full max-w-sm rounded-2xl bg-white p-3 shadow-2xl">
               <div className="mb-1 flex items-center justify-between">
-                <p className="text-sm font-bold text-zinc-900">Start date</p>
+                <p className="text-base font-bold text-zinc-900">Start date</p>
                 <button type="button" onClick={() => setCalOpen(false)} className="rounded-full p-1 text-zinc-400" aria-label="Close">
                   <X className="h-4 w-4" />
                 </button>
@@ -486,101 +484,62 @@ export function TransportPlanClient() {
 
   const pickedBar =
     picked && numbersFor(picked.id).length > 0 ? (
-      <div className="mb-3 flex items-center gap-2 rounded-2xl bg-zinc-100 px-3 py-2">
-        <p className="min-w-0 flex-1 text-xs font-medium text-zinc-600">
+      <div className="mb-3 flex items-center gap-2 rounded-2xl bg-zinc-100 px-3 py-3">
+        <p className="min-w-0 flex-1 text-sm font-medium text-zinc-600">
           <span className="font-bold text-zinc-900">{picked.name}</span> is already on your route
         </p>
-        <button type="button" onClick={() => visitAgain(picked)} className="shrink-0 text-xs font-bold text-zinc-900">
+        <button type="button" onClick={() => visitAgain(picked)} className="shrink-0 text-sm font-bold text-zinc-900">
           Add again
         </button>
-        <button type="button" onClick={() => removeLastOf(picked.id)} className="shrink-0 text-xs font-semibold text-zinc-500">
+        <button type="button" onClick={() => removeLastOf(picked.id)} className="shrink-0 text-sm font-semibold text-zinc-500">
           Remove
         </button>
       </div>
     ) : null
 
-  const locationRail = (
-    <div>
-      <div className="mb-2 flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {ROUTE_STOPS.map((stop) => {
-          const numbers = numbersFor(stop.id)
-          return (
-            <button
-              key={stop.id}
-              type="button"
-              onClick={() => tapPlace(stop)}
-              title={numbers.length ? `${stop.name} is on your route` : `Add ${stop.name}`}
-              className="w-[4.75rem] shrink-0 text-center"
-            >
-              <span
-                className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
-                  numbers.length ? "ring-2 ring-zinc-900 ring-offset-1" : picked?.id === stop.id ? "ring-2 ring-[#FFC72C] ring-offset-1" : ""
-                }`}
-              >
-                {stop.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={stop.image} alt="" className="h-full w-full object-cover" />
-                ) : null}
-                {numbers.length > 0 ? (
-                  <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-[10px] font-bold leading-5 text-white">
-                    {numbers.join("·")}
-                  </span>
-                ) : null}
-              </span>
-              <span className="mt-1 block truncate text-[11px] font-semibold text-zinc-900">{stop.name}</span>
-            </button>
-          )
-        })}
+  const tripPanel = (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="shrink-0 pb-4">
+        <p className="text-sm font-semibold text-zinc-500">Your trip</p>
+        <div className="mt-1 flex items-end justify-between gap-3">
+          <h1 className="text-2xl font-black tracking-tight text-zinc-900">Plan a route</h1>
+          {km > 0 ? <p className="text-sm font-semibold text-zinc-500">{stops.length} stops · {km} km</p> : null}
+        </div>
       </div>
-      {pickedBar}
-      {stops.length > 0 ? (
-        <button type="button" onClick={clearRoute} className="mb-3 text-xs font-semibold text-zinc-400">
-          Clear route
-        </button>
-      ) : null}
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto pb-4 lg:pr-1">
+        <section>
+          {itinerary}
+          {stops.length > 0 ? (
+            <button type="button" onClick={clearRoute} className="mt-3 text-sm font-semibold text-zinc-500 hover:text-zinc-800">
+              Clear route
+            </button>
+          ) : null}
+        </section>
+        <section>
+          <p className={labelClass}>Add a place</p>
+          {placePicker}
+          {pickedBar}
+        </section>
+        <section>{detailsForm}</section>
+      </div>
     </div>
   )
 
   return (
     <div className="w-full bg-zinc-50 lg:min-h-screen">
       {calendar}
-      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:overflow-visible lg:px-5 lg:pt-4 xl:gap-5">
-        <div className="h-[calc(100svh-14rem)] lg:order-3 lg:h-full">{mapBlock}</div>
-
-        <section className="hidden min-h-0 min-w-0 lg:order-2 lg:flex lg:h-full lg:flex-col">
-          <div className="shrink-0 pb-3">
-            <Link href="/?vertical=transport" className="mb-1 inline-flex items-center gap-1 text-sm font-semibold text-zinc-500">
-              <ArrowLeft className="h-4 w-4" /> Transport
-            </Link>
-            <h1 className="text-2xl font-black tracking-tight text-zinc-900">Plan a route</h1>
-            {km > 0 ? (
-              <p className="mt-1 text-xs text-zinc-500">
-                {stops.length} stops · {km} km
-              </p>
-            ) : (
-              <p className="mt-1 text-xs text-zinc-500">Tap a place or a pin on the map</p>
-            )}
-          </div>
-          {desktopSelected}
-          <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
-              {stops.length === 0 ? "Start with a pickup" : "Add another stop"}
-            </p>
-            {pickedBar}
-            {desktopPlaces}
-          </div>
-        </section>
-
-        <aside className="hidden min-h-0 min-w-0 lg:order-1 lg:block lg:h-full lg:overflow-y-auto">{renderBook()}</aside>
-
-        <section className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-white px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] lg:hidden">
-          {locationRail}
-          {renderBook(true)}
-          {stops.length < 2 ? (
-            <p className="mt-3 text-center text-xs text-zinc-500">Pick a pickup and one more stop</p>
-          ) : null}
+      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1600px] lg:grid-cols-[minmax(22rem,28rem)_minmax(0,1fr)] lg:gap-5 lg:px-5 lg:py-4">
+        <div className="h-[min(52svh,28rem)] lg:order-2 lg:h-full">{mapBlock}</div>
+        <section className={`relative z-10 -mt-6 min-h-0 rounded-t-[1.75rem] bg-white px-4 pt-5 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${ready ? "pb-[max(5.75rem,env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"}`}>
+          {tripPanel}
         </section>
       </div>
+
+      {ready ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-100 bg-white/95 px-4 py-3 backdrop-blur lg:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+          {sendButton}
+        </div>
+      ) : null}
     </div>
   )
 }

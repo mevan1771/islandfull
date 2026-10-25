@@ -223,7 +223,7 @@ export function RouteIslandMap({
         className="h-full w-full bg-transparent [&_.mapboxgl-canvas]:opacity-0 [&_.mapboxgl-canvas]:transition-opacity [&_.mapboxgl-canvas]:duration-300"
       />
       {stops.length === 0 ? (
-        <p className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+        <p className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/50 px-3 py-1.5 text-sm font-semibold text-white backdrop-blur-sm">
           Tap a pin to add it
         </p>
       ) : null}
@@ -233,7 +233,7 @@ export function RouteIslandMap({
 
 function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElement }>) {
   const compact = isCompactMap()
-  const size = compact ? 36 : 48
+  const size = compact ? 44 : 52
   Object.entries(refs).forEach(([id, { el }]) => {
     const stop = ROUTE_STOPS.find((item) => item.id === id)
     if (!stop) return
@@ -255,7 +255,7 @@ function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElem
         </span>
         ${
           selected
-            ? `<span style="position:absolute;right:-4px;top:-4px;min-width:${badgeWidth}px;height:20px;padding:0 5px;border-radius:9999px;background:#18181b;color:#fff;font:700 10px/20px system-ui,sans-serif;text-align:center">${label}</span>`
+            ? `<span style="position:absolute;right:-4px;top:-4px;min-width:${badgeWidth}px;height:22px;padding:0 6px;border-radius:9999px;background:#18181b;color:#fff;font:700 12px/22px system-ui,sans-serif;text-align:center">${label}</span>`
             : ""
         }
       </button>
