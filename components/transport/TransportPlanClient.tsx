@@ -461,20 +461,16 @@ export function TransportPlanClient() {
 
   const tripPanel = (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 pb-4">
-        <p className="text-sm font-semibold text-zinc-500">Your trip</p>
-        <div className="mt-1 flex items-end justify-between gap-3">
-          <h1 className="text-2xl font-black tracking-tight text-zinc-900">Plan a route</h1>
-          {km > 0 ? <p className="text-sm font-semibold text-zinc-500">{stops.length} stops · {km} km</p> : null}
-        </div>
-      </div>
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-4 lg:pr-1">
         {stops.length > 0 ? (
           <section>
             {itinerary}
-            <button type="button" onClick={clearRoute} className="mt-3 text-sm font-semibold text-zinc-500 hover:text-zinc-800">
-              Clear route
-            </button>
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-zinc-500">{stops.length} stops · {km} km</p>
+              <button type="button" onClick={clearRoute} className="text-sm font-semibold text-zinc-500 hover:text-zinc-800">
+                Clear route
+              </button>
+            </div>
           </section>
         ) : null}
         <section>
@@ -491,7 +487,7 @@ export function TransportPlanClient() {
       {calendar}
       <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1600px] lg:grid-cols-[minmax(22rem,28rem)_minmax(0,1fr)] lg:gap-5 lg:px-5 lg:py-4">
         <div className="h-[min(52svh,28rem)] lg:order-2 lg:h-full">{mapBlock}</div>
-        <section className={`relative z-10 -mt-6 min-h-0 rounded-t-[1.75rem] bg-white px-4 pt-5 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${ready ? "pb-[max(5.75rem,env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"}`}>
+        <section className={`relative z-10 -mt-6 min-h-0 rounded-t-[1.75rem] bg-white px-4 pt-4 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${ready ? "pb-[max(5.75rem,env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"}`}>
           {tripPanel}
         </section>
       </div>
