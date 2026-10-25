@@ -91,9 +91,7 @@ export function RouteIslandMap({
       maxBounds: MAX_BOUNDS,
       attributionControl: false,
       cooperativeGestures: false,
-      dragPan: !compact,
       scrollZoom: !compact,
-      touchZoomRotate: !compact,
       pitch: 0,
     })
     if (compact) {
@@ -178,17 +176,28 @@ export function RouteIslandMap({
     ;(["trip-route-halo", "trip-route-line"] as const).forEach((id) => {
       if (map?.getLayer(id)) map.setLayoutProperty(id, "visibility", show ? "visible" : "none")
     })
-    if (!map || stops.length === 0 || isCompactMap()) return
+    if (!map) return
+    const compact = isCompactMap()
+    if (stops.length === 0) {
+      map.easeTo({ center: CENTER, zoom: compact ? 5.55 : 5.85, duration: 600 })
+      return
+    }
     if (stops.length === 1) {
-      map.easeTo({ center: [stops[0].lng, stops[0].lat], zoom: Math.max(map.getZoom(), 7.4), duration: 500 })
+      map.easeTo({
+        center: [stops[0].lng, stops[0].lat],
+        zoom: compact ? 7.35 : 7.5,
+        duration: 700,
+      })
       return
     }
     const bounds = new mapboxgl.LngLatBounds()
     stops.forEach((stop) => bounds.extend([stop.lng, stop.lat]))
     map.fitBounds(bounds, {
-      padding: { top: 72, bottom: 88, left: 56, right: 72 },
-      maxZoom: 8.2,
-      duration: 600,
+      padding: compact
+        ? { top: 44, bottom: 44, left: 28, right: 28 }
+        : { top: 72, bottom: 88, left: 56, right: 72 },
+      maxZoom: compact ? 8 : 8.2,
+      duration: 750,
     })
   }, [stops])
 

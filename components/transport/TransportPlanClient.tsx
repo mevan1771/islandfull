@@ -536,7 +536,7 @@ export function TransportPlanClient() {
     <div className="w-full bg-zinc-50 lg:min-h-screen">
       {calendar}
       <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1680px] lg:grid-cols-[minmax(18rem,21rem)_minmax(16.5rem,19rem)_minmax(0,1fr)] lg:gap-4 lg:overflow-visible lg:px-5 lg:pt-4 xl:gap-5">
-        <div className="h-[38svh] max-h-64 lg:order-3 lg:h-full lg:max-h-none">{mapBlock}</div>
+        <div className="h-[calc(100svh-14rem)] lg:order-3 lg:h-full">{mapBlock}</div>
 
         <section className="hidden min-h-0 min-w-0 lg:order-2 lg:flex lg:h-full lg:flex-col">
           <div className="shrink-0 pb-3">
