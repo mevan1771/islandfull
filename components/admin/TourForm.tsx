@@ -147,6 +147,50 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
     setOptions(newOptions)
   }
 
+  const [inclusionRows, setInclusionRows] = useState<{ text: string; icon_url: string }[]>(() => {
+    const texts: string[] = Array.isArray(initialData?.inclusions) ? initialData.inclusions : []
+    const icons: string[] = Array.isArray(initialData?.inclusion_icons) ? initialData.inclusion_icons : []
+    if (!texts.length) return [{ text: "", icon_url: "" }]
+    return texts.map((text, i) => ({ text: String(text || ""), icon_url: String(icons[i] || "") }))
+  })
+  const [uploadingInclusionIndex, setUploadingInclusionIndex] = useState<number | null>(null)
+
+  const addInclusion = () => setInclusionRows((rows) => [...rows, { text: "", icon_url: "" }])
+  const removeInclusion = (index: number) => {
+    setInclusionRows((rows) => (rows.length === 1 ? [{ text: "", icon_url: "" }] : rows.filter((_, i) => i !== index)))
+  }
+  const updateInclusionText = (index: number, text: string) => {
+    setInclusionRows((rows) => rows.map((row, i) => (i === index ? { ...row, text } : row)))
+  }
+  const updateInclusionIcon = (index: number, icon_url: string) => {
+    setInclusionRows((rows) => rows.map((row, i) => (i === index ? { ...row, icon_url } : row)))
+  }
+
+  async function handleInclusionIconUpload(index: number, file?: File) {
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB limit")
+      return
+    }
+    setUploadingInclusionIndex(index)
+    try {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 800,
+        initialQuality: 0.9,
+        useWebWorker: true,
+      })
+      const data = new FormData()
+      data.append("file", compressed)
+      const result = await uploadToCloudinary(data)
+      if (!result.success || !result.secure_url) throw new Error(result.error || "Failed to upload icon")
+      updateInclusionIcon(index, result.secure_url)
+    } catch (err: any) {
+      alert(err.message || "Failed to upload icon")
+    }
+    setUploadingInclusionIndex(null)
+  }
+
   // FAQs State (array of {question, answer})
   const [faqs, setFaqs] = useState<{ question: string, answer: string }[]>(() => {
     if (initialData?.faqs && Array.isArray(initialData.faqs)) {
@@ -167,6 +211,7 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
   }
 
   const nextStep = () => {
+    setError(null)
     const currentStepElement = document.getElementById(`step-${step}`);
     if (currentStepElement) {
       const inputs = currentStepElement.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea');
@@ -176,6 +221,10 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
           return; // Stop if invalid
         }
       }
+    }
+    if (step === 3 && !isPlace && !inclusionRows.some((row) => row.text.trim())) {
+      setError("Add at least one inclusion")
+      return
     }
     setStep((s) => {
       if (isPlace && s === 1) return 3
@@ -1136,20 +1185,56 @@ export default function TourForm({ categories, initialData, cancellationTiers = 
               </div>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
-                  <CheckSquare className="w-4 h-4 text-rose-500" />
-                  {isPlace ? "Useful tips (one per line)" : "Inclusions (One per line)"}
-                </label>
-                <textarea
-                  name="inclusions"
-                  defaultValue={initialData?.inclusions?.join('\n')}
-                  placeholder={isPlace ? "Open from 8:00 am to 5:00 pm.&#10;Entrance fees are LKR 250." : "Surfboard Rental\nRash Guard\n2 Hour Lesson"}
-                  className="w-full h-32 p-5 rounded-2xl border-2 border-zinc-100 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 outline-none transition-all font-medium text-base text-zinc-900 placeholder:text-zinc-300 resize-none leading-relaxed"
-                  required={!isPlace}
-                />
-                {isPlace && (
-                  <p className="text-xs text-zinc-500 font-medium mt-1">Each line becomes a bullet on the Must see page.</p>
-                )}
+                <div className="flex items-center justify-between gap-3">
+                  <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+                    <CheckSquare className="w-4 h-4 text-rose-500" />
+                    {isPlace ? "Useful tips" : "What's included"}
+                  </label>
+                  <button type="button" onClick={addInclusion} className="text-sm font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-full transition-colors">
+                    <Plus className="w-4 h-4" /> Add
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-500 font-medium">
+                  {isPlace ? "Each row becomes a bullet on the Must see page. Icons are optional." : "Add each inclusion on its own row. Optional: upload a small icon for that bullet."}
+                </p>
+                <input type="hidden" name="inclusions" value={inclusionRows.map((row) => row.text).join("\n")} />
+                <input type="hidden" name="inclusion_icons" value={JSON.stringify(inclusionRows.map((row) => row.icon_url))} />
+                <div className="space-y-3">
+                  {inclusionRows.map((row, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <label className="relative flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50 hover:border-rose-300">
+                        {uploadingInclusionIndex === index ? (
+                          <Loader2 className="h-5 w-5 animate-spin text-rose-500" />
+                        ) : row.icon_url ? (
+                          <img src={row.icon_url} alt="" className="h-full w-full object-contain p-1" />
+                        ) : (
+                          <ImageIcon className="h-5 w-5 text-zinc-400" />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleInclusionIconUpload(index, e.target.files?.[0])}
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        value={row.text}
+                        onChange={(e) => updateInclusionText(index, e.target.value)}
+                        placeholder={isPlace ? "Open from 8:00 am to 5:00 pm" : "Surfboard rental"}
+                        className="h-14 flex-1 rounded-2xl border-2 border-zinc-100 px-4 font-medium text-zinc-900 outline-none transition-all focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeInclusion(index)}
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-zinc-400 hover:bg-zinc-100 hover:text-rose-500"
+                        aria-label="Remove inclusion"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

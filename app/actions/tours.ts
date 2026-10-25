@@ -5,6 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache"
 import { logActivity } from "@/utils/auditLogger"
 import { createClient } from "@/utils/supabase/server"
 import { sendWebhook } from "@/utils/webhook"
+import { parseInclusionForm } from "@/lib/inclusions"
 
 // Helper function to generate a URL-friendly slug
 function generateSlug(title: string): string {
@@ -161,11 +162,7 @@ export async function createTour(formData: FormData) {
       console.warn("Failed to parse pricing_tiers:", e);
     }
 
-    // Parse inclusions from multi-line text area
-    const inclusionsRaw = formData.get("inclusions") as string
-    const inclusions = inclusionsRaw
-      ? inclusionsRaw.split('\n').map(item => item.trim()).filter(Boolean)
-      : []
+    const { inclusions, inclusion_icons } = parseInclusionForm(formData)
 
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
@@ -204,6 +201,7 @@ export async function createTour(formData: FormData) {
       location,
       description,
       inclusions,
+      inclusion_icons,
       duration: resolvedDuration,
       price_usd: resolvedPrice,
         discount_price,
@@ -401,10 +399,7 @@ export async function updateTour(id: string, formData: FormData) {
       console.warn("Failed to parse pricing_tiers:", e);
     }
 
-    const inclusionsRaw = formData.get("inclusions") as string
-    const inclusions = inclusionsRaw
-      ? inclusionsRaw.split('\n').map(item => item.trim()).filter(Boolean)
-      : []
+    const { inclusions, inclusion_icons } = parseInclusionForm(formData)
 
     // Extract all gallery urls
     const gallery_urls = formData.getAll("gallery_urls") as string[]
@@ -440,6 +435,7 @@ export async function updateTour(id: string, formData: FormData) {
       location,
       description,
       inclusions,
+      inclusion_icons,
       duration: resolvedDuration,
       price_usd: resolvedPrice,
       discount_price,

@@ -2,7 +2,7 @@ import Image from "next/image"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Check, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { BookingDrawer } from "@/components/activity/BookingDrawer"
 import { ActivityReviews } from "@/components/activity/ActivityReviews"
@@ -17,6 +17,8 @@ import { ActivityCard } from "@/components/activity/ActivityCard"
 import ReactMarkdown from "react-markdown"
 import { ScrollToTop } from "@/components/activity/ScrollToTop"
 import { ActivityMetaBar } from "@/components/activity/ActivityMetaBar"
+import { InclusionBullets } from "@/components/activity/InclusionBullets"
+import { zipInclusionItems } from "@/lib/inclusions"
 import { DESTINATIONS, activityBelongsToDestination } from "@/lib/destinations"
 
 import { Metadata, ResolvingMetadata } from 'next'
@@ -273,33 +275,24 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     {/* Rough Location Map */}
                     <ActivityMap lat={activity.approx_lat} lng={activity.approx_lng} />
 
-                    {isPlace && activity.inclusions && activity.inclusions.length > 0 ? (
-                        <section className="lg:hidden">
-                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Useful tips</h2>
-                            <ul className="space-y-2.5">
-                                {activity.inclusions.map((item: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-2.5 text-sm md:text-[15px] text-gray-700 leading-relaxed">
-                                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
-                                        <span>{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    ) : activity.inclusions && activity.inclusions.length > 0 ? (
-                        <section>
-                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">What's included</h2>
-                            <ul className="grid grid-cols-2 gap-y-3 gap-x-4 w-full">
-                                {activity.inclusions.map((item: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                        <div className="mt-0.5 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                            <Check className="w-2.5 h-2.5 text-white" />
-                                        </div>
-                                        <span className="text-gray-700 text-sm font-medium leading-tight">{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    ) : null}
+                    {(() => {
+                        const inclusionItems = zipInclusionItems(activity.inclusions, activity.inclusion_icons)
+                        if (!inclusionItems.length) return null
+                        if (isPlace) {
+                            return (
+                                <section className="lg:hidden">
+                                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Useful tips</h2>
+                                    <InclusionBullets items={inclusionItems} variant="place" />
+                                </section>
+                            )
+                        }
+                        return (
+                            <section>
+                                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">What's included</h2>
+                                <InclusionBullets items={inclusionItems} />
+                            </section>
+                        )
+                    })()}
 
 
                     {/* FAQs */}
@@ -327,17 +320,10 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                 {activity.duration && (
                                     <p className="mt-3 text-sm text-zinc-500">Allow {activity.duration}</p>
                                 )}
-                                {activity.inclusions && activity.inclusions.length > 0 && (
+                                {zipInclusionItems(activity.inclusions, activity.inclusion_icons).length > 0 && (
                                     <div className="mt-5 pt-5 border-t border-zinc-100">
                                         <p className="text-xs font-bold uppercase tracking-wide text-zinc-400 mb-3">Useful tips</p>
-                                        <ul className="space-y-2.5">
-                                            {activity.inclusions.map((item: string, i: number) => (
-                                                <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-700 leading-snug">
-                                                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <InclusionBullets items={zipInclusionItems(activity.inclusions, activity.inclusion_icons)} variant="place" />
                                     </div>
                                 )}
                             </div>
