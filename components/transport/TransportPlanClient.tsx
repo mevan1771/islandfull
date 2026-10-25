@@ -468,8 +468,8 @@ export function TransportPlanClient() {
         <aside className="hidden min-h-0 min-w-0 lg:order-1 lg:block lg:h-full lg:overflow-y-auto">{renderBook()}</aside>
 
         <div className="absolute inset-x-0 bottom-0 z-20 lg:hidden">
-          <div className="flex max-h-[min(52dvh,26rem)] flex-col rounded-t-[1.75rem] bg-white px-3 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(0,0,0,.22)]">
-            <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex max-h-[min(34dvh,15.5rem)] flex-col overflow-hidden rounded-t-[1.75rem] bg-white px-3 pt-2 pb-[max(0.65rem,env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(0,0,0,.22)]">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
               <div className="mb-2.5 flex gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {ROUTE_STOPS.map((stop) => {
                   const numbers = numbersFor(stop.id)

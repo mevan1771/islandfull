@@ -93,7 +93,7 @@ export function RouteIslandMap({
       pitch: 0,
     })
     if (isCompactMap()) {
-      map.setPadding({ top: 12, bottom: 260, left: 16, right: 16 })
+      map.setPadding({ top: 12, bottom: 170, left: 16, right: 16 })
     } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
     }
@@ -184,7 +184,7 @@ export function RouteIslandMap({
     const compact = isCompactMap()
     map.fitBounds(bounds, {
       padding: compact
-        ? { top: 48, bottom: 280, left: 28, right: 28 }
+        ? { top: 48, bottom: 180, left: 28, right: 28 }
         : { top: 72, bottom: 88, left: 56, right: 72 },
       maxZoom: compact ? 7.6 : 8.2,
       duration: 600,
