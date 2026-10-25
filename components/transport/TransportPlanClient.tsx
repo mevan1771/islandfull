@@ -369,7 +369,7 @@ export function TransportPlanClient() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white">
                 {index + 1}
               </span>
-              {index < stops.length - 1 ? <span className="w-px flex-1 bg-zinc-200" /> : null}
+              {index < stops.length - 1 ? <span className="w-0 flex-1 border-l-2 border-dotted border-zinc-300" /> : null}
             </div>
             <div className={`flex min-w-0 flex-1 items-center gap-2 pb-3 ${index === stops.length - 1 ? "pb-0" : ""}`}>
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-200">

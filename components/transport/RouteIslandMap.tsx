@@ -118,14 +118,24 @@ export function RouteIslandMap({
         type: "line",
         source: "trip-route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#18181b", "line-width": 7, "line-opacity": 0.45 },
+        paint: {
+          "line-color": "#18181b",
+          "line-width": 7,
+          "line-opacity": 0.35,
+          "line-dasharray": [0, 1.8],
+        },
       })
       map.addLayer({
         id: "trip-route-line",
         type: "line",
         source: "trip-route",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#ffffff", "line-width": 3, "line-opacity": 0.95 },
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 4,
+          "line-opacity": 0.95,
+          "line-dasharray": [0, 1.8],
+        },
       })
       ROUTE_STOPS.forEach((stop) => {
         const el = document.createElement("div")
