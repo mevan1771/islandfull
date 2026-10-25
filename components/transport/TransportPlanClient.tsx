@@ -38,7 +38,7 @@ const fieldClass =
 const sendClass =
   "w-full h-12 rounded-2xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 text-base font-bold disabled:opacity-60 flex items-center justify-center gap-2"
 
-const labelClass = "mb-2 text-sm font-semibold text-zinc-500"
+const labelClass = "mb-2 text-base font-semibold text-zinc-600"
 
 function stopsFromParam(value: string | null) {
   if (!value) return [] as RouteStop[]
@@ -229,15 +229,15 @@ export function TransportPlanClient() {
                 type="button"
                 title={meta.label}
                 onClick={() => pickVehicle(type)}
-                className={`flex h-16 min-w-0 flex-1 flex-col items-center justify-center rounded-2xl transition ${
+                className={`flex h-[4.75rem] min-w-0 flex-1 flex-col items-center justify-center rounded-2xl transition ${
                   selected ? "bg-[#FFF8E1] shadow-[inset_0_0_0_2px_#FFC72C] text-zinc-900" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
                 }`}
               >
                 {meta.icon ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={meta.icon} alt="" className="h-8 w-8 object-contain" />
+                  <img src={meta.icon} alt="" className="h-11 w-11 object-contain" />
                 ) : null}
-                <span className="mt-1 text-xs font-semibold leading-tight">{meta.label}</span>
+                <span className="mt-1 text-sm font-bold leading-tight">{meta.label}</span>
               </button>
             )
           })}
@@ -246,14 +246,14 @@ export function TransportPlanClient() {
           <button
             type="button"
             onClick={() => pickGuide(false)}
-            className={`h-12 rounded-2xl text-sm font-semibold ${!wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
+            className={`h-12 rounded-2xl text-base font-semibold ${!wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
           >
             Driver only
           </button>
           <button
             type="button"
             onClick={() => pickGuide(true)}
-            className={`h-12 rounded-2xl text-sm font-semibold ${wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
+            className={`h-12 rounded-2xl text-base font-semibold ${wantsGuide ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-700"}`}
           >
             + Guide ${GUIDE_FEE_USD}
           </button>
@@ -267,7 +267,7 @@ export function TransportPlanClient() {
             <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setDays((n) => Math.max(1, n - 1))} aria-label="Fewer days">
               <Minus className="h-5 w-5" />
             </button>
-            <span className="text-base font-bold tabular-nums">{days}</span>
+            <span className="text-lg font-bold tabular-nums">{days}</span>
             <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setDays((n) => Math.min(14, n + 1))} aria-label="More days">
               <Plus className="h-5 w-5" />
             </button>
@@ -279,7 +279,7 @@ export function TransportPlanClient() {
             <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setGuests((n) => Math.max(1, n - 1))} aria-label="Fewer guests">
               <Minus className="h-5 w-5" />
             </button>
-            <span className="text-base font-bold tabular-nums">{Math.min(guests, maxGuests)}</span>
+            <span className="text-lg font-bold tabular-nums">{Math.min(guests, maxGuests)}</span>
             <button type="button" className="flex h-10 w-10 items-center justify-center" onClick={() => setGuests((n) => Math.min(maxGuests, n + 1))} aria-label="More guests">
               <Plus className="h-5 w-5" />
             </button>
@@ -389,7 +389,7 @@ export function TransportPlanClient() {
     )
 
   const placePicker = (
-    <div className="flex gap-2.5 overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:gap-2.5 lg:overflow-visible">
+    <div className="flex gap-2.5 overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-5 lg:gap-3 lg:overflow-visible">
       {ROUTE_STOPS.map((stop) => {
         const numbers = numbersFor(stop.id)
         const onRoute = numbers.length > 0
@@ -418,7 +418,7 @@ export function TransportPlanClient() {
                 ) : null}
               </span>
             </span>
-            <span className="mt-1.5 block truncate text-sm font-semibold text-zinc-800">{stop.name.replace("Colombo Airport (CMB)", "Airport")}</span>
+            <span className="mt-1.5 block truncate text-sm font-bold text-zinc-800 lg:text-base">{stop.name.replace("Colombo Airport (CMB)", "Airport")}</span>
           </button>
         )
       })}
@@ -485,7 +485,7 @@ export function TransportPlanClient() {
   return (
     <div className="w-full bg-zinc-50 lg:min-h-screen">
       {calendar}
-      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1600px] lg:grid-cols-[minmax(22rem,28rem)_minmax(0,1fr)] lg:gap-5 lg:px-5 lg:py-4">
+      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1800px] lg:grid-cols-2 lg:gap-5 lg:px-5 lg:py-4">
         <div className="h-[min(52svh,28rem)] lg:order-2 lg:h-full">{mapBlock}</div>
         <section className={`relative z-10 -mt-6 min-h-0 rounded-t-[1.75rem] bg-white px-4 pt-4 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${ready ? "pb-[max(5.75rem,env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"}`}>
           {tripPanel}

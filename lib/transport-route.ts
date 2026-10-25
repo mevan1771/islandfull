@@ -13,6 +13,73 @@ export type RouteStop = {
   blurb?: string
 }
 
+const EXTRA_PLAN_STOPS: RouteStop[] = [
+  {
+    id: "negombo",
+    name: "Negombo",
+    lat: 7.2008,
+    lng: 79.8737,
+    image: "https://images.pexels.com/photos/1078983/pexels-photo-1078983.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Beach town next to the airport",
+  },
+  {
+    id: "dambulla",
+    name: "Dambulla",
+    lat: 7.8742,
+    lng: 80.6517,
+    image: "https://images.pexels.com/photos/322437/pexels-photo-322437.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Cave temples on the cultural triangle",
+  },
+  {
+    id: "anuradhapura",
+    name: "Anuradhapura",
+    lat: 8.3114,
+    lng: 80.4037,
+    image: "https://images.pexels.com/photos/210186/pexels-photo-210186.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Ancient capital and dagobas",
+  },
+  {
+    id: "polonnaruwa",
+    name: "Polonnaruwa",
+    lat: 7.9403,
+    lng: 81.0188,
+    image: "https://images.pexels.com/photos/35606860/pexels-photo-35606860.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Ruined city and Gal Vihara",
+  },
+  {
+    id: "bentota",
+    name: "Bentota",
+    lat: 6.4211,
+    lng: 79.9959,
+    image: "https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "River and west-coast beach",
+  },
+  {
+    id: "unawatuna",
+    name: "Unawatuna",
+    lat: 6.0174,
+    lng: 80.2489,
+    image: "https://images.pexels.com/photos/457882/pexels-photo-457882.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Bay beach south of Galle",
+  },
+  {
+    id: "tangalle",
+    name: "Tangalle",
+    lat: 6.024,
+    lng: 80.797,
+    image: "https://images.pexels.com/photos/7400676/pexels-photo-7400676.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Quiet south-coast beaches",
+  },
+  {
+    id: "jaffna",
+    name: "Jaffna",
+    lat: 9.6615,
+    lng: 80.0255,
+    image: "https://images.pexels.com/photos/1549326/pexels-photo-1549326.jpeg?auto=compress&cs=tinysrgb&w=800",
+    blurb: "Northern peninsula and lagoon",
+  },
+]
+
 export const ROUTE_STOPS: RouteStop[] = [
   {
     id: "cmb",
@@ -30,6 +97,7 @@ export const ROUTE_STOPS: RouteStop[] = [
     image: d.image,
     blurb: getDestinationGuide(d.name)?.tagline,
   })),
+  ...EXTRA_PLAN_STOPS,
 ]
 
 export const VEHICLE_ORDER: VehicleType[] = ["car", "van", "bus", "tuk-tuk", "scooter"]
