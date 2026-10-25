@@ -132,8 +132,7 @@ export function RouteIslandMap({
         el.style.pointerEvents = "auto"
         el.addEventListener("click", (event) => {
           event.stopPropagation()
-          const current = stopsRef.current
-          if (!current.some((item) => item.id === stop.id)) onAddRef.current(stop)
+          onAddRef.current(stop)
         })
         const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
           .setLngLat([stop.lng, stop.lat])

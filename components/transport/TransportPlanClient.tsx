@@ -71,7 +71,6 @@ export function TransportPlanClient() {
   const [sent, setSent] = useState<{ hostCount: number; route: string } | null>(null)
   const [days, setDays] = useState(1)
   const [requests, setRequests] = useState("")
-  const [picked, setPicked] = useState<RouteStop | null>(null)
 
   const km = routeDistanceKm(stops)
   const guide = stops.length >= 2 ? guidePriceUsd(km, vehicle, wantsGuide) : 0
@@ -116,26 +115,7 @@ export function TransportPlanClient() {
   }
 
   function tapPlace(stop: RouteStop) {
-    if (stops.some((item) => item.id === stop.id)) {
-      setPicked(stop)
-      return
-    }
-    setPicked(null)
     addStop(stop)
-  }
-
-  function visitAgain(stop: RouteStop) {
-    addStop(stop)
-    setPicked(null)
-  }
-
-  function removeLastOf(id: string) {
-    setStops((current) => {
-      const index = current.map((item) => item.id).lastIndexOf(id)
-      if (index < 0) return current
-      return current.filter((_, i) => i !== index)
-    })
-    setPicked(null)
   }
 
   function removeLastStop() {
@@ -148,7 +128,6 @@ export function TransportPlanClient() {
 
   function clearRoute() {
     setStops([])
-    setPicked(null)
   }
 
   function pickVehicle(type: VehicleType) {
@@ -382,11 +361,7 @@ export function TransportPlanClient() {
   )
 
   const itinerary =
-    stops.length === 0 ? (
-      <p className="rounded-2xl bg-zinc-50 px-3 py-3 text-base leading-relaxed text-zinc-600">
-        Start with pickup — airport or first town — then add where you want to sleep.
-      </p>
-    ) : (
+    stops.length === 0 ? null : (
       <ol className="space-y-0">
         {stops.map((stop, index) => (
           <li key={`${stop.id}-${index}`} className="flex gap-3">
@@ -414,7 +389,7 @@ export function TransportPlanClient() {
     )
 
   const placePicker = (
-    <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:gap-2 lg:overflow-visible">
+    <div className="flex gap-2.5 overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:gap-2.5 lg:overflow-visible">
       {ROUTE_STOPS.map((stop) => {
         const numbers = numbersFor(stop.id)
         const onRoute = numbers.length > 0
@@ -423,23 +398,25 @@ export function TransportPlanClient() {
             key={stop.id}
             type="button"
             onClick={() => tapPlace(stop)}
-            title={onRoute ? `${stop.name} is on your route` : `Add ${stop.name}`}
+            title={`Add ${stop.name}`}
             className="w-[5.75rem] shrink-0 text-left lg:w-auto"
           >
             <span
-              className={`relative block aspect-square w-full overflow-hidden rounded-2xl bg-zinc-200 ${
-                onRoute ? "ring-2 ring-zinc-900 ring-offset-2" : "ring-1 ring-zinc-200"
+              className={`relative block aspect-square w-full rounded-2xl bg-zinc-200 p-[3px] ${
+                onRoute ? "bg-zinc-900" : "bg-zinc-200"
               }`}
             >
-              {stop.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={stop.image} alt="" className="h-full w-full object-cover" />
-              ) : null}
-              {onRoute ? (
-                <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-xs font-bold leading-5 text-white">
-                  {numbers.join("·")}
-                </span>
-              ) : null}
+              <span className="relative block h-full w-full overflow-hidden rounded-[13px] bg-zinc-200">
+                {stop.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                ) : null}
+                {onRoute ? (
+                  <span className="absolute left-1 top-1 rounded-full bg-zinc-900 px-1.5 text-xs font-bold leading-5 text-white">
+                    {numbers.join("·")}
+                  </span>
+                ) : null}
+              </span>
             </span>
             <span className="mt-1.5 block truncate text-sm font-semibold text-zinc-800">{stop.name.replace("Colombo Airport (CMB)", "Airport")}</span>
           </button>
@@ -482,21 +459,6 @@ export function TransportPlanClient() {
         )
       : null
 
-  const pickedBar =
-    picked && numbersFor(picked.id).length > 0 ? (
-      <div className="mb-3 flex items-center gap-2 rounded-2xl bg-zinc-100 px-3 py-3">
-        <p className="min-w-0 flex-1 text-sm font-medium text-zinc-600">
-          <span className="font-bold text-zinc-900">{picked.name}</span> is already on your route
-        </p>
-        <button type="button" onClick={() => visitAgain(picked)} className="shrink-0 text-sm font-bold text-zinc-900">
-          Add again
-        </button>
-        <button type="button" onClick={() => removeLastOf(picked.id)} className="shrink-0 text-sm font-semibold text-zinc-500">
-          Remove
-        </button>
-      </div>
-    ) : null
-
   const tripPanel = (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 pb-4">
@@ -506,19 +468,18 @@ export function TransportPlanClient() {
           {km > 0 ? <p className="text-sm font-semibold text-zinc-500">{stops.length} stops · {km} km</p> : null}
         </div>
       </div>
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto pb-4 lg:pr-1">
-        <section>
-          {itinerary}
-          {stops.length > 0 ? (
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-4 lg:pr-1">
+        {stops.length > 0 ? (
+          <section>
+            {itinerary}
             <button type="button" onClick={clearRoute} className="mt-3 text-sm font-semibold text-zinc-500 hover:text-zinc-800">
               Clear route
             </button>
-          ) : null}
-        </section>
+          </section>
+        ) : null}
         <section>
           <p className={labelClass}>Add a place</p>
           {placePicker}
-          {pickedBar}
         </section>
         <section>{detailsForm}</section>
       </div>
