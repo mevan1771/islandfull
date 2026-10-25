@@ -219,7 +219,7 @@ export function TransportPlanClient() {
     <div className="space-y-4">
       <div>
         <p className={labelClass}>Vehicle</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 py-0.5">
           {VEHICLE_ORDER.map((type) => {
             const selected = vehicle === type
             const meta = VEHICLE_RATES[type]
@@ -230,7 +230,7 @@ export function TransportPlanClient() {
                 title={meta.label}
                 onClick={() => pickVehicle(type)}
                 className={`flex h-16 min-w-0 flex-1 flex-col items-center justify-center rounded-2xl transition ${
-                  selected ? "bg-white ring-2 ring-zinc-900 text-zinc-900" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  selected ? "bg-[#FFF8E1] shadow-[inset_0_0_0_2px_#FFC72C] text-zinc-900" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
                 }`}
               >
                 {meta.icon ? (
@@ -297,14 +297,14 @@ export function TransportPlanClient() {
 
       <div>
         <p className={labelClass}>Your offer</p>
-        <div className={`flex h-16 items-center rounded-2xl border ${ready ? "border-zinc-900 bg-white" : "border-zinc-200 bg-zinc-50"}`}>
-          <button type="button" disabled={!ready} onClick={() => bump(-1)} className="flex h-16 w-14 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Lower offer">
-            <Minus className="h-6 w-6" />
+        <div className={`flex h-12 items-center rounded-2xl border ${ready ? "border-[#FFC72C] bg-[#FFF8E1]" : "border-zinc-200 bg-zinc-50"}`}>
+          <button type="button" disabled={!ready} onClick={() => bump(-1)} className="flex h-12 w-11 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Lower offer">
+            <Minus className="h-5 w-5" />
           </button>
           <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5">
-            <span className="text-xl font-black text-zinc-900">$</span>
+            <span className="text-base font-black text-zinc-900">$</span>
             <input
-              className="h-14 w-28 bg-transparent text-center text-3xl font-black tabular-nums text-zinc-900 outline-none disabled:text-zinc-400"
+              className="h-11 w-20 bg-transparent text-center text-xl font-black tabular-nums text-zinc-900 outline-none disabled:text-zinc-400"
               inputMode="numeric"
               disabled={!ready}
               aria-label="Offer amount"
@@ -316,8 +316,8 @@ export function TransportPlanClient() {
               }}
             />
           </div>
-          <button type="button" disabled={!ready} onClick={() => bump(1)} className="flex h-16 w-14 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Raise offer">
-            <Plus className="h-6 w-6" />
+          <button type="button" disabled={!ready} onClick={() => bump(1)} className="flex h-12 w-11 shrink-0 items-center justify-center text-zinc-800 disabled:text-zinc-300" aria-label="Raise offer">
+            <Plus className="h-5 w-5" />
           </button>
         </div>
         <p className="mt-2 text-sm leading-snug text-zinc-500">
@@ -402,8 +402,8 @@ export function TransportPlanClient() {
             className="w-[5.75rem] shrink-0 text-left lg:w-auto"
           >
             <span
-              className={`relative block aspect-square w-full rounded-2xl bg-zinc-200 p-[3px] ${
-                onRoute ? "bg-zinc-900" : "bg-zinc-200"
+              className={`relative block aspect-square w-full rounded-2xl p-[3px] ${
+                onRoute ? "bg-[#FFC72C]" : "bg-zinc-200"
               }`}
             >
               <span className="relative block h-full w-full overflow-hidden rounded-[13px] bg-zinc-200">
