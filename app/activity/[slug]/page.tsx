@@ -363,7 +363,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             categoryType={activity.category_type}
                             hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
                             hostName={activity.hosts?.name || activity.provider_name}
-                            hostWhatsapp={activity.hosts?.phone}
                             cancellationTierData={cancellationTierData}
                             discountPrice={activity.discount_price}
                             dealEndDate={activity.deal_end_date}
@@ -439,7 +438,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     categoryType={activity.category_type}
                     hostAvatar={activity.hosts?.avatar_url || activity.hosts?.image_url}
                     hostName={activity.hosts?.name || activity.provider_name}
-                    hostWhatsapp={activity.hosts?.phone}
                     cancellationTierData={cancellationTierData}
                     discountPrice={activity.discount_price}
                     dealEndDate={activity.deal_end_date}
