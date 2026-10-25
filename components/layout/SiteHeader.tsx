@@ -205,6 +205,17 @@ export default function SiteHeader() {
                             <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
                         </Link>
                     )}
+                    {isTransportPage && (
+                        <Link
+                            href="/?vertical=transport"
+                            scroll={false}
+                            onClick={() => markHomeArriveTop()}
+                            className="flex items-center justify-center -ml-1 p-1 rounded-full hover:bg-black/5 active:scale-90 transition-transform cursor-pointer touch-manipulation"
+                            aria-label="Back to transport"
+                        >
+                            <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
+                        </Link>
+                    )}
                     {isDestinationsPage && (
                         <button
                             type="button"

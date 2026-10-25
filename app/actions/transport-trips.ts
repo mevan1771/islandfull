@@ -51,11 +51,6 @@ function tagsOf(activity: any): string[] {
 function parseStops(raw: { id?: string }[]): RouteStop[] | null {
   const stops = raw.map((item) => stopById(String(item.id || ""))).filter(Boolean) as RouteStop[]
   if (stops.length < 2) return null
-  const seen = new Set<string>()
-  for (const stop of stops) {
-    if (seen.has(stop.id)) return null
-    seen.add(stop.id)
-  }
   return stops
 }
 
@@ -129,9 +124,11 @@ async function sendTripEmails(input: {
   guidePrice: number
   travelDate: string
   guestCount: number
+  tripDays?: number
   route: string
   km: number
   vehicle: VehicleType
+  guestRequests?: string | null
   imageUrl: string | null
   hosts: { email?: string | null; recipientId: string }[]
 }) {
@@ -144,7 +141,8 @@ async function sendTripEmails(input: {
   const logoUrl = `${siteUrl()}/logo_dark.png`
   const listingTitle = `${VEHICLE_RATES[input.vehicle].label} · ${input.route}`
   const listingUrl = `${siteUrl()}/transport/plan`
-  const travelLabel = input.travelDate
+  const dayLabel = input.tripDays && input.tripDays > 1 ? ` · ${input.tripDays} days` : input.tripDays === 1 ? " · 1 day" : ""
+  const travelLabel = `${input.travelDate}${dayLabel}`
   const guestHtml = await render(
     React.createElement(OfferCreatedEmail, {
       variant: "guest",
@@ -157,7 +155,12 @@ async function sendTripEmails(input: {
       guests: input.guestCount,
       listTotal: input.guidePrice,
       offerTotal: input.offerAmount,
-      notes: `${input.km} km · sent to ${VEHICLE_RATES[input.vehicle].label.toLowerCase()} hosts`,
+      notes: [
+        `${input.km} km · ${input.tripDays || 1} day trip · sent to ${VEHICLE_RATES[input.vehicle].label.toLowerCase()} hosts`,
+        input.guestRequests ? `Requests: ${input.guestRequests}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
       imageUrl: input.imageUrl,
       logoUrl,
       payHours: OFFER_PAY_HOURS,
@@ -187,7 +190,7 @@ async function sendTripEmails(input: {
           guests: input.guestCount,
           listTotal: input.guidePrice,
           offerTotal: input.offerAmount,
-          notes: input.route,
+          notes: [input.route, input.guestRequests ? `Requests: ${input.guestRequests}` : ""].filter(Boolean).join("\n"),
           imageUrl: input.imageUrl,
           logoUrl,
           acceptUrl: tripActionUrl(host.recipientId, "accept"),
@@ -253,10 +256,12 @@ export async function createTransportTripRequest(input: {
   stopIds: string[]
   travelDate: string
   guestCount: number
+  tripDays?: number
   offerAmount: number
   guestName: string
   guestEmail: string
   guestPhone?: string
+  guestRequests?: string
 }) {
   try {
     const vehicle = VEHICLE_RATES[input.vehicleType] ? input.vehicleType : "car"
@@ -265,9 +270,11 @@ export async function createTransportTripRequest(input: {
     const guestName = (input.guestName || "").trim()
     const guestEmail = (input.guestEmail || "").trim().toLowerCase()
     const guestPhone = (input.guestPhone || "").trim() || null
+    const guestRequests = (input.guestRequests || "").trim().slice(0, 500) || null
     const travelDate = (input.travelDate || "").trim()
     const offerAmount = Number(input.offerAmount)
     const guestCount = Math.max(1, Math.floor(Number(input.guestCount) || 1))
+    const tripDays = Math.max(1, Math.min(14, Math.floor(Number(input.tripDays) || 1)))
     const maxGuests = VEHICLE_RATES[vehicle].maxGuests
 
     if (!stops || !guestName || !EMAIL_RE.test(guestEmail) || !travelDate) {
@@ -295,25 +302,34 @@ export async function createTransportTripRequest(input: {
       clerkUserId = null
     }
 
-    const { data: request, error } = await supabaseAdmin
-      .from("transport_trip_requests")
-      .insert({
-        clerk_user_id: clerkUserId,
-        guest_name: guestName,
-        guest_email: guestEmail,
-        guest_phone: guestPhone,
-        vehicle_type: vehicle,
-        wants_guide: wantsGuide,
-        travel_date: travelDate,
-        guest_count: guestCount,
-        offer_amount: offerAmount,
-        guide_price: guide,
-        route_km: km,
-        stops,
-        status: "pending",
-      })
-      .select("id")
-      .single()
+    const row = {
+      clerk_user_id: clerkUserId,
+      guest_name: guestName,
+      guest_email: guestEmail,
+      guest_phone: guestPhone,
+      vehicle_type: vehicle,
+      wants_guide: wantsGuide,
+      travel_date: travelDate,
+      guest_count: guestCount,
+      trip_days: tripDays,
+      offer_amount: offerAmount,
+      guide_price: guide,
+      route_km: km,
+      stops,
+      guest_requests: guestRequests,
+      status: "pending",
+    }
+    let payload: Record<string, unknown> = { ...row }
+    let { data: request, error } = await supabaseAdmin.from("transport_trip_requests").insert(payload).select("id").single()
+    while (error && /trip_days|guest_requests/.test(error.message || "")) {
+      const msg = error.message || ""
+      if (/trip_days/.test(msg) && "trip_days" in payload) delete payload.trip_days
+      else if (/guest_requests/.test(msg) && "guest_requests" in payload) delete payload.guest_requests
+      else break
+      const retry = await supabaseAdmin.from("transport_trip_requests").insert(payload).select("id").single()
+      request = retry.data
+      error = retry.error
+    }
 
     if (error || !request) {
       console.error("createTransportTripRequest insert error:", error)
@@ -350,9 +366,11 @@ export async function createTransportTripRequest(input: {
       guidePrice: guide,
       travelDate,
       guestCount,
+      tripDays,
       route: routeLabel(stops),
       km,
       vehicle,
+      guestRequests,
       imageUrl: stops[0]?.image || listings[0]?.card_image_url || listings[0]?.cover_image_url || null,
       hosts,
     }).catch((err) => console.error("trip emails failed:", err))
@@ -411,7 +429,15 @@ async function acceptRecipient(recipientId: string) {
     .eq("status", "pending")
     .neq("id", recipient.id)
 
-  const notes = `Route: ${routeLabel(Array.isArray(request.stops) ? request.stops : [])}\nVehicle: ${request.vehicle_type}\nGuide: ${request.wants_guide ? "yes" : "no"}\nDistance: ${request.route_km} km`
+  const notes = [
+    `Route: ${routeLabel(Array.isArray(request.stops) ? request.stops : [])}`,
+    `Vehicle: ${request.vehicle_type}`,
+    `Guide: ${request.wants_guide ? "yes" : "no"}`,
+    `Distance: ${request.route_km} km`,
+    request.guest_requests ? `Requests: ${request.guest_requests}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n")
   const { data: offer, error: offerError } = await supabaseAdmin
     .from("offers")
     .insert({

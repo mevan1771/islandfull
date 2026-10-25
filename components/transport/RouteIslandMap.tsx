@@ -93,7 +93,7 @@ export function RouteIslandMap({
       pitch: 0,
     })
     if (isCompactMap()) {
-      map.setPadding({ top: 12, bottom: 280, left: 16, right: 16 })
+      map.setPadding({ top: 12, bottom: 260, left: 16, right: 16 })
     } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
     }
@@ -133,7 +133,7 @@ export function RouteIslandMap({
           const current = stopsRef.current
           const last = current[current.length - 1]
           if (last?.id === stop.id) onRemoveRef.current(stop.id)
-          else if (!current.some((item) => item.id === stop.id)) onAddRef.current(stop)
+          else onAddRef.current(stop)
         })
         const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
           .setLngLat([stop.lng, stop.lat])
@@ -184,7 +184,7 @@ export function RouteIslandMap({
     const compact = isCompactMap()
     map.fitBounds(bounds, {
       padding: compact
-        ? { top: 56, bottom: 280, left: 36, right: 36 }
+        ? { top: 48, bottom: 280, left: 28, right: 28 }
         : { top: 72, bottom: 88, left: 56, right: 72 },
       maxZoom: compact ? 7.6 : 8.2,
       duration: 600,
@@ -222,18 +222,19 @@ export function RouteIslandMap({
 }
 
 function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElement }>) {
-  const order = new Map(stops.map((stop, index) => [stop.id, index + 1]))
   const compact = isCompactMap()
   const size = compact ? 36 : 48
   Object.entries(refs).forEach(([id, { el }]) => {
     const stop = ROUTE_STOPS.find((item) => item.id === id)
     if (!stop) return
-    const n = order.get(id)
-    const selected = Boolean(n)
+    const numbers = stops.flatMap((item, index) => (item.id === id ? [index + 1] : []))
+    const selected = numbers.length > 0
+    const label = numbers.join("·")
     el.style.zIndex = selected ? "30" : "5"
     el.style.width = `${size}px`
     el.style.height = `${size + 8}px`
     const border = selected ? "#18181b" : "#ffffff"
+    const badgeWidth = Math.max(20, 10 + label.length * 7)
     const img = stop.image
       ? `<img src="${stop.image}" alt="" style="width:100%;height:100%;object-fit:cover;display:block" />`
       : `<span style="display:block;width:100%;height:100%;background:#d4d4d8"></span>`
@@ -244,7 +245,7 @@ function paintMarkers(stops: RouteStop[], refs: Record<string, { el: HTMLDivElem
         </span>
         ${
           selected
-            ? `<span style="position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-radius:9999px;background:#18181b;color:#fff;font:700 10px/20px system-ui,sans-serif;text-align:center">${n}</span>`
+            ? `<span style="position:absolute;right:-4px;top:-4px;min-width:${badgeWidth}px;height:20px;padding:0 5px;border-radius:9999px;background:#18181b;color:#fff;font:700 10px/20px system-ui,sans-serif;text-align:center">${label}</span>`
             : ""
         }
       </button>
