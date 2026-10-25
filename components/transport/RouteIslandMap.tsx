@@ -135,9 +135,7 @@ export function RouteIslandMap({
         el.addEventListener("click", (event) => {
           event.stopPropagation()
           const current = stopsRef.current
-          const last = current[current.length - 1]
-          if (last?.id === stop.id) onRemoveRef.current(stop.id)
-          else onAddRef.current(stop)
+          if (!current.some((item) => item.id === stop.id)) onAddRef.current(stop)
         })
         const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
           .setLngLat([stop.lng, stop.lat])
@@ -152,8 +150,12 @@ export function RouteIslandMap({
     const media = window.matchMedia("(max-width: 1023px)")
     const onBreakpoint = () => paintMarkers(stopsRef.current, markers.current)
     media.addEventListener("change", onBreakpoint)
+    let resizeTimer = 0
     const observer = typeof ResizeObserver !== "undefined" && container.current
-      ? new ResizeObserver(() => resize())
+      ? new ResizeObserver(() => {
+          window.clearTimeout(resizeTimer)
+          resizeTimer = window.setTimeout(resize, 120)
+        })
       : null
     if (observer && container.current) observer.observe(container.current)
     return () => {
@@ -176,21 +178,16 @@ export function RouteIslandMap({
     ;(["trip-route-halo", "trip-route-line"] as const).forEach((id) => {
       if (map?.getLayer(id)) map.setLayoutProperty(id, "visibility", show ? "visible" : "none")
     })
-    if (!map || stops.length === 0) return
+    if (!map || stops.length === 0 || isCompactMap()) return
     if (stops.length === 1) {
-      if (!isCompactMap()) {
-        map.easeTo({ center: [stops[0].lng, stops[0].lat], zoom: Math.max(map.getZoom(), 7.4), duration: 500 })
-      }
+      map.easeTo({ center: [stops[0].lng, stops[0].lat], zoom: Math.max(map.getZoom(), 7.4), duration: 500 })
       return
     }
     const bounds = new mapboxgl.LngLatBounds()
     stops.forEach((stop) => bounds.extend([stop.lng, stop.lat]))
-    const compact = isCompactMap()
     map.fitBounds(bounds, {
-      padding: compact
-        ? { top: 48, bottom: 48, left: 28, right: 28 }
-        : { top: 72, bottom: 88, left: 56, right: 72 },
-      maxZoom: compact ? 7.6 : 8.2,
+      padding: { top: 72, bottom: 88, left: 56, right: 72 },
+      maxZoom: 8.2,
       duration: 600,
     })
   }, [stops])
