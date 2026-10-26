@@ -81,12 +81,12 @@ function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[]): Gr
   let pi = 0
   for (let i = 0; i < tours.length; i++) {
     cells.push({ type: "tour", act: tours[i] })
-    if ((i + 1) % 4 === 0 && pi < places.length) {
+    if ((i + 1) % 3 === 0 && pi < places.length) {
       cells.push({ type: "place", place: places[pi++] })
     }
   }
-  if (pi === 0 && places[0] && tours.length > 0) {
-    cells.push({ type: "place", place: places[0] })
+  if (cells.length % 2 === 1 && pi < places.length) {
+    cells.push({ type: "place", place: places[pi++] })
   }
   return cells
 }
@@ -201,9 +201,11 @@ export function ActivityGrid({
     )
   }
 
-  const leading = cells.slice(0, 8)
-  const desktopOnlyBeforeSpotlight = cells.slice(8, 12)
-  const trailing = cells.slice(12)
+  const planOffset = showPlanTile ? 1 : 0
+  const leadingCount = 8 - planOffset
+  const leading = cells.slice(0, leadingCount)
+  const desktopOnlyBeforeSpotlight = cells.slice(leadingCount, leadingCount + 4)
+  const trailing = cells.slice(leadingCount + 4)
 
   return (
     <div>

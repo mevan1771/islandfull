@@ -134,7 +134,7 @@ export function ActivityCard({
             />
           ) : (
             <Image
-              src={coverImage}
+              src={coverImage || "/placeholder.jpg"}
               alt={title}
               fill
               placeholder="blur"
