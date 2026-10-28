@@ -62,11 +62,13 @@ export function RouteIslandMap({
   onAdd,
   onRemoveLast,
   className = "",
+  bottomPad = 24,
 }: {
   stops: RouteStop[]
   onAdd: (stop: RouteStop) => void
   onRemoveLast: (id: string) => void
   className?: string
+  bottomPad?: number
 }) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -77,6 +79,8 @@ export function RouteIslandMap({
   onAddRef.current = onAdd
   const onRemoveRef = useRef(onRemoveLast)
   onRemoveRef.current = onRemoveLast
+  const bottomPadRef = useRef(bottomPad)
+  bottomPadRef.current = bottomPad
   useEffect(() => {
     if (!TOKEN || !container.current || mapRef.current) return
     mapboxgl.accessToken = TOKEN
@@ -95,7 +99,7 @@ export function RouteIslandMap({
       pitch: 0,
     })
     if (compact) {
-      map.setPadding({ top: 16, bottom: 24, left: 16, right: 16 })
+      map.setPadding({ top: 16, bottom: bottomPadRef.current, left: 16, right: 16 })
     } else {
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right")
     }
@@ -178,6 +182,13 @@ export function RouteIslandMap({
 
   useEffect(() => {
     const map = mapRef.current
+    if (!map || !isCompactMap()) return
+    map.setPadding({ top: 16, bottom: bottomPad, left: 16, right: 16 })
+    map.resize()
+  }, [bottomPad])
+
+  useEffect(() => {
+    const map = mapRef.current
     const source = map?.getSource("trip-route") as mapboxgl.GeoJSONSource | undefined
     source?.setData(routeGeo(stops))
     paintMarkers(stops, markers.current)
@@ -203,7 +214,7 @@ export function RouteIslandMap({
     stops.forEach((stop) => bounds.extend([stop.lng, stop.lat]))
     map.fitBounds(bounds, {
       padding: compact
-        ? { top: 44, bottom: 44, left: 28, right: 28 }
+        ? { top: 44, bottom: Math.max(44, bottomPadRef.current), left: 28, right: 28 }
         : { top: 72, bottom: 88, left: 56, right: 72 },
       maxZoom: compact ? 8 : 8.2,
       duration: 750,

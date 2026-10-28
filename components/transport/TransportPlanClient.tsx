@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { SignInButton, useUser } from "@clerk/nextjs"
-import { CalendarDays, CheckCircle2, Loader2, Minus, Plus, X } from "lucide-react"
+import { CalendarDays, CheckCircle2, ChevronUp, Loader2, Minus, Plus, X } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 import { addDays, format, isBefore, startOfToday } from "date-fns"
 import { createTransportTripRequest } from "@/app/actions/transport-trips"
@@ -39,6 +39,7 @@ const sendClass =
   "w-full h-12 rounded-2xl bg-[#FFC72C] hover:bg-[#f0b820] text-zinc-900 text-base font-bold disabled:opacity-60 flex items-center justify-center gap-2"
 
 const labelClass = "mb-2 text-base font-semibold text-zinc-600"
+const SHEET_PEEK = 96
 
 function stopsFromParam(value: string | null) {
   if (!value) return [] as RouteStop[]
@@ -71,6 +72,16 @@ export function TransportPlanClient() {
   const [sent, setSent] = useState<{ hostCount: number; route: string } | null>(null)
   const [days, setDays] = useState(1)
   const [requests, setRequests] = useState("")
+  const [sheetY, setSheetY] = useState(0)
+  const [sheetSnap, setSheetSnap] = useState<"open" | "peek">("open")
+  const [sheetDragging, setSheetDragging] = useState(false)
+  const sheetRef = useRef<HTMLElement>(null)
+  const dragRef = useRef<{ pointer: number; startY: number; startOffset: number; max: number; moved: boolean } | null>(null)
+  const sheetYRef = useRef(0)
+  const sheetSnapRef = useRef<"open" | "peek">("open")
+  const skipSheetClick = useRef(false)
+  sheetYRef.current = sheetY
+  sheetSnapRef.current = sheetSnap
 
   const km = routeDistanceKm(stops)
   const guide = stops.length >= 2 ? guidePriceUsd(km, vehicle, wantsGuide) : 0
@@ -103,6 +114,23 @@ export function TransportPlanClient() {
       setOffer(String(currentGuide(next, nextVehicle, false) || ""))
     }
   }, [searchParams])
+
+  useEffect(() => {
+    if (sheetSnap !== "peek") {
+      setSheetY(0)
+      return
+    }
+    const sync = () => {
+      const height = sheetRef.current?.offsetHeight ?? 0
+      setSheetY(Math.max(0, height - SHEET_PEEK))
+    }
+    const frame = window.requestAnimationFrame(sync)
+    window.addEventListener("resize", sync)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener("resize", sync)
+    }
+  }, [sheetSnap, stops.length])
 
   function addStop(stop: RouteStop) {
     setStops((current) => {
@@ -356,6 +384,7 @@ export function TransportPlanClient() {
         onAdd={tapPlace}
         onRemoveLast={() => removeLastStop()}
         className="h-full"
+        bottomPad={sheetSnap === "peek" ? 108 : 268}
       />
     </div>
   )
@@ -482,13 +511,130 @@ export function TransportPlanClient() {
     </div>
   )
 
+  function sheetMax() {
+    const height = sheetRef.current?.offsetHeight ?? 0
+    return Math.max(0, height - SHEET_PEEK)
+  }
+
+  function onSheetPointerDown(event: React.PointerEvent<HTMLElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) return
+    const max = sheetMax()
+    dragRef.current = {
+      pointer: event.pointerId,
+      startY: event.clientY,
+      startOffset: sheetYRef.current,
+      max,
+      moved: false,
+    }
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId)
+    } catch {
+      /* capture is optional on some browsers */
+    }
+  }
+
+  function onSheetPointerMove(event: React.PointerEvent<HTMLElement>) {
+    const drag = dragRef.current
+    if (!drag || event.pointerId !== drag.pointer) return
+    const dy = event.clientY - drag.startY
+    if (Math.abs(dy) > 12) {
+      drag.moved = true
+      if (!sheetDragging) setSheetDragging(true)
+    }
+    if (!drag.moved) return
+    const next = Math.min(drag.max, Math.max(0, drag.startOffset + dy))
+    setSheetY(next)
+  }
+
+  function onSheetPointerUp(event: React.PointerEvent<HTMLElement>) {
+    const drag = dragRef.current
+    if (!drag || event.pointerId !== drag.pointer) return
+    dragRef.current = null
+    setSheetDragging(false)
+    if (!drag.moved) return
+    skipSheetClick.current = true
+    const max = drag.max || sheetMax()
+    const delta = event.clientY - drag.startY
+    const peek = delta > 36 || sheetYRef.current > max * 0.5
+    setSheetY(peek ? max : 0)
+    setSheetSnap(peek ? "peek" : "open")
+  }
+
+  function onSheetClick() {
+    if (skipSheetClick.current) {
+      skipSheetClick.current = false
+      return
+    }
+    const max = sheetMax()
+    const open = sheetSnapRef.current === "open"
+    setSheetY(open ? max : 0)
+    setSheetSnap(open ? "peek" : "open")
+  }
+
+  const peeking = sheetSnap === "peek"
+  const peekStops = stops.slice(0, 4)
+
   return (
-    <div className="w-full bg-zinc-50 lg:min-h-screen">
+    <div className="w-full bg-zinc-50 max-lg:h-[calc(100dvh-4rem)] max-lg:overflow-hidden lg:min-h-screen">
       {calendar}
-      <div className="lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1800px] lg:grid-cols-2 lg:gap-5 lg:px-5 lg:py-4">
-        <div className="h-[min(52svh,28rem)] lg:order-2 lg:h-full">{mapBlock}</div>
-        <section className={`relative z-10 -mt-6 min-h-0 rounded-t-[1.75rem] bg-white px-4 pt-4 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${ready ? "pb-[max(5.75rem,env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]"}`}>
-          {tripPanel}
+      <div className="relative max-lg:h-full lg:mx-auto lg:grid lg:h-[calc(100dvh-4.25rem)] lg:max-w-[1800px] lg:grid-cols-2 lg:gap-5 lg:px-5 lg:py-4">
+        <div className="max-lg:absolute max-lg:inset-0 lg:order-2 lg:h-full">{mapBlock}</div>
+        <section
+          ref={sheetRef}
+          className={`relative z-10 min-h-0 rounded-t-[1.75rem] bg-white px-4 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] max-lg:absolute max-lg:inset-x-0 max-lg:h-[min(58dvh,34rem)] max-lg:will-change-transform lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${sheetDragging ? "" : "max-lg:transition-transform max-lg:duration-300 max-lg:ease-[cubic-bezier(0.22,1,0.36,1)]"} ${ready ? "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-0"}`}
+          style={{ transform: `translate3d(0, ${sheetY}px, 0)` }}
+        >
+          <button
+            id="plan-sheet-handle"
+            type="button"
+            className="lg:hidden w-full touch-none select-none pb-2 pt-2"
+            onPointerDown={onSheetPointerDown}
+            onPointerMove={onSheetPointerMove}
+            onPointerUp={onSheetPointerUp}
+            onPointerCancel={onSheetPointerUp}
+            onClick={onSheetClick}
+            aria-label={peeking ? "Show trip details" : "Hide trip details and show the map"}
+          >
+            <span className="mx-auto block h-1.5 w-12 rounded-full bg-zinc-300" />
+            <div className={`mt-3 flex min-h-11 items-center gap-3 ${peeking ? "" : "opacity-90"}`}>
+              {peeking ? (
+                <>
+                  <div className="flex shrink-0 pl-1">
+                    {peekStops.length ? (
+                      peekStops.map((stop, index) => (
+                        <span
+                          key={`${stop.id}-${index}`}
+                          className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-zinc-200 shadow-sm"
+                          style={{ marginLeft: index === 0 ? 0 : -12, zIndex: peekStops.length - index }}
+                        >
+                          {stop.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                          ) : null}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="h-11 w-11 rounded-full bg-[#FFF8E1] ring-2 ring-white" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-bold text-zinc-900">
+                      {stops.length ? `${stops.length} stop${stops.length === 1 ? "" : "s"} · ${km} km` : "Plan your route"}
+                    </p>
+                    <p className="truncate text-sm font-medium text-zinc-500">Swipe up to add places</p>
+                  </div>
+                  <ChevronUp className="h-6 w-6 shrink-0 text-zinc-400" />
+                </>
+              ) : (
+                <p className="w-full text-center text-xs font-semibold tracking-wide text-zinc-400">
+                  Swipe down for the map
+                </p>
+              )}
+            </div>
+          </button>
+          <div className={`min-h-0 flex-1 pt-1 lg:pt-0 ${peeking ? "max-lg:pointer-events-none max-lg:opacity-0" : ""}`}>
+            {tripPanel}
+          </div>
         </section>
       </div>
 
