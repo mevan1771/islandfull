@@ -10,7 +10,7 @@ import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import type { HomepageCategory, HomepageCategoryMap } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
-import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
+import { markHomeListingsPin } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { listingsHref } from "@/lib/listing-path"
 import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-search"
@@ -140,6 +140,7 @@ export function MobileSearch({
   const [isFocused, setIsFocused] = useState(false)
   const [stuck, setStuck] = useState(false)
   const [tripSheet, setTripSheet] = useState<"date" | "guests" | null>(null)
+  const stuckRef = useRef(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const stickyRef = useRef<HTMLDivElement>(null)
   const chromeHidden = useMobileChromeStore((s) => s.hidden)
@@ -175,7 +176,9 @@ export function MobileSearch({
     const el = cardRef.current
     if (!el) return
     const update = () => {
-      const next = peekHomeListingsPin() || el.getBoundingClientRect().top < 8
+      const top = el.getBoundingClientRect().top
+      const next = stuckRef.current ? top < 28 : top < 8
+      stuckRef.current = next
       setStuck(next)
       setStuckChrome(next)
     }
@@ -288,11 +291,7 @@ export function MobileSearch({
         </form>
       </div>
 
-      <div
-        id="home-browse"
-        className={`sm:hidden pt-4 pb-2 ${stuck ? "invisible pointer-events-none" : ""}`}
-        aria-hidden={stuck}
-      >
+      <div id="home-browse" className="sm:hidden pt-4 pb-2">
         <div className="pl-3 pr-2">
           <HomeCategoryChips dynamicCategories={dynamicCategories} passive={stuck} />
         </div>
