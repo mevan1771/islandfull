@@ -489,8 +489,8 @@ export function TransportPlanClient() {
       : null
 
   const tripPanel = (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-4 lg:pr-1">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-4 [-webkit-overflow-scrolling:touch] lg:pr-1">
         {stops.length > 0 ? (
           <section>
             {itinerary}
@@ -581,13 +581,13 @@ export function TransportPlanClient() {
         <div className="max-lg:absolute max-lg:inset-0 lg:order-2 lg:h-full">{mapBlock}</div>
         <section
           ref={sheetRef}
-          className={`relative z-10 min-h-0 rounded-t-[1.75rem] bg-white px-4 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] max-lg:absolute max-lg:inset-x-0 max-lg:h-[min(58dvh,34rem)] max-lg:will-change-transform lg:order-1 lg:mt-0 lg:flex lg:h-full lg:flex-col lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${sheetDragging ? "" : "max-lg:transition-transform max-lg:duration-300 max-lg:ease-[cubic-bezier(0.22,1,0.36,1)]"} ${ready ? "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-0"}`}
-          style={{ transform: `translate3d(0, ${sheetY}px, 0)` }}
+          className={`relative z-10 flex min-h-0 flex-col overflow-hidden rounded-t-[1.75rem] bg-white px-4 shadow-[0_-8px_30px_rgba(0,0,0,0.18)] max-lg:absolute max-lg:inset-x-0 max-lg:h-[min(58dvh,34rem)] lg:order-1 lg:mt-0 lg:h-full lg:rounded-[1.75rem] lg:border lg:border-zinc-100 lg:p-5 lg:pb-5 lg:shadow-[0_12px_40px_rgba(15,15,15,0.06)] ${sheetDragging ? "" : "max-lg:transition-transform max-lg:duration-300 max-lg:ease-[cubic-bezier(0.22,1,0.36,1)]"} ${ready ? "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))]" : "pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] max-lg:bottom-0"}`}
+          style={{ transform: sheetY ? `translate3d(0, ${sheetY}px, 0)` : undefined }}
         >
           <button
             id="plan-sheet-handle"
             type="button"
-            className="lg:hidden w-full touch-none select-none pb-2 pt-2"
+            className="lg:hidden w-full shrink-0 touch-none select-none pt-3 pb-2"
             onPointerDown={onSheetPointerDown}
             onPointerMove={onSheetPointerMove}
             onPointerUp={onSheetPointerUp}
@@ -595,44 +595,38 @@ export function TransportPlanClient() {
             onClick={onSheetClick}
             aria-label={peeking ? "Show trip details" : "Hide trip details and show the map"}
           >
-            <span className="mx-auto block h-1.5 w-12 rounded-full bg-zinc-300" />
-            <div className={`mt-3 flex min-h-11 items-center gap-3 ${peeking ? "" : "opacity-90"}`}>
-              {peeking ? (
-                <>
-                  <div className="flex shrink-0 pl-1">
-                    {peekStops.length ? (
-                      peekStops.map((stop, index) => (
-                        <span
-                          key={`${stop.id}-${index}`}
-                          className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-zinc-200 shadow-sm"
-                          style={{ marginLeft: index === 0 ? 0 : -12, zIndex: peekStops.length - index }}
-                        >
-                          {stop.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={stop.image} alt="" className="h-full w-full object-cover" />
-                          ) : null}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="h-11 w-11 rounded-full bg-[#FFF8E1] ring-2 ring-white" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-base font-bold text-zinc-900">
-                      {stops.length ? `${stops.length} stop${stops.length === 1 ? "" : "s"} · ${km} km` : "Plan your route"}
-                    </p>
-                    <p className="truncate text-sm font-medium text-zinc-500">Swipe up to add places</p>
-                  </div>
-                  <ChevronUp className="h-6 w-6 shrink-0 text-zinc-400" />
-                </>
-              ) : (
-                <p className="w-full text-center text-xs font-semibold tracking-wide text-zinc-400">
-                  Swipe down for the map
-                </p>
-              )}
-            </div>
+            <span className="mx-auto block h-[5px] w-12 rounded-full bg-zinc-400/80" />
+            {peeking ? (
+              <div className="mt-3 flex items-center gap-3">
+                <div className="flex shrink-0 pl-1">
+                  {peekStops.length ? (
+                    peekStops.map((stop, index) => (
+                      <span
+                        key={`${stop.id}-${index}`}
+                        className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-zinc-200 shadow-sm"
+                        style={{ marginLeft: index === 0 ? 0 : -12, zIndex: peekStops.length - index }}
+                      >
+                        {stop.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={stop.image} alt="" className="h-full w-full object-cover" />
+                        ) : null}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="h-11 w-11 rounded-full bg-[#FFF8E1] ring-2 ring-white" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="truncate text-base font-bold text-zinc-900">
+                    {stops.length ? `${stops.length} stop${stops.length === 1 ? "" : "s"} · ${km} km` : "Plan your route"}
+                  </p>
+                  <p className="truncate text-sm font-medium text-zinc-500">Add places</p>
+                </div>
+                <ChevronUp className="h-6 w-6 shrink-0 text-zinc-400" />
+              </div>
+            ) : null}
           </button>
-          <div className={`min-h-0 flex-1 pt-1 lg:pt-0 ${peeking ? "max-lg:pointer-events-none max-lg:opacity-0" : ""}`}>
+          <div className={`flex min-h-0 flex-1 flex-col pt-2 lg:pt-0 ${peeking ? "max-lg:pointer-events-none max-lg:invisible" : ""}`}>
             {tripPanel}
           </div>
         </section>
