@@ -9,9 +9,12 @@ import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/sea
 import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 import { markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
+import { DateSearchField, GuestsSearchField } from "@/components/home/TripSearchControls"
 import type { HomepageCategoryMap } from "@/lib/homepage-feed"
 import { listingsHref, verticalFromLocation } from "@/lib/listing-path"
+import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-search"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
+import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 export function HomeFilters({
   dynamicCategories = [],
@@ -45,8 +48,15 @@ export function HomeFilters({
   }, [router])
 
   const [location, setLocation] = useState(currentLocation)
-  const [date, setDate] = useState("")
-  const [travelers, setTravelers] = useState("")
+  const tripDate = useTripSearchStore((s) => s.date)
+  const tripGuests = useTripSearchStore((s) => s.guests)
+  const hydrateTrip = useTripSearchStore((s) => s.hydrate)
+
+  useEffect(() => {
+    ensureTripSearchHydrated()
+    const fromUrl = readTripSearchFromParams(searchParams)
+    if (fromUrl.date || fromUrl.guests) hydrateTrip(fromUrl)
+  }, [searchParams, hydrateTrip])
 
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -91,6 +101,7 @@ export function HomeFilters({
     if (location) params.set("location", location.trim())
     else params.delete("location")
 
+    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests })
     params.delete("category")
 
     markHomeListingsPin()
@@ -167,25 +178,12 @@ export function HomeFilters({
               )}
             </div>
 
-            <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
-              <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Date</label>
-              <input
-                type="date"
-                className={`w-full outline-none text-sm bg-transparent cursor-pointer truncate ${date ? 'text-gray-600' : 'text-gray-400'}`}
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+            <div className="flex-1 w-full min-w-0 px-4">
+              <DateSearchField />
             </div>
 
-            <div className="flex-1 w-full flex flex-col justify-center cursor-pointer px-4">
-              <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Travelers</label>
-              <input
-                type="text"
-                placeholder="Add guests"
-                className="w-full outline-none text-sm text-gray-600 bg-transparent truncate"
-                value={travelers}
-                onChange={(e) => setTravelers(e.target.value)}
-              />
+            <div className="flex-1 w-full min-w-0 px-4">
+              <GuestsSearchField />
             </div>
 
             {/* Actions: Filter & Search */}

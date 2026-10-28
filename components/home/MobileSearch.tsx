@@ -13,6 +13,9 @@ import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import { markHomeListingsPin, peekHomeListingsPin } from "@/lib/home-scroll"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { listingsHref } from "@/lib/listing-path"
+import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-search"
+import { DateSearchField, GuestsSearchField } from "@/components/home/TripSearchControls"
+import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 function WhereField({
   location,
@@ -120,6 +123,15 @@ export function MobileSearch({
   }, [categoryMap, hydrateCategories])
 
   const [location, setLocation] = useState(searchParams.get("location") || "")
+  const tripDate = useTripSearchStore((s) => s.date)
+  const tripGuests = useTripSearchStore((s) => s.guests)
+  const hydrateTrip = useTripSearchStore((s) => s.hydrate)
+
+  useEffect(() => {
+    ensureTripSearchHydrated()
+    const fromUrl = readTripSearchFromParams(searchParams)
+    if (fromUrl.date || fromUrl.guests) hydrateTrip(fromUrl)
+  }, [searchParams, hydrateTrip])
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -197,6 +209,7 @@ export function MobileSearch({
     const value = nextLocation.trim()
     if (value) params.set("location", value)
     else params.delete("location")
+    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests })
     params.delete("category")
     const sortVal = searchParams.get("sort")
     if (sortVal) params.set("sort", sortVal)
@@ -259,11 +272,19 @@ export function MobileSearch({
         data-home-search-card
         className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}
       >
-        <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
+        <form onSubmit={handleSearch} className="bg-white rounded-[1.75rem] shadow-md overflow-visible">
           <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-0.5 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
             <WhereField {...whereProps} showMenu={!stuck} />
             <SearchRowActions sort={sortValue} onSort={onSort} />
+          </div>
+          <div className="grid grid-cols-2 divide-x divide-zinc-100 border-t border-zinc-100 px-1">
+            <div className="px-3 py-2.5">
+              <DateSearchField compact />
+            </div>
+            <div className="px-3 py-2.5">
+              <GuestsSearchField compact />
+            </div>
           </div>
         </form>
       </div>
@@ -288,10 +309,20 @@ export function MobileSearch({
         >
           <div className="flex items-center gap-2 px-3 pt-2 pb-2">
             <form onSubmit={handleSearch} className="min-w-0 flex-1">
-              <div className="relative flex items-center h-10 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-0.5">
-                <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                <WhereField {...whereProps} showMenu={stuck} />
-                <SearchRowActions sort={sortValue} onSort={onSort} />
+              <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+                <div className="relative flex items-center h-10 pl-3 pr-1 gap-0.5">
+                  <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                  <WhereField {...whereProps} showMenu={stuck} />
+                  <SearchRowActions sort={sortValue} onSort={onSort} />
+                </div>
+                <div className="grid grid-cols-2 divide-x divide-zinc-100 border-t border-zinc-100">
+                  <div className="px-3 py-1.5">
+                    <DateSearchField compact />
+                  </div>
+                  <div className="px-3 py-1.5">
+                    <GuestsSearchField compact />
+                  </div>
+                </div>
               </div>
             </form>
             <UserNavMenu

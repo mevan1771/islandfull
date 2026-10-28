@@ -9,6 +9,8 @@ import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { formatUSD } from "@/lib/utils"
 import { markHomeScrollForRestore, markPageReturn } from "@/lib/home-scroll"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
+import { withTripSearch } from "@/lib/trip-search"
+import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 interface ActivityCardProps {
   id: string
@@ -55,6 +57,10 @@ export function ActivityCard({
   allowOffers = false,
   href,
 }: ActivityCardProps) {
+  ensureTripSearchHydrated()
+  const tripDate = useTripSearchStore((s) => s.date)
+  const tripGuests = useTripSearchStore((s) => s.guests)
+  const listingHref = withTripSearch(href || `/activity/${slug}`, { date: tripDate, guests: tripGuests })
   const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -96,7 +102,7 @@ export function ActivityCard({
 
   return (
     <Link
-      href={href || `/activity/${slug}`}
+      href={listingHref}
       prefetch={true}
       className="block group h-full"
       data-home-card={slug}

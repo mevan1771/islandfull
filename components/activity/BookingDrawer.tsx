@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
+import { useSearchParams } from "next/navigation"
 import { CalendarDays, Users, Phone, CheckCircle2, MapPin, FileText, Gem, MessageCircle, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatUSD, formatLKR } from "@/lib/utils"
@@ -21,6 +22,8 @@ import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
 import { getLowestPerPersonFromTiers, getMatchingTierPrice, hasPricingTiers } from "@/lib/pricingTiers"
+import { clampGuests, parseGuestCount, parseIsoDate } from "@/lib/trip-search"
+import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 interface BookingDrawerProps {
   activityId: string
@@ -80,6 +83,9 @@ export function BookingDrawer({
   checkoutSlot,
 }: BookingDrawerProps) {
   const { isSignedIn, user } = useUser()
+  const searchParams = useSearchParams()
+  const initialTripDate = parseIsoDate(searchParams.get("date"))
+  const initialTripGuests = parseGuestCount(searchParams.get("guests"))
   const firstName = user?.firstName || user?.fullName?.split(" ")[0] || ""
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
@@ -106,10 +112,21 @@ export function BookingDrawer({
     special_notes?: string | null
   } | null>(null)
 
+  const isDateRange =
+    bookingType === 'multi_day' ||
+    pricingModel === 'per_day' ||
+    (categoryType === 'transport' && bookingType !== 'point_to_point')
+
   // Form state
-  const [date, setDate] = useState("")
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const [guests, setGuests] = useState(minGuests)
+  const [date, setDate] = useState(isDateRange ? "" : initialTripDate)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    if (!isDateRange || !initialTripDate) return undefined
+    const from = parse(initialTripDate, "yyyy-MM-dd", new Date())
+    return { from, to: from }
+  })
+  const [guests, setGuests] = useState(
+    initialTripGuests > 0 ? clampGuests(initialTripGuests, minGuests, maxCapacity) : minGuests
+  )
   const [whatsapp, setWhatsapp] = useState("")
   const [touristName, setTouristName] = useState("")
   const [touristEmail, setTouristEmail] = useState("")
@@ -127,16 +144,24 @@ export function BookingDrawer({
   const [discountUsd, setDiscountUsd] = useState(0)
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
-  // Policy Agreement State (Removed)
-
-  const isDateRange =
-    bookingType === 'multi_day' ||
-    pricingModel === 'per_day' ||
-    (categoryType === 'transport' && bookingType !== 'point_to_point')
-
   useEffect(() => {
     if (!mounted) return
-    const offerId = new URLSearchParams(window.location.search).get("offer")
+    const offerId = searchParams.get("offer")
+    if (!offerId) {
+      ensureTripSearchHydrated()
+      const stored = useTripSearchStore.getState()
+      const nextDate = parseIsoDate(searchParams.get("date")) || stored.date
+      const nextGuests = parseGuestCount(searchParams.get("guests")) || stored.guests
+      if (nextDate) {
+        if (isDateRange) {
+          const from = parse(nextDate, "yyyy-MM-dd", new Date())
+          setDateRange({ from, to: from })
+        } else {
+          setDate(nextDate)
+        }
+      }
+      if (nextGuests > 0) setGuests(clampGuests(nextGuests, minGuests, maxCapacity))
+    }
     if (!offerId) return
     const desktop = window.matchMedia("(min-width: 1024px)").matches
     if (checkoutSlot === "desktop" && !desktop) return
@@ -162,7 +187,7 @@ export function BookingDrawer({
     return () => {
       cancelled = true
     }
-  }, [mounted, activityId, checkoutSlot, isDateRange, minGuests])
+  }, [mounted, activityId, checkoutSlot, isDateRange, minGuests, maxCapacity, searchParams])
 
   const isDealActive = discountPrice && dealEndDate && new Date(dealEndDate) > new Date();
   const effectivePriceUsd = isDealActive && discountPrice ? discountPrice : (priceUsd || 0);
@@ -468,6 +493,7 @@ export function BookingDrawer({
                 className="mx-auto w-full max-w-[300px] flex justify-center"
                 mode="single"
                 selected={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
+                defaultMonth={date ? parse(date, 'yyyy-MM-dd', new Date()) : undefined}
                 onSelect={(d) => setDate(d ? format(d, 'yyyy-MM-dd') : "")}
                 disabled={(d) => {
                   const minDate = addDays(startOfToday(), minNoticeDays > 0 ? minNoticeDays + 1 : 0);
@@ -1014,6 +1040,7 @@ export function BookingDrawer({
         minNoticeDays={minNoticeDays}
         blackoutDates={blackoutDates}
         selectedDate={date}
+        selectedGuests={guests}
         selectedRange={dateRange}
       />
     </>

@@ -42,6 +42,7 @@ export function MakeAnOfferModal({
   minNoticeDays = 1,
   blackoutDates = [],
   selectedDate = "",
+  selectedGuests,
   selectedRange,
 }: {
   open: boolean
@@ -58,6 +59,7 @@ export function MakeAnOfferModal({
   minNoticeDays?: number
   blackoutDates?: string[]
   selectedDate?: string
+  selectedGuests?: number
   selectedRange?: DateRange
 }) {
   const { user, isSignedIn } = useUser()
@@ -121,14 +123,14 @@ export function MakeAnOfferModal({
     setSent(false)
     setDate(selectedDate || "")
     setDateRange(selectedRange)
-    setGuestCount(minGuests)
+    setGuestCount(selectedGuests && selectedGuests >= minGuests ? Math.min(maxGuests, selectedGuests) : minGuests)
     setOfferDirty(false)
     setCalOpen(false)
     if (isSignedIn && user) {
       setGuestName(user.fullName || user.firstName || "")
       setGuestEmail(user.primaryEmailAddress?.emailAddress || "")
     }
-  }, [open, isSignedIn, user, minGuests, selectedDate, selectedRange])
+  }, [open, isSignedIn, user, minGuests, maxGuests, selectedDate, selectedGuests, selectedRange])
 
   useEffect(() => {
     if (!open || offerDirty) return

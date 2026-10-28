@@ -6,6 +6,8 @@ import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { heroDefaultSrc, heroLqip, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { formatUSD } from "@/lib/utils"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
+import { withTripSearch } from "@/lib/trip-search"
+import { useTripSearchStore } from "@/store/useTripSearchStore"
 
 export interface Tour {
     id: string
@@ -49,6 +51,8 @@ function slideImageUrl(tour: Tour) {
 }
 
 function TitleBlock({ tour }: { tour: Tour }) {
+    const tripDate = useTripSearchStore((s) => s.date)
+    const tripGuests = useTripSearchStore((s) => s.guests)
     const location = tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
     const priceLabel = heroPriceLabel(tour)
 
@@ -88,7 +92,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     return (
         <Link
-            href={`/activity/${tour.slug}`}
+            href={withTripSearch(`/activity/${tour.slug}`, { date: tripDate, guests: tripGuests })}
             className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-1 md:pb-2"
         >
             {badges}
