@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { FaqList } from "@/components/seo/FaqList"
 import { JsonLd } from "@/components/seo/JsonLd"
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/seo"
@@ -15,6 +16,7 @@ export function TransportGuideLayout({
   faqs,
   related,
   planStops,
+  heroImage,
   children,
 }: {
   title: string
@@ -25,6 +27,7 @@ export function TransportGuideLayout({
   faqs: { question: string; answer: string }[]
   related?: { href: string; label: string; note?: string }[]
   planStops?: string[]
+  heroImage?: { src: string; alt: string }
   children: React.ReactNode
 }) {
   const cta = planUrl(planStops || [])
@@ -37,8 +40,21 @@ export function TransportGuideLayout({
           faqJsonLd(faqs),
         ]}
       />
-      <header className="border-b border-zinc-200 bg-zinc-900 text-white">
-        <div className="mx-auto max-w-3xl px-4 py-10 md:px-6 md:py-14">
+      <header className="relative overflow-hidden border-b border-zinc-200 bg-zinc-900 text-white">
+        {heroImage ? (
+          <>
+            <Image
+              src={heroImage.src}
+              alt={heroImage.alt}
+              fill
+              priority
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/45" />
+          </>
+        ) : null}
+        <div className={`relative mx-auto max-w-3xl px-4 md:px-6 ${heroImage ? "py-14 md:py-20" : "py-10 md:py-14"}`}>
           <nav aria-label="Breadcrumb" className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-white/50">
             {crumbs.map((crumb, index) => (
               <span key={crumb.path}>
