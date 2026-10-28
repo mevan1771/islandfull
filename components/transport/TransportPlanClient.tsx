@@ -598,13 +598,13 @@ export function TransportPlanClient() {
             <span className="mx-auto block h-[5px] w-12 rounded-full bg-zinc-400/80" />
             {peeking ? (
               <div className="mt-3 flex items-center gap-3">
-                <div className="flex shrink-0 pl-1">
+                <div className="flex shrink-0 items-center pl-0.5">
                   {peekStops.length ? (
                     peekStops.map((stop, index) => (
                       <span
                         key={`${stop.id}-${index}`}
-                        className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-zinc-200 shadow-sm"
-                        style={{ marginLeft: index === 0 ? 0 : -12, zIndex: peekStops.length - index }}
+                        className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-zinc-200 shadow-sm"
+                        style={{ marginLeft: index === 0 ? 0 : -10, zIndex: index + 1 }}
                       >
                         {stop.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -620,7 +620,9 @@ export function TransportPlanClient() {
                   <p className="truncate text-base font-bold text-zinc-900">
                     {stops.length ? `${stops.length} stop${stops.length === 1 ? "" : "s"} · ${km} km` : "Plan your route"}
                   </p>
-                  <p className="truncate text-sm font-medium text-zinc-500">Add places</p>
+                  <p className="truncate text-sm font-medium text-zinc-500">
+                    {days} day{days === 1 ? "" : "s"} · {Math.min(guests, maxGuests)} guest{Math.min(guests, maxGuests) === 1 ? "" : "s"}
+                  </p>
                 </div>
                 <ChevronUp className="h-6 w-6 shrink-0 text-zinc-400" />
               </div>
