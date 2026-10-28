@@ -99,7 +99,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </Suspense>
 
       {/* Activity Grid */}
-      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[7.5rem]">
+      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[4.75rem]">
         <Suspense fallback={<ActivitySkeleton />}>
           <ActivityGridServer
             searchParams={params}

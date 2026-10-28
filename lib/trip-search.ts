@@ -120,6 +120,11 @@ export function formatTripDateLabel(date: string, empty = "Add dates") {
   return format(parse(date, "yyyy-MM-dd", new Date()), "EEE d MMM")
 }
 
+export function formatTripDateShort(date: string) {
+  if (!date) return ""
+  return format(parse(date, "yyyy-MM-dd", new Date()), "d MMM")
+}
+
 export function formatGuestsLabel(trip: Pick<TripSearch, "guests" | "children" | "infants">, empty = "Add guests") {
   if (!trip.guests) return empty
   const adults = adultsFromTrip(trip)

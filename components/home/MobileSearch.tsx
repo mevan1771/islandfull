@@ -274,19 +274,17 @@ export function MobileSearch({
         data-home-search-card
         className={`sm:hidden px-4 -mt-5 relative z-20 w-full ${stuck ? "invisible pointer-events-none" : ""}`}
       >
-        <form onSubmit={handleSearch} className="bg-white rounded-[1.75rem] shadow-md overflow-visible">
-          <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-0.5 focus-within:border-rose-400">
+        <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
+          <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
             <WhereField {...whereProps} showMenu={!stuck} />
+            {!isFocused ? (
+              <>
+                <DateSearchField chip />
+                <GuestsSearchField chip />
+              </>
+            ) : null}
             <SearchRowActions sort={sortValue} onSort={onSort} />
-          </div>
-          <div className="grid grid-cols-2 divide-x divide-zinc-100 border-t border-zinc-100 px-1">
-            <div className="px-3 py-2.5">
-              <DateSearchField compact />
-            </div>
-            <div className="px-3 py-2.5">
-              <GuestsSearchField compact />
-            </div>
           </div>
         </form>
       </div>
@@ -311,20 +309,16 @@ export function MobileSearch({
         >
           <div className="flex items-center gap-2 px-3 pt-2 pb-2">
             <form onSubmit={handleSearch} className="min-w-0 flex-1">
-              <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-                <div className="relative flex items-center h-10 pl-3 pr-1 gap-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                  <WhereField {...whereProps} showMenu={stuck} />
-                  <SearchRowActions sort={sortValue} onSort={onSort} />
-                </div>
-                <div className="grid grid-cols-2 divide-x divide-zinc-100 border-t border-zinc-100">
-                  <div className="px-3 py-1.5">
-                    <DateSearchField compact />
-                  </div>
-                  <div className="px-3 py-1.5">
-                    <GuestsSearchField compact />
-                  </div>
-                </div>
+              <div className="relative flex items-center h-10 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-1">
+                <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <WhereField {...whereProps} showMenu={stuck} />
+                {!isFocused ? (
+                  <>
+                    <DateSearchField chip />
+                    <GuestsSearchField chip />
+                  </>
+                ) : null}
+                <SearchRowActions sort={sortValue} onSort={onSort} />
               </div>
             </form>
             <UserNavMenu

@@ -102,7 +102,7 @@ export default async function TransportMarketplacePage({
         <HomeFilters dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
       </Suspense>
 
-      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[7.5rem]">
+      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[4.75rem]">
         <Suspense fallback={<TransportGridSkeleton />}>
           <TransportGrid
             searchParams={params}

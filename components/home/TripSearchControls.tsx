@@ -7,7 +7,7 @@ import { DayPicker } from "react-day-picker"
 import { format, isBefore, parse, startOfToday } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
-import { adultsFromTrip, formatGuestsLabel, formatTripDateLabel, TRIP_GUESTS_MAX } from "@/lib/trip-search"
+import { adultsFromTrip, formatGuestsLabel, formatTripDateLabel, formatTripDateShort, TRIP_GUESTS_MAX } from "@/lib/trip-search"
 
 const dayPickerClass = "mx-auto w-full max-w-[300px] flex justify-center text-sm"
 
@@ -164,7 +164,7 @@ function GuestsBody() {
   )
 }
 
-export function DateSearchField({ compact = false }: { compact?: boolean }) {
+export function DateSearchField({ compact = false, chip = false }: { compact?: boolean; chip?: boolean }) {
   const date = useTripSearchStore((s) => s.date)
   const setDate = useTripSearchStore((s) => s.setDate)
   const [open, setOpen] = useState(false)
@@ -174,10 +174,14 @@ export function DateSearchField({ compact = false }: { compact?: boolean }) {
     ensureTripSearchHydrated()
   }, [])
 
-  const label = formatTripDateLabel(date, compact ? "Dates" : "Add dates")
-  const triggerClass = compact
-    ? "flex min-w-0 items-center gap-1.5 text-left text-xs font-semibold text-zinc-800"
-    : "flex w-full flex-col justify-center text-left"
+  const label = chip
+    ? formatTripDateShort(date)
+    : formatTripDateLabel(date, compact ? "Dates" : "Add dates")
+  const triggerClass = chip
+    ? "flex h-7 shrink-0 items-center gap-1 rounded-full bg-zinc-100 px-2 text-[11px] font-semibold text-zinc-800"
+    : compact
+      ? "flex min-w-0 items-center gap-1.5 text-left text-xs font-semibold text-zinc-800"
+      : "flex w-full flex-col justify-center text-left"
 
   return (
     <>
@@ -194,10 +198,10 @@ export function DateSearchField({ compact = false }: { compact?: boolean }) {
               }
             }}
           >
-            {compact ? (
+            {chip || compact ? (
               <>
-                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
-                <span className={`truncate ${date ? "text-zinc-900" : "text-zinc-400"}`}>{label}</span>
+                <CalendarDays className={`${chip ? "h-3 w-3" : "h-3.5 w-3.5"} shrink-0 text-zinc-400`} />
+                {label ? <span className={`truncate ${date ? "text-zinc-900" : "text-zinc-400"}`}>{label}</span> : null}
               </>
             ) : (
               <>
@@ -240,7 +244,7 @@ export function DateSearchField({ compact = false }: { compact?: boolean }) {
   )
 }
 
-export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
+export function GuestsSearchField({ compact = false, chip = false }: { compact?: boolean; chip?: boolean }) {
   const guests = useTripSearchStore((s) => s.guests)
   const children = useTripSearchStore((s) => s.children)
   const infants = useTripSearchStore((s) => s.infants)
@@ -253,10 +257,16 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
     ensureTripSearchHydrated()
   }, [])
 
-  const label = formatGuestsLabel({ guests, children, infants }, compact ? "Guests" : "Add guests")
-  const triggerClass = compact
-    ? "flex min-w-0 items-center gap-1.5 text-left text-xs font-semibold text-zinc-800"
-    : "flex w-full flex-col justify-center text-left"
+  const label = chip
+    ? guests
+      ? String(guests)
+      : ""
+    : formatGuestsLabel({ guests, children, infants }, compact ? "Guests" : "Add guests")
+  const triggerClass = chip
+    ? "flex h-7 shrink-0 items-center gap-1 rounded-full bg-zinc-100 px-2 text-[11px] font-semibold text-zinc-800"
+    : compact
+      ? "flex min-w-0 items-center gap-1.5 text-left text-xs font-semibold text-zinc-800"
+      : "flex w-full flex-col justify-center text-left"
 
   return (
     <>
@@ -280,10 +290,10 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
               }
             }}
           >
-            {compact ? (
+            {chip || compact ? (
               <>
-                <Users className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
-                <span className={`truncate ${guests ? "text-zinc-900" : "text-zinc-400"}`}>{label}</span>
+                <Users className={`${chip ? "h-3 w-3" : "h-3.5 w-3.5"} shrink-0 text-zinc-400`} />
+                {label ? <span className={`tabular-nums ${guests ? "text-zinc-900" : "text-zinc-400"}`}>{label}</span> : null}
               </>
             ) : (
               <>
