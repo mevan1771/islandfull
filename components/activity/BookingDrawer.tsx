@@ -22,7 +22,7 @@ import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { getCancellationPolicyText, CancellationTierData } from "@/utils/cancellation"
 import { Checkbox } from "@/components/ui/checkbox"
 import { getLowestPerPersonFromTiers, getMatchingTierPrice, hasPricingTiers } from "@/lib/pricingTiers"
-import { clampGuests, parseGuestCount, parseIsoDate } from "@/lib/trip-search"
+import { clampGuests, parseGuestCount, parseIsoDate, partyNote, readTripSearchFromParams } from "@/lib/trip-search"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 interface BookingDrawerProps {
@@ -84,8 +84,9 @@ export function BookingDrawer({
 }: BookingDrawerProps) {
   const { isSignedIn, user } = useUser()
   const searchParams = useSearchParams()
-  const initialTripDate = parseIsoDate(searchParams.get("date"))
-  const initialTripGuests = parseGuestCount(searchParams.get("guests"))
+  const initialTrip = readTripSearchFromParams(searchParams)
+  const initialTripDate = initialTrip.date
+  const initialTripGuests = initialTrip.guests
   const firstName = user?.firstName || user?.fullName?.split(" ")[0] || ""
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
@@ -133,6 +134,8 @@ export function BookingDrawer({
   const [selectedOption, setSelectedOption] = useState<string>(tourOptions && tourOptions.length > 0 ? tourOptions[0].title : "")
   const [pickupLocation, setPickupLocation] = useState("")
   const [specialRequests, setSpecialRequests] = useState("")
+  const [childrenCount] = useState(initialTrip.children)
+  const [infantCount] = useState(initialTrip.infants)
   const [fromLocation, setFromLocation] = useState("")
   const [toLocation, setToLocation] = useState("")
 
@@ -279,9 +282,11 @@ export function BookingDrawer({
           selectedOption,
           totalUsd,
           pickupLocation,
-          specialRequests: acceptedOffer
-            ? [`Accepted offer ${acceptedOffer.id}`, specialRequests].filter(Boolean).join("\n")
-            : specialRequests,
+          specialRequests: [
+            acceptedOffer ? `Accepted offer ${acceptedOffer.id}` : "",
+            partyNote({ guests, children: Math.min(childrenCount, Math.max(0, guests - 1)), infants: infantCount }),
+            specialRequests,
+          ].filter(Boolean).join("\n"),
           fromLocation,
           toLocation,
           paymentStrategy: priceUsd === 0 ? 'no_card' : paymentStrategy,
@@ -741,6 +746,15 @@ export function BookingDrawer({
                               +
                             </button>
                           </div>
+                          {(childrenCount > 0 || infantCount > 0) && (
+                            <p className="text-[11px] leading-snug text-zinc-500 max-w-[16rem]">
+                              {partyNote({
+                                guests,
+                                children: Math.min(childrenCount, Math.max(0, guests - 1)),
+                                infants: infantCount,
+                              })}
+                            </p>
+                          )}
                         </div>
 
                         {!isSignedIn && (

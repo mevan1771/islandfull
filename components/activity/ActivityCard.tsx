@@ -60,7 +60,14 @@ export function ActivityCard({
   ensureTripSearchHydrated()
   const tripDate = useTripSearchStore((s) => s.date)
   const tripGuests = useTripSearchStore((s) => s.guests)
-  const listingHref = withTripSearch(href || `/activity/${slug}`, { date: tripDate, guests: tripGuests })
+  const tripChildren = useTripSearchStore((s) => s.children)
+  const tripInfants = useTripSearchStore((s) => s.infants)
+  const listingHref = withTripSearch(href || `/activity/${slug}`, {
+    date: tripDate,
+    guests: tripGuests,
+    children: tripChildren,
+    infants: tripInfants,
+  })
   const isPlace = variant === "place"
   const displayLocation = location.replace(', Sri Lanka', '')
   const videoRef = useRef<HTMLVideoElement>(null)

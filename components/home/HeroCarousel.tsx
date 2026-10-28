@@ -53,6 +53,8 @@ function slideImageUrl(tour: Tour) {
 function TitleBlock({ tour }: { tour: Tour }) {
     const tripDate = useTripSearchStore((s) => s.date)
     const tripGuests = useTripSearchStore((s) => s.guests)
+    const tripChildren = useTripSearchStore((s) => s.children)
+    const tripInfants = useTripSearchStore((s) => s.infants)
     const location = tour.isStatic ? "Sri Lanka" : tour.location?.replace(", Sri Lanka", "")
     const priceLabel = heroPriceLabel(tour)
 
@@ -92,7 +94,12 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     return (
         <Link
-            href={withTripSearch(`/activity/${tour.slug}`, { date: tripDate, guests: tripGuests })}
+            href={withTripSearch(`/activity/${tour.slug}`, {
+              date: tripDate,
+              guests: tripGuests,
+              children: tripChildren,
+              infants: tripInfants,
+            })}
             className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-1 md:pb-2"
         >
             {badges}

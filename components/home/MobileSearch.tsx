@@ -125,6 +125,8 @@ export function MobileSearch({
   const [location, setLocation] = useState(searchParams.get("location") || "")
   const tripDate = useTripSearchStore((s) => s.date)
   const tripGuests = useTripSearchStore((s) => s.guests)
+  const tripChildren = useTripSearchStore((s) => s.children)
+  const tripInfants = useTripSearchStore((s) => s.infants)
   const hydrateTrip = useTripSearchStore((s) => s.hydrate)
 
   useEffect(() => {
@@ -209,7 +211,7 @@ export function MobileSearch({
     const value = nextLocation.trim()
     if (value) params.set("location", value)
     else params.delete("location")
-    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests })
+    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests, children: tripChildren, infants: tripInfants })
     params.delete("category")
     const sortVal = searchParams.get("sort")
     if (sortVal) params.set("sort", sortVal)

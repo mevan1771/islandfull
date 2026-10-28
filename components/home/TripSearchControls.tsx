@@ -7,7 +7,7 @@ import { DayPicker } from "react-day-picker"
 import { format, isBefore, parse, startOfToday } from "date-fns"
 import "react-day-picker/dist/style.css"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
-import { formatGuestsLabel, formatTripDateLabel, TRIP_GUESTS_MAX } from "@/lib/trip-search"
+import { adultsFromTrip, formatGuestsLabel, formatTripDateLabel, TRIP_GUESTS_MAX } from "@/lib/trip-search"
 
 const dayPickerClass = "mx-auto w-full max-w-[300px] flex justify-center text-sm"
 
@@ -80,27 +80,34 @@ function DatePickerBody({
   )
 }
 
-function GuestsBody({
-  guests,
+function CountRow({
+  title,
+  hint,
+  value,
+  min,
+  max,
   onChange,
 }: {
-  guests: number
+  title: string
+  hint: string
+  value: number
+  min: number
+  max: number
   onChange: (next: number) => void
 }) {
-  const value = guests || 1
   return (
-    <div className="flex items-center justify-between gap-4 py-2">
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-zinc-100 last:border-0">
       <div>
-        <p className="text-sm font-bold text-zinc-900">Guests</p>
-        <p className="text-xs text-zinc-500">How many people on this tour</p>
+        <p className="text-sm font-bold text-zinc-900">{title}</p>
+        <p className="text-xs text-zinc-500">{hint}</p>
       </div>
       <div className="flex items-center gap-3">
         <button
           type="button"
           className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 disabled:opacity-30"
-          disabled={value <= 1}
+          disabled={value <= min}
           onClick={() => onChange(value - 1)}
-          aria-label="Fewer guests"
+          aria-label={`Fewer ${title.toLowerCase()}`}
         >
           <Minus className="h-4 w-4" />
         </button>
@@ -108,13 +115,51 @@ function GuestsBody({
         <button
           type="button"
           className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 disabled:opacity-30"
-          disabled={value >= TRIP_GUESTS_MAX}
+          disabled={value >= max}
           onClick={() => onChange(value + 1)}
-          aria-label="More guests"
+          aria-label={`More ${title.toLowerCase()}`}
         >
           <Plus className="h-4 w-4" />
         </button>
       </div>
+    </div>
+  )
+}
+
+function GuestsBody() {
+  const guests = useTripSearchStore((s) => s.guests)
+  const children = useTripSearchStore((s) => s.children)
+  const infants = useTripSearchStore((s) => s.infants)
+  const setParty = useTripSearchStore((s) => s.setParty)
+  const adults = Math.max(1, adultsFromTrip({ guests: guests || 1, children }))
+  const childMax = Math.max(0, TRIP_GUESTS_MAX - adults)
+
+  return (
+    <div>
+      <CountRow
+        title="Adults"
+        hint="Ages 13+"
+        value={adults}
+        min={1}
+        max={TRIP_GUESTS_MAX - children}
+        onChange={(next) => setParty({ adults: next })}
+      />
+      <CountRow
+        title="Children"
+        hint="Ages 2–12 · take a seat, billed as a guest"
+        value={children}
+        min={0}
+        max={childMax}
+        onChange={(next) => setParty({ children: next })}
+      />
+      <CountRow
+        title="Infants"
+        hint="Under 2 · sit on a lap, not billed"
+        value={infants}
+        min={0}
+        max={8}
+        onChange={(next) => setParty({ infants: next })}
+      />
     </div>
   )
 }
@@ -197,7 +242,10 @@ export function DateSearchField({ compact = false }: { compact?: boolean }) {
 
 export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
   const guests = useTripSearchStore((s) => s.guests)
-  const setGuests = useTripSearchStore((s) => s.setGuests)
+  const children = useTripSearchStore((s) => s.children)
+  const infants = useTripSearchStore((s) => s.infants)
+  const setParty = useTripSearchStore((s) => s.setParty)
+  const clearParty = useTripSearchStore((s) => s.clearParty)
   const [open, setOpen] = useState(false)
   const [sheet, setSheet] = useState(false)
 
@@ -205,7 +253,7 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
     ensureTripSearchHydrated()
   }, [])
 
-  const label = formatGuestsLabel(guests, compact ? "Guests" : "Add guests")
+  const label = formatGuestsLabel({ guests, children, infants }, compact ? "Guests" : "Add guests")
   const triggerClass = compact
     ? "flex min-w-0 items-center gap-1.5 text-left text-xs font-semibold text-zinc-800"
     : "flex w-full flex-col justify-center text-left"
@@ -216,7 +264,7 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
         open={open}
         onOpenChange={(next) => {
           setOpen(next)
-          if (next && !guests) setGuests(1)
+          if (next && !guests) setParty({ adults: 1 })
         }}
       >
         <Popover.Trigger asChild>
@@ -228,7 +276,7 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
                 event.preventDefault()
                 setOpen(false)
                 setSheet(true)
-                if (!guests) setGuests(1)
+                if (!guests) setParty({ adults: 1 })
               }
             }}
           >
@@ -251,9 +299,9 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
             sideOffset={10}
             className="z-[80] w-80 rounded-2xl border border-zinc-200 bg-white p-4 shadow-xl outline-none max-sm:hidden"
           >
-            <GuestsBody guests={guests} onChange={setGuests} />
+            <GuestsBody />
             {guests ? (
-              <button type="button" className="mt-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800" onClick={() => setGuests(0)}>
+              <button type="button" className="mt-2 text-xs font-semibold text-zinc-500 hover:text-zinc-800" onClick={clearParty}>
                 Clear guests
               </button>
             ) : null}
@@ -261,9 +309,9 @@ export function GuestsSearchField({ compact = false }: { compact?: boolean }) {
         </Popover.Portal>
       </Popover.Root>
       <Sheet open={sheet} title="Who is coming?" onClose={() => setSheet(false)}>
-        <GuestsBody guests={guests} onChange={setGuests} />
+        <GuestsBody />
         {guests ? (
-          <button type="button" className="mt-2 text-xs font-semibold text-zinc-500" onClick={() => setGuests(0)}>
+          <button type="button" className="mt-2 text-xs font-semibold text-zinc-500" onClick={clearParty}>
             Clear guests
           </button>
         ) : null}

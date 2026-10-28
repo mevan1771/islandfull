@@ -50,6 +50,8 @@ export function HomeFilters({
   const [location, setLocation] = useState(currentLocation)
   const tripDate = useTripSearchStore((s) => s.date)
   const tripGuests = useTripSearchStore((s) => s.guests)
+  const tripChildren = useTripSearchStore((s) => s.children)
+  const tripInfants = useTripSearchStore((s) => s.infants)
   const hydrateTrip = useTripSearchStore((s) => s.hydrate)
 
   useEffect(() => {
@@ -101,7 +103,7 @@ export function HomeFilters({
     if (location) params.set("location", location.trim())
     else params.delete("location")
 
-    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests })
+    writeTripSearchToParams(params, { date: tripDate, guests: tripGuests, children: tripChildren, infants: tripInfants })
     params.delete("category")
 
     markHomeListingsPin()
