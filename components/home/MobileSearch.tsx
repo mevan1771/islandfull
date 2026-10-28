@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useTransition } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
+import { Search, MapPin, Loader2, Compass, Hash } from "lucide-react"
 import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
@@ -15,6 +15,7 @@ import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { listingsHref } from "@/lib/listing-path"
 import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-search"
 import { MobileTripChips, MobileTripSheet } from "@/components/home/TripSearchControls"
+import { SortMenu } from "@/components/home/SortMenu"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
 
 function WhereField({
@@ -80,20 +81,7 @@ function WhereField({
 function SearchRowActions({ sort, onSort }: { sort: string; onSort: (sort: string) => void }) {
   return (
     <>
-      <div className="relative h-8 w-8 shrink-0 flex items-center justify-center rounded-full text-zinc-500 active:bg-zinc-100 touch-manipulation">
-        <SlidersHorizontal className="w-4 h-4" />
-        <select
-          value={sort}
-          onChange={(e) => onSort(e.target.value)}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          aria-label="Sort tours"
-        >
-          <option value="recommended">Recommended</option>
-          <option value="price_asc">Price: Low to High</option>
-          <option value="price_desc">Price: High to Low</option>
-          <option value="newest">Newest Arrivals</option>
-        </select>
-      </div>
+      <SortMenu sort={sort} onSort={onSort} size="sm" />
       <button
         type="submit"
         aria-label="Search"

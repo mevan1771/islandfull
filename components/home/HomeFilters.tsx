@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, FormEvent, useEffect, useRef, useTransition } from "react"
-import { Search, MapPin, Loader2, SlidersHorizontal, Compass, Hash } from "lucide-react"
+import { Search, MapPin, Loader2, Compass, Hash } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "@/hooks/useDebounce"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
@@ -10,6 +10,7 @@ import { parseTourSort, type TourSort } from "@/lib/tour-sort"
 import { markHomeListingsPin } from "@/lib/home-scroll"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
 import { DateSearchField, GuestsSearchField } from "@/components/home/TripSearchControls"
+import { SortMenu } from "@/components/home/SortMenu"
 import type { HomepageCategoryMap } from "@/lib/homepage-feed"
 import { listingsHref, verticalFromLocation } from "@/lib/listing-path"
 import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-search"
@@ -190,21 +191,7 @@ export function HomeFilters({
 
             {/* Actions: Filter & Search */}
             <div className="flex items-center gap-2 pl-4">
-              {/* Filter / Sort Button */}
-              <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full text-gray-600 cursor-pointer hover:bg-gray-100 transition-all duration-300">
-                <SlidersHorizontal className="w-5 h-5" />
-                <select
-                  value={parseTourSort(currentSort)}
-                  onChange={(e) => handleSortChange(parseTourSort(e.target.value))}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  aria-label="Sort by"
-                >
-                  <option value="recommended">Recommended</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                  <option value="newest">Newest Arrivals</option>
-                </select>
-              </div>
+              <SortMenu sort={currentSort} onSort={(sort) => handleSortChange(parseTourSort(sort))} />
 
               <button
                 type="submit"
