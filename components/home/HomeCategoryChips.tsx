@@ -63,7 +63,7 @@ export function HomeCategoryChips({
     jumpHomeScroll(y)
   }
 
-  const iconBox = compact ? "h-10 w-10" : "h-11 w-11 md:h-12 md:w-12"
+  const iconBox = compact ? "h-10 w-10" : "h-11 w-11 md:h-20 md:w-20"
 
   return (
     <div className="flex min-w-0 flex-1 overflow-x-auto flex-nowrap gap-2 md:gap-3 items-end [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -84,16 +84,16 @@ export function HomeCategoryChips({
               router.prefetch(listingsHref(pathname, params))
             }}
             onClick={() => goToCategory(cat.id)}
-            className="flex flex-col items-center justify-end shrink-0 min-w-[3.4rem] md:min-w-[4rem] px-1 cursor-pointer touch-manipulation select-none active:scale-90 transition-transform duration-75"
+            className="flex flex-col items-center justify-end shrink-0 min-w-[3.4rem] md:min-w-[5.25rem] px-1 cursor-pointer touch-manipulation select-none active:scale-90 transition-transform duration-75"
           >
-            <span className={`flex ${iconBox} items-center justify-center ${current ? "scale-105" : ""}`}>
+            <span className={`flex ${iconBox} items-center justify-center ${current ? "scale-105 md:scale-110" : ""}`}>
               {cat.iconSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={cat.iconSrc}
                   alt=""
-                  width={48}
-                  height={48}
+                  width={80}
+                  height={80}
                   className="h-full w-full object-contain"
                 />
               ) : (
@@ -101,7 +101,7 @@ export function HomeCategoryChips({
               )}
             </span>
             <span
-              className={`mt-0.5 max-w-[4.5rem] truncate text-[11px] md:text-xs leading-tight ${
+              className={`mt-0.5 md:mt-1 max-w-[4.5rem] md:max-w-[5.25rem] truncate text-[11px] md:text-sm leading-tight ${
                 current ? "font-bold text-zinc-900" : "font-medium text-zinc-500"
               }`}
             >
