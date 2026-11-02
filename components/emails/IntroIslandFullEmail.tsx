@@ -88,7 +88,9 @@ export function IntroIslandFullEmail({
           </Section>
 
           <Section style={hero}>
-            <Img src={collage} alt="Sri Lanka with IslandFull" width="560" height="560" style={heroImg} />
+            <Link href={LIVE} style={{ textDecoration: "none" }}>
+              <Img src={collage} alt="Sri Lanka with IslandFull" width="560" height="560" style={heroImg} />
+            </Link>
           </Section>
 
           <Section style={letter}>
