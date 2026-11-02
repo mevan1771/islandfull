@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import SplashLoading from "@/components/ui/SplashLoading"
 
 const MIN_MS = 2800
-const SKIP_PREFIXES = ["/host", "/admin", "/sign-in", "/sign-up"]
+const SKIP_PREFIXES = ["/host", "/admin", "/sign-in", "/sign-up", "/email-preview"]
 
 export function SplashGate() {
   const pathname = usePathname()

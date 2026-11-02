@@ -8,6 +8,7 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
 
   const links = [
     { name: 'Bookings', href: '/admin' },
+    { name: 'Intro email', href: '/admin/intro-email' },
     { name: 'Offers', href: '/admin/offers' },
     { name: 'Tours', href: '/admin/tours' },
     { name: 'Transport', href: '/admin/transport' },
