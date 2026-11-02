@@ -69,9 +69,11 @@ function ListingCard({ item }: { item: Listing }) {
 export function IntroIslandFullEmail({
   firstName = "there",
   assetBase = LIVE,
+  sendId = "preview",
 }: {
   firstName?: string
   assetBase?: string
+  sendId?: string
 }) {
   const name = firstName.trim() || "there"
   const logoDark = `${assetBase}/logo_dark.png`
@@ -104,9 +106,7 @@ export function IntroIslandFullEmail({
             <Text style={body}>
               On listings with <span style={inlineOffer}>Make offer</span>, you can send an offer to the host.
             </Text>
-          </Section>
-
-          <Section style={gridPad}>
+            <Text style={body}>A few listings on the site:</Text>
             <Row>
               <ListingCard item={LISTINGS[0]} />
               <ListingCard item={LISTINGS[1]} />
@@ -137,6 +137,7 @@ export function IntroIslandFullEmail({
                 info@islandfull.com
               </Link>
             </Text>
+            <Text style={sendStamp}>{sendId}</Text>
           </Section>
         </Container>
       </Body>
@@ -156,7 +157,6 @@ const shell = {
   maxWidth: "560px",
   margin: "0 auto",
   backgroundColor: "#ffffff",
-  overflow: "hidden" as const,
 }
 
 const topBar = {
@@ -188,7 +188,7 @@ const heroImg = {
 }
 
 const letter = {
-  padding: "4px 32px 12px",
+  padding: "4px 24px 12px",
 }
 
 const kicker = {
@@ -232,10 +232,6 @@ const inlineOffer = {
   padding: "1px 10px",
   borderRadius: "999px",
   lineHeight: "22px",
-}
-
-const gridPad = {
-  padding: "4px 16px 8px",
 }
 
 const cardCol = {
@@ -347,4 +343,11 @@ const footer = {
 const footerLink = {
   color: "#71717a",
   textDecoration: "none",
+}
+
+const sendStamp = {
+  margin: "8px 0 0",
+  color: "#ffffff",
+  fontSize: "1px",
+  lineHeight: "1px",
 }

@@ -36,6 +36,7 @@ export async function sendIntroEmail(input: { firstName: string; toEmail: string
       React.createElement(IntroIslandFullEmail, {
         firstName,
         assetBase: LIVE,
+        sendId: `${Date.now()}-${toEmail}`,
       })
     )
 
