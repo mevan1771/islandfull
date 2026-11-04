@@ -29,6 +29,7 @@ export function ActivityGallery({ galleryUrls }: ActivityGalleryProps) {
                 alt={`Gallery image ${i + 1}`}
                 fill
                 priority={i < 2}
+                unoptimized
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 33vw"
                 placeholder="blur"
                 blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
