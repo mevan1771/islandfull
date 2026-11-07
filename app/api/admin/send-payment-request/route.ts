@@ -64,6 +64,7 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/cancel`,
       client_reference_id: booking.id,
       customer_email: booking.tourist_email,
+      metadata: { booking_id: booking.id },
       expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours expiration
     })
 

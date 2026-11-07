@@ -1,110 +1,58 @@
-import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
-import { supabaseAdmin } from '@/lib/supabase'
+import { NextResponse } from "next/server"
+import Stripe from "stripe"
+import { fulfillPaidBooking } from "@/lib/fulfill-booking"
 
-import { sendReceiptEmail, sendHostEmail } from '@/app/actions/email'
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-06-20' as any,
+  apiVersion: "2024-06-20" as any,
 })
+
+function bookingIdFromSession(session: Stripe.Checkout.Session) {
+  return session.client_reference_id || session.metadata?.booking_id || null
+}
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const sig = req.headers.get('stripe-signature') as string
+  const sig = req.headers.get("stripe-signature") as string
 
   let event: Stripe.Event
-
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err: any) {
-    console.error('Webhook signature verification failed.', err.message)
+    console.error("Webhook signature verification failed.", err.message)
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 })
   }
 
-  let bookingId: string | null = null;
+  let bookingId: string | null = null
 
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session
-    bookingId = session.client_reference_id
-  } else if (event.type === 'invoice.paid') {
+    if (event.type === "checkout.session.completed" && session.payment_status !== "paid") {
+      return new NextResponse("OK", { status: 200 })
+    }
+    bookingId = bookingIdFromSession(session)
+  } else if (event.type === "invoice.paid") {
     const invoice = event.data.object as Stripe.Invoice
     bookingId = invoice.metadata?.booking_id || null
+  } else if (event.type === "payment_intent.succeeded") {
+    const intent = event.data.object as Stripe.PaymentIntent
+    bookingId = intent.metadata?.booking_id || null
   }
 
-  if (event.type === 'checkout.session.completed' || event.type === 'invoice.paid') {
-    if (bookingId) {
-      const { data: existingBooking } = await supabaseAdmin
-        .from('bookings')
-        .select('status')
-        .eq('id', bookingId)
-        .single()
-
-      // Mark as confirmed
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', bookingId)
-      const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
-      await bumpPopularityIfNewlyConfirmed(bookingId, existingBooking?.status)
-      const { settlePaidOffer } = await import('@/lib/offer-lifecycle')
-      await settlePaidOffer(bookingId)
-
-      // Look up booking details for email and promo
-      const { data: booking } = await supabaseAdmin
-        .from('bookings')
-        .select('*, activities(title, cover_image_url, hosts(name, email)), hotels(title, cover_image_url, hosts(name, email))')
-        .eq('id', bookingId)
-        .single()
-
-      if (booking) {
-        // Increment promo uses and partner earnings
-        if (booking.promo_code_applied) {
-          const { data: currentPromo } = await supabaseAdmin.from('promo_codes').select('current_uses, partner_commission, total_partner_earnings').eq('code', booking.promo_code_applied).single()
-          if (currentPromo) {
-            const updates: any = { current_uses: currentPromo.current_uses + 1 }
-            if (currentPromo.partner_commission && currentPromo.partner_commission > 0) {
-              updates.total_partner_earnings = (currentPromo.total_partner_earnings || 0) + currentPromo.partner_commission
-            }
-            await supabaseAdmin.from('promo_codes').update(updates).eq('code', booking.promo_code_applied)
-          }
-        }
-
-        // Generate QR Code internally
-        const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://islandfull.com';
-        const qrCodeUrl = `${appUrl}/api/qr?id=${encodeURIComponent(bookingId)}`
-
-        // Send Receipt Email
-        const hotel = Array.isArray(booking.hotels) ? booking.hotels[0] : booking.hotels
-        const activityTitle = booking.activities?.title || hotel?.title || 'Your booking'
-        const tourOption = booking.tour_option ? ` (${booking.tour_option})` : ''
-
-        await sendReceiptEmail({
-          toEmail: booking.tourist_email,
-          touristName: booking.tourist_name,
-          activityTitle: `${activityTitle}${tourOption}`,
-          date: booking.travel_date,
-          guests: booking.pax_count,
-          qrCodeUrl,
-          imageUrl: booking.activities?.cover_image_url || hotel?.cover_image_url
-        })
-
-        // Send Host Email
-        const activityHost: any = Array.isArray(booking.activities?.hosts) ? booking.activities.hosts[0] : booking.activities?.hosts
-        const hotelHost: any = Array.isArray(hotel?.hosts) ? hotel.hosts[0] : hotel?.hosts
-        const host: any = activityHost || hotelHost
-        if (host?.email) {
-          await sendHostEmail({
-            toEmail: host.email,
-            hostName: host.name || 'Host',
-            touristName: booking.tourist_name,
-            touristEmail: booking.tourist_email,
-            touristPhone: booking.tourist_whatsapp,
-            activityTitle: `${activityTitle}${tourOption}`,
-            date: booking.travel_date,
-            guests: booking.pax_count,
-            totalPayout: booking.host_payout_usd
-          })
-        }
-      }
+  if (bookingId) {
+    const result = await fulfillPaidBooking(bookingId)
+    if (!result.success) {
+      console.error("fulfillPaidBooking failed:", result.error, bookingId, event.type)
+      return new NextResponse(result.error || "Fulfillment failed", { status: 500 })
     }
+  } else if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
+    console.error("Paid Stripe event with no booking id", event.type, event.id)
   }
 
-  return new NextResponse('OK', { status: 200 })
+  return new NextResponse("OK", { status: 200 })
 }

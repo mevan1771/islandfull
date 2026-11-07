@@ -218,8 +218,9 @@ export async function POST(req: Request) {
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/booking/cancel`,
-      client_reference_id: booking.id, // we use this in the webhook to mark as confirmed
+      client_reference_id: booking.id,
       customer_email: touristEmail,
+      metadata: { booking_id: booking.id },
     })
 
     if (['no_card', 'pay_later', 'manual_hold'].includes(paymentStrategy)) {

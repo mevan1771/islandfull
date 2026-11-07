@@ -2,6 +2,7 @@ import { CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import Stripe from "stripe"
 import { QrCode } from "lucide-react"
+import { fulfillPaidBooking } from "@/lib/fulfill-booking"
 
 export default async function BookingSuccess({
   searchParams,
@@ -17,7 +18,10 @@ export default async function BookingSuccess({
         apiVersion: '2024-06-20' as any,
       })
       const session = await stripe.checkout.sessions.retrieve(params.session_id)
-      bookingId = session.client_reference_id
+      bookingId = session.client_reference_id || session.metadata?.booking_id || null
+      if (bookingId && session.payment_status === "paid") {
+        await fulfillPaidBooking(bookingId)
+      }
     } catch (e) {
       console.error("Error retrieving session:", e)
     }
