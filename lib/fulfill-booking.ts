@@ -8,7 +8,7 @@ export async function fulfillPaidBooking(bookingId: string | null | undefined) {
 
   const { data: existing, error: fetchError } = await supabaseAdmin
     .from("bookings")
-    .select("id, status, payment_status, activity_id, travel_date")
+    .select("id, status, payment_status, paid_at, activity_id, travel_date")
     .eq("id", bookingId)
     .maybeSingle()
 
@@ -19,6 +19,9 @@ export async function fulfillPaidBooking(bookingId: string | null | undefined) {
   if (!existing) return { success: false, error: "Booking not found" }
 
   const alreadyPaid = PAID.has(existing.status) && existing.payment_status === "paid"
+  if (alreadyPaid && !existing.paid_at) {
+    await supabaseAdmin.from("bookings").update({ paid_at: new Date().toISOString() }).eq("id", bookingId)
+  }
   if (!alreadyPaid) {
     const paidAt = new Date().toISOString()
     const { error: updateError } = await supabaseAdmin

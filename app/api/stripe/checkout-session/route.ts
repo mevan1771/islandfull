@@ -132,7 +132,7 @@ export async function POST(req: Request) {
         .select('status')
         .eq('id', booking.id)
         .single()
-      await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid' }).eq('id', booking.id);
+      await supabaseAdmin.from('bookings').update({ status: 'confirmed', payment_status: 'paid', paid_at: new Date().toISOString() }).eq('id', booking.id);
       const { bumpPopularityIfNewlyConfirmed } = await import('@/lib/popularity')
       await bumpPopularityIfNewlyConfirmed(booking.id, existingBooking?.status)
 

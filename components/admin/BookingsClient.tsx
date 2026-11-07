@@ -279,11 +279,11 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                     ? new Date(b.paid_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
                     : null
                   return (
-                  <tr key={b.id} className={paidConfirmed ? "bg-emerald-50/90 border-l-4 border-l-emerald-500" : "hover:bg-zinc-50/50 transition-colors"}>
+                  <tr key={b.id} className={paidConfirmed ? "bg-emerald-50 border-l-4 border-l-emerald-600 ring-1 ring-inset ring-emerald-200" : "hover:bg-zinc-50/50 transition-colors"}>
                     {/* Status */}
                     <td className="px-4 py-3">
                       {paidConfirmed ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide bg-emerald-600 text-white shadow-sm shadow-emerald-600/30">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide bg-emerald-600 text-white shadow-md shadow-emerald-600/40">
                           <BadgeCheck className="w-4 h-4" />
                           PAID · CONFIRMED
                         </span>
@@ -323,7 +323,7 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                       {b.tour_option && (
                         <div className="text-zinc-500 text-xs font-medium mt-0.5">{b.tour_option}</div>
                       )}
-                      <div className="text-rose-500 font-bold mt-0.5">${b.total_usd}</div>
+                      <div className={`font-bold mt-0.5 ${paidConfirmed ? "text-emerald-700" : "text-rose-500"}`}>${b.total_usd}{paidConfirmed ? " paid" : ""}</div>
                     </td>
 
                     {/* Booking Info */}
@@ -341,10 +341,10 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                         <span className="font-medium text-xs">Booked: {new Date(b.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
                       {paid && (
-                        <div className="flex items-center gap-2 text-emerald-700 mt-1.5">
-                          <BadgeCheck className="w-4 h-4" />
-                          <span className="font-bold text-xs">
-                            {paidLabel ? `Paid: ${paidLabel}` : "Paid"}
+                        <div className="inline-flex items-center gap-1.5 mt-2 px-2 py-1 rounded-md bg-emerald-600 text-white">
+                          <BadgeCheck className="w-3.5 h-3.5" />
+                          <span className="font-black text-[11px] tracking-wide uppercase">
+                            {paidLabel ? `Paid ${paidLabel}` : "Paid"}
                           </span>
                         </div>
                       )}
