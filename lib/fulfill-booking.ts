@@ -20,19 +20,26 @@ export async function fulfillPaidBooking(bookingId: string | null | undefined) {
 
   const alreadyPaid = PAID.has(existing.status) && existing.payment_status === "paid"
   if (!alreadyPaid) {
+    const paidAt = new Date().toISOString()
     const { error: updateError } = await supabaseAdmin
       .from("bookings")
-      .update({ status: "confirmed", payment_status: "paid" })
+      .update({ status: "confirmed", payment_status: "paid", paid_at: paidAt })
       .eq("id", bookingId)
 
     if (updateError) {
-      const { error: statusOnly } = await supabaseAdmin
+      const { error: withoutPaidAt } = await supabaseAdmin
         .from("bookings")
-        .update({ status: "confirmed" })
+        .update({ status: "confirmed", payment_status: "paid" })
         .eq("id", bookingId)
-      if (statusOnly) {
-        console.error("fulfillPaidBooking update:", updateError, statusOnly)
-        return { success: false, error: statusOnly.message }
+      if (withoutPaidAt) {
+        const { error: statusOnly } = await supabaseAdmin
+          .from("bookings")
+          .update({ status: "confirmed" })
+          .eq("id", bookingId)
+        if (statusOnly) {
+          console.error("fulfillPaidBooking update:", updateError, withoutPaidAt, statusOnly)
+          return { success: false, error: statusOnly.message }
+        }
       }
     }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check, Phone } from "lucide-react"
+import { CheckCircle2, XCircle, MessageCircle, Clock, CalendarDays, Users, Download, Trash2, Mail, Loader2, Check, Phone, BadgeCheck } from "lucide-react"
 import { updateStatus, archiveBooking } from "@/app/actions/bookings"
 import { updateOfferStatus } from "@/app/actions/offers"
 import { travelRangeFromOffer } from "@/lib/date-range-label"
@@ -272,10 +272,22 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                     </tr>
                   )
                 })}
-                {filteredBookings.map((b: any) => (
-                  <tr key={b.id} className="hover:bg-zinc-50/50 transition-colors">
+                {filteredBookings.map((b: any) => {
+                  const paid = b.payment_status === "paid" || Boolean(b.paid_at)
+                  const paidConfirmed = paid && (b.status === "confirmed" || b.status === "completed" || b.status === "redeemed")
+                  const paidLabel = b.paid_at
+                    ? new Date(b.paid_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                    : null
+                  return (
+                  <tr key={b.id} className={paidConfirmed ? "bg-emerald-50/90 border-l-4 border-l-emerald-500" : "hover:bg-zinc-50/50 transition-colors"}>
                     {/* Status */}
                     <td className="px-4 py-3">
+                      {paidConfirmed ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide bg-emerald-600 text-white shadow-sm shadow-emerald-600/30">
+                          <BadgeCheck className="w-4 h-4" />
+                          PAID · CONFIRMED
+                        </span>
+                      ) : (
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
                         b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200' :
                         b.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
@@ -288,6 +300,7 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                           <Clock className="w-3.5 h-3.5" />}
                         {b.status.toUpperCase()}
                       </span>
+                      )}
                     </td>
 
                     {/* Guest Details */}
@@ -327,6 +340,14 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                         <Clock className="w-4 h-4 text-zinc-400" />
                         <span className="font-medium text-xs">Booked: {new Date(b.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>
+                      {paid && (
+                        <div className="flex items-center gap-2 text-emerald-700 mt-1.5">
+                          <BadgeCheck className="w-4 h-4" />
+                          <span className="font-bold text-xs">
+                            {paidLabel ? `Paid: ${paidLabel}` : "Paid"}
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Actions */}
@@ -394,7 +415,8 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
                 </>
               )}
             </tbody>
