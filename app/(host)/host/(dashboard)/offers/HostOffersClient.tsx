@@ -20,6 +20,7 @@ type HostOffer = {
   created_at: string
   payment_expires_at?: string | null
   listingTitle: string
+  tour_option?: string | null
   listingKind: string
   listingImage: string | null
   guestName: string | null
@@ -72,6 +73,9 @@ function OfferRow({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="font-bold text-zinc-900 truncate">{offer.listingTitle}</p>
+              {offer.tour_option ? (
+                <p className="text-xs font-medium text-zinc-600 truncate">{offer.tour_option}</p>
+              ) : null}
               <p className="text-[11px] uppercase tracking-wide text-zinc-400">{offer.listingKind}</p>
             </div>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${STATUS[offer.status] || STATUS.pending}`}>

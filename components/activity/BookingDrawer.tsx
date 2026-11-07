@@ -1056,6 +1056,8 @@ export function BookingDrawer({
         selectedDate={date}
         selectedGuests={guests}
         selectedRange={dateRange}
+        tourOptions={tourOptions}
+        selectedOption={selectedOption}
       />
     </>
   )

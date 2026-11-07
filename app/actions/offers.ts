@@ -36,6 +36,7 @@ export async function createOffer(input: {
   travelEndDate?: string
   guestCount: number
   specialNotes?: string
+  tourOption?: string
 }) {
   try {
     const guestName = (input.guestName || "").trim()
@@ -46,9 +47,9 @@ export async function createOffer(input: {
     const travelDate = (input.travelDate || "").trim()
     const travelEndDate = (input.travelEndDate || "").trim()
     const userNotes = (input.specialNotes || "").trim() || null
+    const requestedOption = (input.tourOption || "").trim()
     const rangeNote =
       travelEndDate && travelEndDate !== travelDate ? `Dates: ${travelDate} to ${travelEndDate}` : null
-    const specialNotes = [rangeNote, userNotes].filter(Boolean).join("\n") || null
     const travelLabel = formatStayRangeLabel(
       travelDate,
       travelEndDate || null,
@@ -72,6 +73,7 @@ export async function createOffer(input: {
     let bookingType = "single_day"
     let activityId: string | null = null
     let hotelId: string | null = null
+    let activityTourOptions: { title?: string; price_modifier?: number }[] = []
 
     if (input.hotelId) {
       const { data: hotel, error: hotelError } = await supabaseAdmin
@@ -108,7 +110,7 @@ export async function createOffer(input: {
     } else {
       const { data: activity, error: activityError } = await supabaseAdmin
         .from("activities")
-        .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, card_image_url, cover_image_url, hosts(email)")
+        .select("id, title, slug, price_usd, allow_offers, min_guests, max_capacity, status, category_type, pricing_model, booking_type, tour_options, card_image_url, cover_image_url, hosts(email)")
         .eq("id", input.activityId)
         .single()
 
@@ -133,9 +135,19 @@ export async function createOffer(input: {
       bookingType = activity.booking_type
       const host = rel(activity.hosts as { email?: string } | { email?: string }[] | null)
       hostEmail = host?.email || null
+      activityTourOptions = Array.isArray(activity.tour_options) ? activity.tour_options : []
     }
 
     const boundedGuests = Math.min(maxGuests, Math.max(minGuests, guestCount))
+    let tourOption: string | null = null
+    let optionModifier = 0
+    if (activityTourOptions.length > 0) {
+      const match = activityTourOptions.find((opt) => opt?.title === requestedOption) || activityTourOptions[0]
+      tourOption = String(match?.title || "").trim() || null
+      optionModifier = Number(match?.price_modifier) || 0
+    }
+    const packageNote = tourOption ? `Package: ${tourOption}` : null
+    const specialNotes = [rangeNote, packageNote, userNotes].filter(Boolean).join("\n") || null
 
     let clerkUserId: string | null = null
     try {
@@ -145,23 +157,32 @@ export async function createOffer(input: {
       clerkUserId = null
     }
 
-    const { data: offer, error } = await supabaseAdmin
+    const offerRow: Record<string, unknown> = {
+      activity_id: activityId,
+      hotel_id: hotelId,
+      clerk_user_id: clerkUserId,
+      guest_name: guestName,
+      guest_email: guestEmail,
+      guest_phone: guestPhone,
+      offer_amount: offerAmount,
+      travel_date: travelDate,
+      guest_count: boundedGuests,
+      special_notes: specialNotes,
+      tour_option: tourOption,
+      status: "pending",
+    }
+    let { data: offer, error } = await supabaseAdmin
       .from("offers")
-      .insert({
-        activity_id: activityId,
-        hotel_id: hotelId,
-        clerk_user_id: clerkUserId,
-        guest_name: guestName,
-        guest_email: guestEmail,
-        guest_phone: guestPhone,
-        offer_amount: offerAmount,
-        travel_date: travelDate,
-        guest_count: boundedGuests,
-        special_notes: specialNotes,
-        status: "pending",
-      })
+      .insert(offerRow)
       .select("id")
       .single()
+
+    if (error) {
+      const { tour_option: _ignored, ...withoutOption } = offerRow
+      const retry = await supabaseAdmin.from("offers").insert(withoutOption).select("id").single()
+      offer = retry.data
+      error = retry.error
+    }
 
     if (error || !offer) {
       console.error("createOffer insert error:", error)
@@ -174,7 +195,7 @@ export async function createOffer(input: {
         : inclusiveDays(parseISO(travelDate), parseISO(travelEndDate))
       : 1
     const listTotal = stayListTotal({
-      unitPrice: listUnit,
+      unitPrice: listUnit + optionModifier,
       guests: boundedGuests,
       days: stayDays,
       pricingModel,
@@ -199,8 +220,8 @@ export async function createOffer(input: {
       checkIn: prettyOfferDate(travelDate),
       checkOut: travelEndDate && travelEndDate !== travelDate ? prettyOfferDate(travelEndDate) : null,
       guestCount: boundedGuests,
-      specialNotes: userNotes,
-      activityTitle: listingTitle,
+      specialNotes: [packageNote, userNotes].filter(Boolean).join("\n") || null,
+      activityTitle: tourOption ? `${listingTitle} (${tourOption})` : listingTitle,
       listingUrl: listingKind === "hotel" ? `${siteUrl()}/hotel/${listingSlug}` : `${siteUrl()}/activity/${listingSlug}`,
       imageUrl: listingImage,
       basePrice: listTotal,
@@ -667,6 +688,7 @@ function mapHostOffer(row: any) {
     created_at: row.created_at,
     payment_expires_at: row.payment_expires_at,
     listingTitle: listing?.title || "Listing",
+    tour_option: row.tour_option || null,
     listingKind: listing?.category_type === "hotel" ? "hotel" : listing?.category_type || "tour",
     listingImage: photo,
     guestName: paid ? row.guest_name : null,

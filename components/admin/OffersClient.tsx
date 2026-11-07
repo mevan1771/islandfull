@@ -87,6 +87,9 @@ export function OffersClient({ initialOffers }: { initialOffers: any[] }) {
                         </td>
                         <td className="px-5 py-4">
                           <div className="font-bold text-zinc-900 max-w-[200px]">{listing?.title || "Listing"}</div>
+                          {offer.tour_option && (
+                            <div className="text-xs font-medium text-zinc-600 mt-0.5">{offer.tour_option}</div>
+                          )}
                           <div className="text-[11px] uppercase text-zinc-400 mt-0.5">{listing?.category_type}</div>
                         </td>
                         <td className="px-5 py-4">

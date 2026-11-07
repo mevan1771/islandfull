@@ -215,6 +215,9 @@ export default function BookingsClient({ initialBookings, initialOffers = [] }: 
                         <div className="font-semibold text-zinc-800 max-w-[200px] truncate" title={listing?.title}>
                           {listing?.title || "Listing"}
                         </div>
+                        {offer.tour_option && (
+                          <div className="text-zinc-500 text-xs font-medium mt-0.5">{offer.tour_option}</div>
+                        )}
                         <div className="text-rose-500 font-bold mt-0.5">${Number(offer.offer_amount)}</div>
                         {listing?.price_usd != null && (
                           <div className="text-[11px] text-zinc-500">List ${Number(listing.price_usd)}</div>

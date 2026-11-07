@@ -44,6 +44,8 @@ export function MakeAnOfferModal({
   selectedDate = "",
   selectedGuests,
   selectedRange,
+  tourOptions,
+  selectedOption: initialOption,
 }: {
   open: boolean
   onClose: () => void
@@ -61,6 +63,8 @@ export function MakeAnOfferModal({
   selectedDate?: string
   selectedGuests?: number
   selectedRange?: DateRange
+  tourOptions?: { title: string; price_modifier: number }[] | null
+  selectedOption?: string
 }) {
   const { user, isSignedIn } = useUser()
   const isHotel = !!hotelId || categoryType === "hotel" || pricingModel === "per_night"
@@ -80,6 +84,7 @@ export function MakeAnOfferModal({
   const [offerDirty, setOfferDirty] = useState(false)
   const [calOpen, setCalOpen] = useState(false)
   const [specialNotes, setSpecialNotes] = useState("")
+  const [selectedOption, setSelectedOption] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -91,7 +96,9 @@ export function MakeAnOfferModal({
         : inclusiveDays(dateRange.from, dateRange.to || dateRange.from)
       : 1
   const rateSuffix = stayRateSuffix(pricingModel, categoryType, bookingType)
-  const listedAmount = listPrice > 0 ? String(Math.round(listPrice)) : ""
+  const optionMod = tourOptions?.find((opt) => opt.title === selectedOption)?.price_modifier || 0
+  const listedUnit = listPrice + optionMod
+  const listedAmount = listedUnit > 0 ? String(Math.round(listedUnit)) : ""
   const offerStep = listPrice >= 50 ? 5 : 1
   const bumpOffer = (direction: -1 | 1) => {
     setOfferDirty(true)
@@ -126,11 +133,17 @@ export function MakeAnOfferModal({
     setGuestCount(selectedGuests && selectedGuests >= minGuests ? Math.min(maxGuests, selectedGuests) : minGuests)
     setOfferDirty(false)
     setCalOpen(false)
+    const firstOption = tourOptions?.[0]?.title || ""
+    setSelectedOption(
+      initialOption && tourOptions?.some((opt) => opt.title === initialOption)
+        ? initialOption
+        : firstOption
+    )
     if (isSignedIn && user) {
       setGuestName(user.fullName || user.firstName || "")
       setGuestEmail(user.primaryEmailAddress?.emailAddress || "")
     }
-  }, [open, isSignedIn, user, minGuests, maxGuests, selectedDate, selectedGuests, selectedRange])
+  }, [open, isSignedIn, user, minGuests, maxGuests, selectedDate, selectedGuests, selectedRange, tourOptions, initialOption])
 
   useEffect(() => {
     if (!open || offerDirty) return
@@ -179,6 +192,7 @@ export function MakeAnOfferModal({
       travelEndDate: travelEnd,
       guestCount,
       specialNotes,
+      tourOption: selectedOption || undefined,
     })
     setIsSending(false)
     if (!result.success) {
@@ -240,6 +254,32 @@ export function MakeAnOfferModal({
                     />
                   </label>
                 </div>
+              )}
+
+              {tourOptions && tourOptions.length > 0 && (
+                <label className="block space-y-0.5">
+                  <span className={labelClass}>Timeslot / Package</span>
+                  <select
+                    required
+                    value={selectedOption}
+                    onChange={(e) => {
+                      setSelectedOption(e.target.value)
+                      setOfferDirty(false)
+                    }}
+                    className={`${fieldClass} bg-white`}
+                  >
+                    {tourOptions.map((opt) => (
+                      <option key={opt.title} value={opt.title}>
+                        {opt.title}{" "}
+                        {opt.price_modifier > 0
+                          ? chargesByGuest(pricingModel)
+                            ? `(+$${opt.price_modifier} pp)`
+                            : `(+$${opt.price_modifier})`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
 
               <div className="space-y-0.5">

@@ -15,7 +15,7 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
   const { data: offer, error } = await supabaseAdmin
     .from("offers")
     .select(
-      "id, activity_id, hotel_id, status, offer_amount, travel_date, guest_count, guest_name, guest_email, guest_phone, special_notes, payment_expires_at, activities(id, title, commission_rate, cover_image_url), hotels(id, title, commission_rate, cover_image_url)"
+      "id, activity_id, hotel_id, status, offer_amount, travel_date, guest_count, guest_name, guest_email, guest_phone, special_notes, tour_option, payment_expires_at, activities(id, title, commission_rate, cover_image_url), hotels(id, title, commission_rate, cover_image_url)"
     )
     .eq("id", offerId)
     .maybeSingle()
@@ -43,6 +43,8 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
     offer.hotels as { title?: string; commission_rate?: number } | { title?: string; commission_rate?: number }[] | null
   )
   const listingTitle = hotel?.title || activity?.title || "IslandFull booking"
+  const packageFromNotes = String(offer.special_notes || "").match(/^Package:\s*(.+)$/m)?.[1]?.trim() || null
+  const tourOption = (offer as { tour_option?: string | null }).tour_option || packageFromNotes
   const match = String(offer.special_notes || "").match(/Dates:\s*(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})/)
   const date = offer.travel_date
   const endDate = match?.[2] && match[2] !== date ? match[2] : null
@@ -85,6 +87,7 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
         end_date: endDate,
         total_usd: amount,
         special_requests: offerNote,
+        tour_option: tourOption,
         status: "pending",
         payment_status: "unpaid",
         platform_fee_usd: platformFeeUsd,
@@ -118,7 +121,7 @@ export async function createCheckoutForAcceptedOffer(offerId: string) {
         price_data: {
           currency: "usd",
           product_data: {
-            name: listingTitle,
+            name: tourOption ? `${listingTitle} (${tourOption})` : listingTitle,
             description: `${guests} guest${guests === 1 ? "" : "s"} · ${travelLabel}`,
           },
           unit_amount: Math.round(amount * 100),
