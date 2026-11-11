@@ -77,14 +77,16 @@ export function ActivityCard({
   const hasGroupTiers = hasPricingTiers(pricingTiers)
   const lowestPerPerson = hasGroupTiers ? getLowestPerPersonFromTiers(pricingTiers) : null
 
+  const videoUrl = /\.(mp4|webm|mov)(\?|$)/i.test(coverImage || "") ? coverImage : null
+
   useEffect(() => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || !videoUrl) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch((e) => console.log('Video autoplay prevented:', e))
+          video.play().catch(() => {})
         } else {
           video.pause()
         }
@@ -93,19 +95,8 @@ export function ActivityCard({
     )
 
     observer.observe(video)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
-
-  // Derive Cloudinary video URL from image URL
-  let videoUrl: string | null = null
-  if (coverImage?.includes('res.cloudinary.com')) {
-    videoUrl = coverImage
-      .replace('/image/upload/', '/video/upload/f_auto,q_auto,c_fill,ar_9:16/')
-      .replace(/\.(jpg|jpeg|png|webp|avif)$/i, '.mp4')
-  }
+    return () => observer.disconnect()
+  }, [videoUrl])
 
   return (
     <Link

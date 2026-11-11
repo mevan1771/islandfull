@@ -76,36 +76,41 @@ export default function SiteHeader() {
     useEffect(() => {
         if (pathname !== "/") return
 
-        const coarse = window.matchMedia("(pointer: coarse)")
+        let lastY = window.scrollY
+        let ticking = false
 
-        const onScroll = () => {
+        const apply = () => {
+            ticking = false
             const y = window.scrollY
-            setIsScrolled(y > 50 || isHomeHeaderSuppressed())
-        }
-
-        const onWheel = (event: WheelEvent) => {
-            if (coarse.matches || event.deltaY === 0) return
-            const y = window.scrollY
-            setIsScrolled(y > 50)
+            const delta = y - lastY
+            lastY = y
+            const scrolled = y > 50 || isHomeHeaderSuppressed()
+            setIsScrolled((prev) => (prev === scrolled ? prev : scrolled))
             if (y <= 50) {
                 revealHomeHeader()
                 setIsVisible(true)
                 return
             }
-            if (event.deltaY > 0) {
+            if (delta > 12) {
                 setIsVisible(false)
                 return
             }
-            revealHomeHeader()
-            setAllowMotion(true)
-            setIsVisible(true)
+            if (delta < -12) {
+                revealHomeHeader()
+                setAllowMotion(true)
+                setIsVisible(true)
+            }
+        }
+
+        const onScroll = () => {
+            if (ticking) return
+            ticking = true
+            requestAnimationFrame(apply)
         }
 
         window.addEventListener("scroll", onScroll, { passive: true })
-        window.addEventListener("wheel", onWheel, { passive: true })
         return () => {
             window.removeEventListener("scroll", onScroll)
-            window.removeEventListener("wheel", onWheel)
         }
     }, [pathname])
 

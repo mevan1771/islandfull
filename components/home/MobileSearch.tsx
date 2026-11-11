@@ -163,21 +163,31 @@ export function MobileSearch({
   useEffect(() => {
     const el = cardRef.current
     if (!el) return
+    let ticking = false
     const update = () => {
       const top = el.getBoundingClientRect().top
       const next = stuckRef.current ? top < 28 : top < 8
+      if (stuckRef.current === next) return
       stuckRef.current = next
       setStuck(next)
       setStuckChrome(next)
     }
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        ticking = false
+        update()
+      })
+    }
     update()
-    window.addEventListener("scroll", update, { passive: true })
-    window.addEventListener("resize", update)
-    window.addEventListener("islandfull:listings-pin", update)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll)
+    window.addEventListener("islandfull:listings-pin", onScroll)
     return () => {
-      window.removeEventListener("scroll", update)
-      window.removeEventListener("resize", update)
-      window.removeEventListener("islandfull:listings-pin", update)
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+      window.removeEventListener("islandfull:listings-pin", onScroll)
       setStuckChrome(false)
     }
   }, [setStuckChrome])

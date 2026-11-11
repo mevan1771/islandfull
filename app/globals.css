@@ -46,6 +46,7 @@ html {
   scrollbar-gutter: stable;
   overflow-y: scroll;
   overscroll-behavior-x: none;
+  scroll-behavior: auto;
 }
 
 footer + footer {
