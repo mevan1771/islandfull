@@ -35,17 +35,26 @@ export default function SiteHeader() {
     const [allowMotion, setAllowMotion] = useState(false)
     const prevPathname = useRef(pathname)
     rememberPathname(pathname)
-    const arrivingFromTour = pathname === "/" && prevPathname.current.startsWith("/activity")
-    const hideHomeHeader = arrivingFromTour || (pathname === "/" && isHomeHeaderSuppressed() && !shouldResetHomeToTop())
+    const isListingHome = pathname === "/" || pathname === "/transport"
+    const arrivingFromTour = isListingHome && prevPathname.current.startsWith("/activity")
+    const hideHomeHeader = arrivingFromTour || (isListingHome && isHomeHeaderSuppressed() && !shouldResetHomeToTop())
 
     useLayoutEffect(() => {
         const fromActivity = prevPathname.current.startsWith("/activity")
+        const wasListingHome = prevPathname.current === "/" || prevPathname.current === "/transport"
         prevPathname.current = pathname
         setAllowMotion(false)
 
-        if (pathname !== "/") {
+        if (!isListingHome) {
             setIsVisible(true)
             setIsScrolled(false)
+            return
+        }
+
+        if (wasListingHome && !fromActivity) {
+            const y = typeof window === "undefined" ? 0 : window.scrollY
+            setIsVisible(true)
+            setIsScrolled(y > 50 || isHomeHeaderSuppressed())
             return
         }
 
@@ -70,11 +79,12 @@ export default function SiteHeader() {
 
     useEffect(() => {
         setNavHint(null)
-        if (pathname === "/") setBrowseVertical(publicVertical(searchParams.get("vertical")))
+        if (pathname === "/transport") setBrowseVertical("transport")
+        else if (pathname === "/") setBrowseVertical(publicVertical(searchParams.get("vertical")))
     }, [pathname, searchParams, setBrowseVertical])
 
     useEffect(() => {
-        if (pathname !== "/") return
+        if (!isListingHome) return
 
         let lastY = window.scrollY
         let ticking = false
@@ -112,7 +122,7 @@ export default function SiteHeader() {
         return () => {
             window.removeEventListener("scroll", onScroll)
         }
-    }, [pathname])
+    }, [isListingHome, pathname])
 
     // Do not render the main site header on host or admin portals
     if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
@@ -309,7 +319,7 @@ export default function SiteHeader() {
                                     setNavHint("vertical" in item && item.vertical ? item.vertical : item.href)
                                     if ("vertical" in item && item.vertical) {
                                         setBrowseVertical(publicVertical(item.vertical))
-                                        if (pathname === "/") {
+                                        if (isListingHome) {
                                             const y = window.scrollY
                                             jumpHomeScroll(y)
                                             window.setTimeout(() => jumpHomeScroll(y), 50)
