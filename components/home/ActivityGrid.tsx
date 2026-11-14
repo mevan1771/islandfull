@@ -76,7 +76,27 @@ function PlaceCard({ place }: { place: MustSeePlace }) {
   )
 }
 
-function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[]): GridCell[] {
+function fitToColumns(
+  cells: GridCell[],
+  leftoverPlaces: MustSeePlace[],
+  columns: number,
+  remainder = 0
+): GridCell[] {
+  const fits = (n: number) => n % columns === remainder
+  const out = [...cells]
+  let pi = 0
+  while (!fits(out.length) && pi < leftoverPlaces.length) {
+    out.push({ type: "place", place: leftoverPlaces[pi++] })
+  }
+  while (!fits(out.length)) {
+    const idx = out.findLastIndex((cell) => cell.type === "place")
+    if (idx < 0) break
+    out.splice(idx, 1)
+  }
+  return out
+}
+
+function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[], remainder = 0): GridCell[] {
   const cells: GridCell[] = []
   let pi = 0
   for (let i = 0; i < tours.length; i++) {
@@ -85,10 +105,7 @@ function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[]): Gr
       cells.push({ type: "place", place: places[pi++] })
     }
   }
-  if (cells.length % 2 === 1 && pi < places.length) {
-    cells.push({ type: "place", place: places[pi++] })
-  }
-  return cells
+  return fitToColumns(cells, places.slice(pi), 4, remainder)
 }
 
 function Cell({ cell }: { cell: GridCell }) {
@@ -153,7 +170,8 @@ export function ActivityGrid({
       })
     : []
 
-  const cells = withMustSeeSlots(displayActivities, placesForGrid)
+  const showPlanTile = filters.vertical === "transport" && currentCategory !== "saved"
+  const cells = withMustSeeSlots(displayActivities, placesForGrid, showPlanTile ? 3 : 0)
 
   const showSpotlight =
     currentCategory !== "saved" &&
@@ -171,8 +189,6 @@ export function ActivityGrid({
       })
     })
   }
-
-  const showPlanTile = filters.vertical === "transport" && currentCategory !== "saved"
 
   if (displayActivities.length === 0 && !showPlanTile) {
     if (currentCategory === "saved") {
@@ -209,7 +225,7 @@ export function ActivityGrid({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
         {showPlanTile ? <TransportPlanEntry /> : null}
         {leading.map((cell) => (
           <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
@@ -234,7 +250,7 @@ export function ActivityGrid({
       )}
 
       {(trailing.length > 0 || (showSpotlight && desktopOnlyBeforeSpotlight.length > 0)) && (
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 mt-4 md:mt-8">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 mt-4 md:mt-8">
           {showSpotlight && (
             <div className="contents md:hidden">
               {desktopOnlyBeforeSpotlight.map((cell) => (
