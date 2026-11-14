@@ -9,10 +9,16 @@ interface Review {
   rating: number
   comment?: string
   created_at: string
+  image_urls?: string[] | null
+}
+
+function reviewPhotos(review: Review) {
+  return Array.isArray(review.image_urls) ? review.image_urls.filter(Boolean) : []
 }
 
 export function ActivityReviews({ reviews }: { reviews: Review[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [lightbox, setLightbox] = useState<string | null>(null)
 
   if (!reviews || reviews.length === 0) return null;
 
@@ -59,6 +65,20 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
                 <p className="text-sm text-gray-700 mt-3 line-clamp-3 leading-relaxed">
                   {review.comment}
                 </p>
+              )}
+              {reviewPhotos(review).length > 0 && (
+                <div className="mt-3 flex gap-1.5 overflow-hidden">
+                  {reviewPhotos(review).slice(0, 3).map((url) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setLightbox(url)}
+                      className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100"
+                    >
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           ))}
@@ -132,11 +152,47 @@ export function ActivityReviews({ reviews }: { reviews: Review[] }) {
                         {review.comment}
                       </p>
                     )}
+                    {reviewPhotos(review).length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {reviewPhotos(review).map((url) => (
+                          <button
+                            key={url}
+                            type="button"
+                            onClick={() => setLightbox(url)}
+                            className="h-20 w-20 overflow-hidden rounded-xl bg-zinc-100"
+                          >
+                            <img src={url} alt="" className="h-full w-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightbox(null)}
+            className="absolute right-4 top-4 rounded-full bg-white/15 p-2 text-white"
+            aria-label="Close photo"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={lightbox}
+            alt=""
+            className="max-h-[90vh] max-w-full rounded-2xl object-contain"
+            onClick={(event) => event.stopPropagation()}
+          />
         </div>
       )}
     </>

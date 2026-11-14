@@ -1,14 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { addReview, updateReview, deleteReview } from "@/app/actions/reviews"
-import { Star, MessageSquare, User, Loader2, Trash2, Pencil } from "lucide-react"
+import { uploadToCloudinary } from "@/app/actions/upload"
+import { Star, MessageSquare, User, Loader2, Trash2, Pencil, ImagePlus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export function ReviewManagement({ activities }: { activities: any[] }) {
   const [selectedActivityId, setSelectedActivityId] = useState<string>("")
   const [editingReview, setEditingReview] = useState<any | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadingPhotos, setUploadingPhotos] = useState(false)
+  const [photos, setPhotos] = useState<string[]>([])
   const [statusMsg, setStatusMsg] = useState<{type: 'success' | 'error', msg: string} | null>(null)
   
   // Find currently selected activity to render its reviews
@@ -16,6 +19,33 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
   const currentReviews = selectedActivity?.reviews || []
 
   const router = useRouter()
+
+  useEffect(() => {
+    setPhotos(Array.isArray(editingReview?.image_urls) ? editingReview.image_urls : [])
+  }, [editingReview])
+
+  const handlePhotoUpload = async (files: FileList | null) => {
+    if (!files?.length) return
+    setUploadingPhotos(true)
+    setStatusMsg(null)
+    try {
+      const uploaded: string[] = []
+      for (const file of Array.from(files).slice(0, 8 - photos.length)) {
+        const data = new FormData()
+        data.append("file", file)
+        const result = await uploadToCloudinary(data)
+        if (!result.success || !result.secure_url) {
+          throw new Error(result.error || "Failed to upload image")
+        }
+        uploaded.push(result.secure_url)
+      }
+      setPhotos((prev) => [...prev, ...uploaded].slice(0, 8))
+    } catch (err: any) {
+      setStatusMsg({ type: "error", msg: err.message || "Failed to upload photos." })
+    } finally {
+      setUploadingPhotos(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -35,8 +65,10 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
       setStatusMsg({ type: 'success', msg: editingReview ? "Review updated successfully!" : "Review added successfully!" })
       if (!editingReview) {
         e.currentTarget.reset()
+        setPhotos([])
       } else {
         setEditingReview(null)
+        setPhotos([])
       }
       router.refresh()
     } else {
@@ -149,6 +181,49 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
             />
           </div>
 
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-bold text-zinc-800 tracking-wide uppercase">
+              <ImagePlus className="w-4 h-4 text-rose-500" />
+              Photos (optional)
+            </label>
+            {photos.map((url) => (
+              <input key={url} type="hidden" name="image_urls" value={url} />
+            ))}
+            {photos.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {photos.map((url) => (
+                  <div key={url} className="relative h-16 w-16 overflow-hidden rounded-xl border border-zinc-200">
+                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos((prev) => prev.filter((item) => item !== url))}
+                      className="absolute right-0.5 top-0.5 rounded-full bg-black/70 p-0.5 text-white"
+                      aria-label="Remove photo"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {photos.length < 8 && (
+              <label className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-200 text-sm font-semibold text-zinc-600 hover:bg-zinc-50">
+                {uploadingPhotos ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                {uploadingPhotos ? "Uploading…" : "Add photos"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(event) => {
+                    handlePhotoUpload(event.target.files)
+                    event.target.value = ""
+                  }}
+                />
+              </label>
+            )}
+          </div>
+
           <div className="flex gap-3">
             <button 
               type="submit" 
@@ -222,6 +297,13 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
                   <p className="text-zinc-600 text-sm leading-relaxed bg-zinc-50/50 p-3 rounded-xl border border-zinc-100">
                     "{review.comment}"
                   </p>
+                )}
+                {Array.isArray(review.image_urls) && review.image_urls.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {review.image_urls.map((url: string) => (
+                      <img key={url} src={url} alt="" className="h-14 w-14 rounded-lg object-cover border border-zinc-100" />
+                    ))}
+                  </div>
                 )}
               </div>
             ))}
