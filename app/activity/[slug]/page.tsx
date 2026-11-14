@@ -207,7 +207,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
     }
 
     return (
-        <div className="bg-white min-h-screen md:pb-12">
+        <div className="bg-white min-h-screen md:pb-12 [overflow-anchor:none]">
             <ScrollToTop />
             <MobilePaddingSetter enabled={!isPlace} />
             <HeaderThemeSetter useDarkTextDesktop={activity.use_dark_text_desktop} useDarkTextMobile={activity.use_dark_text_mobile} />
@@ -312,8 +312,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 </div>
 
                 {/* Sidebar / Desktop Booking */}
-                <div className="hidden lg:block w-full max-w-[420px]">
-                    <div className="sticky top-28">
+                <div className="hidden lg:block w-full max-w-[420px] shrink-0 self-start">
+                    <div className="lg:sticky lg:top-20">
                         {isPlace ? (
                             <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
                                 <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">Must see</p>

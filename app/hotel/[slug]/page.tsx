@@ -51,7 +51,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
   const lng = hotel.longitude != null ? Number(hotel.longitude) : NaN
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen [overflow-anchor:none]">
       <ScrollToTop />
       <MobilePaddingSetter />
 
@@ -180,8 +180,8 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
           <ActivityGallery galleryUrls={gallery.length ? gallery : [cover]} />
         </div>
 
-        <div className="hidden lg:block w-full max-w-[420px]">
-          <div className="sticky top-28">
+        <div className="hidden lg:block w-full max-w-[420px] shrink-0 self-start">
+          <div className="lg:sticky lg:top-20">
             <HotelStayWidget
               hotelId={hotel.id}
               title={hotel.title}

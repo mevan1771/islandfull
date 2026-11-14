@@ -185,7 +185,9 @@ export default function SiteHeader() {
     const iconHoverBg = `${effectiveDarkTextMobile ? 'hover:bg-black/10' : 'hover:bg-white/30'} ${effectiveDarkTextDesktop ? 'md:hover:bg-black/10' : 'md:hover:bg-white/30'}`
     const logoFilter = `${effectiveDarkTextMobile ? 'brightness-0 opacity-80' : ''} ${effectiveDarkTextDesktop ? 'md:brightness-0 md:opacity-80' : 'md:brightness-100 md:opacity-100'}`
 
-    const headerClasses = isDestinationsPage || isSupportPage || isTripsPage || isActivityPage || isTransportPage
+    const headerClasses = isActivityPage
+        ? "fixed top-0 left-0 right-0 z-50 w-full h-16 md:h-20 pointer-events-none bg-white shadow-sm"
+        : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
@@ -198,8 +200,9 @@ export default function SiteHeader() {
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
+        <>
         <header className={headerClasses}>
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between pointer-events-auto w-full">
+            <div className="max-w-7xl mx-auto px-4 h-16 md:h-full flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-3">
                     {isActivityPage && (
                         <button
@@ -385,5 +388,7 @@ export default function SiteHeader() {
                 </div>
             </div>
         </header>
+        {isActivityPage ? <div className="h-16 md:h-20 shrink-0" aria-hidden /> : null}
+        </>
     )
 }

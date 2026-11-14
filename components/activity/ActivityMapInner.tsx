@@ -20,7 +20,7 @@ export default function ActivityMapInner({ lat, lng }: { lat: number, lng: numbe
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[300px] rounded-3xl overflow-hidden shadow-sm border border-zinc-200">
+    <div className="w-full h-full min-h-[300px] rounded-3xl overflow-hidden shadow-sm border border-zinc-200 [touch-action:pan-y]">
       <MapContainer
         center={[lat, lng]}
         zoom={12}
