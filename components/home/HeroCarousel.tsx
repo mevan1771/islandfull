@@ -196,8 +196,8 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
         <section className="relative bg-zinc-50 px-3 pt-20 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
             <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
-            <div className="flex h-[clamp(12.75rem,32svh,15.5rem)] gap-3 md:h-[calc(85vh-8.5rem)] md:gap-4">
-                <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:rounded-3xl">
+            <div className="flex h-[clamp(12.75rem,32svh,15.5rem)] overflow-hidden rounded-2xl bg-slate-900 shadow-lg md:h-[calc(85vh-8.5rem)] md:rounded-3xl">
+                <div className="relative min-w-0 flex-1 overflow-hidden text-white">
                     {carouselSlides.map((tour, index) => {
                         const rawUrl = slideImageUrl(tour)
                         const isActive = index === currentIndex
@@ -247,7 +247,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                     </div>
                 </div>
 
-                <aside className="relative hidden h-full w-[40%] shrink-0 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 shadow-lg lg:block">
+                <aside className="relative hidden h-full w-[40%] shrink-0 overflow-hidden bg-zinc-900 lg:block">
                     <MapClientWrapper
                         tours={mapTours}
                         compact
