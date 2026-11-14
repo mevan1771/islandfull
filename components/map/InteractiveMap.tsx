@@ -38,6 +38,9 @@ interface InteractiveMapProps {
   dynamicCategories?: any[]
   currentVertical?: string
   isDestinationMode?: boolean
+  compact?: boolean
+  activeTourId?: string | null
+  onTourSelect?: (tour: MapTour) => void
   onMapReady?: (map: mapboxgl.Map | null) => void
 }
 
@@ -51,7 +54,7 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, onMapReady }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, compact = false, activeTourId = null, onTourSelect, onMapReady }: InteractiveMapProps) {
   const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
@@ -98,8 +101,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       map.resize() // Fix container layout offsets
     })
 
-    map.scrollZoom.setWheelZoomRate(1 / 900)
-    map.scrollZoom.setZoomRate(1 / 200)
+    if (compact) {
+      map.scrollZoom.disable()
+    } else {
+      map.scrollZoom.setWheelZoomRate(1 / 900)
+      map.scrollZoom.setZoomRate(1 / 200)
+    }
 
     mapInstance.current = map
     onMapReadyRef.current?.(map)
@@ -134,6 +141,11 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
   // Smooth camera flyTo when a marker is clicked
   const handleMarkerClick = useCallback((tour: MapTour & { coords: { lat: number, lng: number } }) => {
+    if (compact) {
+      onTourSelect?.(tour)
+      return
+    }
+
     setSelectedTour(tour)
 
     mapInstance.current?.stop()
@@ -146,7 +158,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       curve: isDestinationMode ? 1.4 : 1.42,
       offset: isDestinationMode ? [0, -160] : [0, -150]
     })
-  }, [isDestinationMode])
+  }, [isDestinationMode, compact, onTourSelect])
 
   // Create / refresh markers whenever the map is ready and tour data arrives
   useEffect(() => {
@@ -174,6 +186,16 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       markersRef.current[tour.id] = { marker, el, tour, coords }
     })
   }, [tours, handleMarkerClick, mapReady])
+
+  useEffect(() => {
+    if (!compact) return
+    if (!activeTourId) {
+      setSelectedTour(null)
+      return
+    }
+    const tour = tours.find((item) => item.id === activeTourId) || null
+    setSelectedTour(tour)
+  }, [compact, activeTourId, tours])
 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
@@ -290,7 +312,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
 
-      {/* Category Filter Bar (Floating on bottom) */}
+      {!compact && (
       <div className={`absolute inset-0 z-40 pointer-events-none ${isDestinationMode ? "lg:hidden" : ""}`}>
         <MapFilterBar
           activeCategory={activeCategory}
@@ -308,6 +330,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
           }}
         />
       </div>
+      )}
 
       {/* Strict isolation for Mapbox Canvas — fill the parent so embed/sidebar layouts get a real size */}
       <div
@@ -320,11 +343,13 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       />
 
       {/* Render the drawer completely outside the map canvas layer */}
+      {!compact && (
       <MapPreviewDrawer
         tour={selectedTour}
         onClose={() => setSelectedTour(null)}
         contained={isDestinationMode}
       />
+      )}
 
     </div>
   )

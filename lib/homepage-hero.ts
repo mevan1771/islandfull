@@ -9,7 +9,7 @@ import {
 } from "@/lib/homepage-feed"
 
 const HERO_TOUR_COLUMNS =
-  "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers"
+  "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng"
 
 export type HomepageHeroPayload = {
   featuredTours: any[]

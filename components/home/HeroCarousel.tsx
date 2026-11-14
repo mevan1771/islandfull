@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { heroDefaultSrc, heroLqip, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
@@ -8,6 +8,9 @@ import { formatUSD } from "@/lib/utils"
 import { getLowestPerPersonFromTiers, hasPricingTiers } from "@/lib/pricingTiers"
 import { withTripSearch } from "@/lib/trip-search"
 import { useTripSearchStore } from "@/store/useTripSearchStore"
+import { MapClientWrapper } from "@/components/map/MapClientWrapper"
+import type { MapTour } from "@/components/map/InteractiveMap"
+import { getTourCoordinates } from "@/lib/utils/coordinates"
 
 export interface Tour {
     id: string
@@ -26,6 +29,37 @@ export interface Tour {
     deal_end_date?: string | null
     pricing_model?: string
     pricing_tiers?: unknown
+    category_type?: string
+    approx_lat?: number | string | null
+    approx_lng?: number | string | null
+}
+
+const SRI_LANKA = { lat: 7.8731, lng: 80.7718, zoom: 6.7 }
+
+function slideCoords(tour: Tour) {
+    const lat = tour.approx_lat != null ? Number(tour.approx_lat) : null
+    const lng = tour.approx_lng != null ? Number(tour.approx_lng) : null
+    return getTourCoordinates(lat, lng, tour.location || "", tour.id)
+}
+
+function toHeroMapTour(tour: Tour): MapTour | null {
+    if (tour.isStatic) return null
+    const coords = slideCoords(tour)
+    if (!coords) return null
+    return {
+        id: tour.id,
+        title: tour.title,
+        slug: tour.slug,
+        location: tour.location || "",
+        price_usd: tour.price_usd || 0,
+        cover_image_url: slideImageUrl(tour),
+        duration: "",
+        category: tour.category_type || "tour",
+        category_type: tour.category_type || "tour",
+        latitude: coords.lat,
+        longitude: coords.lng,
+        listingHref: `/activity/${tour.slug}`,
+    }
 }
 
 const THEME_DELAY_MS = 350
@@ -114,8 +148,26 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
     const [pendingIndex, setPendingIndex] = useState<number | null>(null)
 
     const themeTour = carouselSlides[themeIndex] ?? carouselSlides[0]
+    const activeTour = carouselSlides[currentIndex] ?? carouselSlides[0]
     const useDarkTextDesktop = themeTour?.use_dark_text_desktop || false
     const useDarkTextMobile = themeTour?.use_dark_text_mobile || false
+    const mapTours = useMemo(
+        () => carouselSlides.map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour)),
+        [carouselSlides]
+    )
+    const activeCoords = activeTour && !activeTour.isStatic ? slideCoords(activeTour) : null
+    const activeLocation = useMemo(
+        () => (activeCoords ? { lat: activeCoords.lat, lng: activeCoords.lng, zoom: 9.6 } : SRI_LANKA),
+        [activeCoords?.lat, activeCoords?.lng]
+    )
+
+    const goToTour = useCallback((tour: MapTour) => {
+        const index = carouselSlides.findIndex((slide) => slide.id === tour.id)
+        if (index >= 0) {
+            setCurrentIndex(index)
+            setPendingIndex(null)
+        }
+    }, [carouselSlides])
 
     useEffect(() => {
         if (carouselSlides.length <= 1) return
@@ -163,7 +215,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 return (
                     <div
                         key={tour.id}
-                        className={`absolute inset-0 transition-opacity ease-in-out duration-700 ${
+                        className={`absolute inset-0 lg:right-[40%] transition-opacity ease-in-out duration-700 ${
                             isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
                         }`}
                         aria-hidden={!isActive}
@@ -184,9 +236,21 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 )
             })}
 
-            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] lg:right-[40%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
-            <div className="absolute bottom-6 md:bottom-10 lg:bottom-12 w-full left-0 right-0 z-20 pointer-events-none">
+            <aside className="hidden lg:block absolute z-20 top-28 bottom-8 right-4 xl:right-8 w-[min(42%,34rem)] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xl">
+                <MapClientWrapper
+                    tours={mapTours}
+                    compact
+                    captureWheel={false}
+                    activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
+                    activeLocation={activeLocation}
+                    resizeToken={currentIndex}
+                    onTourSelect={goToTour}
+                />
+            </aside>
+
+            <div className="absolute bottom-6 md:bottom-10 lg:bottom-12 w-full left-0 lg:right-[42%] z-20 pointer-events-none">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                         {carouselSlides.map((tour, index) => (

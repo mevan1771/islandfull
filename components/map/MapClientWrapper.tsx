@@ -12,11 +12,15 @@ interface MapClientWrapperProps {
     dynamicCategories?: any[]
     currentVertical?: string
     isDestinationMode?: boolean
+    compact?: boolean
+    activeTourId?: string | null
     activeLocation?: { lat: number, lng: number, zoom?: number } | null
     resizeToken?: string | number
+    onTourSelect?: (tour: MapTour) => void
+    captureWheel?: boolean
 }
 
-export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, activeLocation = null, resizeToken }: MapClientWrapperProps) {
+export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true }: MapClientWrapperProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const mapRef = useRef<MapboxMap | null>(null)
     const [mapReady, setMapReady] = useState(false)
@@ -68,6 +72,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     }, [activeLocation, resizeToken, mapReady, flyToLocation])
 
     useEffect(() => {
+        if (!captureWheel) return
         const el = rootRef.current
         if (!el) return
 
@@ -80,7 +85,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
         return () => {
             el.removeEventListener("wheel", onWheel, { capture: true } as EventListenerOptions)
         }
-    }, [])
+    }, [captureWheel])
 
     return (
         <div
@@ -93,6 +98,9 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                 dynamicCategories={dynamicCategories}
                 currentVertical={currentVertical}
                 isDestinationMode={isDestinationMode}
+                compact={compact}
+                activeTourId={activeTourId}
+                onTourSelect={onTourSelect}
                 onMapReady={handleMapReady}
             />
         </div>
