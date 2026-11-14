@@ -49,33 +49,36 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const form = e.currentTarget
     setIsSubmitting(true)
     setStatusMsg(null)
 
-    const formData = new FormData(e.currentTarget)
-    
-    let result;
-    if (editingReview) {
-      result = await updateReview(editingReview.id, formData)
-    } else {
-      result = await addReview(formData)
-    }
+    const formData = new FormData(form)
+    const wasEditing = Boolean(editingReview)
 
-    if (result.success) {
-      setStatusMsg({ type: 'success', msg: editingReview ? "Review updated successfully!" : "Review added successfully!" })
-      if (!editingReview) {
-        e.currentTarget.reset()
+    try {
+      const result = wasEditing
+        ? await updateReview(editingReview.id, formData)
+        : await addReview(formData)
+
+      if (result.success) {
+        setStatusMsg({ type: "success", msg: wasEditing ? "Review updated successfully!" : "Review added successfully!" })
         setPhotos([])
-      } else {
         setEditingReview(null)
-        setPhotos([])
+        form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input[name='guest_name'], textarea[name='comment']").forEach((field) => {
+          field.value = ""
+        })
+        const rating = form.querySelector<HTMLSelectElement>("select[name='rating']")
+        if (rating) rating.value = "5"
+        router.refresh()
+      } else {
+        setStatusMsg({ type: "error", msg: result.error || "Failed to save review." })
       }
-      router.refresh()
-    } else {
-      setStatusMsg({ type: 'error', msg: result.error || "Failed to save review." })
+    } catch (err: any) {
+      setStatusMsg({ type: "error", msg: err.message || "Failed to save review." })
+    } finally {
+      setIsSubmitting(false)
     }
-    
-    setIsSubmitting(false)
   }
 
   const handleDelete = async (id: string) => {
@@ -227,7 +230,7 @@ export function ReviewManagement({ activities }: { activities: any[] }) {
           <div className="flex gap-3">
             <button 
               type="submit" 
-              disabled={isSubmitting}
+              disabled={isSubmitting || uploadingPhotos}
               className="flex-1 h-14 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-2xl shadow-xl shadow-zinc-900/20 transition-all flex items-center justify-center gap-2"
             >
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : editingReview ? "Update Review" : "Submit Review"}
