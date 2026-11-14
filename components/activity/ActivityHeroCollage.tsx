@@ -44,7 +44,7 @@ export function ActivityHeroCollage({
 
   return (
     <>
-      <div className="px-4 mx-auto max-w-7xl">
+      <div className="px-4 lg:px-8 mx-auto max-w-7xl">
         <div
           className={`relative ${
             hasCollage

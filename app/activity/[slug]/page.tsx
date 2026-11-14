@@ -219,7 +219,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             />
 
             {/* Content */}
-            <div className="max-w-7xl mx-auto px-4 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-4 md:gap-12">
+            <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-6 lg:gap-10">
                 <div className="flex-1 space-y-6 md:space-y-12">
 
                     <div className="space-y-2.5 md:space-y-3">
@@ -312,7 +312,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 </div>
 
                 {/* Sidebar / Desktop Booking */}
-                <div className="hidden lg:block w-full max-w-[420px] shrink-0">
+                <div className="hidden lg:block w-[360px] shrink-0">
                     <div className="sticky top-20 max-h-[calc(100dvh-5.5rem)] overflow-y-auto">
                         {isPlace ? (
                             <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -369,7 +369,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
 
             {/* More from Host / Tours nearby */}
             {((isPlace ? nearbyTours : moreActivities) || []).length > 0 && (
-                <div className="max-w-7xl mx-auto px-4 pb-12">
+                <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-12">
                     <div className="border-t border-zinc-200 pt-12">
                         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-8 mb-3">
                             {isPlace
