@@ -57,7 +57,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
 
       <ActivityHeroCollage coverUrl={cover} galleryUrls={gallery} title={hotel.title} />
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-6 lg:gap-10">
+      <div className="max-w-7xl mx-auto px-4 lg:pl-8 lg:pr-20 xl:pr-28 pt-3 pb-6 md:py-12 flex flex-col md:flex-row gap-6 lg:gap-8">
         <div className="flex-1 space-y-6 md:space-y-12">
           <div className="space-y-2.5 md:space-y-3">
             <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-700 leading-tight">
@@ -180,7 +180,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
           <ActivityGallery galleryUrls={gallery.length ? gallery : [cover]} />
         </div>
 
-        <div className="hidden lg:block w-[360px] shrink-0">
+        <div className="hidden lg:block w-[340px] shrink-0">
           <div className="sticky top-20 max-h-[calc(100dvh-5.5rem)] overflow-y-auto">
             <HotelStayWidget
               hotelId={hotel.id}
