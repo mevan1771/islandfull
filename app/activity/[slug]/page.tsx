@@ -21,6 +21,7 @@ import { InclusionBullets } from "@/components/activity/InclusionBullets"
 import { zipInclusionItems } from "@/lib/inclusions"
 import { DESTINATIONS, activityBelongsToDestination } from "@/lib/destinations"
 import { listingSearchDescription, listingSearchTitle } from "@/lib/seo"
+import { isLiveViewDay } from "@/lib/view-proof"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -119,6 +120,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
         if (data) cancellationTierData = data;
     }
 
+    const liveViewsToday = isLiveViewDay(activity.views_today_on) ? activity.views_today || 0 : 0
     const reviewCount = activity.reviews ? activity.reviews.length : 0;
     const avgRating = reviewCount > 0
         ? activity.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviewCount
@@ -235,6 +237,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                         }
                         initialLikes={activity.like_count || 0}
                         initialViews={activity.view_count || 0}
+                        initialViewsToday={liveViewsToday}
                         dealEndDate={activity.deal_end_date}
                         hasActiveDeal={Boolean(
                             activity.discount_price &&
@@ -358,6 +361,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             priceSuffix={activity.price_suffix}
                             allowOffers={!!activity.allow_offers}
                             checkoutSlot="desktop"
+                            viewCount={activity.view_count || 0}
+                            viewsToday={liveViewsToday}
                         />
                         )}
                     </div>
@@ -433,6 +438,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     priceSuffix={activity.price_suffix}
                     allowOffers={!!activity.allow_offers}
                     checkoutSlot="mobile"
+                    viewCount={activity.view_count || 0}
+                    viewsToday={liveViewsToday}
                 />
             </div>
             )}

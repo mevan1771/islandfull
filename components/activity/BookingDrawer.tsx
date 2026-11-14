@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { getLowestPerPersonFromTiers, getMatchingTierPrice, hasPricingTiers } from "@/lib/pricingTiers"
 import { clampGuests, parseGuestCount, parseIsoDate, partyNote, readTripSearchFromParams } from "@/lib/trip-search"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
+import { ViewedByTravelers } from "@/components/activity/ViewedByTravelers"
 
 interface BookingDrawerProps {
   activityId: string
@@ -52,6 +53,8 @@ interface BookingDrawerProps {
   priceSuffix?: string | null
   allowOffers?: boolean
   checkoutSlot?: "desktop" | "mobile"
+  viewCount?: number
+  viewsToday?: number
 }
 
 export function BookingDrawer({
@@ -81,6 +84,8 @@ export function BookingDrawer({
   priceSuffix,
   allowOffers = false,
   checkoutSlot,
+  viewCount = 0,
+  viewsToday = 0,
 }: BookingDrawerProps) {
   const { isSignedIn, user } = useUser()
   const searchParams = useSearchParams()
@@ -376,6 +381,9 @@ export function BookingDrawer({
                   <CountdownTimer targetDate={dealEndDate} />
                 </div>
               )}
+              <div className="mt-3">
+                <ViewedByTravelers total={viewCount} today={viewsToday} />
+              </div>
             </div>
             <div className="flex flex-col items-end">
               {isHiddenGem ? (

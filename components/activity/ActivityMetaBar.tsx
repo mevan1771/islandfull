@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Clock, Users, Eye, Heart } from "lucide-react"
+import { Clock, Users, Heart } from "lucide-react"
 import { incrementActivityView } from "@/app/actions/tracking"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
+import { ViewedByTravelers } from "@/components/activity/ViewedByTravelers"
 
 interface ActivityMetaBarProps {
   tourId: string
@@ -12,6 +13,7 @@ interface ActivityMetaBarProps {
   capacityLabel: string
   initialLikes: number
   initialViews: number
+  initialViewsToday?: number
   dealEndDate?: string | null
   hasActiveDeal?: boolean
   hideCapacity?: boolean
@@ -44,16 +46,24 @@ export function ActivityMetaBar({
   capacityLabel,
   initialLikes,
   initialViews,
+  initialViewsToday = 0,
   dealEndDate,
   hasActiveDeal,
   hideCapacity,
 }: ActivityMetaBarProps) {
   const [likes, setLikes] = useState(initialLikes)
+  const [views, setViews] = useState(initialViews)
+  const [viewsToday, setViewsToday] = useState(initialViewsToday)
   const [hasLiked, setHasLiked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    incrementActivityView(tourId)
+    incrementActivityView(tourId).then((result) => {
+      if (result.success && result.incremented && result.view_count != null) {
+        setViews(result.view_count)
+        if (result.views_today != null) setViewsToday(result.views_today)
+      }
+    })
   }, [tourId])
 
   useEffect(() => {
@@ -128,11 +138,6 @@ export function ActivityMetaBar({
           </span>
         )}
 
-        <span className={`inline-flex ${whitePill}`} aria-label={`${formatNumber(initialViews)} views`}>
-          <Eye className={`${iconClass} text-rose-500`} />
-          {formatNumber(initialViews)}
-        </span>
-
         <button
           type="button"
           onClick={handleToggleLike}
@@ -146,6 +151,8 @@ export function ActivityMetaBar({
           {formatNumber(likes)}
         </button>
       </div>
+
+      <ViewedByTravelers total={views} today={viewsToday} kind={hideCapacity ? "place" : "tour"} />
 
       {hasActiveDeal && dealEndDate && (
         <div className="flex md:hidden items-center gap-1.5 shrink-0">
