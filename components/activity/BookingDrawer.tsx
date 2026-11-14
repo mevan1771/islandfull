@@ -337,7 +337,7 @@ export function BookingDrawer({
   return (
     <>
       {/* Sticky Bottom Widget Trigger */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-zinc-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 md:relative md:inset-auto md:w-full md:border border-zinc-200 md:rounded-3xl md:shadow-xl md:p-6 md:bg-white md:z-auto">
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-zinc-100 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 md:relative md:border border-zinc-200 md:rounded-3xl md:shadow-xl md:p-6 md:bg-white md:z-auto">
         <div className="max-w-md mx-auto flex flex-col items-stretch justify-between md:gap-4">
           {/* Desktop: price + rating */}
           <div className="hidden md:flex items-center justify-between w-full">
