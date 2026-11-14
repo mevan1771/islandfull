@@ -215,7 +215,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 return (
                     <div
                         key={tour.id}
-                        className={`absolute inset-0 lg:right-[40%] transition-opacity ease-in-out duration-700 ${
+                        className={`absolute inset-0 lg:right-[calc(38%+1.75rem)] transition-opacity ease-in-out duration-700 ${
                             isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
                         }`}
                         aria-hidden={!isActive}
@@ -236,9 +236,9 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 )
             })}
 
-            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] lg:right-[40%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] lg:right-[calc(38%+1.75rem)] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
 
-            <aside className="hidden lg:block absolute z-20 top-28 bottom-8 right-4 xl:right-8 w-[min(42%,34rem)] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xl">
+            <aside className="hidden lg:block absolute z-20 top-40 bottom-20 right-6 xl:right-8 w-[38%] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-xl">
                 <MapClientWrapper
                     tours={mapTours}
                     compact
@@ -250,8 +250,8 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                 />
             </aside>
 
-            <div className="absolute bottom-6 md:bottom-10 lg:bottom-12 w-full left-0 lg:right-[42%] z-20 pointer-events-none">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="absolute bottom-6 md:bottom-10 lg:bottom-24 left-0 right-0 lg:right-[calc(38%+1.75rem)] z-20 pointer-events-none">
+                <div className="px-4 sm:px-6 lg:px-8 w-full">
                     <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                         {carouselSlides.map((tour, index) => (
                             <div

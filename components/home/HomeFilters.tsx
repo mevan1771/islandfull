@@ -124,8 +124,8 @@ export function HomeFilters({
 
   return (
     <>
-      <div className="relative z-20 px-4 hidden sm:block h-0">
-        <div className="max-w-5xl mx-auto -translate-y-1/2">
+      <div className="relative z-20 px-4 lg:px-6 hidden sm:block h-0">
+        <div className="max-w-5xl mx-auto -translate-y-1/2 lg:mx-0 lg:max-w-[min(40rem,calc(62%-1.5rem))]">
           <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-200 rounded-full shadow-xl divide-x divide-gray-200 p-1.5 pl-6">
             <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
               <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
