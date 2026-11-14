@@ -87,8 +87,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [80.7718, 7.8731], // Start out over Sri Lanka
-      zoom: isMobile ? 6.4 : 6.8,
+      center: [80.7718, 7.7],
+      zoom: compact ? 5.8 : isMobile ? 6.4 : 6.8,
       minZoom: 2,
       pitch: 0,
       bearing: 0,

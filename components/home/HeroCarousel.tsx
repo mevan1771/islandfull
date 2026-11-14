@@ -34,7 +34,15 @@ export interface Tour {
     approx_lng?: number | string | null
 }
 
-const SRI_LANKA = { lat: 7.8731, lng: 80.7718, zoom: 6.7 }
+const SRI_LANKA = {
+    lat: 7.7,
+    lng: 80.77,
+    zoom: 5.8,
+    bounds: [
+        [79.4, 5.7],
+        [82.15, 10.12],
+    ] as [[number, number], [number, number]],
+}
 
 function slideCoords(tour: Tour) {
     const lat = tour.approx_lat != null ? Number(tour.approx_lat) : null

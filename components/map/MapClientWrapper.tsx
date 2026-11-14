@@ -14,7 +14,7 @@ interface MapClientWrapperProps {
     isDestinationMode?: boolean
     compact?: boolean
     activeTourId?: string | null
-    activeLocation?: { lat: number, lng: number, zoom?: number } | null
+    activeLocation?: { lat: number, lng: number, zoom?: number, bounds?: [[number, number], [number, number]] } | null
     resizeToken?: string | number
     onTourSelect?: (tour: MapTour) => void
     captureWheel?: boolean
@@ -25,10 +25,19 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     const mapRef = useRef<MapboxMap | null>(null)
     const [mapReady, setMapReady] = useState(false)
 
-    const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number }) => {
+    const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number, bounds?: [[number, number], [number, number]] }) => {
         const map = mapRef.current
         if (!map) return
         map.stop()
+        if (location.bounds) {
+            map.fitBounds(location.bounds, {
+                padding: { top: 36, bottom: 36, left: 28, right: 28 },
+                duration: 1200,
+                essential: true,
+                maxZoom: 6.4,
+            })
+            return
+        }
         map.flyTo({
             center: [location.lng, location.lat],
             zoom: location.zoom ?? 9.2,
