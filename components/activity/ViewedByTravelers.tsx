@@ -1,36 +1,22 @@
 "use client"
 
 import { Eye } from "lucide-react"
-import { travelerViewLine } from "@/lib/view-proof"
+import { travelerViewLabel } from "@/lib/view-proof"
+
+const whitePill =
+  "inline-flex items-center gap-1 md:gap-1.5 shrink-0 bg-white border border-gray-200 text-gray-700 text-[11px] md:text-sm font-bold tracking-wide uppercase px-2.5 py-1 md:px-5 md:py-2.5 rounded-full whitespace-nowrap"
 
 export function ViewedByTravelers({
   total,
   today,
-  compact = false,
-  kind = "tour",
 }: {
   total: number
   today: number
-  compact?: boolean
-  kind?: "tour" | "place"
 }) {
-  const line = travelerViewLine(total, today, kind)
-  const hot = today >= 3
-
   return (
-    <p
-      className={`flex items-center gap-1.5 font-medium ${
-        compact ? "text-[11px] leading-snug text-zinc-500" : "text-sm text-zinc-600"
-      }`}
-    >
-      <span className="relative flex h-2 w-2 shrink-0">
-        {hot ? (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-60" />
-        ) : null}
-        <span className={`relative inline-flex h-2 w-2 rounded-full ${hot ? "bg-rose-500" : "bg-zinc-300"}`} />
-      </span>
-      <Eye className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"} shrink-0 text-rose-500`} />
-      <span>{line}</span>
-    </p>
+    <span className={whitePill} aria-label={travelerViewLabel(total, today)}>
+      <Eye className="w-3 h-3 md:w-4 md:h-4 shrink-0 text-rose-500" />
+      {travelerViewLabel(total, today)}
+    </span>
   )
 }

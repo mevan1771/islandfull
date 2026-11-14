@@ -361,8 +361,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                             priceSuffix={activity.price_suffix}
                             allowOffers={!!activity.allow_offers}
                             checkoutSlot="desktop"
-                            viewCount={activity.view_count || 0}
-                            viewsToday={liveViewsToday}
                         />
                         )}
                     </div>
@@ -438,8 +436,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     priceSuffix={activity.price_suffix}
                     allowOffers={!!activity.allow_offers}
                     checkoutSlot="mobile"
-                    viewCount={activity.view_count || 0}
-                    viewsToday={liveViewsToday}
                 />
             </div>
             )}

@@ -138,6 +138,8 @@ export function ActivityMetaBar({
           </span>
         )}
 
+        <ViewedByTravelers total={views} today={viewsToday} />
+
         <button
           type="button"
           onClick={handleToggleLike}
@@ -151,8 +153,6 @@ export function ActivityMetaBar({
           {formatNumber(likes)}
         </button>
       </div>
-
-      <ViewedByTravelers total={views} today={viewsToday} kind={hideCapacity ? "place" : "tour"} />
 
       {hasActiveDeal && dealEndDate && (
         <div className="flex md:hidden items-center gap-1.5 shrink-0">
