@@ -62,7 +62,6 @@ function toHeroMapTour(tour: Tour): MapTour | null {
     }
 }
 
-const THEME_DELAY_MS = 350
 const LOAD_WAIT_MS = 1200
 
 function heroPriceLabel(tour: Tour): string | null {
@@ -143,14 +142,10 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
 export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
     const [currentIndex, setCurrentIndex] = useState(0)
-    const [themeIndex, setThemeIndex] = useState(0)
     const [loaded, setLoaded] = useState<Record<number, boolean>>({ 0: true })
     const [pendingIndex, setPendingIndex] = useState<number | null>(null)
 
-    const themeTour = carouselSlides[themeIndex] ?? carouselSlides[0]
     const activeTour = carouselSlides[currentIndex] ?? carouselSlides[0]
-    const useDarkTextDesktop = themeTour?.use_dark_text_desktop || false
-    const useDarkTextMobile = themeTour?.use_dark_text_mobile || false
     const mapTours = useMemo(
         () => carouselSlides.map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour)),
         [carouselSlides]
@@ -197,75 +192,72 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
         return () => clearTimeout(fallback)
     }, [pendingIndex, loaded])
 
-    useEffect(() => {
-        const timeout = setTimeout(() => setThemeIndex(currentIndex), THEME_DELAY_MS)
-        return () => clearTimeout(timeout)
-    }, [currentIndex])
-
     return (
-        <section className="relative pt-20 md:pt-32 pb-10 md:pb-48 text-white h-[clamp(12.75rem,32svh,15.5rem)] md:h-[85vh] flex flex-col justify-center overflow-hidden rounded-b-xl md:rounded-none bg-slate-900">
-            <HeaderThemeSetter useDarkTextDesktop={useDarkTextDesktop} useDarkTextMobile={useDarkTextMobile} />
+        <section className="relative bg-zinc-50 px-3 pt-20 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
+            <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
-            {carouselSlides.map((tour, index) => {
-                const rawUrl = slideImageUrl(tour)
-                const isActive = index === currentIndex
-                const shouldLoadEager = index === 0 || index === currentIndex || index === (currentIndex + 1) % carouselSlides.length
-                const lqip = heroLqip(rawUrl)
+            <div className="flex h-[clamp(12.75rem,32svh,15.5rem)] gap-3 md:h-[calc(85vh-8.5rem)] md:gap-4">
+                <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:rounded-3xl">
+                    {carouselSlides.map((tour, index) => {
+                        const rawUrl = slideImageUrl(tour)
+                        const isActive = index === currentIndex
+                        const shouldLoadEager = index === 0 || index === currentIndex || index === (currentIndex + 1) % carouselSlides.length
+                        const lqip = heroLqip(rawUrl)
 
-                return (
-                    <div
-                        key={tour.id}
-                        className={`absolute inset-0 lg:right-[40%] transition-opacity ease-in-out duration-700 ${
-                            isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-                        }`}
-                        aria-hidden={!isActive}
-                    >
-                        <img
-                            src={heroDefaultSrc(rawUrl)}
-                            srcSet={heroSrcSet(rawUrl)}
-                            sizes={HERO_SIZES}
-                            alt=""
-                            className="absolute inset-0 w-full h-full object-cover"
-                            style={lqip ? { backgroundImage: `url(${lqip})`, backgroundSize: "cover" } : undefined}
-                            fetchPriority={index === 0 ? "high" : "auto"}
-                            decoding="async"
-                            loading={shouldLoadEager ? "eager" : "lazy"}
-                            onLoad={() => setLoaded((prev) => (prev[index] ? prev : { ...prev, [index]: true }))}
-                        />
-                    </div>
-                )
-            })}
-
-            <div className="absolute inset-x-0 bottom-0 z-[15] h-[38%] md:h-[42%] lg:right-[40%] bg-gradient-to-t from-black/55 via-black/15 to-transparent pointer-events-none" />
-
-            <aside className="hidden lg:block absolute z-20 inset-y-0 right-0 w-[40%] overflow-hidden bg-zinc-900">
-                <MapClientWrapper
-                    tours={mapTours}
-                    compact
-                    captureWheel={false}
-                    activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
-                    activeLocation={activeLocation}
-                    resizeToken={currentIndex}
-                    onTourSelect={goToTour}
-                />
-            </aside>
-
-            <div className="absolute bottom-6 md:bottom-10 lg:bottom-12 left-0 right-0 lg:right-[40%] z-20 pointer-events-none">
-                <div className="px-4 sm:px-6 lg:px-8 w-full">
-                    <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
-                        {carouselSlides.map((tour, index) => (
+                        return (
                             <div
-                                key={`${tour.id}-copy`}
-                                className={`absolute inset-0 flex flex-col justify-end items-start transition-opacity ease-in-out duration-700 ${
-                                    index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                                key={tour.id}
+                                className={`absolute inset-0 transition-opacity ease-in-out duration-700 ${
+                                    isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
                                 }`}
-                                aria-hidden={index !== currentIndex}
+                                aria-hidden={!isActive}
                             >
-                                <TitleBlock tour={tour} />
+                                <img
+                                    src={heroDefaultSrc(rawUrl)}
+                                    srcSet={heroSrcSet(rawUrl)}
+                                    sizes={HERO_SIZES}
+                                    alt=""
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                    style={lqip ? { backgroundImage: `url(${lqip})`, backgroundSize: "cover" } : undefined}
+                                    fetchPriority={index === 0 ? "high" : "auto"}
+                                    decoding="async"
+                                    loading={shouldLoadEager ? "eager" : "lazy"}
+                                    onLoad={() => setLoaded((prev) => (prev[index] ? prev : { ...prev, [index]: true }))}
+                                />
                             </div>
-                        ))}
+                        )
+                    })}
+
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+
+                    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 px-4 md:bottom-6 md:px-6">
+                        <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
+                            {carouselSlides.map((tour, index) => (
+                                <div
+                                    key={`${tour.id}-copy`}
+                                    className={`absolute inset-0 flex flex-col items-start justify-end transition-opacity ease-in-out duration-700 ${
+                                        index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                                    }`}
+                                    aria-hidden={index !== currentIndex}
+                                >
+                                    <TitleBlock tour={tour} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
+
+                <aside className="relative hidden h-full w-[40%] shrink-0 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 shadow-lg lg:block">
+                    <MapClientWrapper
+                        tours={mapTours}
+                        compact
+                        captureWheel={false}
+                        activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
+                        activeLocation={activeLocation}
+                        resizeToken={currentIndex}
+                        onTourSelect={goToTour}
+                    />
+                </aside>
             </div>
         </section>
     )
