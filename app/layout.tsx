@@ -103,7 +103,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col overflow-x-clip`}>
+      <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col`}>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <ClerkProvider
           signInUrl="/sign-in"

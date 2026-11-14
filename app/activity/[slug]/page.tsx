@@ -312,8 +312,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                 </div>
 
                 {/* Sidebar / Desktop Booking */}
-                <div className="hidden lg:block w-full max-w-[420px] shrink-0 self-start">
-                    <div className="lg:sticky lg:top-20">
+                <div className="hidden lg:block w-full max-w-[420px] shrink-0">
+                    <div className="sticky top-20 max-h-[calc(100dvh-5.5rem)] overflow-y-auto">
                         {isPlace ? (
                             <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
                                 <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">Must see</p>
