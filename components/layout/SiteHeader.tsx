@@ -87,25 +87,49 @@ export default function SiteHeader() {
         if (!isListingHome) return
 
         let lastY = window.scrollY
+        let acc = 0
         let ticking = false
+        let scrolled = window.scrollY > 50 || isHomeHeaderSuppressed()
+        let visible = window.scrollY <= 50 && !isHomeHeaderSuppressed()
 
         const apply = () => {
             ticking = false
             const y = window.scrollY
             const delta = y - lastY
             lastY = y
-            const scrolled = y > 50 || isHomeHeaderSuppressed()
-            setIsScrolled((prev) => (prev === scrolled ? prev : scrolled))
-            if (y <= 50) {
-                revealHomeHeader()
-                setIsVisible(true)
+
+            const nextScrolled = scrolled ? y > 24 : y > 72
+            if (nextScrolled !== scrolled) {
+                scrolled = nextScrolled
+                setIsScrolled(nextScrolled)
+            }
+
+            if (y <= 24) {
+                acc = 0
+                if (!visible) {
+                    visible = true
+                    revealHomeHeader()
+                    setIsVisible(true)
+                }
                 return
             }
-            if (delta > 12) {
-                setIsVisible(false)
+
+            if (Math.abs(delta) < 4) return
+
+            if (delta > 0) {
+                acc = acc > 0 ? acc + delta : delta
+                if (acc > 80 && visible) {
+                    visible = false
+                    acc = 0
+                    setIsVisible(false)
+                }
                 return
             }
-            if (delta < -12) {
+
+            acc = acc < 0 ? acc + delta : delta
+            if (acc < -80 && !visible) {
+                visible = true
+                acc = 0
                 revealHomeHeader()
                 setAllowMotion(true)
                 setIsVisible(true)
@@ -165,7 +189,7 @@ export default function SiteHeader() {
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
         ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
-            allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-300 md:ease-in-out" : ""
+            allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-200 md:ease-out" : ""
           } ${
             homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
           } ${

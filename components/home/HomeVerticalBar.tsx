@@ -96,7 +96,7 @@ function HomeVerticalBarInner() {
 
   return (
     <nav
-      className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#EBEBEB] bg-[#FFFFFF] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out will-change-transform ${
+      className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#EBEBEB] bg-[#FFFFFF] pb-[env(safe-area-inset-bottom)] ${
         chromeHidden ? "translate-y-full pointer-events-none" : "translate-y-0"
       }`}
       aria-label="Browse"

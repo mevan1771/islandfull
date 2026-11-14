@@ -166,7 +166,7 @@ export function MobileSearch({
     let ticking = false
     const update = () => {
       const top = el.getBoundingClientRect().top
-      const next = stuckRef.current ? top < 28 : top < 8
+      const next = stuckRef.current ? top < 40 : top < 4
       if (stuckRef.current === next) return
       stuckRef.current = next
       setStuck(next)
@@ -295,12 +295,15 @@ export function MobileSearch({
         </div>
       </div>
 
-      {stuck && (
-        <div
+      <div
           ref={stickyRef}
           data-home-sticky
-          className={`sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80 transition-transform duration-300 ease-out will-change-transform ${
-            chromeHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
+          className={`sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80 ${
+            stuck
+              ? chromeHidden
+                ? "-translate-y-full pointer-events-none"
+                : "translate-y-0"
+              : "invisible pointer-events-none"
           }`}
         >
           <div className="flex items-center gap-2 px-3 pt-2 pb-2">
@@ -321,7 +324,6 @@ export function MobileSearch({
             />
           </div>
         </div>
-      )}
       <MobileTripSheet tab={tripSheet} onClose={() => setTripSheet(null)} />
     </>
   )
