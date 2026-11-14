@@ -5,6 +5,32 @@ export const SITE_NAME = "IslandFull"
 export const SITE_TAGLINE = "Book tours, hotels, and private transport with local hosts in Sri Lanka."
 export const DEFAULT_OG = "/og.jpg"
 
+export function listingSearchTitle(title: string, location?: string | null) {
+  const clean = String(title || "")
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+  const loc = String(location || "")
+    .replace(/,?\s*Sri Lanka/i, "")
+    .trim()
+  if (!clean) return SITE_NAME
+  if (!loc) return `${clean} | ${SITE_NAME}`
+  if (clean.toLowerCase().includes(loc.toLowerCase())) return `${clean} | ${SITE_NAME}`
+  return `${clean} in ${loc} | ${SITE_NAME}`
+}
+
+export function listingSearchDescription(description: string, fallback: string) {
+  const text = String(description || fallback)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+  if (text.length <= 160) return text
+  const cut = text.slice(0, 157)
+  const at = cut.lastIndexOf(" ")
+  return `${cut.slice(0, at > 90 ? at : 157)}…`
+}
+
 export function absUrl(path = "/") {
   if (path.startsWith("http")) return path
   const clean = path.startsWith("/") ? path : `/${path}`

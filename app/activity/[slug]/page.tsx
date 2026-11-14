@@ -20,6 +20,7 @@ import { ActivityMetaBar } from "@/components/activity/ActivityMetaBar"
 import { InclusionBullets } from "@/components/activity/InclusionBullets"
 import { zipInclusionItems } from "@/lib/inclusions"
 import { DESTINATIONS, activityBelongsToDestination } from "@/lib/destinations"
+import { listingSearchDescription, listingSearchTitle } from "@/lib/seo"
 
 import { Metadata, ResolvingMetadata } from 'next'
 
@@ -59,15 +60,17 @@ export async function generateMetadata(
         }
     }
 
-    const description = activity.description
-        ? String(activity.description).slice(0, 160)
-        : `Book ${activity.title} in ${activity.location || "Sri Lanka"} with a local IslandFull host.`
+    const title = listingSearchTitle(activity.title, activity.location)
+    const description = listingSearchDescription(
+        activity.description,
+        `Book ${activity.title} in ${activity.location || "Sri Lanka"} with a local IslandFull host.`
+    )
     return {
-        title: { absolute: `${activity.title} in ${activity.location || "Sri Lanka"} | IslandFull` },
+        title: { absolute: title },
         description,
         alternates: { canonical: `https://islandfull.com/activity/${slug}` },
         openGraph: {
-            title: `${activity.title} | IslandFull`,
+            title,
             description,
             images: activity.cover_image_url ? [{ url: activity.cover_image_url }] : undefined,
             type: 'website',
@@ -75,7 +78,7 @@ export async function generateMetadata(
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${activity.title} | IslandFull`,
+            title,
             description,
             images: activity.cover_image_url ? [activity.cover_image_url] : undefined,
         },
