@@ -235,7 +235,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                                 ? `${activity.min_guests}-${activity.max_capacity}`
                                 : `${activity.max_capacity}`
                         }
-                        initialLikes={activity.like_count || 0}
                         initialViews={activity.view_count || 0}
                         initialViewsToday={liveViewsToday}
                         dealEndDate={activity.deal_end_date}
@@ -251,7 +250,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
                     {/* Description */}
                     <section>
                         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{isPlace ? "About this place" : "About this experience"}</h2>
-                        <div className="text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-slate-700/80 [&>strong]:font-bold [&>p]:mb-2">
+                        <div className="text-justify hyphens-auto text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium space-y-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mt-4 [&>ul>li]:pl-1 [&>ul>li]:my-1 [&>ul>li::marker]:text-rose-500 [&>strong]:text-slate-700/80 [&>strong]:font-bold [&>p]:mb-2 [&>p]:text-justify">
                             <ReactMarkdown>{activity.description}</ReactMarkdown>
                         </div>
                         {!isPlace && (

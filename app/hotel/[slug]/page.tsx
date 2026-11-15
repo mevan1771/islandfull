@@ -85,7 +85,7 @@ export default async function HotelPage({ params }: { params: Promise<{ slug: st
           {hotel.description && (
             <section>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">About this stay</h2>
-              <p className="text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium whitespace-pre-line">
+              <p className="text-justify hyphens-auto text-slate-600/80 leading-relaxed text-sm md:text-lg font-medium whitespace-pre-line">
                 {hotel.description}
               </p>
               {host?.name && (

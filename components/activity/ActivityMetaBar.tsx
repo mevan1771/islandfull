@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Clock, Users, Heart } from "lucide-react"
+import { Clock, Users } from "lucide-react"
 import { incrementActivityView } from "@/app/actions/tracking"
 import { CountdownTimer } from "@/components/ui/CountdownTimer"
 import { ViewedByTravelers } from "@/components/activity/ViewedByTravelers"
@@ -11,17 +11,11 @@ interface ActivityMetaBarProps {
   location: string
   duration?: string | null
   capacityLabel: string
-  initialLikes: number
   initialViews: number
   initialViewsToday?: number
   dealEndDate?: string | null
   hasActiveDeal?: boolean
   hideCapacity?: boolean
-}
-
-function formatNumber(num: number) {
-  if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}k`
-  return num.toString()
 }
 
 function compactDuration(value: string) {
@@ -44,18 +38,14 @@ export function ActivityMetaBar({
   location,
   duration,
   capacityLabel,
-  initialLikes,
   initialViews,
   initialViewsToday = 0,
   dealEndDate,
   hasActiveDeal,
   hideCapacity,
 }: ActivityMetaBarProps) {
-  const [likes, setLikes] = useState(initialLikes)
   const [views, setViews] = useState(initialViews)
   const [viewsToday, setViewsToday] = useState(initialViewsToday)
-  const [hasLiked, setHasLiked] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     incrementActivityView(tourId).then((result) => {
@@ -65,58 +55,6 @@ export function ActivityMetaBar({
       }
     })
   }, [tourId])
-
-  useEffect(() => {
-    try {
-      const savedLikes = JSON.parse(localStorage.getItem("islandfull_liked_tours") || "[]")
-      if (Array.isArray(savedLikes) && savedLikes.includes(tourId)) {
-        setHasLiked(true)
-      }
-    } catch {
-      // Ignore malformed local storage
-    }
-  }, [tourId])
-
-  const handleToggleLike = async () => {
-    if (isSubmitting) return
-
-    const nextLikedState = !hasLiked
-    const nextCount = nextLikedState ? likes + 1 : Math.max(0, likes - 1)
-
-    setHasLiked(nextLikedState)
-    setLikes(nextCount)
-
-    try {
-      const savedLikes = new Set(JSON.parse(localStorage.getItem("islandfull_liked_tours") || "[]"))
-      if (nextLikedState) {
-        savedLikes.add(tourId)
-      } else {
-        savedLikes.delete(tourId)
-      }
-      localStorage.setItem("islandfull_liked_tours", JSON.stringify(Array.from(savedLikes)))
-    } catch {
-      // Continue even if local storage is unavailable
-    }
-
-    try {
-      setIsSubmitting(true)
-      const response = await fetch(`/api/tours/${tourId}/like`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liked: nextLikedState }),
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (typeof data.likes === "number") {
-          setLikes(data.likes)
-        }
-      }
-    } catch (err) {
-      console.error("Failed to sync like status:", err)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   return (
     <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3 w-full pt-2 md:pt-0">
@@ -139,19 +77,6 @@ export function ActivityMetaBar({
         )}
 
         <ViewedByTravelers total={views} today={viewsToday} />
-
-        <button
-          type="button"
-          onClick={handleToggleLike}
-          aria-label="Love this tour"
-          disabled={isSubmitting}
-          className={`inline-flex ${hasLiked ? rosePill : whitePill} transition-transform active:scale-95 disabled:opacity-70`}
-        >
-          <Heart
-            className={`${iconClass} ${hasLiked ? "fill-white text-white" : "text-rose-500"}`}
-          />
-          {formatNumber(likes)}
-        </button>
       </div>
 
       {hasActiveDeal && dealEndDate && (
