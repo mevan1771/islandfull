@@ -30,6 +30,7 @@ export interface Tour {
     pricing_model?: string
     pricing_tiers?: unknown
     category_type?: string
+    listingHref?: string
     approx_lat?: number | string | null
     approx_lng?: number | string | null
 }
@@ -66,7 +67,22 @@ function toHeroMapTour(tour: Tour): MapTour | null {
         category_type: tour.category_type || "tour",
         latitude: coords.lat,
         longitude: coords.lng,
-        listingHref: `/activity/${tour.slug}`,
+        listingHref: tour.listingHref || `/activity/${tour.slug}`,
+    }
+}
+
+function mapPinToSlide(tour: MapTour): Tour {
+    return {
+        id: tour.id,
+        title: tour.title,
+        slug: tour.slug || "",
+        location: tour.location,
+        cover_image_url: tour.cover_image_url,
+        price_usd: tour.price_usd,
+        category_type: tour.category_type,
+        listingHref: tour.listingHref || (tour.category_type === "hotel" ? `/hotel/${tour.slug}` : `/activity/${tour.slug}`),
+        approx_lat: tour.latitude,
+        approx_lng: tour.longitude,
     }
 }
 
@@ -135,7 +151,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     return (
         <Link
-            href={withTripSearch(`/activity/${tour.slug}`, {
+            href={withTripSearch(tour.listingHref || `/activity/${tour.slug}`, {
               date: tripDate,
               guests: tripGuests,
               children: tripChildren,
@@ -148,15 +164,22 @@ function TitleBlock({ tour }: { tour: Tour }) {
     )
 }
 
-export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
+export function HeroCarousel({
+    carouselSlides,
+    mapListings = [],
+}: {
+    carouselSlides: Tour[]
+    mapListings?: Tour[]
+}) {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [loaded, setLoaded] = useState<Record<number, boolean>>({ 0: true })
     const [pendingIndex, setPendingIndex] = useState<number | null>(null)
+    const [pinnedTour, setPinnedTour] = useState<Tour | null>(null)
 
-    const activeTour = carouselSlides[currentIndex] ?? carouselSlides[0]
+    const activeTour = pinnedTour ?? carouselSlides[currentIndex] ?? carouselSlides[0]
     const mapTours = useMemo(
-        () => carouselSlides.map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour)),
-        [carouselSlides]
+        () => (mapListings.length ? mapListings : carouselSlides).map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour)),
+        [mapListings, carouselSlides]
     )
     const activeCoords = activeTour && !activeTour.isStatic ? slideCoords(activeTour) : null
     const activeLocation = useMemo(
@@ -165,15 +188,18 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
     )
 
     const goToTour = useCallback((tour: MapTour) => {
-        const index = carouselSlides.findIndex((slide) => slide.id === tour.id)
-        if (index >= 0) {
-            setCurrentIndex(index)
-            setPendingIndex(null)
+        const featuredIndex = carouselSlides.findIndex((slide) => slide.id === tour.id)
+        setPendingIndex(null)
+        if (featuredIndex >= 0) {
+            setPinnedTour(null)
+            setCurrentIndex(featuredIndex)
+            return
         }
+        setPinnedTour(mapPinToSlide(tour))
     }, [carouselSlides])
 
     useEffect(() => {
-        if (carouselSlides.length <= 1) return
+        if (pinnedTour || carouselSlides.length <= 1) return
 
         const waitTime = currentIndex === 0 ? 5000 : 6000
         const timeout = setTimeout(() => {
@@ -181,7 +207,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
         }, waitTime)
 
         return () => clearTimeout(timeout)
-    }, [carouselSlides.length, currentIndex])
+    }, [carouselSlides.length, currentIndex, pinnedTour])
 
     useEffect(() => {
         if (pendingIndex === null) return
@@ -206,10 +232,13 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
 
             <div className="flex h-[clamp(12.75rem,32svh,15.5rem)] gap-3 md:h-[calc(85vh-8.5rem)] md:gap-4">
                 <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:rounded-3xl">
-                    {carouselSlides.map((tour, index) => {
+                    {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
+                        ? [...carouselSlides, pinnedTour]
+                        : carouselSlides
+                    ).map((tour, index) => {
                         const rawUrl = slideImageUrl(tour)
-                        const isActive = index === currentIndex
-                        const shouldLoadEager = index === 0 || index === currentIndex || index === (currentIndex + 1) % carouselSlides.length
+                        const isActive = tour.id === activeTour.id
+                        const shouldLoadEager = isActive || index === 0 || index === currentIndex || index === (currentIndex + 1) % carouselSlides.length
                         const lqip = heroLqip(rawUrl)
 
                         return (
@@ -240,13 +269,16 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 px-4 md:bottom-6 md:px-6">
                         <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
-                            {carouselSlides.map((tour, index) => (
+                            {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
+                                ? [...carouselSlides, pinnedTour]
+                                : carouselSlides
+                            ).map((tour) => (
                                 <div
                                     key={`${tour.id}-copy`}
                                     className={`absolute inset-0 flex flex-col items-start justify-end transition-opacity ease-in-out duration-700 ${
-                                        index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                                        tour.id === activeTour.id ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
                                     }`}
-                                    aria-hidden={index !== currentIndex}
+                                    aria-hidden={tour.id !== activeTour.id}
                                 >
                                     <TitleBlock tour={tour} />
                                 </div>
@@ -262,7 +294,7 @@ export function HeroCarousel({ carouselSlides }: { carouselSlides: Tour[] }) {
                         captureWheel={false}
                         activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
                         activeLocation={activeLocation}
-                        resizeToken={currentIndex}
+                        resizeToken={activeTour?.id || currentIndex}
                         onTourSelect={goToTour}
                     />
                 </aside>

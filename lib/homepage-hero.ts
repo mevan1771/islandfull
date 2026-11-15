@@ -11,14 +11,37 @@ import {
 const HERO_TOUR_COLUMNS =
   "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng"
 
+const MAP_LISTING_COLUMNS =
+  "id, title, slug, location, cover_image_url, card_image_url, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng"
+
+function hotelListing(hotel: any) {
+  const rates = (hotel.hotel_room_types || [])
+    .filter((room: any) => room.is_active)
+    .map((room: any) => Number(room.nightly_rate_usd) || 0)
+    .filter((rate: number) => rate > 0)
+  return {
+    id: hotel.id,
+    title: hotel.title,
+    slug: hotel.slug,
+    location: hotel.location,
+    cover_image_url: hotel.cover_image_url,
+    price_usd: rates.length ? Math.min(...rates) : 0,
+    category_type: "hotel",
+    listingHref: `/hotel/${hotel.slug}`,
+    approx_lat: hotel.latitude,
+    approx_lng: hotel.longitude,
+  }
+}
+
 export type HomepageHeroPayload = {
   featuredTours: any[]
   introSlide: any
   featuredSpotlight: any
+  mapListings: any[]
 }
 
 async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
-  const [spotlightRes, featuredRes, introRes] = await Promise.all([
+  const [spotlightRes, featuredRes, introRes, activitiesRes, hotelsRes] = await Promise.all([
     supabase.from("global_settings").select("value").eq("key", "featured_spotlight").maybeSingle(),
     supabase
       .from("activities")
@@ -31,12 +54,31 @@ async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
       .order("featured_order", { ascending: true })
       .limit(5),
     supabase.from("global_settings").select("value").eq("key", "hero_intro_slide").maybeSingle(),
+    supabase
+      .from("activities")
+      .select(MAP_LISTING_COLUMNS)
+      .eq("status", "published")
+      .eq("is_paused_by_host", false)
+      .neq("category_type", "place")
+      .neq("category_type", "event"),
+    supabase
+      .from("hotels")
+      .select("id, title, slug, location, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
+      .eq("status", "published")
+      .eq("is_paused", false),
   ])
+
+  const activities = (activitiesRes.data || []).map((activity) => ({
+    ...activity,
+    listingHref: `/activity/${activity.slug}`,
+  }))
+  const hotels = (hotelsRes.data || []).map(hotelListing)
 
   return {
     featuredSpotlight: spotlightRes.data?.value ?? null,
     featuredTours: featuredRes.data ?? [],
     introSlide: introRes.data?.value ?? null,
+    mapListings: [...activities, ...hotels],
   }
 }
 

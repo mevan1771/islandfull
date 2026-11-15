@@ -51,7 +51,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const currentVertical = publicVertical(params.vertical);
   const currentCategory = params.category || 'all';
 
-  const [{ featuredTours, introSlide, featuredSpotlight }, categoryMap] = await Promise.all([
+  const [{ featuredTours, introSlide, featuredSpotlight, mapListings }, categoryMap] = await Promise.all([
     getHomepageHeroData(),
     getHomepageCategoryMap(),
   ]);
@@ -85,7 +85,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     <div className="pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HomeScrollRestore listingKey={`${currentVertical}:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
       {/* Hero Section */}
-      <HeroCarousel carouselSlides={carouselSlides} />
+      <HeroCarousel carouselSlides={carouselSlides} mapListings={mapListings} />
 
       {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>

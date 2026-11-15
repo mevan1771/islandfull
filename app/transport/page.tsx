@@ -40,7 +40,7 @@ export default async function TransportMarketplacePage({
   const params = await searchParams
   const currentCategory = params.category || "all"
 
-  const [{ featuredTours, introSlide, featuredSpotlight }, categoryMap] = await Promise.all([
+  const [{ featuredTours, introSlide, featuredSpotlight, mapListings }, categoryMap] = await Promise.all([
     getHomepageHeroData(),
     getHomepageCategoryMap(),
   ])
@@ -91,7 +91,7 @@ export default async function TransportMarketplacePage({
         ]}
       />
       <HomeScrollRestore listingKey={`transport:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
-      <HeroCarousel carouselSlides={carouselSlides} />
+      <HeroCarousel carouselSlides={carouselSlides} mapListings={mapListings} />
 
       <Suspense fallback={null}>
         <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
