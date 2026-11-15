@@ -274,10 +274,10 @@ export function MobileSearch({
       <div
         ref={cardRef}
         data-home-search-card
-        className={`sm:hidden relative z-20 w-full max-w-full px-4 -mt-3 ${stuck ? "invisible pointer-events-none" : ""}`}
+        className={`sm:hidden relative z-20 w-full min-w-0 max-w-full overflow-hidden px-4 -mt-3 ${stuck ? "invisible pointer-events-none" : ""}`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-md">
-          <div className="flex items-center h-11 rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
+          <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
             <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
             <WhereField {...whereProps} showMenu={!stuck} />
             <MobileTripChips

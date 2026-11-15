@@ -190,7 +190,7 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? `relative md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none bg-zinc-50 ${
+        ? `relative md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full min-w-0 max-w-full pointer-events-none bg-zinc-50 ${
             allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-200 md:ease-out" : ""
           } ${
             homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
@@ -202,7 +202,7 @@ export default function SiteHeader() {
     return (
         <>
         <header className={headerClasses}>
-            <div className="max-w-7xl mx-auto px-4 h-16 md:h-full flex items-center justify-between pointer-events-auto w-full">
+            <div className={`max-w-7xl mx-auto px-4 flex min-w-0 items-center justify-between pointer-events-auto w-full ${isHomePage ? "h-14 md:h-full" : "h-16 md:h-full"}`}>
                 <div className="flex items-center gap-3">
                     {isActivityPage && (
                         <button

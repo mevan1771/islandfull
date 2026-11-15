@@ -82,7 +82,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   }
 
   return (
-    <div className="min-w-0 overflow-x-clip pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
+    <div className="min-w-0 max-w-full overflow-x-hidden pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HomeScrollRestore listingKey={`${currentVertical}:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
       {/* Hero Section */}
       <HeroCarousel carouselSlides={carouselSlides} mapListings={mapListings} />

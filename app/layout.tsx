@@ -103,7 +103,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className={`${inter.className} bg-zinc-50 min-h-screen flex flex-col`}>
+      <body className={`${inter.className} min-h-screen min-w-0 max-w-full bg-zinc-50 flex flex-col`}>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <ClerkProvider
           signInUrl="/sign-in"
@@ -125,7 +125,7 @@ export default function RootLayout({
             <SiteHeader />
           </Suspense>
 
-          <main className="flex-1 flex flex-col bg-zinc-50">
+          <main className="min-w-0 max-w-full flex-1 flex flex-col bg-zinc-50">
             {children}
           </main>
         </SmoothScrollProvider>

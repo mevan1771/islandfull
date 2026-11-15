@@ -43,8 +43,8 @@
 }
 
 html {
-  overflow-x: clip;
-  overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   overflow-anchor: none;
   overscroll-behavior-x: none;
   scroll-behavior: auto;

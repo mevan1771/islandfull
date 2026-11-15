@@ -12,6 +12,18 @@ import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
 import { getTourCoordinates } from "@/lib/utils/coordinates"
 
+function useDesktopHeroMap() {
+    const [enabled, setEnabled] = useState(false)
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 1024px)")
+        const sync = () => setEnabled(mq.matches)
+        sync()
+        mq.addEventListener("change", sync)
+        return () => mq.removeEventListener("change", sync)
+    }, [])
+    return enabled
+}
+
 export interface Tour {
     id: string
     title: string
@@ -175,11 +187,15 @@ export function HeroCarousel({
     const [loaded, setLoaded] = useState<Record<number, boolean>>({ 0: true })
     const [pendingIndex, setPendingIndex] = useState<number | null>(null)
     const [pinnedTour, setPinnedTour] = useState<Tour | null>(null)
+    const showDesktopMap = useDesktopHeroMap()
 
     const activeTour = pinnedTour ?? carouselSlides[currentIndex] ?? carouselSlides[0]
     const mapTours = useMemo(
-        () => (mapListings.length ? mapListings : carouselSlides).map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour)),
-        [mapListings, carouselSlides]
+        () => {
+            if (!showDesktopMap) return []
+            return (mapListings.length ? mapListings : carouselSlides).map(toHeroMapTour).filter((tour): tour is MapTour => Boolean(tour))
+        },
+        [showDesktopMap, mapListings, carouselSlides]
     )
     const activeCoords = activeTour && !activeTour.isStatic ? slideCoords(activeTour) : null
     const activeLocation = useMemo(
@@ -227,10 +243,10 @@ export function HeroCarousel({
     }, [pendingIndex, loaded])
 
     return (
-        <section className="relative overflow-x-clip bg-zinc-50 px-3 pt-3 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
+        <section className="relative min-w-0 max-w-full overflow-hidden bg-zinc-50 px-3 pt-2 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
             <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
-            <div className="flex h-[14.5rem] gap-3 md:h-[calc(85vh-8.5rem)] md:gap-4">
+            <div className="flex h-[14.5rem] min-w-0 md:h-[calc(85vh-8.5rem)] md:gap-4">
                 <div className="relative min-w-0 flex-1 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:rounded-3xl">
                     {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
                         ? [...carouselSlides, pinnedTour]
@@ -287,16 +303,18 @@ export function HeroCarousel({
                     </div>
                 </div>
 
-                <aside className="relative hidden h-full w-[40%] shrink-0 overflow-hidden rounded-3xl bg-zinc-900 shadow-lg lg:block">
-                    <MapClientWrapper
-                        tours={mapTours}
-                        compact
-                        captureWheel={false}
-                        activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
-                        activeLocation={activeLocation}
-                        onTourSelect={goToTour}
-                    />
-                </aside>
+                {showDesktopMap ? (
+                    <aside className="relative h-full w-[40%] shrink-0 overflow-hidden rounded-3xl bg-zinc-900 shadow-lg">
+                        <MapClientWrapper
+                            tours={mapTours}
+                            compact
+                            captureWheel={false}
+                            activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
+                            activeLocation={activeLocation}
+                            onTourSelect={goToTour}
+                        />
+                    </aside>
+                ) : null}
             </div>
         </section>
     )
