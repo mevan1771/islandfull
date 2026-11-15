@@ -33,6 +33,7 @@ export function CarouselClient({ initialTours, allTours }: { initialTours: any[]
       id: tourToAdd.id, 
       title: tourToAdd.title, 
       cover_image_url: tourToAdd.cover_image_url || "",
+      category_type: tourToAdd.category_type || "tour",
       is_featured: true,
       featured_order: tours.length + 1 
     }])
@@ -88,15 +89,15 @@ export function CarouselClient({ initialTours, allTours }: { initialTours: any[]
       
       <div className="flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-semibold text-zinc-700">Add Tour to Carousel</label>
+          <label className="text-sm font-semibold text-zinc-700">Add listing to carousel</label>
           <select 
             value={selectedTourToAdd}
             onChange={(e) => setSelectedTourToAdd(e.target.value)}
             className="w-full p-2.5 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
           >
-            <option value="">Select a tour...</option>
+            <option value="">Select a tour or transport...</option>
             {allTours.map(t => (
-              <option key={t.id} value={t.id}>{t.title}</option>
+              <option key={t.id} value={t.id}>{t.title} ({t.category_type || "tour"})</option>
             ))}
           </select>
         </div>
@@ -126,6 +127,9 @@ export function CarouselClient({ initialTours, allTours }: { initialTours: any[]
               </div>
               <div className="flex-1 font-semibold text-zinc-900">
                 {tour.title}
+                <span className="ml-2 text-xs font-medium uppercase tracking-wide text-zinc-400">
+                  {tour.category_type || "tour"}
+                </span>
               </div>
               <button 
                 onClick={() => handleRemove(tour.id)}

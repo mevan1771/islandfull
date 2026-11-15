@@ -49,7 +49,7 @@ export function IntroSlideConfig({ initialData }: { initialData: any }) {
     <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm space-y-4">
       <div>
         <h2 className="text-lg font-bold text-zinc-900">Static Intro Slide</h2>
-        <p className="text-sm text-zinc-500">Configure the very first slide that appears in the carousel.</p>
+        <p className="text-sm text-zinc-500">First slide on the Tours tab only. Transport and Hotels skip this.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">

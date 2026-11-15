@@ -8,14 +8,16 @@ export const dynamic = 'force-dynamic'
 export default async function CarouselManagementPage() {
   const { data: featured } = await supabase
     .from('activities')
-    .select('id, title, is_featured, featured_order, cover_image_url')
+    .select('id, title, is_featured, featured_order, cover_image_url, category_type')
     .eq('is_featured', true)
     .order('featured_order', { ascending: true })
     
   const { data: allTours } = await supabase
     .from('activities')
-    .select('id, title, cover_image_url')
+    .select('id, title, cover_image_url, category_type')
     .eq('status', 'published')
+    .neq('category_type', 'place')
+    .neq('category_type', 'event')
     .order('title', { ascending: true })
 
   const { data: introSetting } = await supabaseAdmin
@@ -31,7 +33,9 @@ export default async function CarouselManagementPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Admin Operations</h1>
-            <p className="text-zinc-500 mt-1">Manage which tours appear on the homepage and their order.</p>
+            <p className="text-zinc-500 mt-1">
+              Tours tab: intro slide plus featured tours. Transport and Hotels tabs only show featured listings of that type.
+            </p>
           </div>
         </div>
 

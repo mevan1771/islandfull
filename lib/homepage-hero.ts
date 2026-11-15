@@ -40,8 +40,49 @@ export type HomepageHeroPayload = {
   mapListings: any[]
 }
 
+function withActivityHref(row: any) {
+  return { ...row, listingHref: `/activity/${row.slug}` }
+}
+
+function listingType(row: { category_type?: string | null }) {
+  if (row.category_type === "transport" || row.category_type === "hotel") return row.category_type
+  return "tour"
+}
+
+function pickFallback(rows: any[], limit: number) {
+  return rows.slice(0, limit)
+}
+
+export function assembleHero(payload: HomepageHeroPayload, vertical: PublicVertical) {
+  const mapListings = payload.mapListings.filter((row) => listingType(row) === vertical)
+  let featured = (payload.featuredTours || []).filter((row) => listingType(row) === vertical)
+  if (!featured.length) featured = pickFallback(mapListings, vertical === "hotel" ? 3 : 3)
+
+  const introSlide =
+    vertical === "tour" && payload.introSlide
+      ? {
+          id: "static-intro",
+          title: payload.introSlide.title ?? "Your Journey in Sri Lanka Begins Here",
+          subtitle: payload.introSlide.subtitle ?? "Inspiration, planning, and booking—all in one place.",
+          slug: "",
+          cover_image_url:
+            payload.introSlide.cover_image_url ||
+            "https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+          isStatic: true,
+          use_dark_text_desktop: payload.introSlide.use_dark_text_desktop || payload.introSlide.useDarkText || false,
+          use_dark_text_mobile: payload.introSlide.use_dark_text_mobile || payload.introSlide.useDarkText || false,
+        }
+      : null
+
+  return {
+    carouselSlides: introSlide ? [introSlide, ...featured] : featured,
+    mapListings,
+    featuredSpotlight: payload.featuredSpotlight,
+  }
+}
+
 async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
-  const [spotlightRes, featuredRes, introRes, activitiesRes, hotelsRes] = await Promise.all([
+  const [spotlightRes, featuredRes, introRes, activitiesRes, hotelsRes, featuredHotelsRes] = await Promise.all([
     supabase.from("global_settings").select("value").eq("key", "featured_spotlight").maybeSingle(),
     supabase
       .from("activities")
@@ -52,7 +93,7 @@ async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
       .neq("category_type", "event")
       .eq("is_featured", true)
       .order("featured_order", { ascending: true })
-      .limit(5),
+      .limit(12),
     supabase.from("global_settings").select("value").eq("key", "hero_intro_slide").maybeSingle(),
     supabase
       .from("activities")
@@ -66,23 +107,28 @@ async function fetchHomepageHeroData(): Promise<HomepageHeroPayload> {
       .select("id, title, slug, location, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
       .eq("status", "published")
       .eq("is_paused", false),
+    supabase
+      .from("hotels")
+      .select("id, title, slug, location, cover_image_url, latitude, longitude, is_featured, hotel_room_types(nightly_rate_usd, is_active)")
+      .eq("status", "published")
+      .eq("is_paused", false)
+      .eq("is_featured", true),
   ])
 
-  const activities = (activitiesRes.data || []).map((activity) => ({
-    ...activity,
-    listingHref: `/activity/${activity.slug}`,
-  }))
+  const activities = (activitiesRes.data || []).map(withActivityHref)
   const hotels = (hotelsRes.data || []).map(hotelListing)
+  const featuredHotels = (featuredHotelsRes.data || []).map(hotelListing)
+  const featuredActivities = (featuredRes.data || []).map(withActivityHref)
 
   return {
     featuredSpotlight: spotlightRes.data?.value ?? null,
-    featuredTours: featuredRes.data ?? [],
+    featuredTours: [...featuredActivities, ...featuredHotels],
     introSlide: introRes.data?.value ?? null,
     mapListings: [...activities, ...hotels],
   }
 }
 
-export const getHomepageHeroData = unstable_cache(fetchHomepageHeroData, ["homepage-hero"], {
+export const getHomepageHeroData = unstable_cache(fetchHomepageHeroData, ["homepage-hero-vertical"], {
   revalidate: 60,
   tags: ["hero-carousel"],
 })

@@ -8,7 +8,7 @@ import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { JsonLd } from "@/components/seo/JsonLd"
-import { getHomepageCategoryMap, getHomepageHeroData } from "@/lib/homepage-hero"
+import { assembleHero, getHomepageCategoryMap, getHomepageHeroData } from "@/lib/homepage-hero"
 import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
 import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
@@ -40,27 +40,12 @@ export default async function TransportMarketplacePage({
   const params = await searchParams
   const currentCategory = params.category || "all"
 
-  const [{ featuredTours, introSlide, featuredSpotlight, mapListings }, categoryMap] = await Promise.all([
+  const [heroPayload, categoryMap] = await Promise.all([
     getHomepageHeroData(),
     getHomepageCategoryMap(),
   ])
   const dynamicCategories = categoryMap.transport
-
-  const carouselSlides = [
-    {
-      id: "static-intro",
-      title: introSlide?.title ?? "Your Journey in Sri Lanka Begins Here",
-      subtitle: introSlide?.subtitle ?? "Inspiration, planning, and booking—all in one place.",
-      slug: "",
-      cover_image_url:
-        introSlide?.cover_image_url ||
-        "https://images.unsplash.com/photo-1537519646099-335112f03225?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-      isStatic: true,
-      use_dark_text_desktop: introSlide?.use_dark_text_desktop || introSlide?.useDarkText || false,
-      use_dark_text_mobile: introSlide?.use_dark_text_mobile || introSlide?.useDarkText || false,
-    },
-    ...featuredTours,
-  ]
+  const { carouselSlides, mapListings, featuredSpotlight } = assembleHero(heroPayload, "transport")
 
   const lcpUrl = carouselSlides[0]?.cover_image_url
   if (lcpUrl) {
