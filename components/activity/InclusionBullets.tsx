@@ -7,7 +7,7 @@ function IconMark({ icon_url }: { icon_url: string | null }) {
       <img
         src={icon_url}
         alt=""
-        className="h-9 w-9 shrink-0 object-contain md:h-16 md:w-16"
+        className="h-11 w-11 shrink-0 object-contain md:h-16 md:w-16"
       />
     )
   }
@@ -49,7 +49,7 @@ export function InclusionBullets({
       {items.map((item, i) => (
         <li key={`${item.text}-${i}`} className="flex items-center gap-2 md:gap-3">
           <IconMark icon_url={item.icon_url} />
-          <span className="text-xs font-medium leading-snug text-gray-700 md:text-lg md:font-semibold md:text-gray-800">{item.text}</span>
+          <span className="text-sm font-medium leading-snug text-gray-800 md:text-lg md:font-semibold">{item.text}</span>
         </li>
       ))}
     </ul>
