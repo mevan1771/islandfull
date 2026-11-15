@@ -294,7 +294,6 @@ export function HeroCarousel({
                         captureWheel={false}
                         activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
                         activeLocation={activeLocation}
-                        resizeToken={activeTour?.id || currentIndex}
                         onTourSelect={goToTour}
                     />
                 </aside>

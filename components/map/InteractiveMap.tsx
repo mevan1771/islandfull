@@ -105,9 +105,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     if (compact) {
       map.scrollZoom.disable()
-      const syncZoom = () => setHeroZoom(map.getZoom())
-      map.on("zoom", syncZoom)
-      map.on("zoomend", syncZoom)
+      map.on("moveend", () => setHeroZoom(map.getZoom()))
     } else {
       map.scrollZoom.setWheelZoomRate(1 / 900)
       map.scrollZoom.setZoomRate(1 / 200)

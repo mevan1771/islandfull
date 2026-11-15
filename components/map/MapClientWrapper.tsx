@@ -28,6 +28,27 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number, bounds?: [[number, number], [number, number]] }) => {
         const map = mapRef.current
         if (!map) return
+        const ease = (t: number) => 1 - (1 - t) * (1 - t)
+        if (compact) {
+            if (location.bounds) {
+                map.fitBounds(location.bounds, {
+                    padding: { top: 36, bottom: 36, left: 28, right: 28 },
+                    duration: 1600,
+                    essential: true,
+                    maxZoom: 6.4,
+                    easing: ease,
+                })
+                return
+            }
+            map.easeTo({
+                center: [location.lng, location.lat],
+                zoom: location.zoom ?? 9.2,
+                duration: 1800,
+                essential: true,
+                easing: ease,
+            })
+            return
+        }
         map.stop()
         if (location.bounds) {
             map.fitBounds(location.bounds, {
@@ -46,7 +67,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
             curve: 1.8,
             easing: (t) => 1 - Math.pow(1 - t, 3),
         })
-    }, [])
+    }, [compact])
 
     const handleMapReady = useCallback((map: MapboxMap | null) => {
         mapRef.current = map
@@ -57,6 +78,11 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
         if (!activeLocation || !mapReady) return
         const map = mapRef.current
         if (!map) return
+
+        if (compact) {
+            flyToLocation(activeLocation)
+            return
+        }
 
         let cancelled = false
         map.stop()
@@ -78,7 +104,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
             cancelled = true
             window.clearTimeout(timeout)
         }
-    }, [activeLocation, resizeToken, mapReady, flyToLocation])
+    }, [activeLocation, resizeToken, mapReady, flyToLocation, compact])
 
     useEffect(() => {
         if (!captureWheel) return
