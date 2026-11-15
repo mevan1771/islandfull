@@ -72,6 +72,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const barCategories = isDestinationMode
     ? dynamicCategories.filter((category) => category.category_type === destinationVertical)
     : dynamicCategories
+  const heroPinsOn = !compact || (Boolean(activeTourId) && heroZoom >= 8)
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -172,6 +173,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     Object.values(markersRef.current).forEach(({ marker }) => marker.remove())
     markersRef.current = {}
 
+    if (!heroPinsOn) return
+
     tours.forEach(tour => {
       const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location, tour.id)
       if (!coords) return
@@ -187,24 +190,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         .setLngLat([coords.lng, coords.lat])
         .addTo(map)
 
-      if (compact && map.getZoom() < 7) {
-        el.style.opacity = "0"
-        el.style.pointerEvents = "none"
-      }
-
       markersRef.current[tour.id] = { marker, el, tour, coords }
     })
-  }, [tours, handleMarkerClick, mapReady, compact])
-
-  useEffect(() => {
-    if (!compact) return
-    const show = heroZoom >= 7
-    Object.values(markersRef.current).forEach(({ el }) => {
-      el.style.transition = "opacity 320ms ease"
-      el.style.opacity = show ? "1" : "0"
-      el.style.pointerEvents = show ? "auto" : "none"
-    })
-  }, [compact, heroZoom, mapReady, tours])
+  }, [tours, handleMarkerClick, mapReady, compact, heroPinsOn])
 
   useEffect(() => {
     if (!compact) return
@@ -316,7 +304,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
       el.innerHTML = markerHTML
     })
-  }, [activeCategory, selectedTour, favorites, isDestinationMode, destinationVertical, tours, mapReady])
+  }, [activeCategory, selectedTour, favorites, isDestinationMode, destinationVertical, tours, mapReady, heroPinsOn])
 
   if (!MAPBOX_TOKEN) {
     return (
