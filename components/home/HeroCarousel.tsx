@@ -138,7 +138,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
 
     if (tour.isStatic) {
         return (
-            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full pb-1 md:pb-2">
+            <div className="flex flex-col items-start text-left gap-1.5 pointer-events-auto w-full">
                 {badges}
                 {tour.subtitle && (
                     <p className="text-[10px] md:text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] max-w-xl">
@@ -157,7 +157,7 @@ function TitleBlock({ tour }: { tour: Tour }) {
               children: tripChildren,
               infants: tripInfants,
             })}
-            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full pb-1 md:pb-2"
+            className="flex flex-col items-start text-left cursor-pointer hover:opacity-90 transition-opacity pointer-events-auto w-full"
         >
             {badges}
         </Link>
@@ -267,7 +267,7 @@ export function HeroCarousel({
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
-                    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 px-4 md:bottom-6 md:px-6">
+                    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-20 px-3 md:bottom-3 md:px-5">
                         <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                             {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
                                 ? [...carouselSlides, pinnedTour]
