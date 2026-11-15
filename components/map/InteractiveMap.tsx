@@ -93,8 +93,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       minZoom: 2,
       pitch: 0,
       bearing: 0,
+      fadeDuration: compact ? 0 : 300,
       attributionControl: false,
-      // Scroll-zoom immediately. Page scroll is paused while the pointer is over the map.
       cooperativeGestures: false
     })
 
@@ -115,6 +115,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     let waitingForIdle = false
     const observer = new ResizeObserver(() => {
+      if (compact && (map.isMoving() || map.isEasing())) return
       if (map.isMoving()) {
         if (!waitingForIdle) {
           waitingForIdle = true
@@ -166,12 +167,24 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     if (!mapReady || !mapInstance.current) return
     const map = mapInstance.current
 
-    Object.values(markersRef.current).forEach(({ marker }) => marker.remove())
-    markersRef.current = {}
-
-    if (!heroPinsOn) return
+    if (!compact) {
+      Object.values(markersRef.current).forEach(({ marker }) => marker.remove())
+      markersRef.current = {}
+      if (!heroPinsOn) return
+    } else {
+      const nextIds = new Set(tours.map((tour) => tour.id))
+      Object.entries(markersRef.current).forEach(([id, ref]) => {
+        if (nextIds.has(id)) return
+        ref.marker.remove()
+        delete markersRef.current[id]
+      })
+    }
 
     tours.forEach(tour => {
+      if (compact && markersRef.current[tour.id]) {
+        markersRef.current[tour.id].tour = tour
+        return
+      }
       const coords = getTourCoordinates(tour.latitude, tour.longitude, tour.location, tour.id)
       if (!coords) return
 
@@ -219,7 +232,10 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
           isVisible = tour.category === activeCategory || (!!tour.tags && tour.tags.includes(activeCategory))
         }
       }
-      el.style.display = isVisible ? 'block' : 'none'
+      const pinsLive = !compact || Boolean(activeTourId)
+      el.style.display = isVisible && pinsLive ? 'block' : compact ? 'block' : 'none'
+      el.style.opacity = compact ? (pinsLive && isVisible ? '1' : '0') : '1'
+      el.style.pointerEvents = compact && !(pinsLive && isVisible) ? 'none' : 'auto'
 
       // Selection logic
       const isSelected = selectedTour?.id === tour.id
@@ -227,8 +243,18 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       // Force the root Mapbox marker element to the front if selected
       el.style.zIndex = isSelected ? '1000' : '1'
 
+      if (compact && el.dataset.pinReady === '1') {
+        const root = el.querySelector('[data-if-pin]') as HTMLElement | null
+        if (root) {
+          root.classList.toggle('scale-125', isSelected)
+          root.classList.toggle('z-[101]', isSelected)
+          root.classList.toggle('scale-100', !isSelected)
+        }
+        return
+      }
+
       // Update DOM safely WITHOUT overwriting mapboxgl-marker root classes
-      const innerClass = `relative group cursor-pointer transition-all duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-[101]' : 'scale-100 hover:scale-110 z-10'}`
+      const innerClass = `relative group cursor-pointer transition-transform duration-300 ease-out transform origin-bottom ${isSelected ? 'scale-125 z-[101]' : 'scale-100 hover:scale-110 z-10'}`
 
       let markerHTML = '';
 
@@ -246,7 +272,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         const optimizedImageUrl = tour.cover_image_url;
 
         markerHTML = `
-          <div class="${innerClass}">
+          <div data-if-pin class="${innerClass}">
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-' + themeColor + ' text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
               ${pinLabel}
             </div>
@@ -260,7 +286,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         // Fallback to icons if no image is available
         if (tour.category_type === 'event') {
           markerHTML = `
-            <div class="${innerClass}">
+            <div data-if-pin class="${innerClass}">
               <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-indigo-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
                 ${pinLabel}
               </div>
@@ -272,7 +298,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
           `
         } else if (tour.category_type === 'transport') {
           markerHTML = `
-            <div class="${innerClass}">
+            <div data-if-pin class="${innerClass}">
                <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-emerald-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
                 ${pinLabel}
               </div>
@@ -285,7 +311,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         } else {
           // tour fallback
           markerHTML = `
-            <div class="${innerClass}">
+            <div data-if-pin class="${innerClass}">
               <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isSelected ? 'bg-rose-500 text-white' : 'bg-white text-zinc-900 group-hover:bg-zinc-900 group-hover:text-white'}">
                 ${pinLabel}
               </div>
@@ -299,8 +325,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       }
 
       el.innerHTML = markerHTML
+      el.dataset.pinReady = "1"
     })
-  }, [activeCategory, selectedTour, favorites, isDestinationMode, destinationVertical, tours, mapReady, heroPinsOn])
+  }, [activeCategory, selectedTour, favorites, isDestinationMode, destinationVertical, tours, mapReady, heroPinsOn, activeTourId, compact])
 
   if (!MAPBOX_TOKEN) {
     return (

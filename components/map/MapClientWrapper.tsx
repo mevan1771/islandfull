@@ -23,6 +23,7 @@ interface MapClientWrapperProps {
 export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true }: MapClientWrapperProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const mapRef = useRef<MapboxMap | null>(null)
+    const lastCompactTarget = useRef("")
     const [mapReady, setMapReady] = useState(false)
 
     const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number, bounds?: [[number, number], [number, number]] }) => {
@@ -30,6 +31,11 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
         if (!map) return
         const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
         if (compact) {
+            const targetKey = location.bounds
+                ? `b:${location.bounds[0][0]},${location.bounds[0][1]},${location.bounds[1][0]},${location.bounds[1][1]}`
+                : `${location.lat.toFixed(4)},${location.lng.toFixed(4)},${location.zoom ?? 9.2}`
+            if (lastCompactTarget.current === targetKey && (map.isMoving() || map.isEasing())) return
+            lastCompactTarget.current = targetKey
             if (location.bounds) {
                 map.fitBounds(location.bounds, {
                     padding: { top: 36, bottom: 36, left: 28, right: 28 },
