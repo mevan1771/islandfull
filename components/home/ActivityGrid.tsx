@@ -268,7 +268,7 @@ export function ActivityGrid({
       )}
 
       {currentCategory !== "saved" && total > 0 && (
-        <div className="flex flex-col items-center gap-3 mt-8 mb-4">
+        <div className="flex flex-col items-center gap-3 mt-5 mb-0">
           <p className="text-sm text-zinc-500">
             Showing {Math.min(displayActivities.length, total)} of {total}
           </p>
