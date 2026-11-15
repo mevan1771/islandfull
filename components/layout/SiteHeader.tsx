@@ -190,7 +190,7 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? `absolute md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none ${
+        ? `relative md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full pointer-events-none bg-zinc-50 ${
             allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-200 md:ease-out" : ""
           } ${
             homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'

@@ -227,7 +227,7 @@ export function HeroCarousel({
     }, [pendingIndex, loaded])
 
     return (
-        <section className="relative bg-zinc-50 px-3 pt-20 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
+        <section className="relative bg-zinc-50 px-3 pt-3 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
             <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
             <div className="flex h-[clamp(12.75rem,32svh,15.5rem)] gap-3 md:h-[calc(85vh-8.5rem)] md:gap-4">
