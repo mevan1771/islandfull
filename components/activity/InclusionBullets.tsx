@@ -45,12 +45,9 @@ export function InclusionBullets({
   }
 
   return (
-    <ul className="grid w-full grid-cols-2 gap-x-3 gap-y-5 md:gap-x-6 md:gap-y-5">
+    <ul className="grid w-full grid-cols-2 gap-x-3 gap-y-3 md:gap-x-6 md:gap-y-5">
       {items.map((item, i) => (
-        <li
-          key={`${item.text}-${i}`}
-          className="flex flex-col items-center text-center gap-1.5 md:flex-row md:items-center md:text-left md:gap-3"
-        >
+        <li key={`${item.text}-${i}`} className="flex items-center gap-2 md:gap-3">
           <IconMark icon_url={item.icon_url} />
           <span className="text-sm font-medium leading-snug text-gray-800 md:text-lg md:font-semibold">{item.text}</span>
         </li>
