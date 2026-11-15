@@ -44,7 +44,7 @@
 
 html {
   scrollbar-gutter: stable;
-  overflow-x: clip;
+  overflow-x: hidden;
   overflow-y: scroll;
   overflow-anchor: none;
   overscroll-behavior-x: none;
