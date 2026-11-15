@@ -150,10 +150,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                         {slide.badge_text || slide.location}
                       </div>
                     )}
-                    <h2
-                      className="flex-1 min-w-0 text-[clamp(0.875rem,calc(120vw/var(--char-count)),1.125rem)] whitespace-nowrap overflow-hidden text-ellipsis md:text-4xl md:whitespace-normal leading-tight font-bold text-slate-900"
-                      style={{ '--char-count': slide.title.length } as React.CSSProperties}
-                    >
+                    <h2 className="flex-1 min-w-0 truncate text-sm md:text-4xl md:whitespace-normal leading-tight font-bold text-slate-900">
                       {slide.title}
                     </h2>
                   </div>

@@ -66,7 +66,7 @@ export function HomeCategoryChips({
   const iconBox = compact ? "h-10 w-10" : "h-11 w-11 md:h-20 md:w-20"
 
   return (
-    <div className="flex min-w-0 flex-1 overflow-x-auto flex-nowrap gap-2 md:gap-3 items-end [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="flex w-full min-w-0 max-w-full overflow-x-auto flex-nowrap gap-2 md:gap-3 items-end [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {categories.map((cat) => {
         const current = optimisticCategory === cat.id
         return (

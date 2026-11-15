@@ -202,7 +202,7 @@ export default function SiteHeader() {
     return (
         <>
         <header className={headerClasses}>
-            <div className={`max-w-7xl mx-auto px-4 flex items-center justify-between pointer-events-auto w-full ${isHomePage ? "h-11 md:h-full" : "h-16 md:h-full"}`}>
+            <div className="max-w-7xl mx-auto px-4 h-16 md:h-full flex items-center justify-between pointer-events-auto w-full">
                 <div className="flex items-center gap-3">
                     {isActivityPage && (
                         <button
