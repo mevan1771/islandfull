@@ -43,11 +43,31 @@
 }
 
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
   overflow-y: auto;
   overflow-anchor: none;
   overscroll-behavior-x: none;
   scroll-behavior: auto;
+}
+
+html.splash-lock,
+html.splash-lock body {
+  overflow: hidden !important;
+}
+
+@media (max-width: 1023px) {
+  html,
+  body {
+    overflow-x: clip;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 footer + footer {

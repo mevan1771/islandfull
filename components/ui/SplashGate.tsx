@@ -13,7 +13,12 @@ export function SplashGate() {
   const [show, setShow] = useState(!skipped)
 
   useEffect(() => {
-    if (!show) return
+    const root = document.documentElement
+    if (!show) {
+      root.classList.remove("splash-lock")
+      return
+    }
+    root.classList.add("splash-lock")
     const timeout = window.setTimeout(() => setShow(false), MIN_MS)
     return () => window.clearTimeout(timeout)
   }, [show])

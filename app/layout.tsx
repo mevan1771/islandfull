@@ -102,7 +102,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="antialiased splash-lock">
       <body className={`${inter.className} min-h-screen min-w-0 max-w-full bg-zinc-50 flex flex-col`}>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <ClerkProvider
@@ -120,7 +120,7 @@ export default function RootLayout({
           <NextTopLoader color="#f43f5e" showSpinner={false} />
           <SplashGate />
           <RootScroll />
-          <Toaster position="top-center" />
+          <Toaster position="top-center" containerStyle={{ top: 16, left: 0, right: 0 }} />
           <Suspense fallback={null}>
             <SiteHeader />
           </Suspense>
