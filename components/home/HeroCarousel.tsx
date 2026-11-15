@@ -99,6 +99,7 @@ function mapPinToSlide(tour: MapTour): Tour {
 }
 
 const LOAD_WAIT_MS = 1200
+const MAP_LEAD_MS = 520
 
 function heroPriceLabel(tour: Tour): string | null {
     if (tour.isStatic) return null
@@ -190,6 +191,7 @@ export function HeroCarousel({
     const showDesktopMap = useDesktopHeroMap()
 
     const activeTour = pinnedTour ?? carouselSlides[currentIndex] ?? carouselSlides[0]
+    const mapTour = pinnedTour ?? carouselSlides[pendingIndex ?? currentIndex] ?? activeTour
     const mapTours = useMemo(
         () => {
             if (!showDesktopMap) return []
@@ -197,10 +199,10 @@ export function HeroCarousel({
         },
         [showDesktopMap, mapListings, carouselSlides]
     )
-    const activeCoords = activeTour && !activeTour.isStatic ? slideCoords(activeTour) : null
+    const mapCoords = mapTour && !mapTour.isStatic ? slideCoords(mapTour) : null
     const activeLocation = useMemo(
-        () => (activeCoords ? { lat: activeCoords.lat, lng: activeCoords.lng, zoom: 9.6 } : SRI_LANKA),
-        [activeCoords?.lat, activeCoords?.lng]
+        () => (mapCoords ? { lat: mapCoords.lat, lng: mapCoords.lng, zoom: 9.6 } : SRI_LANKA),
+        [mapCoords?.lat, mapCoords?.lng]
     )
 
     const goToTour = useCallback((tour: MapTour) => {
@@ -228,18 +230,22 @@ export function HeroCarousel({
     useEffect(() => {
         if (pendingIndex === null) return
 
-        if (loaded[pendingIndex]) {
+        const lead = window.setTimeout(() => {
+            if (loaded[pendingIndex]) {
+                setCurrentIndex(pendingIndex)
+                setPendingIndex(null)
+            }
+        }, MAP_LEAD_MS)
+
+        const fallback = window.setTimeout(() => {
             setCurrentIndex(pendingIndex)
             setPendingIndex(null)
-            return
+        }, MAP_LEAD_MS + LOAD_WAIT_MS)
+
+        return () => {
+            window.clearTimeout(lead)
+            window.clearTimeout(fallback)
         }
-
-        const fallback = setTimeout(() => {
-            setCurrentIndex(pendingIndex)
-            setPendingIndex(null)
-        }, LOAD_WAIT_MS)
-
-        return () => clearTimeout(fallback)
     }, [pendingIndex, loaded])
 
     return (
@@ -309,7 +315,7 @@ export function HeroCarousel({
                             tours={mapTours}
                             compact
                             captureWheel={false}
-                            activeTourId={activeTour?.isStatic ? null : activeTour?.id || null}
+                            activeTourId={mapTour?.isStatic ? null : mapTour?.id || null}
                             activeLocation={activeLocation}
                             onTourSelect={goToTour}
                         />

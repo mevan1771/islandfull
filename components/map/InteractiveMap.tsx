@@ -66,13 +66,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const [activeCategory, setActiveCategory] = useState<string>("all")
   const [destinationVertical, setDestinationVertical] = useState<string>("all")
   const [mapReady, setMapReady] = useState(false)
-  const [heroZoom, setHeroZoom] = useState(compact ? 5.8 : 99)
   const { favorites } = useFavorites()
   const vertical = isDestinationMode ? destinationVertical : currentVertical
   const barCategories = isDestinationMode
     ? dynamicCategories.filter((category) => category.category_type === destinationVertical)
     : dynamicCategories
-  const heroPinsOn = !compact || (Boolean(activeTourId) && heroZoom >= 8)
+  const heroPinsOn = !compact || Boolean(activeTourId)
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -105,7 +104,6 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     if (compact) {
       map.scrollZoom.disable()
-      map.on("moveend", () => setHeroZoom(map.getZoom()))
     } else {
       map.scrollZoom.setWheelZoomRate(1 / 900)
       map.scrollZoom.setZoomRate(1 / 200)

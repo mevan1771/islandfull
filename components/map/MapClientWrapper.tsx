@@ -28,12 +28,12 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     const flyToLocation = useCallback((location: { lat: number, lng: number, zoom?: number, bounds?: [[number, number], [number, number]] }) => {
         const map = mapRef.current
         if (!map) return
-        const ease = (t: number) => 1 - (1 - t) * (1 - t)
+        const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
         if (compact) {
             if (location.bounds) {
                 map.fitBounds(location.bounds, {
                     padding: { top: 36, bottom: 36, left: 28, right: 28 },
-                    duration: 1600,
+                    duration: 2000,
                     essential: true,
                     maxZoom: 6.4,
                     easing: ease,
@@ -43,7 +43,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
             map.easeTo({
                 center: [location.lng, location.lat],
                 zoom: location.zoom ?? 9.2,
-                duration: 1800,
+                duration: 2200,
                 essential: true,
                 easing: ease,
             })
@@ -138,6 +138,27 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                 onTourSelect={onTourSelect}
                 onMapReady={handleMapReady}
             />
+            {compact && mapReady ? (
+                <div className="absolute bottom-3 right-3 z-20 flex flex-col overflow-hidden rounded-xl border border-white/20 bg-white/95 shadow-lg">
+                    <button
+                        type="button"
+                        aria-label="Zoom in"
+                        className="flex h-9 w-9 items-center justify-center text-lg font-semibold text-zinc-800 hover:bg-zinc-100"
+                        onClick={() => mapRef.current?.zoomIn({ duration: 280 })}
+                    >
+                        +
+                    </button>
+                    <span className="h-px bg-zinc-200" />
+                    <button
+                        type="button"
+                        aria-label="Zoom out"
+                        className="flex h-9 w-9 items-center justify-center text-lg font-semibold text-zinc-800 hover:bg-zinc-100"
+                        onClick={() => mapRef.current?.zoomOut({ duration: 280 })}
+                    >
+                        −
+                    </button>
+                </div>
+            ) : null}
         </div>
     )
 }
