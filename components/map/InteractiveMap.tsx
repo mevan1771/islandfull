@@ -66,6 +66,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const [activeCategory, setActiveCategory] = useState<string>("all")
   const [destinationVertical, setDestinationVertical] = useState<string>("all")
   const [mapReady, setMapReady] = useState(false)
+  const [heroZoom, setHeroZoom] = useState(compact ? 5.8 : 99)
   const { favorites } = useFavorites()
   const vertical = isDestinationMode ? destinationVertical : currentVertical
   const barCategories = isDestinationMode
@@ -103,6 +104,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     if (compact) {
       map.scrollZoom.disable()
+      const syncZoom = () => setHeroZoom(map.getZoom())
+      map.on("zoom", syncZoom)
+      map.on("zoomend", syncZoom)
     } else {
       map.scrollZoom.setWheelZoomRate(1 / 900)
       map.scrollZoom.setZoomRate(1 / 200)
@@ -183,9 +187,24 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         .setLngLat([coords.lng, coords.lat])
         .addTo(map)
 
+      if (compact && map.getZoom() < 7) {
+        el.style.opacity = "0"
+        el.style.pointerEvents = "none"
+      }
+
       markersRef.current[tour.id] = { marker, el, tour, coords }
     })
-  }, [tours, handleMarkerClick, mapReady])
+  }, [tours, handleMarkerClick, mapReady, compact])
+
+  useEffect(() => {
+    if (!compact) return
+    const show = heroZoom >= 7
+    Object.values(markersRef.current).forEach(({ el }) => {
+      el.style.transition = "opacity 320ms ease"
+      el.style.opacity = show ? "1" : "0"
+      el.style.pointerEvents = show ? "auto" : "none"
+    })
+  }, [compact, heroZoom, mapReady, tours])
 
   useEffect(() => {
     if (!compact) return
