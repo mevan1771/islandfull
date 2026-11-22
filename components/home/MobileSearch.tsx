@@ -17,6 +17,7 @@ import { readTripSearchFromParams, writeTripSearchToParams } from "@/lib/trip-se
 import { MobileTripChips, MobileTripSheet } from "@/components/home/TripSearchControls"
 import { SortMenu } from "@/components/home/SortMenu"
 import { ensureTripSearchHydrated, useTripSearchStore } from "@/store/useTripSearchStore"
+import { useExploreMapStore } from "@/store/useExploreMapStore"
 
 function WhereField({
   location,
@@ -126,6 +127,7 @@ export function MobileSearch({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
+  const mapOpen = useExploreMapStore((s) => s.open)
   const [stuck, setStuck] = useState(false)
   const [tripSheet, setTripSheet] = useState<"date" | "guests" | null>(null)
   const stuckRef = useRef(false)
@@ -274,7 +276,7 @@ export function MobileSearch({
       <div
         ref={cardRef}
         data-home-search-card
-        className={`sm:hidden relative z-20 w-full min-w-0 max-w-full overflow-visible px-4 pt-3 ${stuck ? "invisible pointer-events-none" : ""}`}
+        className={`sm:hidden relative z-20 w-full min-w-0 max-w-full overflow-visible px-4 pt-3 ${stuck || mapOpen ? "hidden" : ""}`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
           <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
@@ -289,7 +291,7 @@ export function MobileSearch({
         </form>
       </div>
 
-      <div id="home-browse" className="sm:hidden relative z-10 min-w-0 overflow-x-auto pt-5 pb-2">
+      <div id="home-browse" className={`sm:hidden relative z-10 min-w-0 overflow-x-auto pt-5 pb-2 ${mapOpen ? "hidden" : ""}`}>
         <div className="min-w-0 pl-3 pr-2">
           <HomeCategoryChips dynamicCategories={dynamicCategories} passive={stuck} />
         </div>
@@ -299,11 +301,11 @@ export function MobileSearch({
           ref={stickyRef}
           data-home-sticky
           className={`sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80 ${
-            stuck
-              ? chromeHidden
+            mapOpen || !stuck
+              ? "hidden pointer-events-none"
+              : chromeHidden
                 ? "-translate-y-full pointer-events-none"
                 : "translate-y-0"
-              : "invisible pointer-events-none"
           }`}
         >
           <div className="flex items-center gap-2 px-3 pt-2 pb-2">

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { List, X } from "lucide-react"
 import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
 import { useExploreMapStore } from "@/store/useExploreMapStore"
@@ -121,7 +120,9 @@ export function HomeExploreShell({
       <div
         ref={listRef}
         className={`min-w-0 ${
-          open ? "lg:w-[64%] lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain" : "w-full"
+          open
+            ? "max-lg:hidden lg:w-[64%] lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            : "w-full"
         }`}
       >
         {children}
@@ -130,30 +131,12 @@ export function HomeExploreShell({
       <aside
         className={`${
           open
-            ? "fixed inset-x-0 top-12 bottom-[4.25rem] z-[45] bg-zinc-900 lg:static lg:inset-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
+            ? "fixed inset-x-0 top-12 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-[35] bg-zinc-900 lg:static lg:inset-auto lg:top-auto lg:bottom-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
             : "hidden lg:block lg:w-0 lg:pointer-events-none"
         }`}
         aria-hidden={!open}
       >
         <div className="relative h-full min-h-0 w-full overflow-hidden lg:rounded-3xl lg:border lg:border-white/20 lg:shadow-2xl lg:bg-zinc-900">
-          <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between lg:hidden">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-lg"
-            >
-              <List className="h-4 w-4" />
-              Show list
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Close map"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-zinc-800 shadow-lg"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
           {mounted ? (
             <MapClientWrapper
               tours={pins}
