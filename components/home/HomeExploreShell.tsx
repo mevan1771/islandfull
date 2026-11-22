@@ -1,8 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { listingsHref } from "@/lib/listing-path"
+import { X } from "lucide-react"
 import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
 import { useExploreMapStore } from "@/store/useExploreMapStore"
@@ -20,29 +19,12 @@ export function HomeExploreShell({
 }) {
   const open = useExploreMapStore((s) => s.open)
   const setOpen = useExploreMapStore((s) => s.setOpen)
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const category = searchParams.get("category") || "all"
   const [mounted, setMounted] = useState(false)
   const [resizeToken, setResizeToken] = useState(0)
   const [focusedId, setFocusedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
-  const pins = useMemo(() => {
-    const wanted = (vertical || "tour").toLowerCase()
-    const byVertical = mapTours.filter((tour) => {
-      const type = (tour.category_type || "tour").toLowerCase()
-      if (wanted === "tour") return type !== "transport" && type !== "hotel"
-      return type === wanted
-    })
-    const pool = byVertical.length ? byVertical : mapTours
-    if (!category || category === "all" || category === "saved") return pool
-    const tagged = pool.filter(
-      (tour) => tour.category === category || tour.tags?.includes(category)
-    )
-    return tagged.length ? tagged : pool
-  }, [mapTours, vertical, category])
+  const pins = useMemo(() => mapTours, [mapTours])
 
   useEffect(() => {
     if (open) setMounted(true)
@@ -52,7 +34,7 @@ export function HomeExploreShell({
     if (!open) return
     const id = window.setTimeout(() => setResizeToken((n) => n + 1), 420)
     return () => window.clearTimeout(id)
-  }, [open, vertical, category])
+  }, [open, vertical])
 
   useEffect(() => {
     if (!open) return
@@ -115,16 +97,6 @@ export function HomeExploreShell({
     setFocusedId(tour.id)
   }, [])
 
-  const onVerticalChange = useCallback(
-    (next: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      params.delete("category")
-      const verticalId = next === "all" || next === "back" ? "tour" : next
-      router.push(listingsHref(pathname, params, { vertical: verticalId }), { scroll: false })
-    },
-    [pathname, router, searchParams]
-  )
-
   return (
     <div
       className={`min-w-0 w-full ${open ? "lg:flex lg:h-[calc(100dvh-4.25rem)] lg:min-h-0 lg:overflow-hidden" : ""}`}
@@ -144,23 +116,31 @@ export function HomeExploreShell({
       <aside
         className={`${
           open
-            ? "fixed inset-x-0 top-12 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-[35] bg-zinc-900 lg:static lg:inset-auto lg:top-auto lg:bottom-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
+            ? "fixed inset-x-0 top-12 bottom-0 z-40 bg-zinc-900 lg:static lg:inset-auto lg:top-auto lg:bottom-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
             : "hidden lg:block lg:w-0 lg:pointer-events-none"
         }`}
         aria-hidden={!open}
       >
         <div className="relative h-full min-h-0 w-full overflow-hidden lg:rounded-3xl lg:border lg:border-white/20 lg:shadow-2xl lg:bg-zinc-900">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close map"
+            className="lg:hidden absolute top-3 right-3 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white text-zinc-800 shadow-lg touch-manipulation"
+          >
+            <X className="h-4 w-4" />
+          </button>
           {mounted ? (
             <MapClientWrapper
               tours={pins}
               dynamicCategories={categories}
-              currentVertical={vertical}
+              currentVertical="all"
+              isDestinationMode
               embed
-              captureWheel
+              captureWheel={false}
               activeTourId={focusedId}
-              resizeToken={`${vertical}-${category}-${resizeToken}`}
+              resizeToken={`${vertical}-${resizeToken}`}
               onTourSelect={onTourSelect}
-              onVerticalChange={onVerticalChange}
             />
           ) : null}
         </div>

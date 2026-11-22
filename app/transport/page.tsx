@@ -50,7 +50,11 @@ export default async function TransportMarketplacePage({
 
   return (
     <Suspense fallback={null}>
-    <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical="transport">
+    <HomeExploreShell
+      mapTours={mapTours}
+      categories={[...categoryMap.tour, ...categoryMap.transport, ...categoryMap.hotel]}
+      vertical="transport"
+    >
     <div className="min-w-0 max-w-full pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <JsonLd

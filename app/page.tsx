@@ -61,7 +61,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
   return (
     <Suspense fallback={null}>
-    <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical={currentVertical}>
+    <HomeExploreShell
+      mapTours={mapTours}
+      categories={[...categoryMap.tour, ...categoryMap.transport, ...categoryMap.hotel]}
+      vertical={currentVertical}
+    >
     <div className="min-w-0 max-w-full pb-4 sm:pb-8 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <HomeScrollRestore listingKey={`${currentVertical}:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />

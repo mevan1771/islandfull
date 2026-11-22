@@ -303,16 +303,12 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
           onCategoryChange={setActiveCategory}
           isTourSelected={!!selectedTour}
           dynamicCategories={barCategories}
-          currentVertical={embed ? "all" : vertical}
+          currentVertical={vertical}
           onVerticalChange={(v) => {
-            if (embed) {
+            if (isDestinationMode || embed) {
+              setDestinationVertical(v === "back" ? "all" : v)
+              setActiveCategory("all")
               onVerticalChange?.(v === "back" ? "all" : v)
-              setActiveCategory("all")
-              return
-            }
-            if (isDestinationMode) {
-              setDestinationVertical(v)
-              setActiveCategory("all")
               return
             }
             router.push("?vertical=" + v)

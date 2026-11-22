@@ -36,6 +36,7 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
           return (
             <button
               key={cat.id}
+              type="button"
               onClick={() => {
                 if (cat.isVertical) {
                   onVerticalChange(cat.id === 'back' ? 'all' : cat.id)
@@ -43,10 +44,10 @@ export function MapFilterBar({ activeCategory, onCategoryChange, isTourSelected,
                   onCategoryChange(cat.id)
                 }
               }}
-              className={`flex items-center justify-center gap-1.5 px-2.5 md:px-4 py-1.5 rounded-full text-[13px] md:text-sm font-semibold transition-all flex-shrink-0
+              className={`flex items-center justify-center gap-1.5 px-2.5 md:px-4 py-2 rounded-full text-[13px] md:text-sm font-semibold transition-colors flex-shrink-0 touch-manipulation pointer-events-auto
                 ${isActive 
                   ? "bg-zinc-900 text-white shadow-md" 
-                  : "bg-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                  : "bg-transparent text-zinc-600 active:bg-zinc-200 hover:bg-zinc-100 hover:text-zinc-900"
                 }`}
             >
               {cat.icon && (

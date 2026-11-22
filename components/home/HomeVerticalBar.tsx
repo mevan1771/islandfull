@@ -97,6 +97,8 @@ function HomeVerticalBarInner() {
     router.push(href, { scroll: false })
   }
 
+  if (mapOpen) return null
+
   return (
     <nav
       className={`sm:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#EBEBEB] bg-[#FFFFFF] pb-[env(safe-area-inset-bottom)] ${
