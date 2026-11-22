@@ -36,7 +36,7 @@ interface ActivityGridProps {
   mustSeePlaces?: MustSeePlace[]
 }
 
-function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
+function ActivityCardFromItem({ act, priority = false }: { act: HomepageActivity; priority?: boolean }) {
   return (
     <ActivityCard
       id={act.id}
@@ -57,11 +57,12 @@ function ActivityCardFromItem({ act }: { act: HomepageActivity }) {
       pricingTiers={act.pricingTiers}
       allowOffers={act.allowOffers}
       href={act.listingHref}
+      priority={priority}
     />
   )
 }
 
-function PlaceCard({ place }: { place: MustSeePlace }) {
+function PlaceCard({ place, priority = false }: { place: MustSeePlace; priority?: boolean }) {
   return (
     <ActivityCard
       id={place.id}
@@ -72,6 +73,7 @@ function PlaceCard({ place }: { place: MustSeePlace }) {
       priceUsd={0}
       coverImage={place.coverImage || "/placeholder.jpg"}
       variant="place"
+      priority={priority}
     />
   )
 }
@@ -108,11 +110,11 @@ function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[], rem
   return fitToColumns(cells, places.slice(pi), 4, remainder)
 }
 
-function Cell({ cell }: { cell: GridCell }) {
+function Cell({ cell, priority = false }: { cell: GridCell; priority?: boolean }) {
   if (cell.type === "place") {
-    return <PlaceCard place={cell.place} />
+    return <PlaceCard place={cell.place} priority={priority} />
   }
-  return <ActivityCardFromItem act={cell.act} />
+  return <ActivityCardFromItem act={cell.act} priority={priority} />
 }
 
 export function ActivityGrid({
@@ -227,8 +229,12 @@ export function ActivityGrid({
     <div>
       <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
         {showPlanTile ? <TransportPlanEntry /> : null}
-        {leading.map((cell) => (
-          <Cell key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id} cell={cell} />
+        {leading.map((cell, index) => (
+          <Cell
+            key={cell.type === "place" ? `p-${cell.place.id}` : cell.act.id}
+            cell={cell}
+            priority={index < 4}
+          />
         ))}
         {showSpotlight ? (
           <div className="hidden md:contents">

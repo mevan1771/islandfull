@@ -103,7 +103,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="antialiased splash-lock">
+    <html lang="en" className="antialiased">
       <body className={`${inter.className} min-h-screen min-w-0 max-w-full bg-zinc-50 flex flex-col`}>
         <GoogleAnalytics />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />

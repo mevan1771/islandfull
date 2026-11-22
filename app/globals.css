@@ -47,6 +47,7 @@ html {
   overflow-y: auto;
   overflow-anchor: none;
   overscroll-behavior-x: none;
+  overscroll-behavior-y: auto;
   scroll-behavior: auto;
 }
 
@@ -77,6 +78,7 @@ footer + footer {
 body {
   color: var(--foreground);
   background: var(--background);
+  overflow: visible;
   overscroll-behavior-x: none;
 }
 

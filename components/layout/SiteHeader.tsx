@@ -85,67 +85,8 @@ export default function SiteHeader() {
 
     useEffect(() => {
         if (!isListingHome) return
-
-        let lastY = window.scrollY
-        let acc = 0
-        let ticking = false
-        let scrolled = window.scrollY > 50 || isHomeHeaderSuppressed()
-        let visible = window.scrollY <= 50 && !isHomeHeaderSuppressed()
-
-        const apply = () => {
-            ticking = false
-            const y = window.scrollY
-            const delta = y - lastY
-            lastY = y
-
-            const nextScrolled = scrolled ? y > 24 : y > 72
-            if (nextScrolled !== scrolled) {
-                scrolled = nextScrolled
-                setIsScrolled(nextScrolled)
-            }
-
-            if (y <= 24) {
-                acc = 0
-                if (!visible) {
-                    visible = true
-                    revealHomeHeader()
-                    setIsVisible(true)
-                }
-                return
-            }
-
-            if (Math.abs(delta) < 4) return
-
-            if (delta > 0) {
-                acc = acc > 0 ? acc + delta : delta
-                if (acc > 80 && visible) {
-                    visible = false
-                    acc = 0
-                    setIsVisible(false)
-                }
-                return
-            }
-
-            acc = acc < 0 ? acc + delta : delta
-            if (acc < -80 && !visible) {
-                visible = true
-                acc = 0
-                revealHomeHeader()
-                setAllowMotion(true)
-                setIsVisible(true)
-            }
-        }
-
-        const onScroll = () => {
-            if (ticking) return
-            ticking = true
-            requestAnimationFrame(apply)
-        }
-
-        window.addEventListener("scroll", onScroll, { passive: true })
-        return () => {
-            window.removeEventListener("scroll", onScroll)
-        }
+        setIsVisible(true)
+        setIsScrolled(true)
     }, [isListingHome, pathname])
 
     // Do not render the main site header on host or admin portals
@@ -171,11 +112,8 @@ export default function SiteHeader() {
 
     const isStandardPage = !isHomePage && !isActivityPage && !isDestinationsPage && !isTripsPage && !isMapPage && !isTransportPage
 
-    const homeScrolled = isScrolled || hideHomeHeader
-    const homeHeaderVisible = isVisible && !hideHomeHeader
-    const shouldForceDarkTextDesktop = isHomePage && homeScrolled
-    const effectiveDarkTextDesktop = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : (shouldForceDarkTextDesktop ? true : useDarkTextDesktop)))
-    const effectiveDarkTextMobile = isMapPage ? false : (isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : useDarkTextMobile))
+    const effectiveDarkTextDesktop = isMapPage ? false : (isHomePage || isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : useDarkTextDesktop))
+    const effectiveDarkTextMobile = isMapPage ? false : (isHomePage || isActivityPage || isDestinationsPage || isSupportPage || isTripsPage || isTransportPage ? true : (isStandardPage ? true : useDarkTextMobile))
 
     const textColor = `${effectiveDarkTextMobile ? 'text-slate-700/80' : 'text-white/90'} ${effectiveDarkTextDesktop ? 'md:text-slate-800' : 'md:text-white'}`
     const hoverColor = `${effectiveDarkTextMobile ? 'hover:text-slate-900' : 'hover:text-white'} ${effectiveDarkTextDesktop ? 'md:hover:text-black' : 'md:hover:text-slate-200'}`
@@ -190,13 +128,7 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? `relative md:fixed top-0 left-0 right-0 z-50 md:z-50 w-full min-w-0 max-w-full pointer-events-none bg-zinc-50 ${
-            allowMotion && !hideHomeHeader ? "md:transition-transform md:duration-200 md:ease-out" : ""
-          } ${
-            homeScrolled ? 'md:bg-white md:shadow-md md:py-2' : 'md:bg-transparent md:pt-10 md:pb-12'
-          } ${
-            homeHeaderVisible ? 'md:translate-y-0' : 'md:-translate-y-full md:invisible'
-          }`
+        ? "sticky top-0 left-0 right-0 z-50 w-full min-w-0 max-w-full pointer-events-none bg-white/95 backdrop-blur-md shadow-sm md:py-2"
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
@@ -307,11 +239,7 @@ export default function SiteHeader() {
 
                 {/* Desktop Navigation */}
                 <nav
-                    className={`hidden md:flex items-center ${
-                        isHomePage && !homeScrolled
-                            ? "rounded-full bg-white/90 backdrop-blur-md px-1 py-1 shadow-lg shadow-black/10 text-[13px] font-semibold text-slate-800"
-                            : `gap-1 text-sm font-medium ${textColor}`
-                    }`}
+                    className={`hidden md:flex items-center gap-1 text-sm font-medium ${textColor}`}
                 >
                     {(
                         [
@@ -334,7 +262,6 @@ export default function SiteHeader() {
                                 : "vertical" in item && item.vertical === "hotel"
                                 ? (pathname === "/" && storeVertical === "hotel") || Boolean(pathname?.startsWith("/hotel"))
                                 : Boolean(pathname?.startsWith(item.href))
-                        const overlay = isHomePage && !homeScrolled
                         const activeClass = "bg-[#FFC72C] text-zinc-900 font-bold"
 
                         return (
@@ -355,15 +282,9 @@ export default function SiteHeader() {
                                         markHomeArriveTop()
                                     }
                                 }}
-                                className={
-                                    overlay
-                                        ? `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap ${
-                                              isActive ? activeClass : "hover:bg-zinc-100"
-                                          }`
-                                        : `w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap ${
-                                              isActive ? activeClass : hoverColor
-                                          }`
-                                }
+                                className={`w-[7rem] shrink-0 flex items-center justify-center px-1 py-1.5 rounded-full whitespace-nowrap ${
+                                    isActive ? activeClass : hoverColor
+                                }`}
                             >
                                 {item.label}
                             </Link>

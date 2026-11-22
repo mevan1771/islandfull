@@ -9,7 +9,10 @@ const SKIP_PREFIXES = ["/host", "/admin", "/sign-in", "/sign-up", "/email-previe
 
 export function SplashGate() {
   const pathname = usePathname()
-  const skipped = SKIP_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
+  const skipped =
+    SKIP_PREFIXES.some((prefix) => pathname?.startsWith(prefix)) ||
+    pathname === "/" ||
+    pathname === "/transport"
   const [show, setShow] = useState(!skipped)
 
   useEffect(() => {

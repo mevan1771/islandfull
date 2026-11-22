@@ -1,15 +1,13 @@
 import { Suspense } from "react"
-import { preload } from "react-dom"
 import Link from "next/link"
 import { HomeFilters } from "@/components/home/HomeFilters"
 import { MobileSearch } from "@/components/home/MobileSearch"
 import { HomeVerticalBar } from "@/components/home/HomeVerticalBar"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
-import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
+import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { JsonLd } from "@/components/seo/JsonLd"
-import { assembleHero, getHomepageCategoryMap, getHomepageHeroData } from "@/lib/homepage-hero"
-import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
+import { getFeaturedSpotlight, getHomepageCategoryMap } from "@/lib/homepage-hero"
 import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
 import { pageMeta, breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/seo"
@@ -40,25 +38,15 @@ export default async function TransportMarketplacePage({
   const params = await searchParams
   const currentCategory = params.category || "all"
 
-  const [heroPayload, categoryMap] = await Promise.all([
-    getHomepageHeroData(),
+  const [featuredSpotlight, categoryMap] = await Promise.all([
+    getFeaturedSpotlight(),
     getHomepageCategoryMap(),
   ])
   const dynamicCategories = categoryMap.transport
-  const { carouselSlides, mapListings, featuredSpotlight } = assembleHero(heroPayload, "transport")
-
-  const lcpUrl = carouselSlides[0]?.cover_image_url
-  if (lcpUrl) {
-    preload(heroDefaultSrc(lcpUrl), {
-      as: "image",
-      fetchPriority: "high",
-      imageSrcSet: heroSrcSet(lcpUrl),
-      imageSizes: HERO_SIZES,
-    })
-  }
 
   return (
-    <div className="min-w-0 max-w-full overflow-x-clip pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
+    <div className="min-w-0 max-w-full pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
+      <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <JsonLd
         data={[
           breadcrumbJsonLd([
@@ -76,7 +64,6 @@ export default async function TransportMarketplacePage({
         ]}
       />
       <HomeScrollRestore listingKey={`transport:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
-      <HeroCarousel carouselSlides={carouselSlides} mapListings={mapListings} />
 
       <Suspense fallback={null}>
         <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
@@ -87,7 +74,7 @@ export default async function TransportMarketplacePage({
         <HomeFilters dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
       </Suspense>
 
-      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[4.75rem]">
+      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 pt-2 pb-4 md:pt-2 md:pb-8 max-md:scroll-mt-[4.75rem]">
         <Suspense fallback={<TransportGridSkeleton />}>
           <TransportGrid
             searchParams={params}

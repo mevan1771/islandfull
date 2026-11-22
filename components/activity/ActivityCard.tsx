@@ -33,6 +33,7 @@ interface ActivityCardProps {
   variant?: "tour" | "place"
   allowOffers?: boolean
   href?: string
+  priority?: boolean
 }
 
 export function ActivityCard({
@@ -56,6 +57,7 @@ export function ActivityCard({
   variant = "tour",
   allowOffers = false,
   href,
+  priority = false,
 }: ActivityCardProps) {
   ensureTripSearchHydrated()
   const tripDate = useTripSearchStore((s) => s.date)
@@ -134,17 +136,18 @@ export function ActivityCard({
               playsInline
               muted
               loop
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover md:transition-transform md:duration-300 md:group-hover:scale-[1.04]"
             />
           ) : (
             <Image
               src={coverImage || "/placeholder.jpg"}
               alt={title}
               fill
+              priority={priority}
               placeholder="blur"
               blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              className="object-cover md:transition-transform md:duration-300 md:group-hover:scale-[1.04]"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             />
           )}
           <FavoriteButton activityId={id} />

@@ -3,11 +3,9 @@ import { MobileSearch } from "@/components/home/MobileSearch"
 import { HomeVerticalBar } from "@/components/home/HomeVerticalBar"
 import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
-import { preload } from "react-dom"
-import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
-import { assembleHero, getHomepageCategoryMap, getHomepageHeroData } from "@/lib/homepage-hero"
-import { heroDefaultSrc, heroSrcSet, HERO_SIZES } from "@/lib/hero-media"
+import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
+import { getFeaturedSpotlight, getHomepageCategoryMap } from "@/lib/homepage-hero"
 import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE, publicVertical } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
@@ -51,42 +49,27 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const currentVertical = publicVertical(params.vertical);
   const currentCategory = params.category || 'all';
 
-  const [heroPayload, categoryMap] = await Promise.all([
-    getHomepageHeroData(),
+  const [featuredSpotlight, categoryMap] = await Promise.all([
+    getFeaturedSpotlight(),
     getHomepageCategoryMap(),
   ]);
   const dynamicCategories = categoryMap[currentVertical];
-  const { carouselSlides, mapListings, featuredSpotlight } = assembleHero(heroPayload, currentVertical);
-
-  const lcpUrl = carouselSlides[0]?.cover_image_url;
-  if (lcpUrl) {
-    preload(heroDefaultSrc(lcpUrl), {
-      as: "image",
-      fetchPriority: "high",
-      imageSrcSet: heroSrcSet(lcpUrl),
-      imageSizes: HERO_SIZES,
-    });
-  }
 
   return (
-    <div className="min-w-0 max-w-full overflow-x-clip pb-4 sm:pb-8 [overflow-anchor:none]" data-home-page>
+    <div className="min-w-0 max-w-full pb-4 sm:pb-8 [overflow-anchor:none]" data-home-page>
+      <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <HomeScrollRestore listingKey={`${currentVertical}:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
-      {/* Hero Section */}
-      <HeroCarousel carouselSlides={carouselSlides} mapListings={mapListings} />
 
-      {/* Mobile Search Inline Card */}
       <Suspense fallback={null}>
         <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
         <HomeVerticalBar />
       </Suspense>
 
-      {/* Dynamic Filters UI */}
-        <Suspense fallback={null}>
+      <Suspense fallback={null}>
         <HomeFilters dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
       </Suspense>
 
-      {/* Activity Grid */}
-      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 py-4 md:py-8 max-md:scroll-mt-[4.75rem]">
+      <section id="activity-grid-container" className="max-w-7xl mx-auto px-4 pt-2 pb-4 md:pt-2 md:pb-8 max-md:scroll-mt-[4.75rem]">
         <Suspense fallback={<ActivitySkeleton />}>
           <ActivityGridServer
             searchParams={params}

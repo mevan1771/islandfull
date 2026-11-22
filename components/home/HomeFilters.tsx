@@ -124,8 +124,8 @@ export function HomeFilters({
 
   return (
     <>
-      <div className="relative z-20 px-4 hidden sm:block h-0">
-        <div className="max-w-5xl mx-auto -translate-y-1/2">
+      <div className="relative z-20 px-4 hidden sm:block">
+        <div className="max-w-5xl mx-auto pt-3 md:pt-4">
           <form onSubmit={handleSearch} className="flex flex-row items-center w-full bg-white border border-gray-200 rounded-full shadow-xl divide-x divide-gray-200 p-1.5 pl-6">
             <div ref={dropdownRef} className="flex-1 w-full relative flex flex-col justify-center cursor-pointer pr-4">
               <label className="text-[10px] md:text-xs font-extrabold uppercase text-gray-800 mb-0.5 tracking-wider block">Location</label>
@@ -209,7 +209,7 @@ export function HomeFilters({
         </div>
       </div>
 
-      <div className="hidden sm:block max-w-7xl mx-auto px-4 pt-14 mb-6 text-zinc-900">
+      <div className="hidden sm:block max-w-7xl mx-auto px-4 pt-6 mb-2 text-zinc-900">
         <div className="flex items-center min-w-0">
           <HomeCategoryChips dynamicCategories={dynamicCategories} />
         </div>

@@ -133,6 +133,16 @@ export const getHomepageHeroData = unstable_cache(fetchHomepageHeroData, ["homep
   tags: ["hero-carousel"],
 })
 
+async function fetchFeaturedSpotlight() {
+  const spotlightRes = await supabase.from("global_settings").select("value").eq("key", "featured_spotlight").maybeSingle()
+  return spotlightRes.data?.value ?? null
+}
+
+export const getFeaturedSpotlight = unstable_cache(fetchFeaturedSpotlight, ["homepage-spotlight"], {
+  revalidate: 60,
+  tags: ["hero-carousel"],
+})
+
 async function fetchHomepageCategoryMap(): Promise<HomepageCategoryMap> {
   const map = emptyHomepageCategoryMap()
   const withIcons = await supabase
