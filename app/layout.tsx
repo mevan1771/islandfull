@@ -12,6 +12,7 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import { SplashGate } from "@/components/ui/SplashGate";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -104,6 +105,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased splash-lock">
       <body className={`${inter.className} min-h-screen min-w-0 max-w-full bg-zinc-50 flex flex-col`}>
+        <GoogleAnalytics />
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <ClerkProvider
           signInUrl="/sign-in"
