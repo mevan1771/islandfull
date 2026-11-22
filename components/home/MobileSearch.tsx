@@ -7,7 +7,6 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { searchLocationsAndTags, type SearchSuggestion } from "@/app/actions/search"
 import { parseTourSort } from "@/lib/tour-sort"
 import { HomeCategoryChips } from "@/components/home/HomeCategoryChips"
-import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import type { HomepageCategory, HomepageCategoryMap } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
 import { markHomeListingsPin } from "@/lib/home-scroll"
@@ -319,8 +318,8 @@ export function MobileSearch({
                 : "invisible pointer-events-none"
           }`}
         >
-          <div className="flex items-center gap-2 px-3 pt-2 pb-2">
-            <form onSubmit={handleSearch} className="min-w-0 flex-1">
+          <div className="px-4 pt-2 pb-2">
+            <form onSubmit={handleSearch}>
               <div className="relative flex items-center h-10 rounded-full border border-zinc-200 bg-white shadow-sm pl-3 pr-1 gap-1">
                 <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <WhereField {...whereProps} showMenu={stuck} />
@@ -331,10 +330,6 @@ export function MobileSearch({
                 <SearchRowActions sort={sortValue} onSort={onSort} />
               </div>
             </form>
-            <UserNavMenu
-              triggerClassName="w-10 h-10 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95 overflow-hidden"
-              iconClassName="w-4 h-4 text-zinc-700"
-            />
           </div>
         </div>
       <MobileTripSheet tab={tripSheet} onClose={() => setTripSheet(null)} />
