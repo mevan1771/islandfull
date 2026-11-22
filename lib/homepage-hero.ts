@@ -158,10 +158,11 @@ async function fetchHomepageMapListings() {
     .neq("category_type", "place")
     .neq("category_type", "event")
 
-  let [activitiesRes, hotelsRes] = await Promise.all([activitiesQuery, hotelQuery])
+  const [activitiesRes, hotelsRes] = await Promise.all([activitiesQuery, hotelQuery])
 
+  let activityRows: any[] = activitiesRes.data || []
   if (activitiesRes.error) {
-    activitiesRes = await supabase
+    const fallback = await supabase
       .from("activities")
       .select(
         "id, title, slug, location, cover_image_url, card_image_url, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng, categories(slug)"
@@ -170,9 +171,10 @@ async function fetchHomepageMapListings() {
       .eq("is_paused_by_host", false)
       .neq("category_type", "place")
       .neq("category_type", "event")
+    activityRows = fallback.data || []
   }
 
-  return [...(activitiesRes.data || []).map(withActivityHref), ...(hotelsRes.data || []).map(hotelListing)]
+  return [...activityRows.map(withActivityHref), ...(hotelsRes.data || []).map(hotelListing)]
 }
 
 export const getHomepageMapListings = unstable_cache(fetchHomepageMapListings, ["homepage-map-listings-v2"], {
