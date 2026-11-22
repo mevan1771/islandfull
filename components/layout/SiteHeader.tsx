@@ -136,7 +136,7 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? "sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-white md:bg-white/95 backdrop-blur-md shadow-sm md:py-2"
+        ? "sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-background md:bg-white/95 backdrop-blur-md md:shadow-sm md:py-2"
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (

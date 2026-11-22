@@ -281,7 +281,7 @@ export function MobileSearch({
         aria-hidden
       />
       <div
-        className={`sm:hidden fixed inset-x-0 top-12 z-30 bg-white px-4 pt-3 pb-1 ${mapOpen ? "hidden" : ""}`}
+        className={`sm:hidden fixed inset-x-0 top-12 z-30 bg-background px-4 pt-3 pb-1 ${mapOpen ? "hidden" : ""}`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
           <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
