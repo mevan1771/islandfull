@@ -163,10 +163,17 @@ export function MobileSearch({
   }, [searchParams, isFocused])
 
   useEffect(() => {
+    if (mapOpen) {
+      stuckRef.current = false
+      setStuck(false)
+      setStuckChrome(false)
+      return
+    }
     const el = cardRef.current
     if (!el) return
     let ticking = false
     const update = () => {
+      if (useExploreMapStore.getState().open) return
       const top = el.getBoundingClientRect().top
       const next = stuckRef.current ? top < 40 : top < 4
       if (stuckRef.current === next) return
@@ -192,7 +199,7 @@ export function MobileSearch({
       window.removeEventListener("islandfull:listings-pin", onScroll)
       setStuckChrome(false)
     }
-  }, [setStuckChrome])
+  }, [mapOpen, setStuckChrome])
 
   useEffect(() => {
     async function fetchSuggestions() {
@@ -276,7 +283,9 @@ export function MobileSearch({
       <div
         ref={cardRef}
         data-home-search-card
-        className={`sm:hidden relative z-20 w-full min-w-0 max-w-full overflow-visible px-4 pt-3 ${stuck || mapOpen ? "hidden" : ""}`}
+        className={`sm:hidden relative z-20 w-full min-w-0 max-w-full overflow-visible px-4 pt-3 ${
+          mapOpen ? "hidden" : stuck ? "invisible pointer-events-none" : ""
+        }`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
           <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
@@ -300,12 +309,14 @@ export function MobileSearch({
       <div
           ref={stickyRef}
           data-home-sticky
-          className={`sm:hidden fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] bg-white border-b border-zinc-200/80 ${
-            mapOpen || !stuck
+          className={`sm:hidden fixed inset-x-0 top-12 z-30 bg-white border-b border-zinc-200/80 ${
+            mapOpen
               ? "hidden pointer-events-none"
-              : chromeHidden
-                ? "-translate-y-full pointer-events-none"
-                : "translate-y-0"
+              : stuck
+                ? chromeHidden
+                  ? "-translate-y-full pointer-events-none"
+                  : "translate-y-0"
+                : "invisible pointer-events-none"
           }`}
         >
           <div className="flex items-center gap-2 px-3 pt-2 pb-2">
