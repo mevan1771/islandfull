@@ -148,7 +148,7 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? `max-md:fixed md:sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-background md:bg-white/95 md:backdrop-blur-md md:shadow-sm md:py-2 transition-transform duration-200 ease-out ${
+        ? `max-md:fixed md:sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-zinc-50 md:bg-white/95 md:backdrop-blur-md md:shadow-sm md:py-2 transition-transform duration-200 ease-out ${
             isVisible || exploreMapOpen ? "max-md:translate-y-0" : "max-md:-translate-y-full max-md:pointer-events-none"
           }`
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"

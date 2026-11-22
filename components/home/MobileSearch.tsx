@@ -293,7 +293,7 @@ export function MobileSearch({
         aria-hidden
       />
       <div
-        className={`sm:hidden fixed inset-x-0 z-30 bg-background px-4 pt-3 pb-1 transition-[transform,top] duration-200 ease-out ${
+        className={`sm:hidden fixed inset-x-0 z-30 bg-zinc-50 px-4 pt-3 pb-1 transition-[transform,top] duration-200 ease-out ${
           mapOpen
             ? "hidden"
             : atTop
