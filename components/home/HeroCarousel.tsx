@@ -252,7 +252,7 @@ export function HeroCarousel({
         <section className="relative min-w-0 max-w-full bg-zinc-50 px-3 pt-1 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
             <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
-            <div className="relative h-[14.5rem] min-w-0 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:h-[calc(85vh-8.5rem)] md:rounded-3xl">
+            <div className="relative h-[18.5rem] min-w-0 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:h-[calc(92vh-7.5rem)] md:rounded-3xl">
                     {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
                         ? [...carouselSlides, pinnedTour]
                         : carouselSlides
@@ -308,7 +308,7 @@ export function HeroCarousel({
                     </div>
 
                 {showDesktopMap ? (
-                    <aside className="absolute bottom-4 right-4 z-30 hidden h-[min(15.75rem,44%)] w-[min(20.5rem,31%)] overflow-hidden rounded-2xl border border-white/30 bg-zinc-900 shadow-2xl lg:block">
+                    <aside className="absolute bottom-4 right-4 z-30 hidden h-[min(18.5rem,42%)] w-[min(22rem,30%)] overflow-hidden rounded-2xl border border-white/30 bg-zinc-900 shadow-2xl lg:block">
                         <MapClientWrapper
                             tours={mapTours}
                             compact
