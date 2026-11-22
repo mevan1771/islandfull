@@ -62,6 +62,8 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const markersRef = useRef<{ [id: string]: MarkerRef }>({})
   const onMapReadyRef = useRef(onMapReady)
   onMapReadyRef.current = onMapReady
+  const onTourSelectRef = useRef(onTourSelect)
+  onTourSelectRef.current = onTourSelect
 
   const [selectedTour, setSelectedTour] = useState<MapTour | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("all")
@@ -72,7 +74,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   const barCategories = isDestinationMode
     ? dynamicCategories.filter((category) => category.category_type === destinationVertical)
     : dynamicCategories
-  const heroPinsOn = !compact || Boolean(activeTourId)
+  const heroPinsOn = embed || !compact || Boolean(activeTourId)
 
   // Setup Mapbox STRICTLY ONCE
   useEffect(() => {
@@ -100,7 +102,9 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     })
 
     map.on('load', () => {
-      map.resize() // Fix container layout offsets
+      map.resize()
+      setMapReady(true)
+      onMapReadyRef.current?.(map)
     })
 
     if (compact) {
@@ -111,8 +115,6 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     }
 
     mapInstance.current = map
-    onMapReadyRef.current?.(map)
-    setMapReady(true)
 
     let waitingForIdle = false
     const observer = new ResizeObserver(() => {
@@ -142,26 +144,23 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
     }
   }, []) // Empty dependency array guarantees it never tears down on state changes
 
-  // Smooth camera flyTo when a marker is clicked
   const handleMarkerClick = useCallback((tour: MapTour & { coords: { lat: number, lng: number } }) => {
-    if (compact) {
-      onTourSelect?.(tour)
-      return
-    }
+    onTourSelectRef.current?.(tour)
+    if (compact) return
 
     setSelectedTour(tour)
 
     mapInstance.current?.stop()
     mapInstance.current?.flyTo({
       center: [tour.coords.lng, tour.coords.lat],
-      zoom: isDestinationMode ? 12 : 11,
+      zoom: isDestinationMode ? 12 : embed ? 10 : 11,
       pitch: 0,
-      duration: isDestinationMode ? 1400 : 2000,
+      duration: isDestinationMode ? 1400 : 1600,
       essential: true,
-      curve: isDestinationMode ? 1.4 : 1.42,
-      offset: isDestinationMode ? [0, -160] : [0, -150]
+      curve: 1.4,
+      offset: isDestinationMode ? [0, -160] : [0, -80]
     })
-  }, [isDestinationMode, compact, onTourSelect])
+  }, [isDestinationMode, compact, embed])
 
   // Create / refresh markers whenever the map is ready and tour data arrives
   useEffect(() => {
@@ -192,6 +191,19 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       const el = document.createElement('div')
       el.style.width = '56px'
       el.style.height = '72px'
+      el.style.cursor = 'pointer'
+      const pinLabel = tour.category_type === "place" ? "Must see" : formatUSD(tour.price_usd)
+      const img = tour.cover_image_url
+        ? `<img src="${tour.cover_image_url}" alt="" width="52" height="52" />`
+        : ""
+      el.innerHTML = `
+        <div data-if-pin class="if-map-pin">
+          <div class="if-map-pin__price">${pinLabel}</div>
+          <div class="if-map-pin__dot">${img}</div>
+          <div class="if-map-pin__tail"></div>
+        </div>
+      `
+      el.dataset.pinReady = "1"
 
       el.addEventListener('click', (e) => {
         e.stopPropagation()

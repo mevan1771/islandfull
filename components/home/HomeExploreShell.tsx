@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { List, X } from "lucide-react"
 import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
@@ -56,10 +56,10 @@ export function HomeExploreShell({
     return () => document.documentElement.classList.remove("explore-map-open")
   }, [open])
 
-  function onTourSelect(tour: MapTour) {
+  const onTourSelect = useCallback((tour: MapTour) => {
     const card = document.querySelector<HTMLElement>(`[data-home-card="${tour.slug}"]`)
     card?.scrollIntoView({ behavior: "smooth", block: "center" })
-  }
+  }, [])
 
   return (
     <div

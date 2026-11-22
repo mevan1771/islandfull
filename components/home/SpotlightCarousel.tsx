@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { SpotlightConfig } from '@/components/admin/SpotlightClient'
+import { useExploreMapStore } from '@/store/useExploreMapStore'
 
 interface SpotlightCarouselProps {
   slides: SpotlightConfig[]
@@ -36,6 +37,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
     return defaults.length > 0 ? defaults : slides.slice(0, 3)
   }, [slides, searchLocation, searchCategory])
 
+  const mapOpen = useExploreMapStore((s) => s.open)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
 
@@ -141,7 +143,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
               key={slide.id || index}
               className="flex-[0_0_100%] min-w-0 snap-center shrink-0"
             >
-              <div className="grid md:grid-cols-2 gap-4 md:gap-16 items-center w-full py-3 md:py-12">
+              <div className={`grid items-center w-full py-3 md:py-12 ${mapOpen ? "grid-cols-1 gap-4 md:gap-6" : "md:grid-cols-2 gap-4 md:gap-16"}`}>
                 {/* Text Content */}
                 <div className="space-y-3 md:space-y-6 px-1">
                   <div className="flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 max-w-full overflow-hidden w-full">
@@ -175,6 +177,18 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                 </div>
 
                 {/* Images */}
+                {mapOpen ? (
+                  <div className="relative w-full aspect-[16/10] max-h-64 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg px-0 pointer-events-none">
+                    <Image
+                      src={slide.image_url_1 || slide.image_url_2}
+                      alt={slide.title || "Spotlight"}
+                      fill
+                      sizes="40vw"
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
                 <div className="grid grid-cols-2 gap-3 md:gap-5 px-1 w-full md:max-w-lg lg:max-w-xl md:ml-auto">
                   <div className="relative w-full h-40 md:h-80 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg translate-y-3 md:translate-y-8 aspect-auto pointer-events-none transform-gpu">
                     <Image src={slide.image_url_1} alt="Spotlight Image 1" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
@@ -183,6 +197,7 @@ export function SpotlightCarousel({ slides, embedded = false }: SpotlightCarouse
                     <Image src={slide.image_url_2} alt="Spotlight Image 2" fill quality={95} sizes="(max-width: 768px) 50vw, 33vw" priority={index === 0} unoptimized={true} className="object-cover rounded-2xl md:rounded-3xl" />
                   </div>
                 </div>
+                )}
 
                 {/* Mobile Button */}
                 <div className="md:hidden flex justify-center mt-3 px-1">
