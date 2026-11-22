@@ -38,7 +38,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
             lastCompactTarget.current = targetKey
             if (location.bounds) {
                 map.fitBounds(location.bounds, {
-                    padding: { top: 36, bottom: 36, left: 28, right: 28 },
+                    padding: { top: 22, bottom: 22, left: 18, right: 18 },
                     duration: 2000,
                     essential: true,
                     maxZoom: 6.4,
@@ -145,11 +145,11 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                 onMapReady={handleMapReady}
             />
             {compact && mapReady ? (
-                <div className="absolute bottom-3 right-3 z-20 flex flex-col overflow-hidden rounded-xl border border-white/20 bg-white/95 shadow-lg">
+                <div className="absolute bottom-2 right-2 z-20 flex flex-col overflow-hidden rounded-lg border border-white/20 bg-white/95 shadow-lg">
                     <button
                         type="button"
                         aria-label="Zoom in"
-                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-zinc-800 hover:bg-zinc-100"
+                        className="flex h-7 w-7 items-center justify-center text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
                         onClick={() => mapRef.current?.zoomIn({ duration: 280 })}
                     >
                         +
@@ -158,7 +158,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                     <button
                         type="button"
                         aria-label="Zoom out"
-                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-zinc-800 hover:bg-zinc-100"
+                        className="flex h-7 w-7 items-center justify-center text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
                         onClick={() => mapRef.current?.zoomOut({ duration: 280 })}
                     >
                         −

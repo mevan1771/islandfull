@@ -249,10 +249,10 @@ export function HeroCarousel({
     }, [pendingIndex, loaded])
 
     return (
-        <section className="relative min-w-0 max-w-full bg-zinc-50 px-3 pt-1 pb-8 sm:px-4 md:px-5 md:pt-24 md:pb-12 xl:px-6">
+        <section className="relative min-w-0 max-w-full bg-zinc-50 px-3 pt-1 pb-6 sm:px-4 md:px-5 md:pt-20 md:pb-8 xl:px-6">
             <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
 
-            <div className="relative h-[18.5rem] min-w-0 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:h-[calc(92vh-7.5rem)] md:rounded-3xl">
+            <div className="relative h-[22rem] min-w-0 overflow-hidden rounded-2xl bg-slate-900 text-white shadow-lg md:h-[calc(100svh-6.25rem)] md:rounded-3xl">
                     {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
                         ? [...carouselSlides, pinnedTour]
                         : carouselSlides
@@ -288,7 +288,7 @@ export function HeroCarousel({
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[42%] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
-                    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-20 px-3 md:bottom-4 md:left-5 md:right-[min(22rem,34%)] md:px-0">
+                    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-20 px-3 md:bottom-4 md:left-5 md:right-[min(17rem,24%)] md:px-0">
                         <div className="relative min-h-[2.75rem] md:min-h-[3.5rem]">
                             {(pinnedTour && !carouselSlides.some((slide) => slide.id === pinnedTour.id)
                                 ? [...carouselSlides, pinnedTour]
@@ -308,7 +308,7 @@ export function HeroCarousel({
                     </div>
 
                 {showDesktopMap ? (
-                    <aside className="absolute bottom-4 right-4 z-30 hidden h-[min(18.5rem,42%)] w-[min(22rem,30%)] overflow-hidden rounded-2xl border border-white/30 bg-zinc-900 shadow-2xl lg:block">
+                    <aside className="absolute bottom-3 right-3 z-30 hidden h-[min(11.5rem,26%)] w-[min(15.25rem,20%)] overflow-hidden rounded-xl border border-white/30 bg-zinc-900 shadow-2xl lg:block">
                         <MapClientWrapper
                             tours={mapTours}
                             compact
