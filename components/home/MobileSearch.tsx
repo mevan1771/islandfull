@@ -131,8 +131,6 @@ export function MobileSearch({
   const [tripSheet, setTripSheet] = useState<"date" | "guests" | null>(null)
   const stuckRef = useRef(false)
   const slotRef = useRef<HTMLDivElement>(null)
-  const cardRef = useRef<HTMLDivElement>(null)
-  const slotHeightRef = useRef(0)
   const setStuckChrome = useMobileChromeStore((s) => s.setStuck)
   const lockChrome = useMobileChromeStore((s) => s.lock)
   const unlockChrome = useMobileChromeStore((s) => s.unlock)
@@ -168,19 +166,10 @@ export function MobileSearch({
       setStuckChrome(false)
       return
     }
-    const slot = slotRef.current
-    const card = cardRef.current
-    if (!slot || !card) return
-    const headerBottom = () => {
-      const header = document.querySelector("header")
-      return header ? Math.round(header.getBoundingClientRect().bottom) : 48
-    }
     let ticking = false
     const update = () => {
       if (useExploreMapStore.getState().open) return
-      if (!stuckRef.current) slotHeightRef.current = slot.offsetHeight
-      const top = slot.getBoundingClientRect().top
-      const next = top <= headerBottom()
+      const next = window.scrollY > 24
       if (stuckRef.current === next) return
       stuckRef.current = next
       setStuck(next)
@@ -288,27 +277,23 @@ export function MobileSearch({
       <div
         ref={slotRef}
         data-home-search-card
-        className={`sm:hidden w-full min-w-0 max-w-full ${mapOpen ? "hidden" : ""}`}
-        style={stuck ? { height: slotHeightRef.current } : undefined}
+        className={`sm:hidden ${mapOpen ? "hidden" : "h-[3.75rem]"}`}
+        aria-hidden
+      />
+      <div
+        className={`sm:hidden fixed inset-x-0 top-12 z-30 bg-white px-4 pt-3 pb-1 ${mapOpen ? "hidden" : ""}`}
       >
-        <div
-          ref={cardRef}
-          className={`w-full min-w-0 bg-white px-4 pt-3 pb-1 ${
-            stuck ? "fixed inset-x-0 top-12 z-30 border-b border-zinc-200/80" : "relative z-20"
-          }`}
-        >
-          <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
-            <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
-              <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-              <WhereField {...whereProps} showMenu />
-              <MobileTripChips
-                onOpenDate={() => setTripSheet("date")}
-                onOpenGuests={() => setTripSheet("guests")}
-              />
-              <SearchRowActions sort={sortValue} onSort={onSort} />
-            </div>
-          </form>
-        </div>
+        <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
+          <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">
+            <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
+            <WhereField {...whereProps} showMenu />
+            <MobileTripChips
+              onOpenDate={() => setTripSheet("date")}
+              onOpenGuests={() => setTripSheet("guests")}
+            />
+            <SearchRowActions sort={sortValue} onSort={onSort} />
+          </div>
+        </form>
       </div>
 
       <div id="home-browse" className={`sm:hidden relative z-10 min-w-0 overflow-x-auto pt-5 pb-2 ${mapOpen ? "hidden" : ""}`}>
