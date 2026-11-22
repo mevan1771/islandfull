@@ -39,6 +39,7 @@ interface InteractiveMapProps {
   currentVertical?: string
   isDestinationMode?: boolean
   compact?: boolean
+  embed?: boolean
   activeTourId?: string | null
   onTourSelect?: (tour: MapTour) => void
   onMapReady?: (map: mapboxgl.Map | null) => void
@@ -54,7 +55,7 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, compact = false, activeTourId = null, onTourSelect, onMapReady }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, compact = false, embed = false, activeTourId = null, onTourSelect, onMapReady }: InteractiveMapProps) {
   const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
@@ -342,7 +343,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
 
-      {!compact && (
+      {!compact && !embed && (
       <div className={`absolute inset-0 z-40 pointer-events-none ${isDestinationMode ? "lg:hidden" : ""}`}>
         <MapFilterBar
           activeCategory={activeCategory}
@@ -377,7 +378,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       <MapPreviewDrawer
         tour={selectedTour}
         onClose={() => setSelectedTour(null)}
-        contained={isDestinationMode}
+        contained={isDestinationMode || embed}
       />
       )}
 

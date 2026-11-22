@@ -18,9 +18,10 @@ interface MapClientWrapperProps {
     resizeToken?: string | number
     onTourSelect?: (tour: MapTour) => void
     captureWheel?: boolean
+    embed?: boolean
 }
 
-export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true }: MapClientWrapperProps) {
+export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, embed = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true }: MapClientWrapperProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const mapRef = useRef<MapboxMap | null>(null)
     const lastCompactTarget = useRef("")
@@ -113,6 +114,11 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     }, [activeLocation, resizeToken, mapReady, flyToLocation, compact])
 
     useEffect(() => {
+        if (!mapReady) return
+        mapRef.current?.resize()
+    }, [resizeToken, mapReady])
+
+    useEffect(() => {
         if (!captureWheel) return
         const el = rootRef.current
         if (!el) return
@@ -140,11 +146,12 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                 currentVertical={currentVertical}
                 isDestinationMode={isDestinationMode}
                 compact={compact}
+                embed={embed}
                 activeTourId={activeTourId}
                 onTourSelect={onTourSelect}
                 onMapReady={handleMapReady}
             />
-            {compact && mapReady ? (
+            {(compact || embed) && mapReady ? (
                 <div className="absolute bottom-2 right-2 z-20 flex flex-col overflow-hidden rounded-lg border border-white/20 bg-white/95 shadow-lg">
                     <button
                         type="button"

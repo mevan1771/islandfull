@@ -143,6 +143,30 @@ export const getFeaturedSpotlight = unstable_cache(fetchFeaturedSpotlight, ["hom
   tags: ["hero-carousel"],
 })
 
+async function fetchHomepageMapListings() {
+  const [activitiesRes, hotelsRes] = await Promise.all([
+    supabase
+      .from("activities")
+      .select(MAP_LISTING_COLUMNS)
+      .eq("status", "published")
+      .eq("is_paused_by_host", false)
+      .neq("category_type", "place")
+      .neq("category_type", "event"),
+    supabase
+      .from("hotels")
+      .select("id, title, slug, location, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
+      .eq("status", "published")
+      .eq("is_paused", false),
+  ])
+
+  return [...(activitiesRes.data || []).map(withActivityHref), ...(hotelsRes.data || []).map(hotelListing)]
+}
+
+export const getHomepageMapListings = unstable_cache(fetchHomepageMapListings, ["homepage-map-listings"], {
+  revalidate: 60,
+  tags: ["hero-carousel"],
+})
+
 async function fetchHomepageCategoryMap(): Promise<HomepageCategoryMap> {
   const map = emptyHomepageCategoryMap()
   const withIcons = await supabase

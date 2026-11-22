@@ -52,7 +52,9 @@ html {
 }
 
 html.splash-lock,
-html.splash-lock body {
+html.splash-lock body,
+html.explore-map-open,
+html.explore-map-open body {
   overflow: hidden !important;
 }
 

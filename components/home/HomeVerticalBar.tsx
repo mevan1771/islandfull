@@ -7,6 +7,7 @@ import { markHomeArriveTop } from "@/lib/home-scroll"
 import { publicVertical } from "@/lib/homepage-feed"
 import { listingsHref, verticalFromLocation } from "@/lib/listing-path"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
+import { useExploreMapStore } from "@/store/useExploreMapStore"
 import { useMobileChromeStore } from "@/store/useMobileChromeStore"
 import { useSyncMobileChrome } from "@/hooks/useSyncMobileChrome"
 
@@ -62,6 +63,8 @@ function HomeVerticalBarInner() {
   const onMap = pathname.startsWith("/map")
   const urlVertical: VerticalId = verticalFromLocation(pathname, searchParams.get("vertical"))
   const setBrowseVertical = useHomeBrowseStore((s) => s.setVertical)
+  const mapOpen = useExploreMapStore((s) => s.open)
+  const toggleMap = useExploreMapStore((s) => s.toggle)
   const [active, setActive] = useState<VerticalId>(urlVertical)
 
   useEffect(() => {
@@ -130,16 +133,29 @@ function HomeVerticalBarInner() {
             Explore
           </span>
         </Link>
-        <Link
-          href="/map"
-          prefetch
-          className={`${tapClass} ${onMap ? "text-zinc-900" : "text-zinc-400"}`}
-          aria-label="Explore map"
-          aria-current={onMap ? "page" : undefined}
-        >
-          <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={onMap} />
-          <span className={`text-[10px] leading-none tracking-wide ${onMap ? "font-bold" : "font-semibold"}`}>Map</span>
-        </Link>
+        {onHome ? (
+          <button
+            type="button"
+            onClick={() => toggleMap()}
+            className={`${tapClass} ${mapOpen ? "text-zinc-900" : "text-zinc-400"}`}
+            aria-label="Explore map"
+            aria-pressed={mapOpen}
+          >
+            <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={mapOpen} />
+            <span className={`text-[10px] leading-none tracking-wide ${mapOpen ? "font-bold" : "font-semibold"}`}>Map</span>
+          </button>
+        ) : (
+          <Link
+            href="/map"
+            prefetch
+            className={`${tapClass} ${onMap ? "text-zinc-900" : "text-zinc-400"}`}
+            aria-label="Explore map"
+            aria-current={onMap ? "page" : undefined}
+          >
+            <BarIcon src={`/images/icons/Map-icon.jpg?v=${ICON_V}`} selected={onMap} />
+            <span className={`text-[10px] leading-none tracking-wide ${onMap ? "font-bold" : "font-semibold"}`}>Map</span>
+          </Link>
+        )}
       </div>
     </nav>
   )

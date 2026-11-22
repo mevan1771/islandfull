@@ -16,10 +16,11 @@ import {
     shouldResetHomeToTop,
     suppressHomeHeader,
 } from "@/lib/home-scroll"
-import { ArrowLeft, ChevronLeft } from "lucide-react"
+import { ArrowLeft, ChevronLeft, List, Map } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import { publicVertical } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
+import { useExploreMapStore } from "@/store/useExploreMapStore"
 
 export default function SiteHeader() {
     const pathname = usePathname()
@@ -29,6 +30,9 @@ export default function SiteHeader() {
     const storeVertical = useHomeBrowseStore((s) => s.vertical)
     const [navHint, setNavHint] = useState<string | null>(null)
     const { useDarkTextDesktop, useDarkTextMobile } = useHeaderStore()
+    const exploreMapOpen = useExploreMapStore((s) => s.open)
+    const toggleExploreMap = useExploreMapStore((s) => s.toggle)
+    const setExploreMapOpen = useExploreMapStore((s) => s.setOpen)
 
     const [isVisible, setIsVisible] = useState(true)
     const [isScrolled, setIsScrolled] = useState(false)
@@ -88,6 +92,10 @@ export default function SiteHeader() {
         setIsVisible(true)
         setIsScrolled(true)
     }, [isListingHome, pathname])
+
+    useEffect(() => {
+        if (!isListingHome) setExploreMapOpen(false)
+    }, [isListingHome, setExploreMapOpen])
 
     // Do not render the main site header on host or admin portals
     if (pathname?.startsWith('/host') || pathname?.startsWith('/admin')) {
@@ -297,6 +305,16 @@ export default function SiteHeader() {
                         <Link href="/" className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
                             <ArrowLeft className="w-4 h-4" /> Back
                         </Link>
+                    ) : isListingHome ? (
+                        <button
+                            type="button"
+                            onClick={() => toggleExploreMap()}
+                            className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20"
+                            aria-pressed={exploreMapOpen}
+                        >
+                            {exploreMapOpen ? <List className="w-4 h-4" /> : <Map className="w-4 h-4" />}
+                            {exploreMapOpen ? "Hide map" : "Explore Map"}
+                        </button>
                     ) : (
                         <Link href="/map" className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">
                             🌍 Explore Map

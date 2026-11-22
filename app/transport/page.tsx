@@ -7,7 +7,9 @@ import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
 import { JsonLd } from "@/components/seo/JsonLd"
-import { getFeaturedSpotlight, getHomepageCategoryMap } from "@/lib/homepage-hero"
+import { HomeExploreShell } from "@/components/home/HomeExploreShell"
+import { getFeaturedSpotlight, getHomepageCategoryMap, getHomepageMapListings } from "@/lib/homepage-hero"
+import { toMapTours } from "@/lib/map-listings"
 import { fetchHomepageActivities } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE } from "@/lib/homepage-feed"
 import { pageMeta, breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/seo"
@@ -38,13 +40,16 @@ export default async function TransportMarketplacePage({
   const params = await searchParams
   const currentCategory = params.category || "all"
 
-  const [featuredSpotlight, categoryMap] = await Promise.all([
+  const [featuredSpotlight, categoryMap, mapRows] = await Promise.all([
     getFeaturedSpotlight(),
     getHomepageCategoryMap(),
+    getHomepageMapListings(),
   ])
   const dynamicCategories = categoryMap.transport
+  const mapTours = toMapTours(mapRows)
 
   return (
+    <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical="transport">
     <div className="min-w-0 max-w-full pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <JsonLd
@@ -109,6 +114,7 @@ export default async function TransportMarketplacePage({
         </div>
       </section>
     </div>
+    </HomeExploreShell>
   )
 }
 

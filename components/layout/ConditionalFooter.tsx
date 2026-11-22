@@ -2,11 +2,14 @@
 
 import { usePathname } from "next/navigation"
 import SiteFooter from "./SiteFooter"
+import { useExploreMapStore } from "@/store/useExploreMapStore"
 
 export function ConditionalFooter() {
   const pathname = usePathname()
+  const mapOpen = useExploreMapStore((s) => s.open)
 
   if (
+    (mapOpen && (pathname === "/" || pathname === "/transport")) ||
     pathname === "/map" ||
     pathname === "/transport/plan" ||
     pathname.startsWith("/admin") ||

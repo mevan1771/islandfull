@@ -13,6 +13,7 @@ import {
 } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
 import { TransportPlanEntry } from "@/components/home/TransportPlanEntry"
+import { useExploreMapStore } from "@/store/useExploreMapStore"
 
 type MustSeePlace = {
   id: string
@@ -126,6 +127,8 @@ export function ActivityGrid({
   mustSeePlaces = [],
 }: ActivityGridProps) {
   const { favorites, isHydrated } = useFavorites()
+  const mapOpen = useExploreMapStore((s) => s.open)
+  const gridCols = mapOpen ? "grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-2" : "grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
   const [items, setItems] = useState(activities)
   const [savedItems, setSavedItems] = useState<HomepageActivity[] | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -227,7 +230,7 @@ export function ActivityGrid({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+      <div className={gridCols}>
         {showPlanTile ? <TransportPlanEntry /> : null}
         {leading.map((cell, index) => (
           <Cell
@@ -256,7 +259,7 @@ export function ActivityGrid({
       )}
 
       {(trailing.length > 0 || (showSpotlight && desktopOnlyBeforeSpotlight.length > 0)) && (
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 mt-4 md:mt-8">
+        <div className={`${gridCols} mt-4 md:mt-8`}>
           {showSpotlight && (
             <div className="contents md:hidden">
               {desktopOnlyBeforeSpotlight.map((cell) => (

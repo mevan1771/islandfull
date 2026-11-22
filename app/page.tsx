@@ -5,7 +5,9 @@ import { ActivityGrid } from "@/components/home/ActivityGrid"
 import { Suspense } from "react"
 import { HomeScrollRestore } from "@/components/home/HomeScrollRestore"
 import { HeaderThemeSetter } from "@/components/layout/HeaderThemeSetter"
-import { getFeaturedSpotlight, getHomepageCategoryMap } from "@/lib/homepage-hero"
+import { HomeExploreShell } from "@/components/home/HomeExploreShell"
+import { getFeaturedSpotlight, getHomepageCategoryMap, getHomepageMapListings } from "@/lib/homepage-hero"
+import { toMapTours } from "@/lib/map-listings"
 import { fetchHomepageActivities, fetchMustSeePlaces } from "@/app/actions/homepage-activities"
 import { HOMEPAGE_PAGE_SIZE, publicVertical } from "@/lib/homepage-feed"
 import type { SpotlightConfig } from "@/components/admin/SpotlightClient"
@@ -49,13 +51,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const currentVertical = publicVertical(params.vertical);
   const currentCategory = params.category || 'all';
 
-  const [featuredSpotlight, categoryMap] = await Promise.all([
+  const [featuredSpotlight, categoryMap, mapRows] = await Promise.all([
     getFeaturedSpotlight(),
     getHomepageCategoryMap(),
+    getHomepageMapListings(),
   ]);
   const dynamicCategories = categoryMap[currentVertical];
+  const mapTours = toMapTours(mapRows);
 
   return (
+    <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical={currentVertical}>
     <div className="min-w-0 max-w-full pb-4 sm:pb-8 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
       <HomeScrollRestore listingKey={`${currentVertical}:${currentCategory}:${params.location || ""}:${params.sort || ""}`} />
@@ -80,6 +85,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       </section>
 
     </div>
+    </HomeExploreShell>
   )
 }
 
