@@ -128,9 +128,12 @@ export function MobileSearch({
   const [isFocused, setIsFocused] = useState(false)
   const mapOpen = useExploreMapStore((s) => s.open)
   const [stuck, setStuck] = useState(false)
+  const [atTop, setAtTop] = useState(true)
   const [tripSheet, setTripSheet] = useState<"date" | "guests" | null>(null)
   const stuckRef = useRef(false)
+  const atTopRef = useRef(true)
   const slotRef = useRef<HTMLDivElement>(null)
+  const chromeHidden = useMobileChromeStore((s) => s.hidden)
   const setStuckChrome = useMobileChromeStore((s) => s.setStuck)
   const lockChrome = useMobileChromeStore((s) => s.lock)
   const unlockChrome = useMobileChromeStore((s) => s.unlock)
@@ -162,18 +165,27 @@ export function MobileSearch({
   useEffect(() => {
     if (mapOpen) {
       stuckRef.current = false
+      atTopRef.current = true
       setStuck(false)
+      setAtTop(true)
       setStuckChrome(false)
       return
     }
     let ticking = false
     const update = () => {
       if (useExploreMapStore.getState().open) return
-      const next = window.scrollY > 24
-      if (stuckRef.current === next) return
-      stuckRef.current = next
-      setStuck(next)
-      setStuckChrome(next)
+      const y = window.scrollY
+      const nextAtTop = y <= 16
+      const nextStuck = y > 24
+      if (atTopRef.current !== nextAtTop) {
+        atTopRef.current = nextAtTop
+        setAtTop(nextAtTop)
+      }
+      if (stuckRef.current !== nextStuck) {
+        stuckRef.current = nextStuck
+        setStuck(nextStuck)
+        setStuckChrome(nextStuck)
+      }
     }
     const onScroll = () => {
       if (ticking) return
@@ -277,11 +289,19 @@ export function MobileSearch({
       <div
         ref={slotRef}
         data-home-search-card
-        className={`sm:hidden ${mapOpen ? "hidden" : "h-[3.75rem]"}`}
+        className={`sm:hidden ${mapOpen ? "hidden" : "h-[6.75rem]"}`}
         aria-hidden
       />
       <div
-        className={`sm:hidden fixed inset-x-0 top-12 z-30 bg-background px-4 pt-3 pb-1 ${mapOpen ? "hidden" : ""}`}
+        className={`sm:hidden fixed inset-x-0 z-30 bg-background px-4 pt-3 pb-1 transition-[transform,top] duration-200 ease-out ${
+          mapOpen
+            ? "hidden"
+            : atTop
+              ? "top-12 translate-y-0"
+              : chromeHidden
+                ? "top-0 -translate-y-full pointer-events-none"
+                : "top-0 translate-y-0"
+        }`}
       >
         <form onSubmit={handleSearch} className="bg-white rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
           <div className="flex min-w-0 items-center h-11 overflow-hidden rounded-full border border-zinc-200 pl-3.5 pr-1 gap-1 focus-within:border-rose-400">

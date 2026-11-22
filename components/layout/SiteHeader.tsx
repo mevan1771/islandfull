@@ -89,9 +89,21 @@ export default function SiteHeader() {
 
     useEffect(() => {
         if (!isListingHome) return
-        setIsVisible(true)
-        setIsScrolled(true)
-    }, [isListingHome, pathname])
+
+        const apply = () => {
+            if (useExploreMapStore.getState().open) {
+                setIsVisible(true)
+                return
+            }
+            const y = window.scrollY
+            setIsVisible(y <= 16)
+            setIsScrolled(y > 16)
+        }
+
+        apply()
+        window.addEventListener("scroll", apply, { passive: true })
+        return () => window.removeEventListener("scroll", apply)
+    }, [isListingHome, pathname, exploreMapOpen])
 
     useEffect(() => {
         if (!isListingHome) setExploreMapOpen(false)
@@ -136,7 +148,9 @@ export default function SiteHeader() {
         : isDestinationsPage || isSupportPage || isTripsPage || isTransportPage
         ? "sticky top-0 left-0 right-0 z-50 w-full md:py-2 pointer-events-none bg-white/95 backdrop-blur-md shadow-sm"
         : isHomePage
-        ? "sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-background md:bg-white/95 backdrop-blur-md md:shadow-sm md:py-2"
+        ? `max-md:fixed md:sticky top-0 left-0 right-0 z-50 h-12 md:h-auto w-full min-w-0 max-w-full pointer-events-none bg-background md:bg-white/95 md:backdrop-blur-md md:shadow-sm md:py-2 transition-transform duration-200 ease-out ${
+            isVisible || exploreMapOpen ? "max-md:translate-y-0" : "max-md:-translate-y-full max-md:pointer-events-none"
+          }`
         : "absolute top-0 left-0 right-0 z-50 md:z-40 w-full md:pt-10 md:pb-12 pointer-events-none"
 
     return (
@@ -213,7 +227,7 @@ export default function SiteHeader() {
                             <ChevronLeft className={`w-6 h-6 ${iconColor}`} />
                         </button>
                     )}
-                    {pathname === '/map' && (
+                    {pathname === '/map' && !exploreMapOpen && (
                         <Link href="/" scroll={false} onClick={() => markHomeArriveTop()} className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-colors active:bg-black/40 active:scale-90 cursor-pointer touch-manipulation">
                             <ArrowLeft className="w-4 h-4" />
                         </Link>
@@ -221,7 +235,12 @@ export default function SiteHeader() {
                     <Link
                         href="/"
                         scroll={false}
-                        onClick={() => {
+                        onClick={(event) => {
+                            if (exploreMapOpen) {
+                                event.preventDefault()
+                                setExploreMapOpen(false)
+                                return
+                            }
                             if (pathname !== "/") markHomeArriveTop()
                         }}
                         className={`flex items-center cursor-pointer`}

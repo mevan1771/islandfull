@@ -104,6 +104,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
     map.on('load', () => {
       map.resize()
+      map.getContainer().querySelectorAll(".mapboxgl-ctrl").forEach((el) => el.remove())
       setMapReady(true)
       onMapReadyRef.current?.(map)
     })
