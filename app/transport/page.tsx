@@ -58,7 +58,7 @@ export default async function TransportMarketplacePage({
   }
 
   return (
-    <div className="min-w-0 max-w-full overflow-x-hidden pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
+    <div className="min-w-0 max-w-full overflow-x-clip pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <JsonLd
         data={[
           breadcrumbJsonLd([

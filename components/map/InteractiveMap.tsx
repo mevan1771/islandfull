@@ -367,7 +367,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
         ref={mapContainer}
         className="absolute inset-0 h-full w-full"
         style={{
-          touchAction: 'none',
+          touchAction: compact ? 'pan-y' : 'none',
           WebkitTapHighlightColor: 'transparent'
         }}
       />

@@ -131,7 +131,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
     return (
         <div
             ref={rootRef}
-            className="relative h-full w-full min-h-0 flex-1 overscroll-contain"
+            className="relative h-full w-full min-h-0 flex-1 overscroll-none"
             data-lenis-prevent
         >
             <InteractiveMap
@@ -149,7 +149,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                     <button
                         type="button"
                         aria-label="Zoom in"
-                        className="flex h-9 w-9 items-center justify-center text-lg font-semibold text-zinc-800 hover:bg-zinc-100"
+                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-zinc-800 hover:bg-zinc-100"
                         onClick={() => mapRef.current?.zoomIn({ duration: 280 })}
                     >
                         +
@@ -158,7 +158,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                     <button
                         type="button"
                         aria-label="Zoom out"
-                        className="flex h-9 w-9 items-center justify-center text-lg font-semibold text-zinc-800 hover:bg-zinc-100"
+                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-zinc-800 hover:bg-zinc-100"
                         onClick={() => mapRef.current?.zoomOut({ duration: 280 })}
                     >
                         −
