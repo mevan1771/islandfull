@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { listingsHref } from "@/lib/listing-path"
 import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
 import { useExploreMapStore } from "@/store/useExploreMapStore"
@@ -19,6 +20,8 @@ export function HomeExploreShell({
 }) {
   const open = useExploreMapStore((s) => s.open)
   const setOpen = useExploreMapStore((s) => s.setOpen)
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const category = searchParams.get("category") || "all"
   const [mounted, setMounted] = useState(false)
@@ -112,6 +115,16 @@ export function HomeExploreShell({
     setFocusedId(tour.id)
   }, [])
 
+  const onVerticalChange = useCallback(
+    (next: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete("category")
+      const verticalId = next === "all" || next === "back" ? "tour" : next
+      router.push(listingsHref(pathname, params, { vertical: verticalId }), { scroll: false })
+    },
+    [pathname, router, searchParams]
+  )
+
   return (
     <div
       className={`min-w-0 w-full ${open ? "lg:flex lg:h-[calc(100dvh-4.25rem)] lg:min-h-0 lg:overflow-hidden" : ""}`}
@@ -131,7 +144,7 @@ export function HomeExploreShell({
       <aside
         className={`${
           open
-            ? "fixed inset-x-0 top-12 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-[35] bg-zinc-900 lg:static lg:inset-auto lg:top-auto lg:bottom-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
+            ? "fixed inset-x-0 top-12 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-[35] bg-zinc-900 lg:static lg:inset-auto lg:top-auto lg:bottom-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
             : "hidden lg:block lg:w-0 lg:pointer-events-none"
         }`}
         aria-hidden={!open}
@@ -147,6 +160,7 @@ export function HomeExploreShell({
               activeTourId={focusedId}
               resizeToken={`${vertical}-${category}-${resizeToken}`}
               onTourSelect={onTourSelect}
+              onVerticalChange={onVerticalChange}
             />
           ) : null}
         </div>

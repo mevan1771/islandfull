@@ -43,6 +43,7 @@ interface InteractiveMapProps {
   activeTourId?: string | null
   onTourSelect?: (tour: MapTour) => void
   onMapReady?: (map: mapboxgl.Map | null) => void
+  onVerticalChange?: (vertical: string) => void
 }
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -55,7 +56,7 @@ interface MarkerRef {
   coords: { lat: number, lng: number }
 }
 
-export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, compact = false, embed = false, activeTourId = null, onTourSelect, onMapReady }: InteractiveMapProps) {
+export function InteractiveMap({ tours, dynamicCategories = [], currentVertical = 'all', isDestinationMode = false, compact = false, embed = false, activeTourId = null, onTourSelect, onMapReady, onVerticalChange }: InteractiveMapProps) {
   const router = useRouter()
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<mapboxgl.Map | null>(null)
@@ -295,15 +296,20 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
 
 
 
-      {!compact && !embed && (
-      <div className={`absolute inset-0 z-40 pointer-events-none ${isDestinationMode ? "lg:hidden" : ""}`}>
+      {!compact && (
+      <div className={`absolute inset-0 z-40 pointer-events-none ${isDestinationMode && !embed ? "lg:hidden" : ""}`}>
         <MapFilterBar
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
           isTourSelected={!!selectedTour}
           dynamicCategories={barCategories}
-          currentVertical={vertical}
+          currentVertical={embed ? "all" : vertical}
           onVerticalChange={(v) => {
+            if (embed) {
+              onVerticalChange?.(v === "back" ? "all" : v)
+              setActiveCategory("all")
+              return
+            }
             if (isDestinationMode) {
               setDestinationVertical(v)
               setActiveCategory("all")

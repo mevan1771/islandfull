@@ -19,9 +19,10 @@ interface MapClientWrapperProps {
     onTourSelect?: (tour: MapTour) => void
     captureWheel?: boolean
     embed?: boolean
+    onVerticalChange?: (vertical: string) => void
 }
 
-export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, embed = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true }: MapClientWrapperProps) {
+export function MapClientWrapper({ tours, dynamicCategories = [], currentVertical = "all", isDestinationMode = false, compact = false, embed = false, activeTourId = null, activeLocation = null, resizeToken, onTourSelect, captureWheel = true, onVerticalChange }: MapClientWrapperProps) {
     const rootRef = useRef<HTMLDivElement>(null)
     const mapRef = useRef<MapboxMap | null>(null)
     const lastCompactTarget = useRef("")
@@ -150,6 +151,7 @@ export function MapClientWrapper({ tours, dynamicCategories = [], currentVertica
                 activeTourId={activeTourId}
                 onTourSelect={onTourSelect}
                 onMapReady={handleMapReady}
+                onVerticalChange={onVerticalChange}
             />
             {(compact || embed) && mapReady ? (
                 <div className="absolute bottom-2 right-2 z-20 flex flex-col overflow-hidden rounded-lg border border-white/20 bg-white/95 shadow-lg">

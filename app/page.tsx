@@ -68,7 +68,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
       <Suspense fallback={null}>
         <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
-        <HomeVerticalBar />
       </Suspense>
 
       <Suspense fallback={null}>
@@ -87,6 +86,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
     </div>
     </HomeExploreShell>
+    <Suspense fallback={null}>
+      <HomeVerticalBar />
+    </Suspense>
     </Suspense>
   )
 }

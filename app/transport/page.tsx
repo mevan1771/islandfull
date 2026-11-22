@@ -73,7 +73,6 @@ export default async function TransportMarketplacePage({
 
       <Suspense fallback={null}>
         <MobileSearch dynamicCategories={dynamicCategories} categoryMap={categoryMap} />
-        <HomeVerticalBar />
       </Suspense>
 
       <Suspense fallback={null}>
@@ -116,6 +115,9 @@ export default async function TransportMarketplacePage({
       </section>
     </div>
     </HomeExploreShell>
+    <Suspense fallback={null}>
+      <HomeVerticalBar />
+    </Suspense>
     </Suspense>
   )
 }
