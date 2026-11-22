@@ -111,8 +111,6 @@ export function HomeExploreShell({
 
   const onTourSelect = useCallback((tour: MapTour) => {
     setFocusedId(tour.id)
-    const card = document.querySelector<HTMLElement>(`[data-home-card="${tour.slug}"]`)
-    card?.scrollIntoView({ behavior: "smooth", block: "center" })
   }, [])
 
   return (

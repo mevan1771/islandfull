@@ -219,11 +219,14 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   }, [tours, handleMarkerClick, mapReady, compact, heroPinsOn])
 
   useEffect(() => {
-    if (!compact && !embed) return
-    if (!activeTourId) return
+    if (!compact) return
+    if (!activeTourId) {
+      setSelectedTour(null)
+      return
+    }
     const tour = tours.find((item) => item.id === activeTourId) || null
-    if (tour) setSelectedTour(tour)
-  }, [compact, embed, activeTourId, tours])
+    setSelectedTour(tour)
+  }, [compact, activeTourId, tours])
 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
