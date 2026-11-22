@@ -182,6 +182,7 @@ export function ActivityGrid({
   const cells = withMustSeeSlots(displayActivities, placesForGrid, showPlanTile ? columns - 1 : 0, columns)
 
   const showSpotlight =
+    !mapOpen &&
     currentCategory !== "saved" &&
     Array.isArray(spotlightSlides) &&
     spotlightSlides.length > 0

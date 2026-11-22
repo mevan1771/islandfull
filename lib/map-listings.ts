@@ -16,6 +16,15 @@ export function toMapTours(rows: any[]): MapTour[] {
       row.id
     )
     if (!coords) return []
+    const fromCategories = Array.isArray(row.categories)
+      ? row.categories.map((c: any) => c?.slug).filter(Boolean)
+      : row.categories?.slug
+        ? [row.categories.slug]
+        : []
+    const fromJoin = Array.isArray(row.activity_categories)
+      ? row.activity_categories.map((join: any) => join?.categories?.slug).filter(Boolean)
+      : []
+    const tags = Array.from(new Set([...fromCategories, ...fromJoin, type]))
     return [
       {
         id: row.id,
@@ -25,8 +34,9 @@ export function toMapTours(rows: any[]): MapTour[] {
         price_usd: Number(row.price_usd) || 0,
         cover_image_url: row.card_image_url || row.cover_image_url || "",
         duration: "",
-        category: type,
+        category: fromCategories[0] || type,
         category_type: type,
+        tags,
         latitude: coords.lat,
         longitude: coords.lng,
         listingHref: row.listingHref || (type === "hotel" ? `/hotel/${row.slug}` : `/activity/${row.slug}`),

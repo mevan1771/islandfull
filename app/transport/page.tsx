@@ -49,6 +49,7 @@ export default async function TransportMarketplacePage({
   const mapTours = toMapTours(mapRows)
 
   return (
+    <Suspense fallback={null}>
     <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical="transport">
     <div className="min-w-0 max-w-full pb-28 sm:pb-24 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
@@ -115,6 +116,7 @@ export default async function TransportMarketplacePage({
       </section>
     </div>
     </HomeExploreShell>
+    </Suspense>
   )
 }
 

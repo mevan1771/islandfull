@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { List, X } from "lucide-react"
 import { MapClientWrapper } from "@/components/map/MapClientWrapper"
 import type { MapTour } from "@/components/map/InteractiveMap"
@@ -19,18 +20,27 @@ export function HomeExploreShell({
 }) {
   const open = useExploreMapStore((s) => s.open)
   const setOpen = useExploreMapStore((s) => s.setOpen)
+  const searchParams = useSearchParams()
+  const category = searchParams.get("category") || "all"
   const [mounted, setMounted] = useState(false)
   const [resizeToken, setResizeToken] = useState(0)
+  const [focusedId, setFocusedId] = useState<string | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   const pins = useMemo(() => {
     const wanted = (vertical || "tour").toLowerCase()
-    const matched = mapTours.filter((tour) => {
+    const byVertical = mapTours.filter((tour) => {
       const type = (tour.category_type || "tour").toLowerCase()
       if (wanted === "tour") return type !== "transport" && type !== "hotel"
       return type === wanted
     })
-    return matched.length ? matched : mapTours
-  }, [mapTours, vertical])
+    const pool = byVertical.length ? byVertical : mapTours
+    if (!category || category === "all" || category === "saved") return pool
+    const tagged = pool.filter(
+      (tour) => tour.category === category || tour.tags?.includes(category)
+    )
+    return tagged.length ? tagged : pool
+  }, [mapTours, vertical, category])
 
   useEffect(() => {
     if (open) setMounted(true)
@@ -40,7 +50,7 @@ export function HomeExploreShell({
     if (!open) return
     const id = window.setTimeout(() => setResizeToken((n) => n + 1), 420)
     return () => window.clearTimeout(id)
-  }, [open, vertical])
+  }, [open, vertical, category])
 
   useEffect(() => {
     if (!open) return
@@ -56,7 +66,51 @@ export function HomeExploreShell({
     return () => document.documentElement.classList.remove("explore-map-open")
   }, [open])
 
+  useEffect(() => {
+    if (!open) return
+    const root = listRef.current
+    if (!root) return
+
+    const ratios = new Map<string, number>()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const slug = (entry.target as HTMLElement).dataset.homeCard
+          if (!slug) continue
+          if (entry.isIntersecting) ratios.set(slug, entry.intersectionRatio)
+          else ratios.delete(slug)
+        }
+        let bestSlug = ""
+        let bestRatio = 0
+        for (const [slug, ratio] of ratios) {
+          if (ratio > bestRatio) {
+            bestSlug = slug
+            bestRatio = ratio
+          }
+        }
+        if (!bestSlug) return
+        const tour = pins.find((item) => item.slug === bestSlug)
+        if (tour) setFocusedId(tour.id)
+      },
+      { root, threshold: [0.2, 0.4, 0.6, 0.8], rootMargin: "-18% 0px -42% 0px" }
+    )
+
+    const watch = () => {
+      observer.disconnect()
+      ratios.clear()
+      root.querySelectorAll("[data-home-card]").forEach((el) => observer.observe(el))
+    }
+    watch()
+    const mutations = new MutationObserver(watch)
+    mutations.observe(root, { childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      mutations.disconnect()
+    }
+  }, [open, pins])
+
   const onTourSelect = useCallback((tour: MapTour) => {
+    setFocusedId(tour.id)
     const card = document.querySelector<HTMLElement>(`[data-home-card="${tour.slug}"]`)
     card?.scrollIntoView({ behavior: "smooth", block: "center" })
   }, [])
@@ -67,6 +121,7 @@ export function HomeExploreShell({
       data-explore-map={open ? "open" : "closed"}
     >
       <div
+        ref={listRef}
         className={`min-w-0 ${
           open ? "lg:w-[64%] lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain" : "w-full"
         }`}
@@ -108,7 +163,8 @@ export function HomeExploreShell({
               currentVertical={vertical}
               embed
               captureWheel
-              resizeToken={`${vertical}-${resizeToken}`}
+              activeTourId={focusedId}
+              resizeToken={`${vertical}-${category}-${resizeToken}`}
               onTourSelect={onTourSelect}
             />
           ) : null}

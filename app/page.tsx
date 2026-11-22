@@ -60,6 +60,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const mapTours = toMapTours(mapRows);
 
   return (
+    <Suspense fallback={null}>
     <HomeExploreShell mapTours={mapTours} categories={dynamicCategories} vertical={currentVertical}>
     <div className="min-w-0 max-w-full pb-4 sm:pb-8 [overflow-anchor:none]" data-home-page>
       <HeaderThemeSetter useDarkTextDesktop useDarkTextMobile />
@@ -86,6 +87,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
     </div>
     </HomeExploreShell>
+    </Suspense>
   )
 }
 

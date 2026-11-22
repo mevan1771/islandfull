@@ -12,7 +12,7 @@ const HERO_TOUR_COLUMNS =
   "id, title, slug, location, cover_image_url, card_image_url, use_dark_text_desktop, use_dark_text_mobile, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng"
 
 const MAP_LISTING_COLUMNS =
-  "id, title, slug, location, cover_image_url, card_image_url, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng"
+  "id, title, slug, location, cover_image_url, card_image_url, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng, categories(slug), activity_categories(categories(slug))"
 
 function hotelListing(hotel: any) {
   const rates = (hotel.hotel_room_types || [])
@@ -144,25 +144,38 @@ export const getFeaturedSpotlight = unstable_cache(fetchFeaturedSpotlight, ["hom
 })
 
 async function fetchHomepageMapListings() {
-  const [activitiesRes, hotelsRes] = await Promise.all([
-    supabase
+  const hotelQuery = supabase
+    .from("hotels")
+    .select("id, title, slug, location, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
+    .eq("status", "published")
+    .eq("is_paused", false)
+
+  let activitiesQuery = supabase
+    .from("activities")
+    .select(MAP_LISTING_COLUMNS)
+    .eq("status", "published")
+    .eq("is_paused_by_host", false)
+    .neq("category_type", "place")
+    .neq("category_type", "event")
+
+  let [activitiesRes, hotelsRes] = await Promise.all([activitiesQuery, hotelQuery])
+
+  if (activitiesRes.error) {
+    activitiesRes = await supabase
       .from("activities")
-      .select(MAP_LISTING_COLUMNS)
+      .select(
+        "id, title, slug, location, cover_image_url, card_image_url, price_usd, price_suffix, discount_price, deal_end_date, pricing_model, pricing_tiers, category_type, approx_lat, approx_lng, categories(slug)"
+      )
       .eq("status", "published")
       .eq("is_paused_by_host", false)
       .neq("category_type", "place")
-      .neq("category_type", "event"),
-    supabase
-      .from("hotels")
-      .select("id, title, slug, location, cover_image_url, latitude, longitude, hotel_room_types(nightly_rate_usd, is_active)")
-      .eq("status", "published")
-      .eq("is_paused", false),
-  ])
+      .neq("category_type", "event")
+  }
 
   return [...(activitiesRes.data || []).map(withActivityHref), ...(hotelsRes.data || []).map(hotelListing)]
 }
 
-export const getHomepageMapListings = unstable_cache(fetchHomepageMapListings, ["homepage-map-listings"], {
+export const getHomepageMapListings = unstable_cache(fetchHomepageMapListings, ["homepage-map-listings-v2"], {
   revalidate: 60,
   tags: ["hero-carousel"],
 })

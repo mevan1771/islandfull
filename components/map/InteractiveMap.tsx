@@ -219,14 +219,11 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
   }, [tours, handleMarkerClick, mapReady, compact, heroPinsOn])
 
   useEffect(() => {
-    if (!compact) return
-    if (!activeTourId) {
-      setSelectedTour(null)
-      return
-    }
+    if (!compact && !embed) return
+    if (!activeTourId) return
     const tour = tours.find((item) => item.id === activeTourId) || null
-    setSelectedTour(tour)
-  }, [compact, activeTourId, tours])
+    if (tour) setSelectedTour(tour)
+  }, [compact, embed, activeTourId, tours])
 
   // Update Marker Visibilities and Classes dynamically WITHOUT re-creation
   useEffect(() => {
@@ -253,7 +250,7 @@ export function InteractiveMap({ tours, dynamicCategories = [], currentVertical 
       el.style.pointerEvents = compact && !(pinsLive && isVisible) ? 'none' : 'auto'
 
       // Selection logic
-      const isSelected = selectedTour?.id === tour.id
+      const isSelected = selectedTour?.id === tour.id || activeTourId === tour.id
 
       // Force the root Mapbox marker element to the front if selected
       el.style.zIndex = isSelected ? '1000' : '1'
