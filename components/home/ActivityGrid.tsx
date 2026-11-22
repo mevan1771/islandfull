@@ -99,7 +99,7 @@ function fitToColumns(
   return out
 }
 
-function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[], remainder = 0): GridCell[] {
+function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[], remainder = 0, columns = 4): GridCell[] {
   const cells: GridCell[] = []
   let pi = 0
   for (let i = 0; i < tours.length; i++) {
@@ -108,7 +108,7 @@ function withMustSeeSlots(tours: HomepageActivity[], places: MustSeePlace[], rem
       cells.push({ type: "place", place: places[pi++] })
     }
   }
-  return fitToColumns(cells, places.slice(pi), 4, remainder)
+  return fitToColumns(cells, places.slice(pi), columns, remainder)
 }
 
 function Cell({ cell, priority = false }: { cell: GridCell; priority?: boolean }) {
@@ -128,7 +128,9 @@ export function ActivityGrid({
 }: ActivityGridProps) {
   const { favorites, isHydrated } = useFavorites()
   const mapOpen = useExploreMapStore((s) => s.open)
-  const gridCols = mapOpen ? "grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-2" : "grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+  const gridCols = mapOpen
+    ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3"
+    : "grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
   const [items, setItems] = useState(activities)
   const [savedItems, setSavedItems] = useState<HomepageActivity[] | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -176,7 +178,8 @@ export function ActivityGrid({
     : []
 
   const showPlanTile = filters.vertical === "transport" && currentCategory !== "saved"
-  const cells = withMustSeeSlots(displayActivities, placesForGrid, showPlanTile ? 3 : 0)
+  const columns = mapOpen ? 3 : 4
+  const cells = withMustSeeSlots(displayActivities, placesForGrid, showPlanTile ? columns - 1 : 0, columns)
 
   const showSpotlight =
     currentCategory !== "saved" &&

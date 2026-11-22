@@ -16,7 +16,7 @@ import {
     shouldResetHomeToTop,
     suppressHomeHeader,
 } from "@/lib/home-scroll"
-import { ArrowLeft, ChevronLeft, List, Map } from "lucide-react"
+import { ArrowLeft, ChevronLeft } from "lucide-react"
 import { UserNavMenu } from "@/components/layout/UserNavMenu"
 import { publicVertical } from "@/lib/homepage-feed"
 import { useHomeBrowseStore } from "@/store/useHomeBrowseStore"
@@ -312,8 +312,7 @@ export default function SiteHeader() {
                             className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20"
                             aria-pressed={exploreMapOpen}
                         >
-                            {exploreMapOpen ? <List className="w-4 h-4" /> : <Map className="w-4 h-4" />}
-                            {exploreMapOpen ? "Hide map" : "Explore Map"}
+                            🌍 {exploreMapOpen ? "Hide map" : "Explore Map"}
                         </button>
                     ) : (
                         <Link href="/map" className="hidden md:flex items-center gap-1.5 px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-rose-500/20">

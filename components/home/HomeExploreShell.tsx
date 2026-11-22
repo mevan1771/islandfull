@@ -22,10 +22,15 @@ export function HomeExploreShell({
   const [mounted, setMounted] = useState(false)
   const [resizeToken, setResizeToken] = useState(0)
 
-  const pins = useMemo(
-    () => mapTours.filter((tour) => (tour.category_type || "tour") === vertical),
-    [mapTours, vertical]
-  )
+  const pins = useMemo(() => {
+    const wanted = (vertical || "tour").toLowerCase()
+    const matched = mapTours.filter((tour) => {
+      const type = (tour.category_type || "tour").toLowerCase()
+      if (wanted === "tour") return type !== "transport" && type !== "hotel"
+      return type === wanted
+    })
+    return matched.length ? matched : mapTours
+  }, [mapTours, vertical])
 
   useEffect(() => {
     if (open) setMounted(true)
@@ -63,21 +68,21 @@ export function HomeExploreShell({
     >
       <div
         className={`min-w-0 ${
-          open ? "lg:w-[48%] lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain" : "w-full"
+          open ? "lg:w-[64%] lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain" : "w-full"
         }`}
       >
         {children}
       </div>
 
       <aside
-        className={`overflow-hidden bg-zinc-900 ${
+        className={`${
           open
-            ? "fixed inset-x-0 top-12 bottom-[4.25rem] z-[45] lg:static lg:inset-auto lg:z-auto lg:w-[52%] lg:h-full lg:shadow-[-18px_0_40px_rgba(15,23,42,0.12)]"
+            ? "fixed inset-x-0 top-12 bottom-[4.25rem] z-[45] bg-zinc-900 lg:static lg:inset-auto lg:z-auto lg:w-[36%] lg:h-full lg:bg-transparent lg:p-3 lg:pr-4 lg:pb-4"
             : "hidden lg:block lg:w-0 lg:pointer-events-none"
         }`}
         aria-hidden={!open}
       >
-        <div className="relative h-full min-h-0 w-full overflow-hidden lg:border-l lg:border-white/10">
+        <div className="relative h-full min-h-0 w-full overflow-hidden lg:rounded-3xl lg:border lg:border-white/20 lg:shadow-2xl lg:bg-zinc-900">
           <div className="absolute top-3 left-3 right-3 z-50 flex items-center justify-between lg:hidden">
             <button
               type="button"
